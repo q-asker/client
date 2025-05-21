@@ -1,0 +1,270 @@
+/* ──────────────────────────────────── */
+/* 전역 레이아웃 */
+.app-container {
+    font-family: sans-serif;
+    background: #f9fafb;
+    min-height: 100vh;
+  }
+  
+  .main {
+    width: 70%;
+    margin: 0 auto;
+    margin-top: 32px;
+    padding: 0 16px;
+  }
+  
+  /* ──────────────────────────────────── */
+  /* 업로드 섹션 */
+  .upload-section {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .upload-section.dragging {
+    background: #eef2ff;
+    border-color: #6366f1;
+  }
+  .upload-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .upload-button {
+    display: inline-block;
+    background: #6366f1;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+  }
+  .upload-button input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    cursor: pointer;
+  }
+  .hint {
+    color: #6b7280;
+  }
+  .file-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .remove-button {
+    margin-top: 16px;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  /* ──────────────────────────────────── */
+  /* 옵션 패널 공통 */
+  .options-panel {
+    margin-top: 32px;
+  }
+  .options-panel h3 {
+    font-size: 18px;
+    margin-bottom: 24px;
+    color: #111827;
+  }
+  
+  /* ──────────────────────────────────── */
+  /* 세그먼티드 컨트롤 (문제 유형 / 난이도) */
+  .segmented-control {
+    display: flex;
+    background: #f3f4f6;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 24px 0;
+  }
+  .segmented-control button {
+    flex: 1;
+    padding: 12px 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: #6b7280;
+    transition: background 0.2s, color 0.2s;
+  }
+  .segmented-control button.active {
+    background: #6366f1;
+    color: #fff;
+  }
+  
+  /* ──────────────────────────────────── */
+  /* 슬라이더 컨트롤 (문제 수량) */
+  .slider-control {
+    margin: 24px 0;
+  }
+  .slider-control label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 500;
+    color: #374151;
+  }
+  .slider-control input[type="range"] {
+    width: 100%;
+    height: 4px;
+    accent-color: #6366f1;
+  }
+  
+  /* ──────────────────────────────────── */
+  /* 액션 버튼 */
+  .primary-button.large {
+    background: #6366f1;
+    color: #fff;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 24px;
+  }
+  .primary-button.large:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+  }
+  
+  .secondary-button {
+    background: white;
+    border: 1px solid #d1d5db;
+    padding: 16px 32px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 24px 0 0 16px; /* 상단 여백 추가, 왼쪽 간격 유지 */
+  }
+  
+  /* ──────────────────────────────────── */
+  /* 푸터 */
+  .footer {
+    background: #1f2937;
+    color: #9ca3af;
+    text-align: center;
+    padding: 24px 0;
+    margin-top: 32px;
+  }
+  .upload-section:hover {
+  border-color: #8b5cf6;
+}
+.options-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 24px;
+  margin: 32px 0;
+}
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 16px;
+}
+.option-item label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 500;
+}
+.option-item select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+}
+.count-control .counter {
+  display: flex;
+}
+.count-control button {
+  background: #e5e7eb;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.count-control input {
+  width: 60px;
+  text-align: center;
+  border-top: 1px solid #d1d5db;
+  border-bottom: 1px solid #d1d5db;
+}
+.mode-control .mode-buttons {
+  display: flex;
+}
+.mode-control button {
+  flex: 1;
+  padding: 8px 0;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+}
+.mode-control button:first-child {
+  border-radius: 8px 0 0 8px;
+}
+.mode-control button:last-child {
+  border-radius: 0 8px 8px 0;
+}
+.mode-control .active {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
+}
+.preview-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+.preview-panel h3 {
+  margin-bottom: 16px;
+}
+.processing {
+  text-align: center;
+}
+.spinner {
+  margin: 0 auto 16px;
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.progress-bar {
+  background: #e5e7eb;
+  border-radius: 4px;
+  height: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+.progress-bar div {
+  background: #6366f1;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+.placeholder {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+}
+.action-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 64px;
+}
+
+  
+  /* ──────────────────────────────────── */
+  
