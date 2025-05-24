@@ -1,5 +1,5 @@
 // src/pages/MakeQuiz.jsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./MakeQuiz.css";
 import Header from "../components/Header";
 
@@ -7,13 +7,26 @@ const MakeQuiz = () => {
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [questionType, setQuestionType] = useState("객관식");
-  const [difficulty, setDifficulty] = useState("보통");
   const [questionCount, setQuestionCount] = useState(5);
-  const [generationMode, setGenerationMode] = useState("자동");
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const baseUrl = import.meta.env.VITE_BASE_URL;
 
+  async function uploadFileToServer(file) {
+    const formData = new FormData();
+    // 백엔드 @RequestPart("file") 과 동일한 키
+    formData.append("file", file);
+    const res = await fetch(`${baseUrl}/s3/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(`파일 업로드 실패: ${err.message}`);
+    }
+    return res.json(); // { uploadedUrl: "…" }
+  }
   // Sidebar toggle & click-outside
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   useEffect(() => {
@@ -58,10 +71,20 @@ const MakeQuiz = () => {
   const handleFileInput = (e) => {
     if (e.target.files.length > 0) selectFile(e.target.files[0]);
   };
-  const selectFile = (f) => {
+  const selectFile = async (f) => {
     const ext = f.name.split(".").pop().toLowerCase();
     if (["ppt", "pptx", "pdf"].includes(ext)) {
-      setFile(f);
+      setIsProcessing(true);
+      try {
+        const { uploadedUrl } = await uploadFileToServer(f);
+        console.log("s3 url:", uploadedUrl);
+        setFile(f);
+      } catch (err) {
+        console.error(err);
+        alert(err.message);
+      } finally {
+        setIsProcessing(false);
+      }
     } else {
       alert("PPT, PPTX 또는 PDF 파일만 업로드 가능합니다.");
     }
