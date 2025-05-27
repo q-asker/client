@@ -5,6 +5,7 @@ import Header from "../components/Header";
 
 const MakeQuiz = () => {
   const [file, setFile] = useState(null);
+  const [uploadedUrl, setUploadedUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [questionType, setQuestionType] = useState("객관식");
   const [questionCount, setQuestionCount] = useState(5);
@@ -78,6 +79,7 @@ const MakeQuiz = () => {
       try {
         const { uploadedUrl } = await uploadFileToServer(f);
         console.log("s3 url:", uploadedUrl);
+        setUploadedUrl(uploadedUrl);
         setFile(f);
       } catch (err) {
         console.error(err);
@@ -125,7 +127,7 @@ const MakeQuiz = () => {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {!file ? (
+          {!uploadedUrl ? (
             <>
               <div className="upload-icon">☁️</div>
               <h3>파일을 여기에 드래그하세요</h3>
@@ -152,7 +154,7 @@ const MakeQuiz = () => {
           )}
         </section>
         {/* Options Panel */}
-        {file && (
+        {uploadedUrl && (
           <section className="options-panel">
             <h3>퀴즈 생성 옵션</h3>
 
@@ -184,7 +186,7 @@ const MakeQuiz = () => {
           </section>
         )}
         {/* Preview Panel */}
-        {file && (
+        {uploadedUrl && (
           <section className="preview-panel">
             <h3>문서 미리보기</h3>
             {isProcessing ? (
@@ -203,12 +205,12 @@ const MakeQuiz = () => {
           </section>
         )}
         {/* Action Buttons */}
-        {file && (
+        {uploadedUrl && (
           <div className="action-buttons">
             <button
               className="primary-button large"
               onClick={generateQuestions}
-              disabled={!file || isProcessing}
+              disabled={!uploadedUrl || isProcessing}
             >
               {isProcessing ? "생성 중..." : "문제 생성하기"}
             </button>
