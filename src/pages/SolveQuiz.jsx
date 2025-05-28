@@ -2,146 +2,219 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SolveQuiz.css";
 
-// Mock data for the quiz
-const quizData = {
+// Initial mock data
+const initialQuizData = {
   problemSetId: 1,
   title: "EXAMPLE QUIZ 1",
   quiz: [
-    { number: 1, title: "WHICH NUMBER IS THE LARGEST?", selections: [
+    {
+      number: 1,
+      title: "WHICH NUMBER IS THE LARGEST?",
+      selections: [
         { id: 1, content: "1" },
         { id: 2, content: "10" },
         { id: 3, content: "100" },
-        { id: 4, content: "50" }
-      ]
+        { id: 4, content: "50" },
+      ],
+      userAnswer: 0,
+      check: false,
     },
-    { number: 2, title: "WHICH OF THE FOLLOWING IS A WARM COLOR?", selections: [
-        { id: 5, content: "RED" },
-        { id: 6, content: "BLUE" },
-        { id: 7, content: "BLACK" },
-        { id: 8, content: "GRAY" }
-      ]
+    {
+      number: 2,
+      title: "WHICH OF THE FOLLOWING IS A WARM COLOR?",
+      selections: [
+        { id: 1, content: "RED" },
+        { id: 2, content: "BLUE" },
+        { id: 3, content: "BLACK" },
+        { id: 4, content: "GRAY" },
+      ],
+      userAnswer: 0,
+      check: false,
     },
-    { number: 3, title: "WHICH OF THE FOLLOWING IS AN ANIMAL?", selections: [
-        { id: 9, content: "APPLE" },
-        { id: 10, content: "BOOK" },
-        { id: 11, content: "ROCK" },
-        { id: 12, content: "CAT" }
-      ]
+    {
+      number: 3,
+      title: "WHICH OF THE FOLLOWING IS AN ANIMAL?",
+      selections: [
+        { id: 1, content: "APPLE" },
+        { id: 2, content: "BOOK" },
+        { id: 3, content: "ROCK" },
+        { id: 4, content: "CAT" },
+      ],
+      userAnswer: 0,
+      check: false,
     },
-    { number: 4, title: "WHAT IS 2 + 2?", selections: [
-        { id: 13, content: "3" },
-        { id: 14, content: "4" },
-        { id: 15, content: "5" },
-        { id: 16, content: "6" }
-      ]
-    }
-  ]
+    {
+      number: 4,
+      title: "WHAT IS 2 + 2?",
+      selections: [
+        { id: 1, content: "3" },
+        { id: 2, content: "4" },
+        { id: 3, content: "5" },
+        { id: 4, content: "6" },
+      ],
+      userAnswer: 0,
+      check: false,
+    },
+  ],
 };
 
 const SolveQuiz = () => {
+  const [quizzes, setQuizzes] = useState(initialQuizData.quiz);
   const [currentTime, setCurrentTime] = useState("00:00:00");
   const [selectedOption, setSelectedOption] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
-  const [skippedQuestions, setSkippedQuestions] = useState([]);
   const navigate = useNavigate();
-  const totalQuestions = quizData.quiz.length;
+  const totalQuestions = quizzes.length;
 
   // Timer
   useEffect(() => {
-    let seconds = 0, minutes = 0, hours = 0;
+    let seconds = 0,
+      minutes = 0,
+      hours = 0;
     const timer = setInterval(() => {
       seconds++;
-      if (seconds === 60) { seconds = 0; minutes++; }
-      if (minutes === 60) { minutes = 0; hours++; }
+      if (seconds === 60) {
+        seconds = 0;
+        minutes++;
+      }
+      if (minutes === 60) {
+        minutes = 0;
+        hours++;
+      }
       setCurrentTime(
-        `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`
+        `${String(hours).padStart(2, "0")}:
+         ${String(minutes).padStart(2, "0")}:
+         ${String(seconds).padStart(2, "0")}`
       );
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const handleOptionSelect = (id) => setSelectedOption(id);
+  // Sync selected option when question changes
+  useEffect(() => {
+    const saved = quizzes[currentQuestion - 1].userAnswer;
+    setSelectedOption(saved !== 0 ? saved : null);
+  }, [currentQuestion, quizzes]);
 
-  const handlePrev = () => {
-    if (currentQuestion > 1) {
-      setCurrentQuestion(q => q - 1);
-      setSelectedOption(null);
-    }
+  const handleOptionSelect = (id) => {
+    setQuizzes((prev) =>
+      prev.map((q, idx) =>
+        idx === currentQuestion - 1 ? { ...q, userAnswer: id } : q
+      )
+    );
+    setSelectedOption(id);
   };
 
-  const handleNext = () => {
-    if (currentQuestion < totalQuestions) {
-      setCurrentQuestion(q => q + 1);
-      setSelectedOption(null);
-    }
-  };
-
-  // Submit: add to or remove from skipped, then go to next
+  const handlePrev = () =>
+    currentQuestion > 1 && setCurrentQuestion((q) => q - 1);
+  const handleNext = () =>
+    currentQuestion < totalQuestions && setCurrentQuestion((q) => q + 1);
   const handleSubmit = () => {
-    setSkippedQuestions(prev => {
-      let updated;
-      if (selectedOption === null) {
-        // skipped: add if not present
-        updated = prev.includes(currentQuestion)
-          ? prev
-          : [...prev, currentQuestion];
-      } else {
-        // answered: remove if present
-        updated = prev.filter(n => n !== currentQuestion);
-      }
-      // sort ascending
-      return updated.sort((a, b) => a - b);
-    });
-    handleNext();
+    if (currentQuestion === totalQuestions) {
+      alert("마지막 문제입니다.");
+      return;
+    }
+    setCurrentQuestion((q) => q + 1);
   };
 
-  // Jump to skipped question
-  const jumpTo = (num) => {
+  // Toggle review check
+  const handleCheckToggle = () => {
+    setQuizzes((prev) =>
+      prev.map((q, idx) =>
+        idx === currentQuestion - 1 ? { ...q, check: !q.check } : q
+      )
+    );
+  };
+
+  // Submission confirmation and grading
+  const handleFinish = () => {
+    const unansweredCount = quizzes.filter((q) => q.userAnswer === 0).length;
+    const reviewCount = quizzes.filter((q) => q.check).length;
+    const message = `안푼 문제: ${unansweredCount}개, 검토할 문제: ${reviewCount}개\n정말 제출하시겠습니까?`;
+    if (!window.confirm(message)) return;
+    alert("퀴즈를 제출합니다. 결과 페이지로 이동하세요.");
+    navigate("/result", { state: { quizzes, totalTime: currentTime } });
+  };
+
+  const handleJumpTo = (num) => {
+    setQuizzes((prev) =>
+      prev.map((q, idx) => (idx === num - 1 ? { ...q, check: false } : q))
+    );
     setCurrentQuestion(num);
-    setSelectedOption(null);
   };
-
-  const currentQuiz = quizData.quiz[currentQuestion - 1];
+  const currentQuiz = quizzes[currentQuestion - 1];
 
   return (
     <div className="app-container">
       <header className="navbar">
-        <button className="close-button" onClick={() => navigate('/')}>x</button>
+        <button className="close-button" onClick={() => navigate("/")}>
+          x
+        </button>
         <div className="time-display">{currentTime}</div>
       </header>
       <main className="quiz-wrapper">
         <div className="layout-container">
           <aside className="left-panel">
-            {skippedQuestions.map(num => (
+            {quizzes.map((q) => (
               <button
-                key={num}
-                className="skipped-button"
-                onClick={() => jumpTo(num)}
-              >{num}</button>
+                key={q.number}
+                className={`skipped-button${
+                  q.userAnswer !== 0 ? " answered" : ""
+                }${q.check ? " checked" : ""}`}
+                onClick={() => handleJumpTo(q.number)}
+              >
+                {q.number}
+              </button>
             ))}
           </aside>
           <section className="center-panel">
             <nav className="question-nav">
-              <button className="nav-button" onClick={handlePrev}>이전</button>
-              <div className="question-counter">{currentQuestion} / {totalQuestions}</div>
-              <button className="nav-button" onClick={handleNext}>다음</button>
+              <button className="nav-button" onClick={handlePrev}>
+                이전
+              </button>
+              <div className="question-counter">
+                {currentQuestion} / {totalQuestions}
+              </div>
+              <button className="nav-button" onClick={handleNext}>
+                다음
+              </button>
             </nav>
             <div className="question-area">
               <p className="question-text">{currentQuiz.title}</p>
+              <label className="check-container">
+                <input
+                  type="checkbox"
+                  checked={currentQuiz.check}
+                  onChange={handleCheckToggle}
+                />{" "}
+                검토하기
+              </label>
             </div>
             <div className="options-container">
               {currentQuiz.selections.map((opt, idx) => (
                 <div
                   key={opt.id}
-                  className={`option ${selectedOption === opt.id ? 'selected' : ''}`}
+                  className={`option${
+                    selectedOption === opt.id ? " selected" : ""
+                  }`}
                   onClick={() => handleOptionSelect(opt.id)}
                 >
-                  <div className="option-icon"><span>{idx+1}</span></div>
+                  <div className="option-icon">
+                    <span>{idx + 1}</span>
+                  </div>
                   <div className="option-text">{opt.content}</div>
                 </div>
               ))}
             </div>
-            <button className="submit-button" onClick={handleSubmit}>확인</button>
+            <button className="submit-button" onClick={handleSubmit}>
+              확인
+            </button>
+            <button
+              className="submit-button submit-all-button"
+              onClick={handleFinish}
+            >
+              제출하기
+            </button>
           </section>
           <aside className="right-panel" />
         </div>
