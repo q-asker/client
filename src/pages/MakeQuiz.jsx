@@ -1,17 +1,20 @@
 // src/pages/MakeQuiz.jsx
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./MakeQuiz.css";
 import Header from "../components/Header";
 
 const MakeQuiz = () => {
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [questionType, setQuestionType] = useState("객관식");
   const [questionCount, setQuestionCount] = useState(5);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [problemSetId, setProblemSetId] = useState(null);
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
   async function uploadFileToServer(file) {
@@ -93,21 +96,42 @@ const MakeQuiz = () => {
   };
 
   // Simulate processing
-  const generateQuestions = () => {
-    if (!file) {
+  const generateQuestions = async () => {
+    if (!uploadedUrl) {
       alert("파일을 먼저 업로드해주세요.");
       return;
     }
     setIsProcessing(true);
-    let counter = 0;
-    const interval = setInterval(() => {
-      counter += 5;
-      setProgress(counter);
-      if (counter >= 100) {
-        clearInterval(interval);
-        setIsProcessing(false);
+
+    try {
+      const response = await fetch(`${baseUrl}/generation`, {
+        // ⚠️ 엔드포인트를 실제 경로로 변경하세요
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uploadedUrl:
+            "https://d1tqvep3lsyhyj.cloudfront.net/20250520_223833921_12. chap11_component2.pdf",
+          quizCount: 4,
+          type: "MULTIPLE",
+        }),
+      });
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(errText || "문제 생성에 실패했습니다.");
       }
-    }, 200);
+      const result = await response.json();
+      console.log("생성된 문제 데이터:", result);
+      setProblemSetId(result.problemSetId);
+      setVersion((prev) => prev + 1);
+      // TODO: result를 상태에 저장하거나, 페이지 이동 처리
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -119,7 +143,6 @@ const MakeQuiz = () => {
       />
 
       <main className="main">
-        {/* Upload Section */}
         <section
           className={`upload-section ${isDragging ? "dragging" : ""}`}
           onDragOver={handleDragOver}
@@ -127,7 +150,13 @@ const MakeQuiz = () => {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {!uploadedUrl ? (
+          {/* 파일 업로드 중일 때 */}
+          {isProcessing && !uploadedUrl ? (
+            <div className="processing">
+              <div className="spinner" />
+              <p>파일 업로드 중...</p>
+            </div>
+          ) : !uploadedUrl ? (
             <>
               <div className="upload-icon">☁️</div>
               <h3>파일을 여기에 드래그하세요</h3>
@@ -154,7 +183,7 @@ const MakeQuiz = () => {
           )}
         </section>
         {/* Options Panel */}
-        {uploadedUrl && (
+        {uploadedUrl && !problemSetId && (
           <section className="options-panel">
             <h3>퀴즈 생성 옵션</h3>
 
@@ -185,27 +214,53 @@ const MakeQuiz = () => {
             </div>
           </section>
         )}
-        {/* Preview Panel */}
+        {/* ① 문서 미리보기 */}
         {uploadedUrl && (
-          <section className="preview-panel">
-            <h3>문서 미리보기</h3>
-            {isProcessing ? (
-              <div className="processing">
-                <div className="spinner" />
-                <p>문서 분석 중... {progress}%</p>
-                <div className="progress-bar">
-                  <div style={{ width: `${progress}%` }} />
-                </div>
-              </div>
-            ) : (
-              <div className="placeholder">
+          <section className="document-preview">
+            <h2>문서 미리보기</h2>
+            <div className="preview-content">
+              {!problemSetId ? (
                 <p>문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.</p>
-              </div>
-            )}
+              ) : (
+                <div className="problem-card">
+                  <div className="problem-icon">📝</div>
+                  <div className="problem-details">
+                    <h3>
+                      {file.name}
+                      {version > 0 && `.ver${version}`}
+                    </h3>
+                  </div>
+                  <div className="problem-actions">
+                    <button
+                      className="btn cancle"
+                      onClick={() => {
+                        setFile(null);
+                        setUploadedUrl(null);
+                        setVersion(0);
+                        window.location.reload();
+                      }}
+                    >
+                      다른 파일 넣기
+                    </button>
+                    <button className="btn manage" onClick={generateQuestions}>
+                      다른 문제 생성
+                    </button>
+                    <button
+                      className="btn mapping"
+                      onClick={() => {
+                        navigate("/quiz");
+                      }}
+                    >
+                      문제로 이동하기
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </section>
         )}
-        {/* Action Buttons */}
-        {uploadedUrl && (
+
+        {uploadedUrl && !problemSetId && (
           <div className="action-buttons">
             <button
               className="primary-button large"
