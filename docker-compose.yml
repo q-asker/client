@@ -1,4 +1,4 @@
-version: "3.8"
+
 
 services:
   q-asker-test-db:
@@ -14,19 +14,32 @@ services:
       - "3307:3306"
     volumes:
       - q-asker-test-db:/var/lib/mysql
+  ai-server:
+    build:
+      context: ../FastAPI      # ── FastApi 폴더 경로
+      dockerfile: Dockerfile
+    container_name: ai-server
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
 
   q-asker-api:
-    image: qasker/api
+    image: qasker/api:latest
     container_name: q-asker-api
     depends_on:
+      - ai-server
       - q-asker-test-db
-    ports:
-      - "8080:8080"
     environment:
-      # Compose 네트워크 내에서 서비스 이름으로 바로 붙습니다.
-      SPRING_DATASOURCE_URL:      jdbc:mysql://q-asker-test-db:3306/${MYSQL_DATABASE}
+      # AI 서버 호스트명을 ai-server로 지정
+      Q_ASKER_AI_URL: http://ai-server:8000
+      # (기존 DB env들)
+      SPRING_DATASOURCE_URL: jdbc:mysql://q-asker-test-db:3306/${MYSQL_DATABASE}
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      APP_HASHIDS_SALT : 5205177c-7650-4b15-ae13-cc7a7a216b16
+      APP_HASHIDS_MIN-LENGTH : 8
+    ports:
+      - "8080:8080"
 
 volumes:
   q-asker-test-db:
