@@ -1,3 +1,5 @@
+// SolveQuiz.jsx
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./SolveQuiz.css";
@@ -131,10 +133,11 @@ const SolveQuiz = () => {
     );
     setCurrentQuestion(num);
   };
+
   if (isLoading) {
     return (
-      <div className="spinner-container">
-        <div className="spinner" />
+      <div className="solve-spinner-container">
+        <div className="solve-spinner" />
         <p>문제 로딩 중…</p>
       </div>
     );
@@ -143,25 +146,25 @@ const SolveQuiz = () => {
   const currentQuiz = quizzes[currentQuestion - 1] || {};
 
   return (
-    <div className="app-container">
-      <header className="navbar">
+    <div className="solve-app-container">
+      <header className="solve-navbar">
         {/* 헤더는 항상 보여주고 */}
-        <button className="close-button" onClick={() => navigate("/")}>
+        <button className="solve-close-button" onClick={() => navigate("/")}>
           x
         </button>
-        <div className="time-display">{currentTime}</div>
+        <div className="solve-time-display">{currentTime}</div>
       </header>
 
-      <main className="quiz-wrapper">
-        <div className="layout-container">
+      <main className="solve-quiz-wrapper">
+        <div className="solve-layout-container">
           {/* 왼쪽 패널도 그대로 */}
-          <aside className="left-panel">
+          <aside className="solve-left-panel">
             {quizzes.map((q) => (
               <button
                 key={q.number}
-                className={`skipped-button${
-                  q.userAnswer !== 0 ? " answered" : ""
-                }${q.check ? " checked" : ""}`}
+                className={`solve-skipped-button${
+                  q.userAnswer !== 0 ? " solve-answered" : ""
+                }${q.check ? " solve-checked" : ""}`}
                 onClick={() => handleJumpTo(q.number)}
               >
                 {q.number}
@@ -170,29 +173,29 @@ const SolveQuiz = () => {
           </aside>
 
           {/* 가운데 패널 */}
-          <section className="center-panel">
-            <nav className="question-nav">
-              <button className="nav-button" onClick={handlePrev}>
+          <section className="solve-center-panel">
+            <nav className="solve-question-nav">
+              <button className="solve-nav-button" onClick={handlePrev}>
                 이전
               </button>
               <span>
                 {currentQuestion} / {totalQuestions}
               </span>
-              <button className="nav-button" onClick={handleNext}>
+              <button className="solve-nav-button" onClick={handleNext}>
                 다음
               </button>
             </nav>
 
             {/* ─── 여기부터 문제 영역 ─── */}
             {isLoading ? (
-              <div className="spinner-container">
-                <div className="spinner" />
+              <div className="solve-spinner-container">
+                <div className="solve-spinner" />
                 <p>문제 로딩 중…</p>
               </div>
             ) : (
               <>
-                <div className="question-area">
-                  <p className="question-text">{currentQuiz.title}</p>
+                <div className="solve-question-area">
+                  <p className="solve-question-text">{currentQuiz.title}</p>
                   <label>
                     <input
                       type="checkbox"
@@ -202,17 +205,17 @@ const SolveQuiz = () => {
                     검토하기
                   </label>
                 </div>
-                <div className="options-container">
+                <div className="solve-options-container">
                   {currentQuiz.selections.map((opt, idx) => (
                     <div
                       key={opt.id}
-                      className={`option${
-                        selectedOption === opt.id ? " selected" : ""
+                      className={`solve-option${
+                        selectedOption === opt.id ? " solve-selected" : ""
                       }`}
                       onClick={() => handleOptionSelect(opt.id)}
                     >
-                      <span className="option-icon">{idx + 1}</span>
-                      <span className="option-text">{opt.content}</span>
+                      <span className="solve-option-icon">{idx + 1}</span>
+                      <span className="solve-option-text">{opt.content}</span>
                     </div>
                   ))}
                 </div>
@@ -220,11 +223,11 @@ const SolveQuiz = () => {
             )}
             {/* ─── 여기까지 문제 영역 ─── */}
 
-            <button className="submit-button" onClick={handleSubmit}>
+            <button className="solve-submit-button" onClick={handleSubmit}>
               확인
             </button>
             <button
-              className="submit-button submit-all-button"
+              className="solve-submit-button solve-submit-all-button"
               onClick={handleFinish}
             >
               제출하기
@@ -232,7 +235,7 @@ const SolveQuiz = () => {
           </section>
 
           {/* 오른쪽 패널 */}
-          <aside className="right-panel" />
+          <aside className="solve-right-panel" />
         </div>
       </main>
     </div>
