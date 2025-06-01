@@ -8,6 +8,7 @@ const MakeQuiz = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
+  const [quizData, setQuizData] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [questionType, setQuestionType] = useState("객관식");
   const [questionCount, setQuestionCount] = useState(5);
@@ -111,9 +112,8 @@ const MakeQuiz = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          uploadedUrl:
-            "https://d1tqvep3lsyhyj.cloudfront.net/20250520_223833921_12. chap11_component2.pdf",
-          quizCount: 4,
+          uploadedUrl: uploadedUrl,
+          quizCount: questionCount,
           type: "MULTIPLE",
         }),
       });
@@ -126,6 +126,35 @@ const MakeQuiz = () => {
       setProblemSetId(result.problemSetId);
       setVersion((prev) => prev + 1);
       // TODO: result를 상태에 저장하거나, 페이지 이동 처리
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  const getQuiz = async () => {
+    if (!problemSetId) {
+      alert("먼저 문제 세트를 생성해주세요.");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const response = await fetch(`${baseUrl}/problem-set/${problemSetId}`, {
+        method: "GET",
+        // GET 요청엔 보통 body가 없으니 headers도 생략 가능
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(errText || "문제 세트 조회에 실패했습니다.");
+      }
+
+      const result = await response.json();
+      console.log("가져온 문제 데이터:", result);
+      setQuizData(result);
+      navigate("/quiz", { state: { quizData: result } });
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -248,7 +277,7 @@ const MakeQuiz = () => {
                     <button
                       className="btn mapping"
                       onClick={() => {
-                        navigate("/quiz");
+                        navigate(`/quiz/${problemSetId}`);
                       }}
                     >
                       문제로 이동하기
