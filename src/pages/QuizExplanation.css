@@ -1,13 +1,12 @@
-/* SolveQuiz.css */
+/* QuizExplanation.css */
 
-/* 전체 컨테이너 */
+/* ─── SolveQuiz 기반 공통 스타일 ─── */
 body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
 }
-
 .app-container {
   display: flex;
   flex-direction: column;
@@ -15,7 +14,7 @@ body {
   background-color: #f5f7fa;
 }
 
-/* 상단 네비게이션 바 */
+/* 네비게이션 바 */
 .navbar {
   display: flex;
   align-items: center;
@@ -24,7 +23,6 @@ body {
   color: #fff;
   padding: 1rem;
 }
-
 .close-button {
   background: transparent;
   border: none;
@@ -32,12 +30,11 @@ body {
   font-size: 1.25rem;
   cursor: pointer;
 }
-
 .time-display {
   font-family: monospace;
 }
 
-/* 본문 래퍼: 중앙 정렬 및 여백 */
+/* 본문 래퍼 */
 .quiz-wrapper {
   flex: 1;
   padding: 1.5rem;
@@ -45,7 +42,6 @@ body {
   justify-content: center;
   align-items: flex-start;
 }
-
 .layout-container {
   position: relative;
   display: flex;
@@ -53,10 +49,10 @@ body {
   max-width: 1500px;
 }
 
-/* 좌측 패널: 건너뛴 문제 번호 */
+/* 좌측 패널: 문제 번호 버튼 목록 */
 .left-panel {
   position: absolute;
-  top: 4rem; /* 기존 margin-top: 4rem 효과 */
+  top: 4rem;
   left: 7%;
   transform: translateX(-50%);
   display: grid;
@@ -68,7 +64,6 @@ body {
   padding: 1rem;
   width: 200px;
 }
-
 .skipped-button {
   min-width: 2rem;
   height: 2rem;
@@ -80,40 +75,50 @@ body {
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
-
 .skipped-button.answered {
   background-color: #dfe4e9;
 }
-
 .skipped-button.checked {
   background-color: #ffe082;
 }
-
+.skipped-button.current {
+  background-color: #6a33f8;
+  color: #fff;
+}
 .skipped-button:hover {
   background-color: #e0e4e9;
   transform: scale(1.1);
 }
 
-/* 중앙 패널: 퀴즈 풀이 영역 */
+/* 중앙 패널: 퀴즈 + 해설 영역 */
 .center-panel {
   flex: 3;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding-left: 300px;
+  padding-left: 260px; /* 좌측 번호 패널과 겹치지 않도록 여유 확보 */
+}
+.question-area {
+  display: flex;
+  background-color: #e6ebf1;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  justify-content: space-between;
+  /* 이미 다른 스타일이 있다면 그대로 유지 */
 }
 
-.right-panel {
-  flex: 1;
+/* ─── userAnswer가 0일 경우 question-area에 빨간색 테두리 ─── */
+.question-area.unanswered {
+  border: 2px solid #dc3545; /* 빨간 테두리 */
+  border-radius: 0.5rem;    /* 기존 border-radius와 동일하게 유지 */
 }
 
-/* 질문 네비게이션 */
+/* 질문 내비게이션 */
 .question-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
 .nav-button {
   background-color: #6a33f8;
   color: #fff;
@@ -121,13 +126,21 @@ body {
   border-radius: 0.5rem;
   padding: 0.5rem 1rem;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
+.nav-button:hover {
+  background-color: #8b5cf6;
+}
+.nav-button:disabled {
+  background-color: #aaa;
+  cursor: default;
+}
 .question-counter {
   font-weight: bold;
 }
 
-/* 질문 텍스트 박스 */
+/* 문제 텍스트 박스 */
 .question-area {
   display: flex;
   background-color: #e6ebf1;
@@ -135,40 +148,42 @@ body {
   padding: 1rem;
   justify-content: space-between;
 }
-
-.check-container {
-  margin-right: 0;
-}
-
 .question-text {
   margin: 0;
   font-size: 1rem;
 }
 
-/* 선택지 리스트 - 세로 배치 */
+/* ─── “선지” 스타일링 ─── */
 .options-container {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
-
-/* 각 옵션: 아이콘과 텍스트를 가로 정렬 */
 .option {
   display: flex;
   align-items: center;
   background-color: #fff;
   border-radius: 0.5rem;
   padding: 0.75rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  cursor: default;
 }
-
 .option:hover {
-  background-color: #dfe4e9;
+  background-color: #fff; /* hover 시 배경색 변화 막기 */
 }
 
-.option.selected {
-  background-color: #dfe4e9;
+/* 정답인 선지에 초록 테두리 */
+.option.correct-option {
+  border: 2px solid #28a745;
+}
+
+/* 사용자가 잘못 선택한 오답에 빨강 테두리 */
+.option.wrong-option {
+  border: 2px solid #dc3545;
+}
+
+/* 기본 경계선 (정답/오답 아닌 경우) */
+.option:not(.correct-option):not(.wrong-option) {
+  border: 1px solid #ddd;
 }
 
 .option-icon {
@@ -181,13 +196,12 @@ body {
   border-radius: 50%;
   margin-right: 0.75rem;
 }
-
 .option-text {
   font-size: 1rem;
   line-height: 1;
 }
 
-/* 제출 버튼 */
+/* 확인 버튼 */
 .submit-button {
   background-color: #6a33f8;
   color: #fff;
@@ -196,10 +210,13 @@ body {
   padding: 0.75rem;
   font-size: 1rem;
   cursor: pointer;
-  margin-top: auto;
+  align-self: flex;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
-
-.submit-all-button {
+.submit-button:hover {
+  background-color: #8b5cf6;
+}
+.go-home-button {
   background-color: #6a33f8;
   color: #fff;
   border: none;
@@ -207,21 +224,50 @@ body {
   padding: 0.75rem;
   font-size: 1rem;
   cursor: pointer;
-  margin-top: 2rem;
-  width: 100px;
-  align-self: flex-end;
+  align-self: flex;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.go-home-button:hover {
+  background-color: #8b5cf6;
+}
+.submit-button:disabled {
+  background-color: #aaa;
+  cursor: default;
 }
 
-/* 로딩 스피너 중앙 정렬 */
+/* ─── 해설 박스 ─── */
+.explanation-box {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.explanation-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+.explanation-text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* 우측 패널 (비워두었음) */
+.right-panel {
+  flex: 1;
+}
+
+/* 로딩 스피너 */
 .spinner-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  padding: 0;
+  padding: 2rem;
 }
-
 .spinner {
   width: 3rem;
   height: 3rem;
@@ -231,7 +277,6 @@ body {
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
 }
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
