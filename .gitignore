@@ -13,8 +13,8 @@ dist-ssr
 *.local
 
 .env
-.FastAPI
-.docker-compose.yml
+FastAPI
+docker-compose.yml
 
 # Editor directories and files
 .vscode/*

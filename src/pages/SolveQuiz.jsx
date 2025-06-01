@@ -1,72 +1,57 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./SolveQuiz.css";
 
-// Initial mock data
-const initialQuizData = {
-  problemSetId: 1,
-  title: "EXAMPLE QUIZ 1",
-  quiz: [
-    {
-      number: 1,
-      title: "WHICH NUMBER IS THE LARGEST?",
-      selections: [
-        { id: 1, content: "1" },
-        { id: 2, content: "10" },
-        { id: 3, content: "100" },
-        { id: 4, content: "50" },
-      ],
-      userAnswer: 0,
-      check: false,
-    },
-    {
-      number: 2,
-      title: "WHICH OF THE FOLLOWING IS A WARM COLOR?",
-      selections: [
-        { id: 1, content: "RED" },
-        { id: 2, content: "BLUE" },
-        { id: 3, content: "BLACK" },
-        { id: 4, content: "GRAY" },
-      ],
-      userAnswer: 0,
-      check: false,
-    },
-    {
-      number: 3,
-      title: "WHICH OF THE FOLLOWING IS AN ANIMAL?",
-      selections: [
-        { id: 1, content: "APPLE" },
-        { id: 2, content: "BOOK" },
-        { id: 3, content: "ROCK" },
-        { id: 4, content: "CAT" },
-      ],
-      userAnswer: 0,
-      check: false,
-    },
-    {
-      number: 4,
-      title: "WHAT IS 2 + 2?",
-      selections: [
-        { id: 1, content: "3" },
-        { id: 2, content: "4" },
-        { id: 3, content: "5" },
-        { id: 4, content: "6" },
-      ],
-      userAnswer: 0,
-      check: false,
-    },
-  ],
-};
-
 const SolveQuiz = () => {
-  const [quizzes, setQuizzes] = useState(initialQuizData.quiz);
+  const { problemSetId } = useParams();
+  const navigate = useNavigate();
+
+  // States
+  const [quizzes, setQuizzes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState("00:00:00");
   const [selectedOption, setSelectedOption] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
-  const navigate = useNavigate();
   const totalQuestions = quizzes.length;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
 
-  // Timer
+  // Redirect if no problemSetId
+  useEffect(() => {
+    if (!problemSetId) {
+      navigate("/");
+    }
+  }, [problemSetId, navigate]);
+
+  // Fetch quiz data on mount
+  useEffect(() => {
+    const fetchQuiz = async () => {
+      try {
+        const res = await fetch(`${baseUrl}/problem-set/${problemSetId}`, {
+          method: "GET",
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText || "문제 불러오기 실패");
+        }
+        const data = await res.json();
+        console.log(data);
+        setQuizzes(data.quiz || []);
+      } catch (err) {
+        alert(err.message);
+        navigate("/");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (problemSetId) {
+      fetchQuiz();
+    } else {
+      setIsLoading(false);
+    }
+  }, [problemSetId, navigate]);
+
+  // Timer effect
   useEffect(() => {
     let seconds = 0,
       minutes = 0,
@@ -82,9 +67,9 @@ const SolveQuiz = () => {
         hours++;
       }
       setCurrentTime(
-        `${String(hours).padStart(2, "0")}:
-         ${String(minutes).padStart(2, "0")}:
-         ${String(seconds).padStart(2, "0")}`
+        `${String(hours).padStart(2, "0")}:` +
+          `${String(minutes).padStart(2, "0")}:` +
+          `${String(seconds).padStart(2, "0")}`
       );
     }, 1000);
     return () => clearInterval(timer);
@@ -92,10 +77,11 @@ const SolveQuiz = () => {
 
   // Sync selected option when question changes
   useEffect(() => {
-    const saved = quizzes[currentQuestion - 1].userAnswer;
-    setSelectedOption(saved !== 0 ? saved : null);
+    const saved = quizzes[currentQuestion - 1]?.userAnswer;
+    setSelectedOption(saved && saved !== 0 ? saved : null);
   }, [currentQuestion, quizzes]);
 
+  // Handlers
   const handleOptionSelect = (id) => {
     setQuizzes((prev) =>
       prev.map((q, idx) =>
@@ -105,10 +91,14 @@ const SolveQuiz = () => {
     setSelectedOption(id);
   };
 
-  const handlePrev = () =>
-    currentQuestion > 1 && setCurrentQuestion((q) => q - 1);
-  const handleNext = () =>
-    currentQuestion < totalQuestions && setCurrentQuestion((q) => q + 1);
+  const handlePrev = () => {
+    if (currentQuestion > 1) setCurrentQuestion((q) => q - 1);
+  };
+
+  const handleNext = () => {
+    if (currentQuestion < totalQuestions) setCurrentQuestion((q) => q + 1);
+  };
+
   const handleSubmit = () => {
     if (currentQuestion === totalQuestions) {
       alert("마지막 문제입니다.");
@@ -117,7 +107,6 @@ const SolveQuiz = () => {
     setCurrentQuestion((q) => q + 1);
   };
 
-  // Toggle review check
   const handleCheckToggle = () => {
     setQuizzes((prev) =>
       prev.map((q, idx) =>
@@ -126,13 +115,11 @@ const SolveQuiz = () => {
     );
   };
 
-  // Submission confirmation and grading
   const handleFinish = () => {
     const unansweredCount = quizzes.filter((q) => q.userAnswer === 0).length;
     const reviewCount = quizzes.filter((q) => q.check).length;
     const message = `안푼 문제: ${unansweredCount}개, 검토할 문제: ${reviewCount}개\n정말 제출하시겠습니까?`;
     if (!window.confirm(message)) return;
-    alert("퀴즈를 제출합니다. 결과 페이지로 이동하세요.");
     navigate("/result", { state: { quizzes, totalTime: currentTime } });
   };
 
@@ -142,18 +129,26 @@ const SolveQuiz = () => {
     );
     setCurrentQuestion(num);
   };
-  const currentQuiz = quizzes[currentQuestion - 1];
+
+  if (isLoading) {
+    return <div className="spinner">로딩 중…</div>;
+  }
+
+  const currentQuiz = quizzes[currentQuestion - 1] || {};
 
   return (
     <div className="app-container">
       <header className="navbar">
+        {/* 헤더는 항상 보여주고 */}
         <button className="close-button" onClick={() => navigate("/")}>
           x
         </button>
         <div className="time-display">{currentTime}</div>
       </header>
+
       <main className="quiz-wrapper">
         <div className="layout-container">
+          {/* 왼쪽 패널도 그대로 */}
           <aside className="left-panel">
             {quizzes.map((q) => (
               <button
@@ -167,45 +162,58 @@ const SolveQuiz = () => {
               </button>
             ))}
           </aside>
+
+          {/* 가운데 패널 */}
           <section className="center-panel">
             <nav className="question-nav">
               <button className="nav-button" onClick={handlePrev}>
                 이전
               </button>
-              <div className="question-counter">
+              <span>
                 {currentQuestion} / {totalQuestions}
-              </div>
+              </span>
               <button className="nav-button" onClick={handleNext}>
                 다음
               </button>
             </nav>
-            <div className="question-area">
-              <p className="question-text">{currentQuiz.title}</p>
-              <label className="check-container">
-                <input
-                  type="checkbox"
-                  checked={currentQuiz.check}
-                  onChange={handleCheckToggle}
-                />{" "}
-                검토하기
-              </label>
-            </div>
-            <div className="options-container">
-              {currentQuiz.selections.map((opt, idx) => (
-                <div
-                  key={opt.id}
-                  className={`option${
-                    selectedOption === opt.id ? " selected" : ""
-                  }`}
-                  onClick={() => handleOptionSelect(opt.id)}
-                >
-                  <div className="option-icon">
-                    <span>{idx + 1}</span>
-                  </div>
-                  <div className="option-text">{opt.content}</div>
+
+            {/* ─── 여기부터 문제 영역 ─── */}
+            {isLoading ? (
+              <div className="spinner-container">
+                <div className="spinner" />
+                <p>문제 로딩 중…</p>
+              </div>
+            ) : (
+              <>
+                <div className="question-area">
+                  <p className="question-text">{currentQuiz.title}</p>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={currentQuiz.check || false}
+                      onChange={handleCheckToggle}
+                    />{" "}
+                    검토하기
+                  </label>
                 </div>
-              ))}
-            </div>
+                <div className="options-container">
+                  {currentQuiz.selections.map((opt, idx) => (
+                    <div
+                      key={opt.id}
+                      className={`option${
+                        selectedOption === opt.id ? " selected" : ""
+                      }`}
+                      onClick={() => handleOptionSelect(opt.id)}
+                    >
+                      <span className="option-icon">{idx + 1}</span>
+                      <span className="option-text">{opt.content}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {/* ─── 여기까지 문제 영역 ─── */}
+
             <button className="submit-button" onClick={handleSubmit}>
               확인
             </button>
@@ -216,6 +224,8 @@ const SolveQuiz = () => {
               제출하기
             </button>
           </section>
+
+          {/* 오른쪽 패널 */}
           <aside className="right-panel" />
         </div>
       </main>
