@@ -10,12 +10,44 @@
 .metadata-box {
   width: 100%;
   max-width: 600px;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
   margin-bottom: 1.5rem;
-  text-align: left;
-  background: #fafafa;
+  padding: 1rem 1.5rem;
+  background-color: #fff;                /* 흰 배경 */
+  border: 1px solid #e0e0e0;             /* 연한 회색 테두리 */
+  border-radius: 0.5rem;
+  
+  /* Flex 레이아웃으로 아이템들을 좌우 균등 분배 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  /* 박스 안쪽 그림자 추가 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.metadata-box p {
+  margin: 0;
+  font-size: 1.5rem;                    /* 약간 작게 */
+  font-weight: 500;
+  color: #4a4a4a;                        /* 다크 그레이 텍스트 */
+}
+
+.metadata-box p + p {
+  /* 요소들 사이에 구분점(가로선) 대신 컬러 구분을 주거나,
+     필요하다면 왼쪽 마진을 추가해도 됩니다. */
+  margin-left: 1rem;                    /* 아이템 간 간격 */
+  position: relative;
+}
+
+.metadata-box p + p::before {
+  /* 두 항목 사이에 작은 세퍼레이터(•) 삽입, 위치/색상 조정 가능 */
+  content: "•";
+  position: absolute;
+  left: -0.6rem;                         /* 왼쪽으로 살짝 당겨서 위치 */
+  color: #c0c0c0;
+  font-size: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .result-content {
@@ -35,21 +67,31 @@
   background: #fff;
 }
 
+/* ── 수정된 부분: correct-box 추가 ── */
+.result-item.correct-box {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+/* 기존 wrong-box(오답) 스타일 */
+.result-item.wrong-box {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+/* 문제 텍스트 */
 .result-question {
   font-size: 1.1rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
+/* 사용자 답변 텍스트 */
 .result-user-answer {
-    font-size: 1.1rem;
+  font-size: 1.1rem;
   font-weight: bold;
   padding: 0.5rem 0;
   position: relative;
-}
-.result-item.wrong-box {
-  background-color: #f8d7da;
-  border-color: #f5c6cb;
 }
 
 /* 문제와 답 사이 구분선 */
@@ -62,6 +104,7 @@
   border-top: 1px solid #eee;
 }
 
+/* 정답/오답 상태 텍스트 박스 */
 .result-status {
   margin-top: 0.5rem;
   padding: 0.5rem;
@@ -70,12 +113,14 @@
   font-weight: bold;
 }
 
+/* 정답일 때(초록) */
 .result-status.correct {
   background-color: #d4edda;
   color: #155724;
   border: 1px solid #c3e6cb;
 }
 
+/* 오답일 때(빨강) */
 .result-status.wrong {
   background-color: #f8d7da;
   color: #721c24;

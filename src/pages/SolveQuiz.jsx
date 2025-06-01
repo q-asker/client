@@ -120,7 +120,9 @@ const SolveQuiz = () => {
     const reviewCount = quizzes.filter((q) => q.check).length;
     const message = `안푼 문제: ${unansweredCount}개, 검토할 문제: ${reviewCount}개\n정말 제출하시겠습니까?`;
     if (!window.confirm(message)) return;
-    navigate("/result", { state: { quizzes, totalTime: currentTime } });
+    navigate(`/result/${problemSetId}`, {
+      state: { quizzes, totalTime: currentTime },
+    });
   };
 
   const handleJumpTo = (num) => {
@@ -129,9 +131,13 @@ const SolveQuiz = () => {
     );
     setCurrentQuestion(num);
   };
-
   if (isLoading) {
-    return <div className="spinner">로딩 중…</div>;
+    return (
+      <div className="spinner-container">
+        <div className="spinner" />
+        <p>문제 로딩 중…</p>
+      </div>
+    );
   }
 
   const currentQuiz = quizzes[currentQuestion - 1] || {};

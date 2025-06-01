@@ -78,7 +78,7 @@ const MakeQuiz = () => {
   };
   const selectFile = async (f) => {
     const ext = f.name.split(".").pop().toLowerCase();
-    if (["ppt", "pptx", "pdf"].includes(ext)) {
+    if (["docx", "pptx", "pdf"].includes(ext)) {
       setIsProcessing(true);
       try {
         const { uploadedUrl } = await uploadFileToServer(f);
@@ -92,7 +92,7 @@ const MakeQuiz = () => {
         setIsProcessing(false);
       }
     } else {
-      alert("PPT, PPTX 또는 PDF 파일만 업로드 가능합니다.");
+      alert("DOCX, PPTX 또는 PDF 파일만 업로드 가능합니다.");
     }
   };
 
@@ -194,18 +194,24 @@ const MakeQuiz = () => {
                 파일 선택하기
                 <input
                   type="file"
-                  accept=".ppt, .pptx, .pdf"
+                  accept=".docx, .pptx, .pdf"
                   onChange={handleFileInput}
                 />
               </label>
-              <p className="hint">지원 파일 형식: PPT, PPTX, PDF</p>
+              <p className="hint">지원 파일 형식: DOCX, PPTX, PDF</p>
             </>
           ) : (
             <>
               <div className="file-icon">📄</div>
               <h3>{file.name}</h3>
               <p>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-              <button className="remove-button" onClick={() => setFile(null)}>
+              <button
+                className="remove-button"
+                onClick={() => {
+                  setFile(null);
+                  window.location.reload();
+                }}
+              >
                 ✕ 파일 삭제
               </button>
             </>
@@ -222,7 +228,15 @@ const MakeQuiz = () => {
                 <button
                   key={type}
                   className={questionType === type ? "active" : ""}
-                  onClick={() => setQuestionType(type)}
+                  onClick={() => {
+                    if (type === "빈칸") {
+                      alert("개발중입니다!");
+                      // 빈칸 클릭 시 다시 객관식으로 복원
+                      setQuestionType("객관식");
+                    } else {
+                      setQuestionType("객관식");
+                    }
+                  }}
                 >
                   {type}
                 </button>
@@ -248,7 +262,12 @@ const MakeQuiz = () => {
           <section className="document-preview">
             <h2>문서 미리보기</h2>
             <div className="preview-content">
-              {!problemSetId ? (
+              {isProcessing ? (
+                <div className="processing">
+                  <div className="spinner" />
+                  <p>문제 생성 중...</p>
+                </div>
+              ) : !problemSetId ? (
                 <p>문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.</p>
               ) : (
                 <div className="problem-card">
