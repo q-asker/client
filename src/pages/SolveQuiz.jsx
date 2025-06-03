@@ -3,12 +3,14 @@
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./SolveQuiz.css";
 
 const SolveQuiz = () => {
   const { problemSetId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { uploadedUrl } = location.state || {};
 
   // States
   const [quizzes, setQuizzes] = useState([]);
@@ -117,7 +119,7 @@ const SolveQuiz = () => {
     const message = `안푼 문제: ${unansweredCount}개, 검토할 문제: ${reviewCount}개\n정말 제출하시겠습니까?`;
     if (!window.confirm(message)) return;
     navigate(`/result/${problemSetId}`, {
-      state: { quizzes, totalTime: currentTime },
+      state: { quizzes, totalTime: currentTime, uploadedUrl },
     });
   };
 

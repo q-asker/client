@@ -7,7 +7,7 @@ const QuizResult = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const { problemSetId } = useParams();
-  const { quizzes = [], totalTime = "00:00:00" } = state || {};
+  const { quizzes = [], totalTime = "00:00:00", uploadedUrl } = state || {};
   const [explanation, setExplanation] = useState(null);
 
   const getQuizExplanation = async () => {
@@ -17,7 +17,7 @@ const QuizResult = () => {
       console.log(data);
       setExplanation(data);
       navigate(`/explanation/${problemSetId}`, {
-        state: { quizzes, explanation: data },
+        state: { quizzes, explanation: data, uploadedUrl },
       });
     } catch (err) {
       navigate("/");

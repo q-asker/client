@@ -302,7 +302,9 @@ const MakeQuiz = () => {
                     <button
                       className="btn mapping"
                       onClick={() => {
-                        navigate(`/quiz/${problemSetId}`);
+                        navigate(`/quiz/${problemSetId}`, {
+                          state: { uploadedUrl },
+                        });
                       }}
                     >
                       문제로 이동하기

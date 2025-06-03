@@ -3,16 +3,27 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./QuizExplanation.css";
 
+import { Document, Page, pdfjs } from "react-pdf";
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
+
 const QuizExplanation = () => {
   const { problemSetId } = useParams();
   const navigate = useNavigate();
   const { state } = useLocation();
 
   // state로 전달된 값 꺼내기
-  const { quizzes: initialQuizzes = [], explanation: rawExplanation = [] } =
-    state || {};
+  const {
+    quizzes: initialQuizzes = [],
+    explanation: rawExplanation = [],
+    uploadedUrl,
+  } = state || {};
   console.log("quiz", initialQuizzes);
   console.log("해설", rawExplanation);
+  console.log("업로드된 URL", uploadedUrl);
 
   // “rawExplanation”이 배열인지 확인. 아니면 빈 배열로 치환
 
@@ -159,6 +170,16 @@ const QuizExplanation = () => {
             <div className="explanation-box">
               <h3 className="explanation-title">해설</h3>
               <p className="explanation-text">{thisExplanationText}</p>
+
+              {/**추가 사항 */}
+              <div className="pdf-slide-box">
+                <h4 className="slide-title">📄 관련 슬라이드</h4>
+                <Document file={uploadedUrl} loading="PDF 로딩 중...">
+                  <Page pageNumber={1} width={600} />
+                </Document>
+              </div>
+
+              {/**추가 사항 */}
             </div>
           </section>
 
