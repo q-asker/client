@@ -282,3 +282,92 @@ body {
     transform: rotate(360deg);
   }
 }
+
+@media (max-width: 768px) {
+  /* 1) 전체 레이아웃을 위→아래 세로 스택으로 변경 */
+  .layout-container {
+    flex-direction: column;   /* 좌·중·우 3단 → 세로 스택 */
+  }
+
+  /* 2) 좌측 패널(.left-panel) 숨기기 */
+  .left-panel {
+    display: none;
+  }
+
+  /* 3) 중앙 패널(.center-panel)을 화면 최상단에, 
+         가로 폭 100%로 변경 */
+  .center-panel {
+    flex:1;
+    padding-left: 0;  /* 데스크톱에서는 left-panel 때문에 padding-left를 주었지만, 모바일에선 제거 */
+    padding: 1rem;    /* 상하좌우 공통 padding */
+  }
+
+  /* 4) 우측 패널(.right-panel)을 중앙 패널 바로 아래에 표시 */
+  .right-panel {
+    order: 2;
+    width: 100%;
+    margin-top: 1rem; /* 중앙 패널과의 간격 */
+  }
+
+  
+  .question-nav {
+    display: flex;
+    flex-direction: row;          
+    align-items: center;          
+    justify-content: space-between; 
+    gap: 0.5rem;                  
+    margin-bottom: 1rem;          
+  }
+  .question-nav .nav-button {
+    flex: 1;                      
+    padding: 0.5rem 0.75rem;      
+    font-size: 0.9rem;            
+  }
+  .question-nav .question-counter {
+    flex: 1;                      
+    text-align: center;           
+    font-size: 0.9rem;            
+  }
+
+  
+  .question-area {
+    display: flex;
+    flex-direction: column; 
+    gap: 0.5rem;
+    padding: 0.75rem;       
+  }
+  .question-text {
+    font-size: 1rem;
+    margin: 0;
+  }
+  .solve-check-container {
+    margin-right: 0;       
+  }
+
+ 
+  .options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .option {
+    padding: 0.5rem;        
+  }
+  .option-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+  }
+  .option-text {
+    font-size: 0.9rem;
+  }
+
+  .submit-button,
+  .go-home-button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+}

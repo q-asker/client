@@ -233,3 +233,120 @@ body {
     transform: rotate(360deg);
   }
 }
+
+@media (max-width: 768px) {
+  /* 1) 전체 레이아웃을 세로 스택으로 변경 */
+  .solve-layout-container {
+    flex-direction: column;
+  }
+  .solve-center-panel {
+    order: 1;
+  }
+  .solve-left-panel {
+    order: 2;
+  }
+
+  /* 2) 오른쪽 패널은 모바일에서 숨김 처리 */
+  .solve-right-panel {
+    display: none;
+  }
+
+  /* 3) 왼쪽 패널(건너뛴 문제 버튼들)을 화면 상단이 아닌 center 아래로 배치하고,
+        가로로 돌아가면서 표시되도록 변경 */
+  .solve-left-panel {
+    position: static;      /* absolute → static */
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;           /* 전체 폭 사용 */
+    display: flex;         /* 버튼들을 가로 배치하면서 줄바꿈 허용 */
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.5rem 0;     /* 상하 padding */
+    margin: 1rem 0 0 0;    /* 위쪽 여백으로 center-panel과 간격 */
+    background-color: transparent; /* 필요 시 투명 유지 */
+    box-shadow: none;      /* 그림자 제거 */
+  }
+  .solve-left-panel .solve-skipped-button {
+    flex: 0 1 auto;        /* 버튼 크기만큼만 차지 */
+    margin: 0.25rem;       /* 버튼 간격 */
+    padding: 0.5rem;       /* 내부 여백 축소 */
+    font-size: 0.85rem;    /* 폰트 크기 약간 축소 */
+  }
+
+  /* 4) 중앙 패널: 패딩 왼쪽(300px)을 없애고, 폭 100%로 조정 */
+  .solve-center-panel {
+    flex: 1;
+    padding-left: 0;       /* 기존에 있던 300px 여백 제거 */
+    padding: 1rem;         /* 통일된 padding */
+  }
+
+  /* 5) 질문 네비게이션(이전/다음) 버튼 간격 축소 */
+  .solve-question-nav {
+    display: flex;                /* 플렉스 레이아웃 사용 */
+    flex-direction: row;          /* 가로 방향으로 나열 */
+    align-items: center;          /* 수직 가운데 정렬 */
+    justify-content: space-between; /* 버튼/텍스트 간 간격을 균등 배치 */
+    gap: 0.5rem;                  /* 항목들 사이의 간격 */
+    margin-bottom: 1rem;          /* 아래쪽 여백 */
+  }
+  .solve-question-nav .solve-nav-button {
+    flex: 1;                      /* 이전/다음 버튼을 동일한 너비로 */
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  .solve-question-nav span {
+    flex: 1;                      /* “현재/전체” 텍스트도 버튼과 같은 너비로 */
+    text-align: center;           /* 가운데 정렬 */
+    font-size: 0.9rem;
+  }
+
+  /* 6) 질문 영역(question-area) 세로 형태로 */
+  .solve-question-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+  .solve-question-text {
+    font-size: 1rem;
+    margin: 0;
+  }
+  .solve-check-container {
+    margin-right: 0;
+  }
+
+  /* 7) 선택지 리스트: 가로 → 세로 스택 */
+  .solve-options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .solve-option {
+    padding: 0.5rem;
+  }
+  .solve-option .solve-option-text {
+    font-size: 0.9rem;
+  }
+  .solve-option-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+  }
+
+  /* 8) 확인 버튼 및 제출하기 버튼을 폭 100%로 */
+  .solve-submit-button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+  .solve-submit-all-button {
+    width: 100%;
+    align-self: stretch;
+    margin-top: 1rem;
+  }
+
+  /* 9) (원한다면) 로딩 스피너 중앙 정렬 유지 */
+}
