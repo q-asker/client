@@ -30,8 +30,8 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           >
             ☰
           </button>
-          <span className="logo-icon">🧠</span>
-          <h1 className="logo-text">Q-Maker</h1>
+          <span className="logo-icon">❓</span>
+          <h1 className="logo-text">Q-Aaker</h1>
         </div>
         <div className="auth-buttons">
           <button className="text-button">로그인</button>
