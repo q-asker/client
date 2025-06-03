@@ -140,3 +140,77 @@
 .explanation-button:hover {
   opacity: 0.9;
 }
+@media (max-width: 768px) {
+  /* 1) result-container: 내부 여백(padding)만 줄임 */
+  .result-container {
+    padding: 0.75rem;      /* 데스크톱(1rem)보다 약간 축소 */
+    box-sizing: border-box;
+  }
+
+  /* 2) metadata-box: flex → column으로 변경하여 세로 스택 */
+  .metadata-box {
+    flex-direction: column;   /* 좌우 분배 대신 위→아래로 쌓기 */
+    align-items: flex-start;  /* 왼쪽 정렬 */
+    padding: 0.75rem 1rem;    /* 상하 0.75rem, 좌우 1rem */
+  }
+  .metadata-box p {
+    font-size: 1.25rem;       /* 데스크톱(1.5rem)보다 작게 */
+    margin: 0.25rem 0;        /* 위아래 간격 줄이기 */
+  }
+  .metadata-box p + p {
+    margin-left: 0;           /* 가로 구분선 대신 세로 간격만 사용 */
+    position: relative;
+    padding-left: 0.75rem;    /* 왼쪽 구분을 위해 들여쓰기 */
+  }
+  .metadata-box p + p::before {
+  
+    display: none;
+  }
+
+  
+  .result-content {
+    width: 100%;
+    gap: 1rem;               
+    margin-bottom: 0.75rem;  
+  }
+
+  
+  .result-item {
+    padding: 0.75rem;        
+    margin-bottom: 1rem;     
+  }
+  
+  .result-question {
+    font-size: 1rem;     
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  .result-user-answer {
+    font-size: 1rem;     
+    padding: 0.25rem 0;  
+  }
+  .result-user-answer::before {
+    top: 0;
+  }
+  .result-correct-answer {
+    font-size: 0.95rem;  
+    margin: 0.25rem 0;
+  }
+  .result-status {
+    margin-top: 0.5rem;  
+    padding: 0.5rem;
+    font-size: 0.95rem;  
+  }
+
+  .explanation-button {
+    width: 100%;
+    padding: 0.75rem;         
+    font-size: 1rem;          
+    margin-top: 1rem;         
+    box-sizing: border-box;
+  }
+
+  .explanation-button:hover {
+    opacity: 0.9;
+  }
+}
