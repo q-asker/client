@@ -19,6 +19,10 @@ const MakeQuiz = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [problemSetId, setProblemSetId] = useState(null);
 
+  const [pageMode, setPageMode] = useState("전체"); // “전체” 또는 “사용자 지정”
+  const [startPage, setStartPage] = useState(""); // 시작 페이지
+  const [endPage, setEndPage] = useState(""); // 끝 페이지
+
   async function uploadFileToServer(file) {
     const formData = new FormData();
     // 백엔드 @RequestPart("file") 과 동일한 키
@@ -74,8 +78,8 @@ const MakeQuiz = () => {
   };
   const selectFile = async (f) => {
     const ext = f.name.split(".").pop().toLowerCase();
-    if (!["docx", "pptx", "pdf"].includes(ext)) {
-      CustomToast.error("DOCX, PPTX 또는 PDF 파일만 업로드 가능합니다.");
+    if (!["pptx", "pdf"].includes(ext)) {
+      CustomToast.error("PPTX 또는 PDF 파일만 업로드 가능합니다.");
       return;
     }
     setIsProcessing(true);
@@ -157,11 +161,11 @@ const MakeQuiz = () => {
                 파일 선택하기
                 <input
                   type="file"
-                  accept=".docx, .pptx, .pdf"
+                  accept=".pptx, .pdf"
                   onChange={handleFileInput}
                 />
               </label>
-              <p className="hint">지원 파일 형식: DOCX, PPTX, PDF</p>
+              <p className="hint">지원 파일 형식: PPTX, PDF</p>
             </>
           ) : (
             <>
@@ -217,6 +221,45 @@ const MakeQuiz = () => {
                 value={questionCount}
                 onChange={(e) => setQuestionCount(+e.target.value)}
               />
+            </div>
+
+            <h3>특정 페이지를 지정하고 싶으신가요?</h3>
+            <div className="page-decide">
+              {/* “부터” 입력란 */}
+              <input
+                type="number"
+                min="1"
+                value={startPage}
+                disabled={pageMode === "전체"}
+                onChange={(e) => setStartPage(e.target.value)}
+              />
+              <span>부터</span>
+
+              {/* “끝” 입력란 */}
+              <input
+                type="number"
+                min="1"
+                value={endPage}
+                disabled={pageMode === "전체"}
+                onChange={(e) => setEndPage(e.target.value)}
+              />
+              <span>까지</span>
+
+              {/* 전체 vs 사용자 지정 선택박스 */}
+              <select
+                value={pageMode}
+                onChange={(e) => {
+                  const mode = e.target.value;
+                  setPageMode(mode);
+                  if (mode === "전체") {
+                    setStartPage("");
+                    setEndPage("");
+                  }
+                }}
+              >
+                <option value="전체">전체</option>
+                <option value="사용자 지정">사용자 지정</option>
+              </select>
             </div>
           </section>
         )}

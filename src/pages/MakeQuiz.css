@@ -433,6 +433,61 @@
 }
 
 /* ──────────────────────────────────── */
+/* (추가) 특정 페이지 지정용 스타일 */
+.page-decide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.page-decide input[type="number"] {
+  width: 64px;
+  padding: 8px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  background: #fff;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.page-decide input[type="number"]:disabled {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.page-decide span {
+  font-size: 14px;
+  color: #374151;
+}
+
+.page-decide select {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #374151;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.page-decide select:hover {
+  border-color: #a1a1aa;
+}
+
+.page-decide select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+
+/* ──────────────────────────────────── */
 /* (2) 모바일 대응용 미디어쿼리 시작 */
 @media (max-width: 768px) {
   /* ── (1) .main 너비를 화면 90%로 줄이고 중앙 정렬 유지 ── */
@@ -585,6 +640,33 @@
   /* ── (14) placeholder 텍스트 축소 ── */
   .preview-content p {
     font-size: 0.9rem;
+  }
+
+   .page-decide {
+    display: flex;
+    gap: 8px;                    /* 요소 간 간격 축소 */
+    margin-top: 12px;            /* 위쪽 여백 조금 줄임 */
+  }
+
+  .page-decide input[type="number"] {
+    width: 100%;                 /* 모바일에서는 입력란을 가로 100%로 */
+    font-size: 0.9rem;           /* 폰트 크기 조금 축소 */
+    padding: 6px 8px;            /* 패딩 축소 */
+  }
+
+  .page-decide span {
+    display: none;               /* “부터”/“까지” 텍스트는 가리지 않도록 숨기거나, 원한다면 크기만 줄여도 됩니다 */
+    /* 만약 숨기지 않고 남기려면 아래처럼 조절해도 됩니다.
+    font-size: 0.9rem;
+    margin-left: 0;
+    margin-bottom: 4px;
+    */
+  }
+
+  .page-decide select {
+    width: 100%;                 /* 선택박스도 가로 100% */
+    font-size: 0.9rem;
+    padding: 6px 8px;
   }
 }
 
