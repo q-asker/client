@@ -1,8 +1,10 @@
 // src/pages/MakeQuiz.jsx
-import { useState, useEffect } from "react";
+import axiosInstance from "#shared/api";
+import CustomToast from "#shared/toast";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./MakeQuiz.css";
 import Header from "../components/Header";
+import "./MakeQuiz.css";
 
 const MakeQuiz = () => {
   const navigate = useNavigate();
@@ -16,21 +18,15 @@ const MakeQuiz = () => {
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [problemSetId, setProblemSetId] = useState(null);
-  const baseUrl = import.meta.env.VITE_BASE_URL;
 
   async function uploadFileToServer(file) {
     const formData = new FormData();
     // 백엔드 @RequestPart("file") 과 동일한 키
     formData.append("file", file);
-    const res = await fetch(`${baseUrl}/s3/upload`, {
-      method: "POST",
-      body: formData,
+    const res = await axiosInstance.post(`/s3/upload`, formData, {
+      isMultipart: true,
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(`파일 업로드 실패: ${err.message}`);
-    }
-    return res.json(); // { uploadedUrl: "…" }
+    return res.data;
   }
   // Sidebar toggle & click-outside
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -78,86 +74,53 @@ const MakeQuiz = () => {
   };
   const selectFile = async (f) => {
     const ext = f.name.split(".").pop().toLowerCase();
-    if (["docx", "pptx", "pdf"].includes(ext)) {
-      setIsProcessing(true);
-      try {
-        const { uploadedUrl } = await uploadFileToServer(f);
-        console.log("s3 url:", uploadedUrl);
-        setUploadedUrl(uploadedUrl);
-        setFile(f);
-      } catch (err) {
-        console.error(err);
-        alert(err.message);
-      } finally {
-        setIsProcessing(false);
-      }
-    } else {
-      alert("DOCX, PPTX 또는 PDF 파일만 업로드 가능합니다.");
+    if (!["docx", "pptx", "pdf"].includes(ext)) {
+      CustomToast.error("DOCX, PPTX 또는 PDF 파일만 업로드 가능합니다.");
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      const { uploadedUrl } = await uploadFileToServer(f);
+      setUploadedUrl(uploadedUrl);
+      setFile(f);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   // Simulate processing
   const generateQuestions = async () => {
     if (!uploadedUrl) {
-      alert("파일을 먼저 업로드해주세요.");
+      CustomToast.error("파일을 먼저 업로드해주세요.");
       return;
     }
-    setIsProcessing(true);
-
     try {
-      const response = await fetch(`${baseUrl}/generation`, {
-        // ⚠️ 엔드포인트를 실제 경로로 변경하세요
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          uploadedUrl: uploadedUrl,
-          quizCount: questionCount,
-          type: "MULTIPLE",
-        }),
+      setIsProcessing(true);
+      const response = await axiosInstance.post(`/generation`, {
+        uploadedUrl: uploadedUrl,
+        quizCount: questionCount,
+        type: "MULTIPLE",
       });
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(errText || "문제 생성에 실패했습니다.");
-      }
-      const result = await response.json();
+      const result = response.data;
       console.log("생성된 문제 데이터:", result);
       setProblemSetId(result.problemSetId);
       setVersion((prev) => prev + 1);
-      // TODO: result를 상태에 저장하거나, 페이지 이동 처리
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
     } finally {
       setIsProcessing(false);
     }
   };
   const getQuiz = async () => {
     if (!problemSetId) {
-      alert("먼저 문제 세트를 생성해주세요.");
+      CustomToast.error("먼저 문제 세트를 생성해주세요.");
       return;
     }
-
-    setIsProcessing(true);
     try {
-      const response = await fetch(`${baseUrl}/problem-set/${problemSetId}`, {
-        method: "GET",
-        // GET 요청엔 보통 body가 없으니 headers도 생략 가능
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(errText || "문제 세트 조회에 실패했습니다.");
-      }
-
-      const result = await response.json();
+      setIsProcessing(true);
+      const response = await axiosInstance.get(`/problem-set/${problemSetId}`);
+      const result = response.data;
       console.log("가져온 문제 데이터:", result);
       setQuizData(result);
       navigate("/quiz", { state: { quizData: result } });
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
     } finally {
       setIsProcessing(false);
     }
@@ -230,7 +193,7 @@ const MakeQuiz = () => {
                   className={questionType === type ? "active" : ""}
                   onClick={() => {
                     if (type === "빈칸") {
-                      alert("개발중입니다!");
+                      CustomToast.error("개발중입니다!");
                       // 빈칸 클릭 시 다시 객관식으로 복원
                       setQuestionType("객관식");
                     } else {

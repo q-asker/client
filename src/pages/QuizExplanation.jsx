@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import CustomToast from "#shared/toast";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./QuizExplanation.css";
 
@@ -26,7 +27,7 @@ const QuizExplanation = () => {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!problemSetId || initialQuizzes.length === 0) {
-      alert("유효한 퀴즈 정보가 없습니다. 홈으로 이동합니다.");
+      CustomToast.error("유효한 퀴즈 정보가 없습니다. 홈으로 이동합니다.");
       navigate("/");
     } else {
       setIsLoading(false);

@@ -1,6 +1,6 @@
-import React from "react";
+import axiosInstance from "#shared/api";
+import React, { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
 import "./QuizResult.css";
 
 const QuizResult = () => {
@@ -9,26 +9,17 @@ const QuizResult = () => {
   const { problemSetId } = useParams();
   const { quizzes = [], totalTime = "00:00:00" } = state || {};
   const [explanation, setExplanation] = useState(null);
-  const baseUrl = import.meta.env.VITE_BASE_URL;
 
   const getQuizExplanation = async () => {
     try {
-      const res = await fetch(`${baseUrl}/explanation/${problemSetId}`, {
-        method: "GET",
-      });
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "해설 불러오기 실패");
-      }
-      const data = await res.json();
+      const res = await axiosInstance.get(`/explanation/${problemSetId}`);
+      const data = res.data;
       console.log(data);
-
       setExplanation(data);
       navigate(`/explanation/${problemSetId}`, {
         state: { quizzes, explanation: data },
       });
     } catch (err) {
-      alert(err.message);
       navigate("/");
     }
   };

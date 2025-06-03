@@ -1,14 +1,16 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import MakeQuiz from "./pages/MakeQuiz";
-import SolveQuiz from "./pages/SolveQuiz";
-import QuizResult from "./pages/QuizResult";
-import QuizExplanation from "./pages/QuizExplanation";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import "./App.css";
+import MakeQuiz from "./pages/MakeQuiz";
+import QuizExplanation from "./pages/QuizExplanation";
+import QuizResult from "./pages/QuizResult";
+import SolveQuiz from "./pages/SolveQuiz";
 
 const App = () => {
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         <Route path="/" element={<MakeQuiz />} />
         <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
