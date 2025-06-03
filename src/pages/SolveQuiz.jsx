@@ -1,7 +1,9 @@
 // SolveQuiz.jsx
 
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import axiosInstance from "#shared/api";
+import CustomToast from "#shared/toast";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import "./SolveQuiz.css";
 
 const SolveQuiz = () => {
@@ -15,7 +17,6 @@ const SolveQuiz = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const totalQuestions = quizzes.length;
-  const baseUrl = import.meta.env.VITE_BASE_URL;
 
   // Redirect if no problemSetId
   useEffect(() => {
@@ -28,18 +29,11 @@ const SolveQuiz = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const res = await fetch(`${baseUrl}/problem-set/${problemSetId}`, {
-          method: "GET",
-        });
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText || "문제 불러오기 실패");
-        }
-        const data = await res.json();
+        const res = await axiosInstance.get(`/problem-set/${problemSetId}`);
+        const data = res.data;
         console.log(data);
         setQuizzes(data.quiz || []);
       } catch (err) {
-        alert(err.message);
         navigate("/");
       } finally {
         setIsLoading(false);
@@ -103,7 +97,7 @@ const SolveQuiz = () => {
 
   const handleSubmit = () => {
     if (currentQuestion === totalQuestions) {
-      alert("마지막 문제입니다.");
+      CustomToast.info("마지막 문제입니다.");
       return;
     }
     setCurrentQuestion((q) => q + 1);
