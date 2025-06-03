@@ -11,7 +11,7 @@ body {
 .solve-app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f5f7fa;
 }
 
@@ -270,7 +270,6 @@ body {
   .solve-left-panel .solve-skipped-button {
     flex: 0 1 auto;        /* 버튼 크기만큼만 차지 */
     margin: 0.25rem;       /* 버튼 간격 */
-    padding: 0.5rem;       /* 내부 여백 축소 */
     font-size: 0.85rem;    /* 폰트 크기 약간 축소 */
   }
 
