@@ -6,6 +6,20 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import "./MakeQuiz.css";
 
+const levelDescriptions = {
+  recall:
+    "순수 암기나 단순 이해를 묻는 문제\n" +
+    "예) “OO의 정의는 무엇인가?”, “다음 함수의 출력값을 고르시오(정답만 요구)”",
+
+  skills:
+    "주어진 개념을 간단한 맥락에 적용하거나 비교·분석하게 하는 문제\n" +
+    "예) “OO 개념을 사용해 다음 예제에서 오류를 찾아내시오”, “아래 두 개념(A, B)의 차이를 고르시오”",
+
+  strategic:
+    "한 단계 더 깊은 추론, 문제 해결, 자료 해석, 간단한 설계 등을 요구\n" +
+    "예) “OO 알고리즘을 사용해 특정 상황을 해결하는 방식을 고르시오”, “제시된 코드 조각에서 발생할 수 있는 최악의 시간 복잡도를 판단하고, 이유를 선택하시오”",
+};
+
 const MakeQuiz = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
@@ -18,7 +32,7 @@ const MakeQuiz = () => {
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [problemSetId, setProblemSetId] = useState(null);
-
+  const [quizLevel, setQuizLevel] = useState("recall"); // “전체” 또는 “사용자 지정”
   const [pageMode, setPageMode] = useState("전체"); // “전체” 또는 “사용자 지정”
   const [startPage, setStartPage] = useState(""); // 시작 페이지
   const [endPage, setEndPage] = useState(""); // 끝 페이지
@@ -260,6 +274,27 @@ const MakeQuiz = () => {
                 <option value="전체">전체</option>
                 <option value="사용자 지정">사용자 지정</option>
               </select>
+            </div>
+            <h3>문제 난이도 설정하기</h3>
+            <div className="level-selector-row">
+              {/* ① 난이도 선택박스 */}
+              <select
+                value={quizLevel}
+                onChange={(e) => {
+                  setQuizLevel(e.target.value);
+                }}
+              >
+                <option value="recall">Recall</option>
+                <option value="skills">Skills</option>
+                <option value="strategic">Strategic</option>
+              </select>
+
+              {/* ② 선택한 난이도에 해당하는 설명을 옆에 출력 */}
+              <div className="level-counter-wrapper">
+                <pre className="level-description">
+                  {levelDescriptions[quizLevel]}
+                </pre>
+              </div>
             </div>
           </section>
         )}

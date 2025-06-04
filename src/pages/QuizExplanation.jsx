@@ -104,25 +104,11 @@ const QuizExplanation = () => {
 
           {/* 가운데 패널: 문제 + 선지 + 확인 + 해설 */}
           <section className="center-panel">
-            <nav className="question-nav">
-              <button
-                className="nav-button"
-                onClick={handlePrev}
-                disabled={currentQuestion === 1}
-              >
-                이전
-              </button>
+            <div className="counter-wrapper">
               <span className="question-counter">
                 {currentQuestion} / {totalQuestions}
               </span>
-              <button
-                className="nav-button"
-                onClick={handleNext}
-                disabled={currentQuestion === totalQuestions}
-              >
-                다음
-              </button>
-            </nav>
+            </div>
 
             <div
               className={`question-area${
@@ -151,13 +137,23 @@ const QuizExplanation = () => {
               })}
             </div>
 
-            <button
-              className="submit-button"
-              onClick={handleNext}
-              disabled={currentQuestion === totalQuestions}
-            >
-              확인
-            </button>
+            <nav className="question-nav">
+              <button
+                className="nav-button"
+                onClick={handlePrev}
+                disabled={currentQuestion === 1}
+              >
+                이전
+              </button>
+
+              <button
+                className="nav-button"
+                onClick={handleNext}
+                disabled={currentQuestion === totalQuestions}
+              >
+                다음
+              </button>
+            </nav>
             <button
               className="go-home-button"
               onClick={() => {

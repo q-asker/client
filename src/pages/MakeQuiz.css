@@ -486,6 +486,85 @@
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
 }
 
+/* 1. select와 설명 텍스트를 가로로 배치하는 Flex 컨테이너 */
+.level-selector-row {
+  display: flex;
+  align-items: center;  /* select 박스와 설명 텍스트를 위쪽 정렬 */
+  gap: 1rem;                /* select와 description 사이 간격 */
+  margin-bottom: 1rem;      /* 아래 요소와의 여백 */
+}
+
+/* 2. select 박스 스타일(기존에 있으면 통합, 없으면 추가) */
+.level-selector-row select {
+  padding: 0.4rem 0.8rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  background-color: #fff;
+}
+
+/* 3. 선택된 난이도 설명 텍스트(pre 태그) */
+.level-description {
+  /* 텍스트와 테두리 사이에 충분한 여백을 줍니다 */
+  padding: 1rem;
+
+  /* 흰색 배경, 검정(진한 회색) 텍스트 */
+  background-color: #ffffff;
+  color: #222222;
+
+  /* 얇은 회색 테두리, 둥근 모서리 */
+  border: 1px solid #dddddd;
+  border-radius: 0.5rem;
+
+  /* 박스 높이 제한 (필요에 따라 px 값을 조정하세요) */
+  max-height: 320px;
+
+  /* 내용이 길어지면 세로 스크롤바 표시, 가로 스크롤 숨김 */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* 줄바꿈(\n)을 화면에도 반영 */
+  white-space: pre-wrap;
+  word-break: keep-all; /* 한국어가 잘리지 않도록 */
+
+  /* 위아래 여백을 주어 주변 요소와 간격 확보 */
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  /* (선택) 살짝 그림자를 주어 카드 느낌을 낼 수 있습니다 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* 2. 스크롤바를 조금 더 깔끔하게 가꿔주는 설정 (Chromium 기반 브라우저용) */
+.level-description::-webkit-scrollbar {
+  width: 8px;              /* 스크롤바 전체 너비 */
+}
+
+.level-description::-webkit-scrollbar-track {
+  background: #f0f0f0;      /* 스크롤바 배경(트랙) */
+  border-radius: 4px;
+}
+
+.level-description::-webkit-scrollbar-thumb {
+  background-color: #c2c2c2; /* 스크롤바 막대 색상 */
+  border-radius: 4px;
+  border: 2px solid #f0f0f0; /* 트랙과 구분을 위해 살짝 테두리 */
+}
+
+.level-selector-row:hover {
+  border-color: #a1a1aa;
+}
+
+.level-selector-row:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+.level-counter-wrapper {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;  /* 필요하다면 상하 간격 조절 */
+}
 
 /* ──────────────────────────────────── */
 /* (2) 모바일 대응용 미디어쿼리 시작 */
@@ -667,6 +746,22 @@
     width: 100%;                 /* 선택박스도 가로 100% */
     font-size: 0.9rem;
     padding: 6px 8px;
+  }
+  .level-selector-row {
+    flex-direction: column;
+    align-items: stretch;  /* 가로 100%로 넓히기 위함 */
+    gap: 0.5rem;           /* 모바일에서는 간격을 조금 더 좁게 */
+  }
+
+  /* (2) select 박스 자체를 축소된 패딩/폰트크기로 만듭니다 */
+  .level-selector-row select {
+    width: 100%;           /* 모바일에서는 전체 너비 차지 */
+    padding: 0.4rem 0.6rem;/* 패딩을 줄여서 컴팩트하게 */
+    font-size: 0.9rem;     /* 폰트 크기 축소 */
+  }
+  .level-description {
+    max-height: 240px;
+    padding: 0.8rem;
   }
 }
 
