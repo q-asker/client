@@ -117,16 +117,22 @@ body {
 .question-nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; /* 양 끝으로 버튼 배치 */
+  margin-top: 1rem;               /* 옵션과 버튼 사이 여백 */
+  margin-bottom: 1rem;            /* 버튼과 해설 사이 여백 */
 }
-.nav-button {
-  background-color: #6a33f8;
-  color: #fff;
+
+/* 이전/다음 버튼 공통 스타일 */
+.question-nav .nav-button {
+  flex: 1;                         /* 두 버튼을 동일한 너비로 */
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
   border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  background-color: #6a33f8;      /* 보라 계열로 예시 지정 */
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  margin: 0 0.5rem;                /* 버튼 사이 좌우 간격 */
 }
 
 .nav-button:hover {
@@ -136,8 +142,17 @@ body {
   background-color: #aaa;
   cursor: default;
 }
+.counter-wrapper {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;  /* 필요하다면 상하 간격 조절 */
+}
+
+/* question-counter 자체에도 블록 레벨 처리(필요 시) */
 .question-counter {
+  display: inline-block; /* inline-block으로 두면 텍스트가 자연스럽게 가운데 정렬됨 */
   font-weight: bold;
+  font-size: 1rem;
 }
 
 /* 문제 텍스트 박스 */
