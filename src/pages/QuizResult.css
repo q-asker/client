@@ -1,229 +1,243 @@
-.pdf-slide-box {
-  margin-top: 20px;
-  background: #f7f7f7;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-}
-
-.slide-title {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
 
 .result-container {
-  padding: 1rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  background-color: #f4f6f8;
+  min-height: 100vh;
   box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
 }
 
+/* ──────────────────────────────────────────
+   메타데이터 박스 전체 레이아웃
+   ────────────────────────────────────────── */
 .metadata-box {
   width: 100%;
-  max-width: 600px;
-  margin-bottom: 1.5rem;
-  padding: 1rem 1.5rem;
-  background-color: #fff;                /* 흰 배경 */
-  border: 1px solid #e0e0e0;             /* 연한 회색 테두리 */
-  border-radius: 0.5rem;
-  
-  /* Flex 레이아웃으로 아이템들을 좌우 균등 분배 */
+  max-width: 700px;
   display: flex;
   justify-content: space-between;
+  gap: 1rem;                   /* 각 카드 사이 간격 */
+  margin-bottom: 2rem;
+}
+
+/* ──────────────────────────────────────────
+   메타데이터 아이템 (각 카드)
+   ────────────────────────────────────────── */
+.metadata-item {
+  flex: 1;                     /* 3개 카드가 동일 너비로 분배 */
+  display: flex;
   align-items: center;
-  
-  /* 박스 안쪽 그림자 추가 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;   /* 카드 배경 흰색 */
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.metadata-box p {
-  margin: 0;
-  font-size: 1.5rem;                    /* 약간 작게 */
-  font-weight: 500;
-  color: #4a4a4a;                        /* 다크 그레이 텍스트 */
+.metadata-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-.metadata-box p + p {
-  /* 요소들 사이에 구분점(가로선) 대신 컬러 구분을 주거나,
-     필요하다면 왼쪽 마진을 추가해도 됩니다. */
-  margin-left: 1rem;                    /* 아이템 간 간격 */
-  position: relative;
+/* 아이콘 영역 */
+.metadata-icon {
+  font-size: 1.75rem;
+  margin-right: 0.75rem;
 }
 
-.metadata-box p + p::before {
-  /* 두 항목 사이에 작은 세퍼레이터(•) 삽입, 위치/색상 조정 가능 */
-  content: "•";
-  position: absolute;
-  left: -0.6rem;                         /* 왼쪽으로 살짝 당겨서 위치 */
-  color: #c0c0c0;
+/* 텍스트 영역 컨테이너 */
+.metadata-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+/* 레이블 (예: "문제 수") */
+.metadata-label {
   font-size: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 0.25rem;
 }
+
+/* 값 (예: "10개", "00:03:45", "80점") */
+.metadata-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #222;
+}
+
+/* ──────────────────────────────────────────
+   문제별 결과 리스트 (기존 스타일 유지)
+   ────────────────────────────────────────── */
+/* (이전 예시에서 이미 작성한 .result-content, .result-item 등은 그대로 두고, 필요 시 아래 예시를 참고해 주세요) */
 
 .result-content {
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   display: flex;
   flex-direction: column;
-  gap: 2rem; /* spacing between question boxes */
-  margin-bottom: 1rem;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
 }
 
 .result-item {
-  margin-bottom: 2rem; /* explicit spacing */
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  background: #fff;
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 5px solid transparent;
 }
 
-/* ── 수정된 부분: correct-box 추가 ── */
+.result-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
 .result-item.correct-box {
-  background-color: #d4edda;
-  border-color: #c3e6cb;
+  border-left-color: #3bbb7b;
 }
 
-/* 기존 wrong-box(오답) 스타일 */
 .result-item.wrong-box {
-  background-color: #f8d7da;
-  border-color: #f5c6cb;
+  border-left-color: #e05263;
 }
 
-/* 문제 텍스트 */
 .result-question {
-  font-size: 1.1rem;
-  font-weight: bold;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #222;
+}
+
+.result-user-answer {
+  font-size: 1.05rem;
+  padding: 0.75rem 0;
+  position: relative;
+  color: #555;
   margin-bottom: 0.5rem;
 }
 
-/* 사용자 답변 텍스트 */
-.result-user-answer {
-  font-size: 1.1rem;
-  font-weight: bold;
-  padding: 0.5rem 0;
-  position: relative;
-}
-
-/* 문제와 답 사이 구분선 */
 .result-user-answer::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #e2e5e8;
 }
 
-/* 정답/오답 상태 텍스트 박스 */
+.result-correct-answer {
+  font-size: 1.05rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  background-color: #f0f9f6;
+  border-radius: 0.5rem;
+  color: #2d6a4f;
+  border: 1px solid #cce6db;
+}
+
 .result-status {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  text-align: center;
-  font-weight: bold;
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
-/* 정답일 때(초록) */
 .result-status.correct {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: #3bbb7b;
+  color: #fff;
 }
 
-/* 오답일 때(빨강) */
 .result-status.wrong {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: #e05263;
+  color: #fff;
 }
 
 .explanation-button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  background-color: #007bff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.85rem 2rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .explanation-button:hover {
-  opacity: 0.9;
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
+
+.explanation-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* ──────────────────────────────────────────
+   모바일용 반응형 처리
+   ────────────────────────────────────────── */
 @media (max-width: 768px) {
-  /* 1) result-container: 내부 여백(padding)만 줄임 */
   .result-container {
-    padding: 0.75rem;      /* 데스크톱(1rem)보다 약간 축소 */
-    box-sizing: border-box;
+    padding: 1rem;
   }
 
-  /* 2) metadata-box: flex → column으로 변경하여 세로 스택 */
   .metadata-box {
-    flex-direction: column;   /* 좌우 분배 대신 위→아래로 쌓기 */
-    align-items: flex-start;  /* 왼쪽 정렬 */
-    padding: 0.75rem 1rem;    /* 상하 0.75rem, 좌우 1rem */
+    flex-direction: column;
+    gap: 0.75rem;
   }
-  .metadata-box p {
-    font-size: 1.25rem;       /* 데스크톱(1.5rem)보다 작게 */
-    margin: 0.25rem 0;        /* 위아래 간격 줄이기 */
+  .metadata-item {
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
   }
-  .metadata-box p + p {
-    margin-left: 0;           /* 가로 구분선 대신 세로 간격만 사용 */
-    position: relative;
-    padding-left: 0.75rem;    /* 왼쪽 구분을 위해 들여쓰기 */
+  .metadata-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
   }
-  .metadata-box p + p::before {
-  
-    display: none;
+  .metadata-label {
+    font-size: 0.95rem;
+  }
+  .metadata-value {
+    font-size: 1.1rem;
   }
 
-  
   .result-content {
-    width: 100%;
-    gap: 1rem;               
-    margin-bottom: 0.75rem;  
+    gap: 1rem;
   }
 
-  
   .result-item {
-    padding: 0.75rem;        
-    margin-bottom: 1rem;     
+    padding: 1rem 1.5rem;
   }
-  
+
   .result-question {
-    font-size: 1rem;     
-    font-weight: bold;
-    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
   }
-  .result-user-answer {
-    font-size: 1rem;     
-    padding: 0.25rem 0;  
-  }
-  .result-user-answer::before {
-    top: 0;
-  }
+
+  .result-user-answer,
   .result-correct-answer {
-    font-size: 0.95rem;  
-    margin: 0.25rem 0;
+    font-size: 1rem;
   }
+
   .result-status {
-    margin-top: 0.5rem;  
-    padding: 0.5rem;
-    font-size: 0.95rem;  
+    font-size: 0.95rem;
+    padding: 0.4rem 0.8rem;
   }
 
   .explanation-button {
     width: 100%;
-    padding: 0.75rem;         
-    font-size: 1rem;          
-    margin-top: 1rem;         
-    box-sizing: border-box;
-  }
-
-  .explanation-button:hover {
-    opacity: 0.9;
+    font-size: 1rem;
+    padding: 0.75rem;
+    text-align: center;
   }
 }

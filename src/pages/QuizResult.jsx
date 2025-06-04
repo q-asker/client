@@ -39,9 +39,32 @@ const QuizResult = () => {
   return (
     <div className="result-container">
       <div className="metadata-box">
-        <p>문제 수: {quizzes.length}</p>
-        <p>걸린 시간: {totalTime}</p>
-        <p>점수: {scorePercent}점</p>
+        {/* 문제 수 아이템 */}
+        <div className="metadata-item">
+          <span className="metadata-icon">📋</span>
+          <div className="metadata-text">
+            <span className="metadata-label">문제 수</span>
+            <span className="metadata-value">{quizzes.length}개</span>
+          </div>
+        </div>
+
+        {/* 걸린 시간 아이템 */}
+        <div className="metadata-item">
+          <span className="metadata-icon">⏱️</span>
+          <div className="metadata-text">
+            <span className="metadata-label">걸린 시간</span>
+            <span className="metadata-value">{totalTime}</span>
+          </div>
+        </div>
+
+        {/* 점수 아이템 */}
+        <div className="metadata-item">
+          <span className="metadata-icon">🏆</span>
+          <div className="metadata-text">
+            <span className="metadata-label">점수</span>
+            <span className="metadata-value">{scorePercent}점</span>
+          </div>
+        </div>
       </div>
 
       <div className="result-content">
