@@ -1,6 +1,7 @@
 import axiosInstance from "#shared/api";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { trackResultEvents, trackQuizEvents } from "../utils/analytics";
 import "./QuizResult.css";
 
 const QuizResult = () => {
@@ -11,6 +12,9 @@ const QuizResult = () => {
   const [explanation, setExplanation] = useState(null);
 
   const getQuizExplanation = async () => {
+    // 해설 보기 버튼 클릭 추적
+    trackResultEvents.clickExplanation(problemSetId);
+
     try {
       const res = await axiosInstance.get(`/explanation/${problemSetId}`);
       const data = res.data;
@@ -34,6 +38,24 @@ const QuizResult = () => {
   const scorePercent = quizzes.length
     ? Math.round((correctCount / quizzes.length) * 100)
     : 0;
+
+  // 결과 페이지 진입 추적
+  useEffect(() => {
+    if (problemSetId && quizzes.length > 0) {
+      trackResultEvents.viewResult(
+        problemSetId,
+        correctCount,
+        quizzes.length,
+        totalTime
+      );
+      trackQuizEvents.completeQuiz(
+        problemSetId,
+        correctCount,
+        quizzes.length,
+        totalTime
+      );
+    }
+  }, [problemSetId, correctCount, quizzes.length, totalTime]);
   // ─────────────────
 
   return (

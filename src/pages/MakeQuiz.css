@@ -14,6 +14,27 @@
 }
 
 /* ──────────────────────────────────── */
+/* 대기 메시지 애니메이션 */
+.wait-message {
+  opacity: 0;
+  animation: fadeInSlideDown 0.6s ease-out forwards;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+@keyframes fadeInSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ──────────────────────────────────── */
 /* 업로드 섹션 */
 .upload-section {
   border: 2px dashed #d1d5db;
@@ -621,7 +642,7 @@
     margin-bottom: 8px;
   }
 
-  /* ── (6) “문서 미리보기” 영역 패딩 축소 ── */
+  /* ── (6) "문서 미리보기" 영역 패딩 축소 ── */
   .preview-panel {
     padding: 16px;
   }
@@ -734,7 +755,7 @@
   }
 
   .page-decide span {
-    display: none;               /* “부터”/“까지” 텍스트는 가리지 않도록 숨기거나, 원한다면 크기만 줄여도 됩니다 */
+    display: none;               /* "부터"/"까지" 텍스트는 가리지 않도록 숨기거나, 원한다면 크기만 줄여도 됩니다 */
     /* 만약 숨기지 않고 남기려면 아래처럼 조절해도 됩니다.
     font-size: 0.9rem;
     margin-left: 0;

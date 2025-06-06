@@ -1,7 +1,8 @@
 import CustomToast from "#shared/toast";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./QuizExplanation.css";
+import { trackQuizEvents } from "../utils/analytics";
 
 import { Document, Page, pdfjs } from "react-pdf";
 
@@ -14,6 +15,9 @@ const QuizExplanation = () => {
   const { problemSetId } = useParams();
   const navigate = useNavigate();
   const { state } = useLocation();
+  const [showPdf, setShowPdf] = useState(false);
+  const [pdfWidth, setPdfWidth] = useState(600);
+  const pdfContainerRef = useRef(null);
 
   // state로 전달된 값 꺼내기
   const {
@@ -25,7 +29,7 @@ const QuizExplanation = () => {
   console.log("해설", rawExplanation);
   console.log("업로드된 URL", uploadedUrl);
 
-  // “rawExplanation”이 배열인지 확인. 아니면 빈 배열로 치환
+  // "rawExplanation"이 배열인지 확인. 아니면 빈 배열로 치환
 
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const totalQuestions = initialQuizzes.length;
@@ -42,8 +46,41 @@ const QuizExplanation = () => {
       navigate("/");
     } else {
       setIsLoading(false);
+      // 해설 페이지 방문 추적
+      trackQuizEvents.viewExplanation(problemSetId, currentQuestion);
     }
-  }, [problemSetId, initialQuizzes, navigate]);
+  }, [problemSetId, initialQuizzes, navigate, currentQuestion]);
+
+  // PDF 컨테이너 너비 계산
+  useEffect(() => {
+    const calculatePdfWidth = () => {
+      if (pdfContainerRef.current) {
+        const containerWidth = pdfContainerRef.current.offsetWidth;
+        // 모바일 환경 감지
+        const isMobile = window.innerWidth <= 768;
+        // 모바일에서는 여백을 줄이고, 데스크탑에서는 여유있게 설정
+        const padding = isMobile ? 20 : 40;
+        // 최대 너비도 모바일에서는 제한 없이, 데스크탑에서만 1200px로 제한
+        const maxWidth = isMobile
+          ? containerWidth - padding
+          : Math.min(containerWidth - padding, 1200);
+        setPdfWidth(maxWidth);
+      }
+    };
+
+    // 초기 계산
+    calculatePdfWidth();
+
+    // resize 이벤트 리스너 추가
+    window.addEventListener("resize", calculatePdfWidth);
+    // 모바일 방향 전환 감지
+    window.addEventListener("orientationchange", calculatePdfWidth);
+
+    return () => {
+      window.removeEventListener("resize", calculatePdfWidth);
+      window.removeEventListener("orientationchange", calculatePdfWidth);
+    };
+  }, [showPdf]); // showPdf가 변경될 때도 재계산
 
   if (isLoading) {
     return (
@@ -60,7 +97,7 @@ const QuizExplanation = () => {
     userAnswer: 0,
   };
 
-  // 이 문제에 대응하는 해설을 찾되, “allExplanation”이 배열이므로 find 사용 가능
+  // 이 문제에 대응하는 해설을 찾되, "allExplanation"이 배열이므로 find 사용 가능
   const thisExplanationObj =
     allExplanation.find((e) => e.number === currentQuiz.number) || {};
   const thisExplanationText =
@@ -68,10 +105,49 @@ const QuizExplanation = () => {
 
   // 이전/다음 핸들러
   const handlePrev = () => {
-    if (currentQuestion > 1) setCurrentQuestion((q) => q - 1);
+    if (currentQuestion > 1) {
+      const prevQuestion = currentQuestion - 1;
+      // 문제 네비게이션 추적
+      trackQuizEvents.navigateQuestion(
+        problemSetId,
+        currentQuestion,
+        prevQuestion
+      );
+      setCurrentQuestion(prevQuestion);
+    }
   };
   const handleNext = () => {
-    if (currentQuestion < totalQuestions) setCurrentQuestion((q) => q + 1);
+    if (currentQuestion < totalQuestions) {
+      const nextQuestion = currentQuestion + 1;
+      // 문제 네비게이션 추적
+      trackQuizEvents.navigateQuestion(
+        problemSetId,
+        currentQuestion,
+        nextQuestion
+      );
+      setCurrentQuestion(nextQuestion);
+    }
+  };
+
+  // 문제 번호 직접 클릭 핸들러
+  const handleQuestionClick = (questionNumber) => {
+    if (questionNumber !== currentQuestion) {
+      // 문제 네비게이션 추적
+      trackQuizEvents.navigateQuestion(
+        problemSetId,
+        currentQuestion,
+        questionNumber
+      );
+      setCurrentQuestion(questionNumber);
+    }
+  };
+
+  // PDF 토글 핸들러
+  const handlePdfToggle = () => {
+    const newShowPdf = !showPdf;
+    setShowPdf(newShowPdf);
+    // PDF 슬라이드 토글 추적
+    trackQuizEvents.togglePdfSlide(problemSetId, newShowPdf);
   };
 
   return (
@@ -80,7 +156,6 @@ const QuizExplanation = () => {
         <button className="close-button" onClick={() => navigate("/")}>
           x
         </button>
-        <span className="time-display">설명 보기</span>
       </header>
 
       <main className="quiz-wrapper">
@@ -95,7 +170,7 @@ const QuizExplanation = () => {
                 }${q.check ? " checked" : ""}${
                   q.number === currentQuestion ? " current" : ""
                 }`}
-                onClick={() => setCurrentQuestion(q.number)}
+                onClick={() => handleQuestionClick(q.number)}
               >
                 {q.number}
               </button>
@@ -169,13 +244,45 @@ const QuizExplanation = () => {
 
               {/**추가 사항 */}
               <div className="pdf-slide-box">
-                <h4 className="slide-title">📄 관련 슬라이드</h4>
-                <Document file={uploadedUrl} loading="PDF 로딩 중...">
-                  <Page pageNumber={1} width={600} />
-                </Document>
-              </div>
+                <div
+                  className="slide-header"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginTop: "1rem",
+                  }}
+                ></div>
 
-              {/**추가 사항 */}
+                <div className="slide-header">
+                  <h4 className="slide-title">📄 관련 슬라이드</h4>
+
+                  {/* CSS 기반 스위치 */}
+                  <label className="switch" style={{ marginLeft: "0.75rem" }}>
+                    <input
+                      type="checkbox"
+                      checked={showPdf}
+                      onChange={handlePdfToggle}
+                    />
+                    <span className="slider round" />
+                  </label>
+                </div>
+              </div>
+              {showPdf && (
+                <div className="pdf-slide-box" ref={pdfContainerRef}>
+                  <Document
+                    file={uploadedUrl}
+                    loading={<p>PDF 로딩 중...</p>}
+                    onLoadError={(err) => console.error("PDF 로드 에러:", err)}
+                  >
+                    <Page
+                      pageNumber={1}
+                      width={pdfWidth}
+                      renderTextLayer={false}
+                      renderAnnotationLayer={false}
+                    />
+                  </Document>
+                </div>
+              )}
             </div>
           </section>
 

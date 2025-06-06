@@ -4,6 +4,7 @@ import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { trackQuizEvents } from "../utils/analytics";
 import "./SolveQuiz.css";
 
 const SolveQuiz = () => {
@@ -35,6 +36,9 @@ const SolveQuiz = () => {
         const data = res.data;
         console.log(data);
         setQuizzes(data.quiz || []);
+
+        // 퀴즈 시작 추적
+        trackQuizEvents.startQuiz(problemSetId);
       } catch (err) {
         navigate("/");
       } finally {
@@ -81,6 +85,19 @@ const SolveQuiz = () => {
 
   // Handlers
   const handleOptionSelect = (id) => {
+    const currentQuiz = quizzes[currentQuestion - 1];
+    const selectedOption = currentQuiz?.selections?.find((s) => s.id === id);
+
+    // 답안 선택 추적
+    if (selectedOption) {
+      trackQuizEvents.selectAnswer(
+        problemSetId,
+        currentQuestion,
+        id,
+        selectedOption.correct || false
+      );
+    }
+
     setQuizzes((prev) =>
       prev.map((q, idx) =>
         idx === currentQuestion - 1 ? { ...q, userAnswer: id } : q
@@ -90,25 +107,57 @@ const SolveQuiz = () => {
   };
 
   const handlePrev = () => {
-    if (currentQuestion > 1) setCurrentQuestion((q) => q - 1);
+    if (currentQuestion > 1) {
+      const prevQuestion = currentQuestion - 1;
+      trackQuizEvents.navigateQuestion(
+        problemSetId,
+        currentQuestion,
+        prevQuestion
+      );
+      setCurrentQuestion(prevQuestion);
+    }
   };
 
   const handleNext = () => {
-    if (currentQuestion < totalQuestions) setCurrentQuestion((q) => q + 1);
+    if (currentQuestion < totalQuestions) {
+      const nextQuestion = currentQuestion + 1;
+      trackQuizEvents.navigateQuestion(
+        problemSetId,
+        currentQuestion,
+        nextQuestion
+      );
+      setCurrentQuestion(nextQuestion);
+    }
   };
 
   const handleSubmit = () => {
+    // 문제 확인 버튼 클릭 추적
+    trackQuizEvents.confirmAnswer(problemSetId, currentQuestion);
+
     if (currentQuestion === totalQuestions) {
       CustomToast.info("마지막 문제입니다.");
       return;
     }
-    setCurrentQuestion((q) => q + 1);
+
+    const nextQuestion = currentQuestion + 1;
+    trackQuizEvents.navigateQuestion(
+      problemSetId,
+      currentQuestion,
+      nextQuestion
+    );
+    setCurrentQuestion(nextQuestion);
   };
 
   const handleCheckToggle = () => {
+    const currentQuiz = quizzes[currentQuestion - 1];
+    const newCheckState = !currentQuiz.check;
+
+    // 검토 체크박스 토글 추적
+    trackQuizEvents.toggleReview(problemSetId, currentQuestion, newCheckState);
+
     setQuizzes((prev) =>
       prev.map((q, idx) =>
-        idx === currentQuestion - 1 ? { ...q, check: !q.check } : q
+        idx === currentQuestion - 1 ? { ...q, check: newCheckState } : q
       )
     );
   };
@@ -116,14 +165,30 @@ const SolveQuiz = () => {
   const handleFinish = () => {
     const unansweredCount = quizzes.filter((q) => q.userAnswer === 0).length;
     const reviewCount = quizzes.filter((q) => q.check).length;
+    const answeredCount = quizzes.length - unansweredCount;
+
     const message = `안푼 문제: ${unansweredCount}개, 검토할 문제: ${reviewCount}개\n정말 제출하시겠습니까?`;
     if (!window.confirm(message)) return;
+
+    // 퀴즈 제출 추적
+    trackQuizEvents.submitQuiz(
+      problemSetId,
+      answeredCount,
+      quizzes.length,
+      reviewCount
+    );
+
     navigate(`/result/${problemSetId}`, {
       state: { quizzes, totalTime: currentTime, uploadedUrl },
     });
   };
 
   const handleJumpTo = (num) => {
+    if (num !== currentQuestion) {
+      // 문제 네비게이션 추적
+      trackQuizEvents.navigateQuestion(problemSetId, currentQuestion, num);
+    }
+
     setQuizzes((prev) =>
       prev.map((q, idx) => (idx === num - 1 ? { ...q, check: false } : q))
     );

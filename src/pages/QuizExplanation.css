@@ -168,7 +168,7 @@ body {
   font-size: 1rem;
 }
 
-/* ─── “선지” 스타일링 ─── */
+/* ─── "선지" 스타일링 ─── */
 .options-container {
   display: flex;
   flex-direction: column;
@@ -298,6 +298,104 @@ body {
   }
 }
 
+/* QuizExplanation.css */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;    /* 스위치 전체 너비 */
+  height: 28px;   /* 스위치 전체 높이 */
+  vertical-align: middle;
+}
+
+/* 실제 체크박스(input)는 보이지 않도록 숨기기 */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slide-header {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem; /* 위쪽 여백, 필요에 따라 조절 */
+}
+
+/* h4.slide-title 기본 마진 제거 */
+.slide-title {
+  margin: 0;
+  font-size: 1rem;       /* 원래 크기 유지 또는 조절 */
+  font-weight: bold;
+}
+/* 슬라이더(토글 배경) */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 14px; /* 전체 높이의 절반 */
+}
+
+/* 슬라이더 안의 동그라미(토글 버튼) */
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+/* 체크(=on) 상태일 때 배경색과 버튼 위치 변경 */
+input:checked + .slider {
+  background-color: #4cd964; /* iOS-그린 컬러 */
+}
+
+input:checked + .slider::before {
+  transform: translateX(22px);
+}
+
+/* 둥근 모서리 스타일 (optional) */
+.slider.round {
+  border-radius: 14px;
+}
+
+.slider.round::before {
+  border-radius: 50%;
+}
+
+/* PDF 슬라이드 박스 스타일 추가 */
+.pdf-slide-box {
+  margin-top: 1rem;
+  width: 100%;
+  overflow-x: auto; /* 가로 스크롤 가능하도록 */
+  overflow-y: hidden;
+}
+
+/* React-PDF 문서 컨테이너 */
+.pdf-slide-box .react-pdf__Document {
+  display: flex;
+  justify-content: center;
+}
+
+/* React-PDF 페이지 컨테이너 */
+.pdf-slide-box .react-pdf__Page {
+  max-width: 100%;
+  height: auto;
+}
+
+/* React-PDF 캔버스 */
+.pdf-slide-box .react-pdf__Page__canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
 @media (max-width: 768px) {
   /* 1) 전체 레이아웃을 위→아래 세로 스택으로 변경 */
   .layout-container {
@@ -384,5 +482,22 @@ body {
     padding: 0.75rem;
     font-size: 1rem;
     margin-top: 1rem;
+  }
+
+  /* 해설 박스 모바일 최적화 */
+  .explanation-box {
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  /* PDF 슬라이드 박스 모바일 최적화 */
+  .pdf-slide-box {
+    margin-top: 0.75rem;
+    padding: 0;
+  }
+  
+  /* 슬라이드 헤더 모바일 */
+  .slide-header {
+    margin-top: 0.75rem;
   }
 }
