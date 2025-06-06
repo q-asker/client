@@ -4,20 +4,21 @@ import CustomToast from "#shared/toast";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+import { trackMakeQuizEvents } from "../utils/analytics";
 import "./MakeQuiz.css";
 
 const levelDescriptions = {
   recall:
     "순수 암기나 단순 이해를 묻는 문제\n" +
-    "예) “OO의 정의는 무엇인가?”, “다음 함수의 출력값을 고르시오(정답만 요구)”",
+    '예) "OO의 정의는 무엇인가?", "다음 함수의 출력값을 고르시오(정답만 요구)"',
 
   skills:
     "주어진 개념을 간단한 맥락에 적용하거나 비교·분석하게 하는 문제\n" +
-    "예) “OO 개념을 사용해 다음 예제에서 오류를 찾아내시오”, “아래 두 개념(A, B)의 차이를 고르시오”",
+    '예) "OO 개념을 사용해 다음 예제에서 오류를 찾아내시오", "아래 두 개념(A, B)의 차이를 고르시오"',
 
   strategic:
     "한 단계 더 깊은 추론, 문제 해결, 자료 해석, 간단한 설계 등을 요구\n" +
-    "예) “OO 알고리즘을 사용해 특정 상황을 해결하는 방식을 고르시오”, “제시된 코드 조각에서 발생할 수 있는 최악의 시간 복잡도를 판단하고, 이유를 선택하시오”",
+    '예) "OO 알고리즘을 사용해 특정 상황을 해결하는 방식을 고르시오", "제시된 코드 조각에서 발생할 수 있는 최악의 시간 복잡도를 판단하고, 이유를 선택하시오"',
 };
 
 const MakeQuiz = () => {
@@ -32,10 +33,12 @@ const MakeQuiz = () => {
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [problemSetId, setProblemSetId] = useState(null);
-  const [quizLevel, setQuizLevel] = useState("recall"); // “전체” 또는 “사용자 지정”
-  const [pageMode, setPageMode] = useState("전체"); // “전체” 또는 “사용자 지정”
+  const [quizLevel, setQuizLevel] = useState("recall"); // "전체" 또는 "사용자 지정"
+  const [pageMode, setPageMode] = useState("전체"); // "전체" 또는 "사용자 지정"
   const [startPage, setStartPage] = useState(""); // 시작 페이지
   const [endPage, setEndPage] = useState(""); // 끝 페이지
+  const [countText, setCountText] = useState(""); // 로딩 점 애니메이션용
+  const [showWaitMessage, setShowWaitMessage] = useState(false); // 5초 후 대기 메시지 표시용
 
   async function uploadFileToServer(file) {
     const formData = new FormData();
@@ -82,25 +85,38 @@ const MakeQuiz = () => {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files.length > 0) {
-      selectFile(e.dataTransfer.files[0]);
+      selectFile(e.dataTransfer.files[0], "drag_drop");
     }
   };
 
   // File selection
   const handleFileInput = (e) => {
-    if (e.target.files.length > 0) selectFile(e.target.files[0]);
+    if (e.target.files.length > 0) selectFile(e.target.files[0], "click");
   };
-  const selectFile = async (f) => {
+  const selectFile = async (f, method = "click") => {
     const ext = f.name.split(".").pop().toLowerCase();
     if (!["pptx", "pdf"].includes(ext)) {
       CustomToast.error("PPTX 또는 PDF 파일만 업로드 가능합니다.");
       return;
     }
+
+    // 파일 업로드 시작 추적
+    const uploadStartTime = Date.now();
+    if (method === "drag_drop") {
+      trackMakeQuizEvents.dragDropFileUpload(f.name, f.size, ext);
+    } else {
+      trackMakeQuizEvents.startFileUpload(f.name, f.size, ext);
+    }
+
     setIsProcessing(true);
     try {
       const { uploadedUrl } = await uploadFileToServer(f);
       setUploadedUrl(uploadedUrl);
       setFile(f);
+
+      // 파일 업로드 완료 추적
+      const uploadTime = Date.now() - uploadStartTime;
+      trackMakeQuizEvents.completeFileUpload(f.name, uploadTime);
     } finally {
       setIsProcessing(false);
     }
@@ -112,6 +128,18 @@ const MakeQuiz = () => {
       CustomToast.error("파일을 먼저 업로드해주세요.");
       return;
     }
+
+    // 문제 생성 시작 추적
+    const generationStartTime = Date.now();
+    trackMakeQuizEvents.startQuizGeneration(
+      questionCount,
+      questionType,
+      quizLevel,
+      pageMode,
+      startPage,
+      endPage
+    );
+
     try {
       setIsProcessing(true);
       const response = await axiosInstance.post(`/generation`, {
@@ -123,6 +151,13 @@ const MakeQuiz = () => {
       console.log("생성된 문제 데이터:", result);
       setProblemSetId(result.problemSetId);
       setVersion((prev) => prev + 1);
+
+      // 문제 생성 완료 추적
+      const generationTime = Date.now() - generationStartTime;
+      trackMakeQuizEvents.completeQuizGeneration(
+        result.problemSetId,
+        generationTime
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -144,6 +179,39 @@ const MakeQuiz = () => {
     }
   };
 
+  // 점 애니메이션 효과
+  useEffect(() => {
+    if (isProcessing) {
+      const dots = [".", "..", "..."];
+      let index = 0;
+
+      const interval = setInterval(() => {
+        setCountText(dots[index]);
+        index = (index + 1) % dots.length;
+      }, 500); // 0.5초마다 변경
+
+      return () => clearInterval(interval);
+    } else {
+      setCountText("");
+    }
+  }, [isProcessing]);
+
+  // 5초 후 대기 메시지 표시
+  useEffect(() => {
+    let timer;
+    if (isProcessing && uploadedUrl && !problemSetId) {
+      timer = setTimeout(() => {
+        setShowWaitMessage(true);
+      }, 5000); // 5초 후
+    } else {
+      setShowWaitMessage(false);
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isProcessing, uploadedUrl, problemSetId]);
+
   return (
     <>
       <Header
@@ -164,7 +232,7 @@ const MakeQuiz = () => {
           {isProcessing && !uploadedUrl ? (
             <div className="processing">
               <div className="spinner" />
-              <p>파일 업로드 중...</p>
+              <p>파일 업로드 중{countText}</p>
             </div>
           ) : !uploadedUrl ? (
             <>
@@ -189,6 +257,9 @@ const MakeQuiz = () => {
               <button
                 className="remove-button"
                 onClick={() => {
+                  if (file) {
+                    trackMakeQuizEvents.deleteFile(file.name);
+                  }
                   setFile(null);
                   window.location.reload();
                 }}
@@ -215,7 +286,13 @@ const MakeQuiz = () => {
                       // 빈칸 클릭 시 다시 객관식으로 복원
                       setQuestionType("객관식");
                     } else {
-                      setQuestionType("객관식");
+                      if (questionType !== type) {
+                        trackMakeQuizEvents.changeQuizOption(
+                          "question_type",
+                          type
+                        );
+                        setQuestionType(type);
+                      }
                     }
                   }}
                 >
@@ -233,13 +310,22 @@ const MakeQuiz = () => {
                 max="50"
                 step="5"
                 value={questionCount}
-                onChange={(e) => setQuestionCount(+e.target.value)}
+                onChange={(e) => {
+                  const newCount = +e.target.value;
+                  if (questionCount !== newCount) {
+                    trackMakeQuizEvents.changeQuizOption(
+                      "question_count",
+                      newCount
+                    );
+                    setQuestionCount(newCount);
+                  }
+                }}
               />
             </div>
 
             <h3>특정 페이지를 지정하고 싶으신가요?</h3>
             <div className="page-decide">
-              {/* “부터” 입력란 */}
+              {/* "부터" 입력란 */}
               <input
                 type="number"
                 min="1"
@@ -249,7 +335,7 @@ const MakeQuiz = () => {
               />
               <span>부터</span>
 
-              {/* “끝” 입력란 */}
+              {/* "끝" 입력란 */}
               <input
                 type="number"
                 min="1"
@@ -264,10 +350,13 @@ const MakeQuiz = () => {
                 value={pageMode}
                 onChange={(e) => {
                   const mode = e.target.value;
-                  setPageMode(mode);
-                  if (mode === "전체") {
-                    setStartPage("");
-                    setEndPage("");
+                  if (pageMode !== mode) {
+                    trackMakeQuizEvents.changeQuizOption("page_mode", mode);
+                    setPageMode(mode);
+                    if (mode === "전체") {
+                      setStartPage("");
+                      setEndPage("");
+                    }
                   }
                 }}
               >
@@ -281,7 +370,14 @@ const MakeQuiz = () => {
               <select
                 value={quizLevel}
                 onChange={(e) => {
-                  setQuizLevel(e.target.value);
+                  const newLevel = e.target.value;
+                  if (quizLevel !== newLevel) {
+                    trackMakeQuizEvents.changeQuizOption(
+                      "quiz_level",
+                      newLevel
+                    );
+                    setQuizLevel(newLevel);
+                  }
                 }}
               >
                 <option value="recall">Recall</option>
@@ -306,7 +402,12 @@ const MakeQuiz = () => {
               {isProcessing ? (
                 <div className="processing">
                   <div className="spinner" />
-                  <p>문제 생성 중...</p>
+                  <p>문제 생성 중{countText}</p>
+                  {showWaitMessage && (
+                    <p className="wait-message">
+                      현재 생성중입니다 조금만 더 기다려주세요!
+                    </p>
+                  )}
                 </div>
               ) : !problemSetId ? (
                 <p>문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.</p>
@@ -323,6 +424,9 @@ const MakeQuiz = () => {
                     <button
                       className="btn cancle"
                       onClick={() => {
+                        if (file) {
+                          trackMakeQuizEvents.deleteFile(file.name);
+                        }
                         setFile(null);
                         setUploadedUrl(null);
                         setVersion(0);
@@ -337,6 +441,7 @@ const MakeQuiz = () => {
                     <button
                       className="btn mapping"
                       onClick={() => {
+                        trackMakeQuizEvents.navigateToQuiz(problemSetId);
                         navigate(`/quiz/${problemSetId}`, {
                           state: { uploadedUrl },
                         });
