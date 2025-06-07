@@ -110,7 +110,7 @@ body {
 /* ─── userAnswer가 0일 경우 question-area에 빨간색 테두리 ─── */
 .question-area.unanswered {
   border: 2px solid #dc3545; /* 빨간 테두리 */
-  border-radius: 0.5rem;    /* 기존 border-radius와 동일하게 유지 */
+  border-radius: 0.5rem; /* 기존 border-radius와 동일하게 유지 */
 }
 
 /* 질문 내비게이션 */
@@ -118,21 +118,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between; /* 양 끝으로 버튼 배치 */
-  margin-top: 1rem;               /* 옵션과 버튼 사이 여백 */
-  margin-bottom: 1rem;            /* 버튼과 해설 사이 여백 */
+  margin-top: 1rem; /* 옵션과 버튼 사이 여백 */
+  margin-bottom: 1rem; /* 버튼과 해설 사이 여백 */
 }
 
 /* 이전/다음 버튼 공통 스타일 */
 .question-nav .nav-button {
-  flex: 1;                         /* 두 버튼을 동일한 너비로 */
+  flex: 1; /* 두 버튼을 동일한 너비로 */
   padding: 0.5rem 0.75rem;
   font-size: 0.9rem;
   border: none;
   border-radius: 0.25rem;
-  background-color: #6a33f8;      /* 보라 계열로 예시 지정 */
+  background-color: #6a33f8; /* 보라 계열로 예시 지정 */
   color: #fff;
   cursor: pointer;
-  margin: 0 0.5rem;                /* 버튼 사이 좌우 간격 */
+  margin: 0 0.5rem; /* 버튼 사이 좌우 간격 */
 }
 
 .nav-button:hover {
@@ -145,7 +145,7 @@ body {
 .counter-wrapper {
   width: 100%;
   text-align: center;
-  margin-bottom: 1rem;  /* 필요하다면 상하 간격 조절 */
+  margin-bottom: 1rem; /* 필요하다면 상하 간격 조절 */
 }
 
 /* question-counter 자체에도 블록 레벨 처리(필요 시) */
@@ -303,8 +303,8 @@ body {
 .switch {
   position: relative;
   display: inline-block;
-  width: 50px;    /* 스위치 전체 너비 */
-  height: 28px;   /* 스위치 전체 높이 */
+  width: 50px; /* 스위치 전체 너비 */
+  height: 28px; /* 스위치 전체 높이 */
   vertical-align: middle;
 }
 
@@ -323,7 +323,7 @@ body {
 /* h4.slide-title 기본 마진 제거 */
 .slide-title {
   margin: 0;
-  font-size: 1rem;       /* 원래 크기 유지 또는 조절 */
+  font-size: 1rem; /* 원래 크기 유지 또는 조절 */
   font-weight: bold;
 }
 /* 슬라이더(토글 배경) */
@@ -381,6 +381,7 @@ input:checked + .slider::before {
 /* React-PDF 문서 컨테이너 */
 .pdf-slide-box .react-pdf__Document {
   display: flex;
+  min-height: 500px;
   justify-content: center;
 }
 
@@ -399,7 +400,7 @@ input:checked + .slider::before {
 @media (max-width: 768px) {
   /* 1) 전체 레이아웃을 위→아래 세로 스택으로 변경 */
   .layout-container {
-    flex-direction: column;   /* 좌·중·우 3단 → 세로 스택 */
+    flex-direction: column; /* 좌·중·우 3단 → 세로 스택 */
   }
 
   /* 2) 좌측 패널(.left-panel) 숨기기 */
@@ -410,9 +411,9 @@ input:checked + .slider::before {
   /* 3) 중앙 패널(.center-panel)을 화면 최상단에, 
          가로 폭 100%로 변경 */
   .center-panel {
-    flex:1;
-    padding-left: 0;  /* 데스크톱에서는 left-panel 때문에 padding-left를 주었지만, 모바일에선 제거 */
-    padding: 1rem;    /* 상하좌우 공통 padding */
+    flex: 1;
+    padding-left: 0; /* 데스크톱에서는 left-panel 때문에 padding-left를 주었지만, 모바일에선 제거 */
+    padding: 1rem; /* 상하좌우 공통 padding */
   }
 
   /* 4) 우측 패널(.right-panel)을 중앙 패널 바로 아래에 표시 */
@@ -422,42 +423,39 @@ input:checked + .slider::before {
     margin-top: 1rem; /* 중앙 패널과의 간격 */
   }
 
-  
   .question-nav {
     display: flex;
-    flex-direction: row;          
-    align-items: center;          
-    justify-content: space-between; 
-    gap: 0.5rem;                  
-    margin-bottom: 1rem;          
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
   }
   .question-nav .nav-button {
-    flex: 1;                      
-    padding: 0.5rem 0.75rem;      
-    font-size: 0.9rem;            
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
   }
   .question-nav .question-counter {
-    flex: 1;                      
-    text-align: center;           
-    font-size: 0.9rem;            
+    flex: 1;
+    text-align: center;
+    font-size: 0.9rem;
   }
 
-  
   .question-area {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     gap: 0.5rem;
-    padding: 0.75rem;       
+    padding: 0.75rem;
   }
   .question-text {
     font-size: 1rem;
     margin: 0;
   }
   .solve-check-container {
-    margin-right: 0;       
+    margin-right: 0;
   }
 
- 
   .options-container {
     display: flex;
     flex-direction: column;
@@ -465,7 +463,7 @@ input:checked + .slider::before {
     margin-top: 0.5rem;
   }
   .option {
-    padding: 0.5rem;        
+    padding: 0.5rem;
   }
   .option-icon {
     width: 1.5rem;
@@ -495,9 +493,45 @@ input:checked + .slider::before {
     margin-top: 0.75rem;
     padding: 0;
   }
-  
+
   /* 슬라이드 헤더 모바일 */
   .slide-header {
     margin-top: 0.75rem;
   }
+}
+
+.pdf-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.pdf-nav-button {
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.pdf-nav-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.pdf-nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pdf-page-counter {
+  font-size: 0.9rem;
+  color: #666;
 }
