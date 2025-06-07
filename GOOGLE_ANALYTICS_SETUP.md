@@ -64,6 +64,15 @@ VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 - `navigate_question`: 해설 내 문제 간 이동
 - `toggle_pdf_slide`: PDF 슬라이드 토글
 
+#### Help 페이지 이벤트
+
+- `view_help`: 도움말 페이지 진입 (진입 경로 포함)
+- `help_back_click`: 뒤로가기 버튼 클릭
+- `help_start_quiz_click`: '퀴즈 만들러 가기' 버튼 클릭
+- `help_scroll_depth`: 스크롤 깊이 추적 (25%, 50%, 75%, 100%)
+- `help_section_interact`: 특정 섹션 호버/클릭
+- `help_time_spent`: 도움말 페이지 체류 시간
+
 ## 4. Google Analytics에서 확인하는 방법
 
 ### 실시간 데이터 확인

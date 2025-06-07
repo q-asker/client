@@ -233,4 +233,45 @@ export const trackResultEvents = {
       problem_set_id: problemSetId,
     });
   },
+};
+
+// Help 페이지 이벤트들
+export const trackHelpEvents = {
+  // 도움말 페이지 진입
+  viewHelp: (source) => {
+    logEvent('view_help', {
+      source: source, // 'header', 'makeQuiz', 'direct' 등
+    });
+  },
+
+  // 뒤로가기 버튼 클릭
+  clickBack: () => {
+    logEvent('help_back_click');
+  },
+
+  // 퀴즈 만들러 가기 버튼 클릭
+  clickStartQuiz: () => {
+    logEvent('help_start_quiz_click');
+  },
+
+  // 도움말 섹션 참여도 (스크롤 깊이)
+  trackScrollDepth: (percentage) => {
+    logEvent('help_scroll_depth', {
+      scroll_percentage: percentage,
+    });
+  },
+
+  // 특정 섹션에 관심 표시 (호버나 클릭)
+  interactWithSection: (sectionName) => {
+    logEvent('help_section_interact', {
+      section_name: sectionName,
+    });
+  },
+
+  // 도움말 페이지 체류 시간
+  trackTimeSpent: (timeSpent) => {
+    logEvent('help_time_spent', {
+      time_seconds: timeSpent,
+    });
+  },
 }; 

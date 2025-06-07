@@ -6,6 +6,7 @@ import MakeQuiz from "./pages/MakeQuiz";
 import QuizExplanation from "./pages/QuizExplanation";
 import QuizResult from "./pages/QuizResult";
 import SolveQuiz from "./pages/SolveQuiz";
+import Help from "./pages/Help";
 import { initGA, logPageView } from "./utils/analytics";
 
 // Google Analytics 측정 ID (실제 GA4 측정 ID로 교체 필요)
@@ -32,6 +33,7 @@ const getPageTitle = (pathname) => {
     "/quiz": "퀴즈 풀기",
     "/result": "퀴즈 결과",
     "/explanation": "퀴즈 해설",
+    "/help": "도움말",
   };
 
   // 동적 라우트 처리
@@ -62,6 +64,7 @@ const App = () => {
           path="/explanation/:problemSetId"
           element={<QuizExplanation />}
         />
+        <Route path="/help" element={<Help />} />
       </Routes>
     </BrowserRouter>
   );
