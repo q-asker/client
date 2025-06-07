@@ -1,7 +1,11 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import CustomToast from "#shared/toast";
 import "./Header.css";
 
 const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       const sidebar = document.getElementById("sidebar");
@@ -19,6 +23,27 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [setIsSidebarOpen]);
 
+  // 네비게이션 핸들러들
+  const handleMakeQuiz = () => {
+    setIsSidebarOpen(false);
+    navigate("/");
+  };
+
+  const handleQuizManagement = () => {
+    setIsSidebarOpen(false);
+    CustomToast.info("개발중입니다!");
+  };
+
+  const handleStatistics = () => {
+    setIsSidebarOpen(false);
+    CustomToast.info("개발중입니다!");
+  };
+
+  const handleHelp = () => {
+    setIsSidebarOpen(false);
+    navigate("/help?source=header");
+  };
+
   return (
     <header className="header">
       <div className="header-inner">
@@ -32,10 +57,6 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           </button>
           <span className="logo-icon">❓</span>
           <h1 className="logo-text">Q-Asker</h1>
-        </div>
-        <div className="auth-buttons">
-          <button className="text-button">로그인</button>
-          <button className="primary-button">회원가입</button>
         </div>
       </div>
       <aside
@@ -52,10 +73,18 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           </button>
         </div>
         <nav>
-          <a href="#">➕ 문제 만들기</a>
-          <a href="#">📋 문제 관리</a>
-          <a href="#">📊 통계</a>
-          <a href="#">❓ 도움말</a>
+          <button className="nav-link" onClick={handleMakeQuiz}>
+            ➕ 문제 만들기
+          </button>
+          <button className="nav-link" onClick={handleQuizManagement}>
+            📋 문제 관리
+          </button>
+          <button className="nav-link" onClick={handleStatistics}>
+            📊 통계
+          </button>
+          <button className="nav-link" onClick={handleHelp}>
+            ❓ 도움말
+          </button>
         </nav>
       </aside>
     </header>

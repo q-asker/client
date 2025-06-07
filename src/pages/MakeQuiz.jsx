@@ -8,15 +8,15 @@ import { trackMakeQuizEvents } from "../utils/analytics";
 import "./MakeQuiz.css";
 
 const levelDescriptions = {
-  recall:
+  RECALL:
     "순수 암기나 단순 이해를 묻는 문제\n" +
     '예) "OO의 정의는 무엇인가?", "다음 함수의 출력값을 고르시오(정답만 요구)"',
 
-  skills:
+  SKILLS:
     "주어진 개념을 간단한 맥락에 적용하거나 비교·분석하게 하는 문제\n" +
     '예) "OO 개념을 사용해 다음 예제에서 오류를 찾아내시오", "아래 두 개념(A, B)의 차이를 고르시오"',
 
-  strategic:
+  STRATEGIC:
     "한 단계 더 깊은 추론, 문제 해결, 자료 해석, 간단한 설계 등을 요구\n" +
     '예) "OO 알고리즘을 사용해 특정 상황을 해결하는 방식을 고르시오", "제시된 코드 조각에서 발생할 수 있는 최악의 시간 복잡도를 판단하고, 이유를 선택하시오"',
 };
@@ -33,7 +33,7 @@ const MakeQuiz = () => {
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [problemSetId, setProblemSetId] = useState(null);
-  const [quizLevel, setQuizLevel] = useState("recall"); // "전체" 또는 "사용자 지정"
+  const [quizLevel, setQuizLevel] = useState("RECALL"); // 기본 난이도 설정
   const [pageMode, setPageMode] = useState("전체"); // "전체" 또는 "사용자 지정"
   const [startPage, setStartPage] = useState(""); // 시작 페이지
   const [endPage, setEndPage] = useState(""); // 끝 페이지
@@ -145,7 +145,8 @@ const MakeQuiz = () => {
       const response = await axiosInstance.post(`/generation`, {
         uploadedUrl: uploadedUrl,
         quizCount: questionCount,
-        type: "MULTIPLE",
+        quizType: "MULTIPLE",
+        difficultyType: quizLevel,
       });
       const result = response.data;
       console.log("생성된 문제 데이터:", result);
@@ -273,7 +274,6 @@ const MakeQuiz = () => {
         {uploadedUrl && !problemSetId && (
           <section className="options-panel">
             <h3>퀴즈 생성 옵션</h3>
-
             {/* 문제 유형 세그먼티드 */}
             <div className="segmented-control question-type">
               {["객관식", "빈칸"].map((type) => (
@@ -300,7 +300,6 @@ const MakeQuiz = () => {
                 </button>
               ))}
             </div>
-
             {/* 문제 수량 슬라이더 */}
             <div className="slider-control">
               <label>문제 수량: {questionCount}문제</label>
@@ -323,9 +322,10 @@ const MakeQuiz = () => {
               />
             </div>
 
+            {/* 페이지 범위 설정 - 주석처리됨 */}
+            {/*
             <h3>특정 페이지를 지정하고 싶으신가요?</h3>
             <div className="page-decide">
-              {/* "부터" 입력란 */}
               <input
                 type="number"
                 min="1"
@@ -335,7 +335,6 @@ const MakeQuiz = () => {
               />
               <span>부터</span>
 
-              {/* "끝" 입력란 */}
               <input
                 type="number"
                 min="1"
@@ -345,7 +344,6 @@ const MakeQuiz = () => {
               />
               <span>까지</span>
 
-              {/* 전체 vs 사용자 지정 선택박스 */}
               <select
                 value={pageMode}
                 onChange={(e) => {
@@ -364,6 +362,7 @@ const MakeQuiz = () => {
                 <option value="사용자 지정">사용자 지정</option>
               </select>
             </div>
+            */}
             <h3>문제 난이도 설정하기</h3>
             <div className="level-selector-row">
               {/* ① 난이도 선택박스 */}
@@ -380,9 +379,9 @@ const MakeQuiz = () => {
                   }
                 }}
               >
-                <option value="recall">Recall</option>
-                <option value="skills">Skills</option>
-                <option value="strategic">Strategic</option>
+                <option value="RECALL">Recall</option>
+                <option value="SKILLS">Skills</option>
+                <option value="STRATEGIC">Strategic</option>
               </select>
 
               {/* ② 선택한 난이도에 해당하는 설명을 옆에 출력 */}
@@ -465,7 +464,12 @@ const MakeQuiz = () => {
             >
               {isProcessing ? "생성 중..." : "문제 생성하기"}
             </button>
-            <button className="secondary-button">도움말</button>
+            <button
+              className="secondary-button"
+              onClick={() => navigate("/help?source=makeQuiz")}
+            >
+              도움말
+            </button>
           </div>
         )}
       </main>
