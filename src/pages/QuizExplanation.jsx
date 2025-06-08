@@ -1,8 +1,8 @@
 import CustomToast from "#shared/toast";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import "./QuizExplanation.css";
 import { trackQuizEvents } from "../utils/analytics";
+import "./QuizExplanation.css";
 
 import { Document, Page, pdfjs } from "react-pdf";
 
@@ -18,6 +18,7 @@ const QuizExplanation = () => {
   const [showPdf, setShowPdf] = useState(false);
   const [pdfWidth, setPdfWidth] = useState(600);
   const pdfContainerRef = useRef(null);
+  const [currentPdfPage, setCurrentPdfPage] = useState(0);
 
   // state로 전달된 값 꺼내기
   const {
@@ -25,42 +26,35 @@ const QuizExplanation = () => {
     explanation: rawExplanation = [],
     uploadedUrl,
   } = state || {};
-  console.log("quiz", initialQuizzes);
-  console.log("해설", rawExplanation);
-  console.log("업로드된 URL", uploadedUrl);
 
-  // "rawExplanation"이 배열인지 확인. 아니면 빈 배열로 치환
+  const isPdfFile = uploadedUrl?.toLowerCase().endsWith(".pdf");
 
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const totalQuestions = initialQuizzes.length;
   const allExplanation = Array.isArray(rawExplanation.results)
     ? rawExplanation.results
     : [];
-  console.log("allExplanation 배열:", allExplanation);
 
   // 로딩 체크
   const [isLoading, setIsLoading] = useState(true);
+
+  // 모든 useEffect를 여기로 이동
   useEffect(() => {
     if (!problemSetId || initialQuizzes.length === 0) {
       CustomToast.error("유효한 퀴즈 정보가 없습니다. 홈으로 이동합니다.");
       navigate("/");
     } else {
       setIsLoading(false);
-      // 해설 페이지 방문 추적
       trackQuizEvents.viewExplanation(problemSetId, currentQuestion);
     }
   }, [problemSetId, initialQuizzes, navigate, currentQuestion]);
 
-  // PDF 컨테이너 너비 계산
   useEffect(() => {
     const calculatePdfWidth = () => {
       if (pdfContainerRef.current) {
         const containerWidth = pdfContainerRef.current.offsetWidth;
-        // 모바일 환경 감지
         const isMobile = window.innerWidth <= 768;
-        // 모바일에서는 여백을 줄이고, 데스크탑에서는 여유있게 설정
         const padding = isMobile ? 20 : 40;
-        // 최대 너비도 모바일에서는 제한 없이, 데스크탑에서만 1200px로 제한
         const maxWidth = isMobile
           ? containerWidth - padding
           : Math.min(containerWidth - padding, 1200);
@@ -68,19 +62,19 @@ const QuizExplanation = () => {
       }
     };
 
-    // 초기 계산
     calculatePdfWidth();
-
-    // resize 이벤트 리스너 추가
     window.addEventListener("resize", calculatePdfWidth);
-    // 모바일 방향 전환 감지
     window.addEventListener("orientationchange", calculatePdfWidth);
 
     return () => {
       window.removeEventListener("resize", calculatePdfWidth);
       window.removeEventListener("orientationchange", calculatePdfWidth);
     };
-  }, [showPdf]); // showPdf가 변경될 때도 재계산
+  }, [showPdf]);
+
+  useEffect(() => {
+    setCurrentPdfPage(0);
+  }, [currentQuestion]);
 
   if (isLoading) {
     return (
@@ -148,6 +142,21 @@ const QuizExplanation = () => {
     setShowPdf(newShowPdf);
     // PDF 슬라이드 토글 추적
     trackQuizEvents.togglePdfSlide(problemSetId, newShowPdf);
+  };
+
+  // PDF 페이지 네비게이션 핸들러
+  const handlePrevPdfPage = () => {
+    if (currentPdfPage > 0) {
+      setCurrentPdfPage(currentPdfPage - 1);
+    }
+  };
+
+  const handleNextPdfPage = () => {
+    const currentPages =
+      allExplanation[currentQuestion - 1]?.referencedPages || [];
+    if (currentPdfPage < currentPages.length - 1) {
+      setCurrentPdfPage(currentPdfPage + 1);
+    }
   };
 
   return (
@@ -252,7 +261,6 @@ const QuizExplanation = () => {
                     marginTop: "1rem",
                   }}
                 ></div>
-
                 <div className="slide-header">
                   <h4 className="slide-title">📄 관련 슬라이드</h4>
 
@@ -267,22 +275,61 @@ const QuizExplanation = () => {
                   </label>
                 </div>
               </div>
-              {showPdf && (
-                <div className="pdf-slide-box" ref={pdfContainerRef}>
-                  <Document
-                    file={uploadedUrl}
-                    loading={<p>PDF 로딩 중...</p>}
-                    onLoadError={(err) => console.error("PDF 로드 에러:", err)}
-                  >
-                    <Page
-                      pageNumber={1}
-                      width={pdfWidth}
-                      renderTextLayer={false}
-                      renderAnnotationLayer={false}
-                    />
-                  </Document>
-                </div>
-              )}
+              {showPdf &&
+                (isPdfFile ? (
+                  <div className="pdf-slide-box" ref={pdfContainerRef}>
+                    <div className="pdf-navigation">
+                      <button
+                        className="pdf-nav-button"
+                        onClick={handlePrevPdfPage}
+                        disabled={currentPdfPage === 0}
+                      >
+                        ←
+                      </button>
+                      <span className="pdf-page-counter">
+                        슬라이드의
+                        {" " +
+                          allExplanation[currentQuestion - 1]?.referencedPages[
+                            currentPdfPage
+                          ] +
+                          " "}
+                        페이지
+                      </span>
+                      <button
+                        className="pdf-nav-button"
+                        onClick={handleNextPdfPage}
+                        disabled={
+                          currentPdfPage ===
+                          allExplanation[currentQuestion - 1].referencedPages
+                            .length -
+                            1
+                        }
+                      >
+                        →
+                      </button>
+                    </div>
+                    <Document
+                      file={uploadedUrl}
+                      loading={<p>PDF 로딩 중...</p>}
+                      onLoadError={(err) =>
+                        console.error("PDF 로드 에러:", err)
+                      }
+                    >
+                      <Page
+                        pageNumber={
+                          allExplanation[currentQuestion - 1].referencedPages[
+                            currentPdfPage
+                          ]
+                        }
+                        width={pdfWidth}
+                        renderTextLayer={false}
+                        renderAnnotationLayer={false}
+                      />
+                    </Document>
+                  </div>
+                ) : (
+                  <p>현재는 pdf파일만 지원합니다.</p>
+                ))}
             </div>
           </section>
 
