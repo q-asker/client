@@ -140,6 +140,7 @@ const MakeQuiz = () => {
       endPage
     );
 
+    const pageSelected = pageMode === "전체" ? false : true;
     try {
       setIsProcessing(true);
       const response = await axiosInstance.post(`/generation`, {
