@@ -100,6 +100,13 @@ const MakeQuiz = () => {
       return;
     }
 
+    // 파일 크기 체크 (10MB = 10 * 1024 * 1024 bytes)
+    const maxSize = 10 * 1024 * 1024;
+    if (f.size > maxSize) {
+      CustomToast.error("파일 크기는 10MB를 초과할 수 없습니다.");
+      return;
+    }
+
     // 파일 업로드 시작 추적
     const uploadStartTime = Date.now();
     if (method === "drag_drop") {
@@ -253,6 +260,7 @@ const MakeQuiz = () => {
                 />
               </label>
               <p className="hint">지원 파일 형식: PPTX, PDF</p>
+              <p className="hint">파일 크기 제한: 10MB</p>
             </>
           ) : (
             <>
