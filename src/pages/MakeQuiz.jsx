@@ -158,8 +158,8 @@ const MakeQuiz = () => {
         quizType: "MULTIPLE",
         difficultyType: quizLevel,
         pageSelected: pageMode === "사용자 지정",
-        startPageNumber: startPage,
-        endPageNumber: endPage,
+        startPageNumber: parseInt(startPage) || null,
+        endPageNumber: parseInt(endPage) || null,
       });
       const result = response.data;
       console.log("생성된 문제 데이터:", result);
