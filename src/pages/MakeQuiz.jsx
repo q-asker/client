@@ -21,6 +21,8 @@ const levelDescriptions = {
     '예) "OO 알고리즘을 사용해 특정 상황을 해결하는 방식을 고르시오", "제시된 코드 조각에서 발생할 수 있는 최악의 시간 복잡도를 판단하고, 이유를 선택하시오"',
 };
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
 const MakeQuiz = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
@@ -100,10 +102,10 @@ const MakeQuiz = () => {
       return;
     }
 
-    // 파일 크기 체크 (10MB = 10 * 1024 * 1024 bytes)
-    const maxSize = 10 * 1024 * 1024;
-    if (f.size > maxSize) {
-      CustomToast.error("파일 크기는 10MB를 초과할 수 없습니다.");
+    if (f.size > MAX_FILE_SIZE) {
+      CustomToast.error(
+        `파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`
+      );
       return;
     }
 
@@ -260,7 +262,9 @@ const MakeQuiz = () => {
                 />
               </label>
               <p className="hint">지원 파일 형식: PPTX, PDF</p>
-              <p className="hint">파일 크기 제한: 10MB</p>
+              <p className="hint">
+                파일 크기 제한: {MAX_FILE_SIZE / 1024 / 1024}MB
+              </p>
             </>
           ) : (
             <>
