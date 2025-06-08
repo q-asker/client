@@ -147,6 +147,9 @@ const MakeQuiz = () => {
         quizCount: questionCount,
         quizType: "MULTIPLE",
         difficultyType: quizLevel,
+        pageSelected: pageMode === "사용자 지정",
+        startPageNumber: startPage,
+        endPageNumber: endPage,
       });
       const result = response.data;
       console.log("생성된 문제 데이터:", result);
@@ -322,8 +325,6 @@ const MakeQuiz = () => {
               />
             </div>
 
-            {/* 페이지 범위 설정 - 주석처리됨 */}
-            {/*
             <h3>특정 페이지를 지정하고 싶으신가요?</h3>
             <div className="page-decide">
               <input
@@ -362,7 +363,7 @@ const MakeQuiz = () => {
                 <option value="사용자 지정">사용자 지정</option>
               </select>
             </div>
-            */}
+
             <h3>문제 난이도 설정하기</h3>
             <div className="level-selector-row">
               {/* ① 난이도 선택박스 */}
