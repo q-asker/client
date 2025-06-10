@@ -26,9 +26,8 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    CustomToast.error(error.message);
-     console.log("Axios Error 전체 ▶", error);
-
+    CustomToast.error(error.response.data.message);
+    console.log("Axios Error 전체 ▶", error);
     // 에러를 JSON으로도 찍어볼 수 있습니다. (순환 참조가 있으면 주의)
     try {
       console.log("Axios Error.toJSON() ▶", error.toJSON());
@@ -42,7 +41,6 @@ axiosInstance.interceptors.response.use(
     console.log("▶ response ▶", error.response);
 
     return Promise.reject(error);
-
   }
 );
 
