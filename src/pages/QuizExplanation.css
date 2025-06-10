@@ -535,3 +535,210 @@ input:checked + .slider::before {
   font-size: 0.9rem;
   color: #666;
 }
+
+/* ──────────────────────────────────────────
+   피드백 설문 다이얼로그 스타일
+   ────────────────────────────────────────── */
+.feedback-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.feedback-modal {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+  position: relative;
+}
+
+.feedback-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.feedback-modal-close:hover {
+  color: #333;
+}
+
+.feedback-modal-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.feedback-modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.feedback-modal-subtitle {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.feedback-modal-content {
+  margin-bottom: 2rem;
+}
+
+.feedback-info-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+.feedback-info-item span:first-child {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.feedback-info-text {
+  font-size: 0.95rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.feedback-modal-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.feedback-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 120px;
+}
+
+.feedback-button-primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.feedback-button-primary:hover {
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.feedback-button-secondary {
+  background-color: #f8f9fa;
+  color: #666;
+  border: 1px solid #dee2e6;
+}
+
+.feedback-button-secondary:hover {
+  background-color: #e9ecef;
+  color: #495057;
+  transform: translateY(-1px);
+}
+
+.feedback-button-tertiary {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  font-size: 0.9rem;
+}
+
+.feedback-button-tertiary:hover {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.feedback-contact-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f0f8ff;
+  border-radius: 0.5rem;
+  border-left: 4px solid #667eea;
+}
+
+.feedback-contact-text {
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+}
+
+.feedback-contact-email {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.feedback-contact-email:hover {
+  text-decoration: underline;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .feedback-modal {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .feedback-modal-title {
+    font-size: 1.3rem;
+  }
+  
+  .feedback-modal-buttons {
+    flex-direction: column;
+  }
+  
+  .feedback-button {
+    width: 100%;
+  }
+}

@@ -6,6 +6,12 @@ import "./Help.css";
 const Help = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const MaxMakeQuiz = 25;
+  const MinMakeQuiz = 5;
+  const MakeQuizStep = 5;
+  const MaxTime = 60;
+  const MinTime = 30;
+
   const startTimeRef = useRef(Date.now());
   const scrollTrackingRef = useRef({
     25: false,
@@ -128,7 +134,8 @@ const Help = () => {
             <h3>2단계: 퀴즈 옵션 설정</h3>
             <ul>
               <li>
-                🔢 <strong>문제 수량:</strong> 5개~50개 중 선택 (5개 단위)
+                🔢 <strong>문제 수량:</strong> {MinMakeQuiz}개~{MaxMakeQuiz}개
+                중 선택 ({MakeQuizStep}개 단위)
               </li>
               <li>
                 📑 <strong>페이지 범위:</strong>
@@ -161,7 +168,8 @@ const Help = () => {
                 🤖 <strong>AI 분석:</strong> 업로드된 문서를 AI가 자동 분석
               </li>
               <li>
-                ⏱️ <strong>소요 시간:</strong> 보통 30초~2분 (문서 길이에 따라)
+                ⏱️ <strong>소요 시간:</strong> 보통 {MinTime}초~{MaxTime}초
+                (문서 길이에 따라)
               </li>
               <li>
                 ✅ <strong>완료:</strong> "문제로 이동하기" 버튼이 나타남
@@ -249,7 +257,9 @@ const Help = () => {
               <h4>🔧 문제해결</h4>
               <ul>
                 <li>파일 업로드가 안 될 때: 파일 형식(PDF, PPTX) 확인</li>
-                <li>문제 생성이 오래 걸릴 때: 잠시 기다려주세요 (최대 5분)</li>
+                <li>
+                  문제 생성이 오래 걸릴 때: 잠시 기다려주세요 (최대 {MaxTime}초)
+                </li>
                 <li>문제가 이상할 때: 다른 난이도로 재생성 시도</li>
               </ul>
             </div>
