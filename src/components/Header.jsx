@@ -1,6 +1,6 @@
+import CustomToast from "#shared/toast";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import CustomToast from "#shared/toast";
 import "./Header.css";
 
 const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
