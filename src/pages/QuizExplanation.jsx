@@ -19,6 +19,7 @@ const QuizExplanation = () => {
   const [pdfWidth, setPdfWidth] = useState(600);
   const pdfContainerRef = useRef(null);
   const [currentPdfPage, setCurrentPdfPage] = useState(0);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   // state로 전달된 값 꺼내기
   const {
@@ -37,6 +38,147 @@ const QuizExplanation = () => {
 
   // 로딩 체크
   const [isLoading, setIsLoading] = useState(true);
+
+  // 피드백 다이얼로그 관련 함수들
+  const handleOpenFeedback = () => {
+    window.open("https://forms.gle/ABE8458smVmXeu6s8", "_blank");
+    setShowFeedbackModal(false);
+  };
+
+  const handleCloseFeedback = () => {
+    setShowFeedbackModal(false);
+  };
+
+  const handleDontShowAgain = () => {
+    localStorage.setItem("feedbackModalDismissed", "true");
+    setShowFeedbackModal(false);
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      setShowFeedbackModal(false);
+    }
+  };
+
+  // X 버튼과 홈 버튼 클릭 시 피드백 다이얼로그 표시 후 이동
+  const handleExitWithFeedback = (targetPath = "/") => {
+    const isDismissed = localStorage.getItem("feedbackModalDismissed");
+
+    if (!isDismissed) {
+      setShowFeedbackModal(true);
+      // 피드백 다이얼로그에서 이동할 경로를 저장
+      localStorage.setItem("tempNavigateTo", targetPath);
+    } else {
+      navigate(targetPath);
+    }
+  };
+
+  // 피드백 다이얼로그 닫기 후 이동 처리
+  const handleFeedbackClose = () => {
+    setShowFeedbackModal(false);
+    const targetPath = localStorage.getItem("tempNavigateTo");
+    if (targetPath) {
+      localStorage.removeItem("tempNavigateTo");
+      navigate(targetPath);
+    }
+  };
+
+  // 피드백 다이얼로그에서 설문 참여 후 이동 처리
+  const handleFeedbackParticipate = () => {
+    window.open("https://forms.gle/ABE8458smVmXeu6s8", "_blank");
+    setShowFeedbackModal(false);
+    const targetPath = localStorage.getItem("tempNavigateTo");
+    if (targetPath) {
+      localStorage.removeItem("tempNavigateTo");
+      navigate(targetPath);
+    }
+  };
+
+  // 피드백 다이얼로그에서 다시 안보기 후 이동 처리
+  const handleFeedbackDontShowAgain = () => {
+    localStorage.setItem("feedbackModalDismissed", "true");
+    setShowFeedbackModal(false);
+    const targetPath = localStorage.getItem("tempNavigateTo");
+    if (targetPath) {
+      localStorage.removeItem("tempNavigateTo");
+      navigate(targetPath);
+    }
+  };
+
+  // 피드백 다이얼로그 컴포넌트
+  const FeedbackModal = () => (
+    <div className="feedback-modal-overlay" onClick={handleOverlayClick}>
+      <div className="feedback-modal">
+        <button className="feedback-modal-close" onClick={handleFeedbackClose}>
+          ×
+        </button>
+
+        <div className="feedback-modal-header">
+          <h2 className="feedback-modal-title">
+            🎯 더 나은 서비스를 위한 피드백
+          </h2>
+          <p className="feedback-modal-subtitle">
+            여러분의 소중한 의견으로 더 나은 솔루션을 개발하고자 합니다.
+          </p>
+        </div>
+
+        <div className="feedback-modal-content">
+          <div className="feedback-info-item">
+            <span>⏰</span>
+            <span className="feedback-info-text">응답 소요 시간: 3분 이내</span>
+          </div>
+
+          <div className="feedback-info-item">
+            <span>🎁</span>
+            <span className="feedback-info-text">
+              추첨 상품: 스타벅스 카페 아메리카노 T 기프티콘 4명
+            </span>
+          </div>
+
+          <div className="feedback-info-item">
+            <span>🗓</span>
+            <span className="feedback-info-text">
+              설문 기간: ~ 6월 12일까지
+            </span>
+          </div>
+
+          <div className="feedback-contact-info">
+            <p className="feedback-contact-text">
+              추가 문의사항은{" "}
+              <a
+                href="mailto:inhapj01@gmail.com"
+                className="feedback-contact-email"
+              >
+                inhapj01@gmail.com
+              </a>
+              으로 부탁드립니다.
+            </p>
+          </div>
+        </div>
+
+        <div className="feedback-modal-buttons">
+          <button
+            className="feedback-button feedback-button-primary"
+            onClick={handleFeedbackParticipate}
+          >
+            설문 참여하기
+          </button>
+          <button
+            className="feedback-button feedback-button-secondary"
+            onClick={handleFeedbackClose}
+          >
+            나중에 하기
+          </button>
+          <button
+            className="feedback-button feedback-button-tertiary"
+            onClick={handleFeedbackDontShowAgain}
+          >
+            다시 안보기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   // 모든 useEffect를 여기로 이동
   useEffect(() => {
@@ -161,8 +303,14 @@ const QuizExplanation = () => {
 
   return (
     <div className="app-container">
+      {/* 피드백 모달 */}
+      {showFeedbackModal && <FeedbackModal />}
+
       <header className="navbar">
-        <button className="close-button" onClick={() => navigate("/")}>
+        <button
+          className="close-button"
+          onClick={() => handleExitWithFeedback("/")}
+        >
           x
         </button>
       </header>
@@ -240,9 +388,7 @@ const QuizExplanation = () => {
             </nav>
             <button
               className="go-home-button"
-              onClick={() => {
-                navigate("/");
-              }}
+              onClick={() => handleExitWithFeedback("/")}
             >
               홈으로
             </button>

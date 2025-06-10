@@ -285,6 +285,11 @@ const MakeQuiz = () => {
               </button>
             </>
           )}
+          <p className="hint">
+            🚨당사는 상업적 사이트가 아닙니다. 파일은 상업적 목적, AI 학습
+            목적으로 사용되지 않습니다.<br></br> 24시간 후 자동 삭제되며 별도로
+            저장, 공유되지 않습니다.
+          </p>
         </section>
         {/* Options Panel */}
         {uploadedUrl && !problemSetId && (
@@ -488,7 +493,17 @@ const MakeQuiz = () => {
         )}
       </main>
       {/* Footer */}
-      <footer className="footer">© 2025 Q-Asker. All rights reserved.</footer>
+      <footer className="footer">
+        © 2025 Q-Asker. All rights reserved. 문의 및 피드백 : inhapj01@gmail.com
+        <br></br>
+        문의 및 지원 구글 폼 :{" "}
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
+          target="_blank"
+        >
+          문의 링크
+        </a>
+      </footer>
     </>
   );
 };
