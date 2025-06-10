@@ -291,6 +291,12 @@ const Help = () => {
             Q-Asker 사용 중 문제가 발생하거나 개선 사항이 있으시면 언제든지
             연락주세요. 더 나은 서비스를 만들어가겠습니다!
           </p>
+          <div className="contact-info">
+            <p>
+              📧 <strong>이메일:</strong>{" "}
+              <a href="mailto:inhapj01@gmail.com">inhapj01@gmail.com</a>
+            </p>
+          </div>
         </section>
       </main>
 
