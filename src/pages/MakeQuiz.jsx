@@ -322,7 +322,7 @@ const MakeQuiz = () => {
               <input
                 type="range"
                 min="5"
-                max="50"
+                max="25"
                 step="5"
                 value={questionCount}
                 onChange={(e) => {
