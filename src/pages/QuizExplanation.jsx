@@ -28,8 +28,6 @@ const QuizExplanation = () => {
     uploadedUrl,
   } = state || {};
 
-  const isPdfFile = uploadedUrl?.toLowerCase().endsWith(".pdf");
-
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const totalQuestions = initialQuizzes.length;
   const allExplanation = Array.isArray(rawExplanation.results)
@@ -397,6 +395,25 @@ const QuizExplanation = () => {
               <h3 className="explanation-title">해설</h3>
               <p className="explanation-text">{thisExplanationText}</p>
 
+              <div className="all-referenced-pages">
+                <h4 className="all-pages-title">📚 참조 페이지</h4>
+                <div className="pages-list">
+                  {allExplanation[currentQuestion - 1]?.referencedPages?.map(
+                    (page, index) => (
+                      <span
+                        key={index}
+                        className={`page-number ${
+                          currentPdfPage === index ? "active" : ""
+                        }`}
+                        onClick={() => setCurrentPdfPage(index)}
+                      >
+                        {page}
+                      </span>
+                    )
+                  )}
+                </div>
+              </div>
+
               {/**추가 사항 */}
               <div className="pdf-slide-box">
                 <div
@@ -421,45 +438,45 @@ const QuizExplanation = () => {
                   </label>
                 </div>
               </div>
-              {showPdf &&
-                (isPdfFile ? (
-                  <div className="pdf-slide-box" ref={pdfContainerRef}>
-                    <div className="pdf-navigation">
-                      <button
-                        className="pdf-nav-button"
-                        onClick={handlePrevPdfPage}
-                        disabled={currentPdfPage === 0}
-                      >
-                        ←
-                      </button>
-                      <span className="pdf-page-counter">
-                        슬라이드의
-                        {" " +
-                          allExplanation[currentQuestion - 1]?.referencedPages[
-                            currentPdfPage
-                          ] +
-                          " "}
-                        페이지
-                      </span>
-                      <button
-                        className="pdf-nav-button"
-                        onClick={handleNextPdfPage}
-                        disabled={
-                          currentPdfPage ===
-                          allExplanation[currentQuestion - 1].referencedPages
-                            .length -
-                            1
-                        }
-                      >
-                        →
-                      </button>
-                    </div>
+              {showPdf && (
+                <div className="pdf-slide-box" ref={pdfContainerRef}>
+                  <div className="pdf-navigation">
+                    <button
+                      className="pdf-nav-button"
+                      onClick={handlePrevPdfPage}
+                      disabled={currentPdfPage === 0}
+                    >
+                      ←
+                    </button>
+                    <span className="pdf-page-counter">
+                      슬라이드의
+                      {" " +
+                        allExplanation[currentQuestion - 1]?.referencedPages[
+                          currentPdfPage
+                        ] +
+                        " "}
+                      페이지
+                    </span>
+                    <button
+                      className="pdf-nav-button"
+                      onClick={handleNextPdfPage}
+                      disabled={
+                        currentPdfPage ===
+                        allExplanation[currentQuestion - 1].referencedPages
+                          .length -
+                          1
+                      }
+                    >
+                      →
+                    </button>
+                  </div>
+                  {!uploadedUrl ? (
+                    <p>파일 링크가 만료되었습니다.</p>
+                  ) : uploadedUrl.toLowerCase().endsWith(".pdf") ? (
                     <Document
                       file={uploadedUrl}
                       loading={<p>PDF 로딩 중...</p>}
-                      onLoadError={(err) =>
-                        console.error("PDF 로드 에러:", err)
-                      }
+                      onLoadError={(err) => <p>파일이 존재하지 않습니다.</p>}
                     >
                       <Page
                         pageNumber={
@@ -472,10 +489,11 @@ const QuizExplanation = () => {
                         renderAnnotationLayer={false}
                       />
                     </Document>
-                  </div>
-                ) : (
-                  <p>현재는 pdf파일만 지원합니다.</p>
-                ))}
+                  ) : (
+                    <p>현재는 pdf 파일만 지원합니다.</p>
+                  )}
+                </div>
+              )}
             </div>
           </section>
 
