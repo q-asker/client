@@ -729,16 +729,53 @@ input:checked + .slider::before {
     padding: 1.5rem;
     margin: 1rem;
   }
-  
+
   .feedback-modal-title {
     font-size: 1.3rem;
   }
-  
+
   .feedback-modal-buttons {
     flex-direction: column;
   }
-  
+
   .feedback-button {
     width: 100%;
   }
+}
+
+/* 전체 참조 페이지 스타일 */
+.all-referenced-pages {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.all-pages-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.pages-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.page-number {
+  padding: 0.25rem 0.75rem;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-number:hover {
+  background-color: #dee2e6;
+}
+
+.page-number.active {
+  background-color: #007bff;
+  color: white;
 }
