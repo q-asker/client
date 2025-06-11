@@ -41,6 +41,7 @@ const MakeQuiz = () => {
   const [endPage, setEndPage] = useState(""); // 끝 페이지
   const [countText, setCountText] = useState(""); // 로딩 점 애니메이션용
   const [showWaitMessage, setShowWaitMessage] = useState(false); // 5초 후 대기 메시지 표시용
+  const [latestQuiz, setLatestQuiz] = useState(null); // 최신 퀴즈 미리보기용
 
   async function uploadFileToServer(file) {
     const formData = new FormData();
@@ -166,6 +167,9 @@ const MakeQuiz = () => {
       setProblemSetId(result.problemSetId);
       setVersion((prev) => prev + 1);
 
+      // 퀴즈 기록을 localStorage에 저장
+      saveQuizToHistory(result.problemSetId, file.name);
+
       // 문제 생성 완료 추적
       const generationTime = Date.now() - generationStartTime;
       trackMakeQuizEvents.completeQuizGeneration(
@@ -176,6 +180,76 @@ const MakeQuiz = () => {
       setIsProcessing(false);
     }
   };
+
+  // 퀴즈 기록을 localStorage에 저장하는 함수
+  const saveQuizToHistory = (problemSetId, fileName) => {
+    try {
+      const existingHistory = JSON.parse(
+        localStorage.getItem("quizHistory") || "[]"
+      );
+
+      const newQuizRecord = {
+        problemSetId,
+        fileName,
+        questionCount,
+        quizLevel,
+        createdAt: new Date().toISOString(),
+        uploadedUrl,
+        status: "created", // created, completed
+        score: null,
+        correctCount: null,
+        totalTime: null,
+      };
+
+      // 중복 확인 (같은 problemSetId가 있으면 업데이트하지 않음)
+      const existingIndex = existingHistory.findIndex(
+        (item) => item.problemSetId === problemSetId
+      );
+      if (existingIndex === -1) {
+        existingHistory.unshift(newQuizRecord); // 최신 항목을 맨 앞에 추가
+
+        // 최대 20개까지만 저장
+        if (existingHistory.length > 20) {
+          existingHistory.splice(20);
+        }
+
+        localStorage.setItem("quizHistory", JSON.stringify(existingHistory));
+
+        // 최신 퀴즈 상태 업데이트
+        setLatestQuiz(newQuizRecord);
+      }
+    } catch (error) {
+      console.error("퀴즈 기록 저장 실패:", error);
+    }
+  };
+
+  // 최신 퀴즈 정보를 로드하는 함수
+  const loadLatestQuiz = () => {
+    try {
+      const history = JSON.parse(localStorage.getItem("quizHistory") || "[]");
+      if (history.length > 0) {
+        const latest = history[0];
+        setLatestQuiz(latest);
+
+        // 파일이 업로드되지 않은 상태에서만 최신 퀴즈 자동 로드
+        if (!uploadedUrl && !problemSetId) {
+          setProblemSetId(latest.problemSetId);
+          // 파일 정보도 복원 (가상의 파일 객체 생성)
+          const virtualFile = {
+            name: latest.fileName,
+            size: 0, // 실제 크기는 알 수 없음
+          };
+          setFile(virtualFile);
+          setUploadedUrl(latest.uploadedUrl);
+          setQuestionCount(latest.questionCount);
+          setQuizLevel(latest.quizLevel);
+        }
+      }
+    } catch (error) {
+      console.error("최신 퀴즈 로딩 실패:", error);
+    }
+  };
+
   const getQuiz = async () => {
     if (!problemSetId) {
       CustomToast.error("먼저 문제 세트를 생성해주세요.");
@@ -226,6 +300,11 @@ const MakeQuiz = () => {
     };
   }, [isProcessing, uploadedUrl, problemSetId]);
 
+  // 컴포넌트 마운트 시 최신 퀴즈 로드
+  useEffect(() => {
+    loadLatestQuiz();
+  }, []);
+
   return (
     <>
       <Header
@@ -263,7 +342,8 @@ const MakeQuiz = () => {
               </label>
               <p className="hint">지원 파일 형식: PPTX, PDF</p>
               <p className="hint">
-                파일 크기 제한: {MAX_FILE_SIZE / 1024 / 1024}MB
+                파일 크기 제한: {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>파일
+                page 제한: 100page 이하
               </p>
             </>
           ) : (
@@ -286,9 +366,8 @@ const MakeQuiz = () => {
             </>
           )}
           <p className="hint">
-            🚨당사는 상업적 사이트가 아닙니다. 파일은 상업적 목적, AI 학습
-            목적으로 사용되지 않습니다.<br></br> 24시간 후 자동 삭제되며 별도로
-            저장, 공유되지 않습니다.
+            🚨파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.<br></br>{" "}
+            24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.
           </p>
         </section>
         {/* Options Panel */}

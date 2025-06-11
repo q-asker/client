@@ -6,6 +6,7 @@ import MakeQuiz from "./pages/MakeQuiz";
 import QuizExplanation from "./pages/QuizExplanation";
 import QuizResult from "./pages/QuizResult";
 import SolveQuiz from "./pages/SolveQuiz";
+import QuizHistory from "./pages/QuizHistory";
 import Help from "./pages/Help";
 import { initGA, logPageView } from "./utils/analytics";
 
@@ -33,6 +34,7 @@ const getPageTitle = (pathname) => {
     "/quiz": "퀴즈 풀기",
     "/result": "퀴즈 결과",
     "/explanation": "퀴즈 해설",
+    "/history": "퀴즈 기록",
     "/help": "도움말",
   };
 
@@ -64,6 +66,7 @@ const App = () => {
           path="/explanation/:problemSetId"
           element={<QuizExplanation />}
         />
+        <Route path="/history" element={<QuizHistory />} />
         <Route path="/help" element={<Help />} />
       </Routes>
     </BrowserRouter>

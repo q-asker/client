@@ -54,8 +54,58 @@ const QuizResult = () => {
         quizzes.length,
         totalTime
       );
+
+      // 퀴즈 완료 기록을 localStorage에 업데이트
+      updateQuizHistoryResult(
+        problemSetId,
+        correctCount,
+        quizzes.length,
+        totalTime,
+        scorePercent
+      );
     }
-  }, [problemSetId, correctCount, quizzes.length, totalTime]);
+  }, [problemSetId, correctCount, quizzes.length, totalTime, scorePercent]);
+
+  // 퀴즈 완료 기록을 localStorage에 업데이트하는 함수
+  const updateQuizHistoryResult = (
+    problemSetId,
+    correctCount,
+    totalQuestions,
+    totalTime,
+    score
+  ) => {
+    try {
+      const existingHistory = JSON.parse(
+        localStorage.getItem("quizHistory") || "[]"
+      );
+
+      const existingIndex = existingHistory.findIndex(
+        (item) => item.problemSetId === problemSetId
+      );
+      if (existingIndex !== -1) {
+        // 기존 기록 업데이트 + 퀴즈 데이터도 함께 저장
+        existingHistory[existingIndex] = {
+          ...existingHistory[existingIndex],
+          status: "completed",
+          score,
+          correctCount,
+          totalQuestions,
+          totalTime,
+          completedAt: new Date().toISOString(),
+          quizData: quizzes, // 실제 퀴즈 데이터 저장 (문제, 선택지, 사용자 답안 포함)
+        };
+
+        console.log("=== 퀴즈 완료 데이터 저장 ===");
+        console.log("문제셋 ID:", problemSetId);
+        console.log("저장할 퀴즈 데이터:", quizzes);
+        console.log("업데이트된 히스토리:", existingHistory[existingIndex]);
+
+        localStorage.setItem("quizHistory", JSON.stringify(existingHistory));
+      }
+    } catch (error) {
+      console.error("퀴즈 결과 기록 업데이트 실패:", error);
+    }
+  };
   // ─────────────────
 
   return (
