@@ -17,8 +17,8 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
 
-    steps:
-      - name: 코드 체크 아웃
+    steps: 
+      - name: 코드 체크 아웃 
         uses: actions/checkout@v4
 
       - name: Node.js 설치
