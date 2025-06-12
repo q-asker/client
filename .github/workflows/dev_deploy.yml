@@ -3,7 +3,7 @@ name: DEV용 S3에 업로드드
 on:
   push:
     branches:
-      - ICC-83-FE-CICD 
+      - develop 
   workflow_dispatch:
 
 jobs:
