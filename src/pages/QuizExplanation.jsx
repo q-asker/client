@@ -317,19 +317,39 @@ const QuizExplanation = () => {
         <div className="layout-container">
           {/* 좌측 번호 패널 */}
           <aside className="left-panel">
-            {initialQuizzes.map((q) => (
-              <button
-                key={q.number}
-                className={`skipped-button${
-                  q.userAnswer !== 0 ? " answered" : ""
-                }${q.check ? " checked" : ""}${
-                  q.number === currentQuestion ? " current" : ""
-                }`}
-                onClick={() => handleQuestionClick(q.number)}
-              >
-                {q.number}
-              </button>
-            ))}
+            {initialQuizzes.map((q) => {
+              let resultClass = "";
+              if (q.userAnswer) {
+                // userAnswer가 0이 아닌 경우(즉, truthy)
+                const correctOption = q.selections.find(
+                  (opt) => opt.correct === true
+                );
+
+                if (correctOption) {
+                  // 데이터 타입 불일치 방지를 위해 숫자로 변환하여 비교
+                  if (
+                    Number(q.userAnswer) === Number(correctOption.id) &&
+                    Number(q.userAnswer) !== 0
+                  ) {
+                    resultClass = " correct";
+                  } else {
+                    resultClass = " incorrect";
+                  }
+                }
+              }
+
+              return (
+                <button
+                  key={q.number}
+                  className={`skipped-button${resultClass}${
+                    q.number === currentQuestion ? " current" : ""
+                  }`}
+                  onClick={() => handleQuestionClick(q.number)}
+                >
+                  {q.number}
+                </button>
+              );
+            })}
           </aside>
 
           {/* 가운데 패널: 문제 + 선지 + 확인 + 해설 */}
