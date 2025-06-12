@@ -89,6 +89,14 @@ body {
   background-color: #e0e4e9;
   transform: scale(1.1);
 }
+.left-panel .skipped-button.incorrect {
+  background-color: #ffdddd !important; /* 연한 빨강 */
+  border-color: #ff7777 !important;
+}
+.left-panel .skipped-button.correct {
+  background-color: #ddffdd !important; /* 연한 초록 */
+  border-color: #77ff77 !important;
+}
 
 /* 중앙 패널: 퀴즈 + 해설 영역 */
 .center-panel {
