@@ -44,6 +44,10 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
     navigate("/help?source=header");
   };
 
+  const handleLogoClick = () => {
+    navigate("/");
+  };
+
   return (
     <header className="header">
       <div className="header-inner">
@@ -55,8 +59,15 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           >
             ☰
           </button>
-          <span className="logo-icon">❓</span>
-          <h1 className="logo-text">Q-Asker</h1>
+          <div className="logo-area-inner" onClick={handleLogoClick}>
+            <span className="logo-icon">❓</span>
+            <h1 className="logo-text">Q-Asker</h1>
+          </div>
+        </div>
+        <div className="nav-link-area">
+          <button className="nav-link" onClick={handleQuizManagement}>
+            📋 퀴즈 기록
+          </button>
         </div>
       </div>
       <aside
@@ -79,11 +90,11 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           <button className="nav-link" onClick={handleQuizManagement}>
             📋 퀴즈 기록
           </button>
-          <button className="nav-link" onClick={handleStatistics}>
-            📊 통계
-          </button>
           <button className="nav-link" onClick={handleHelp}>
             ❓ 도움말
+          </button>
+          <button className="nav-link" onClick={handleStatistics}>
+            📊 통계
           </button>
         </nav>
       </aside>
