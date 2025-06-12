@@ -251,16 +251,20 @@ const SolveQuiz = () => {
               </div>
             ) : (
               <>
-                <div className="solve-question-area">
-                  <p className="solve-question-text">{currentQuiz.title}</p>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={currentQuiz.check || false}
-                      onChange={handleCheckToggle}
-                    />{" "}
-                    검토
-                  </label>
+                <div className="solve-question-and-review-wrapper">
+                  <div className="solve-question-area">
+                    <p className="solve-question-text">{currentQuiz.title}</p>
+                  </div>
+                  <div className="solve-review-area">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={currentQuiz.check || false}
+                        onChange={handleCheckToggle}
+                      />{" "}
+                      검토
+                    </label>
+                  </div>
                 </div>
                 <div className="solve-options-container">
                   {currentQuiz.selections.map((opt, idx) => (
