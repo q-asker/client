@@ -20,6 +20,7 @@ const QuizExplanation = () => {
   const pdfContainerRef = useRef(null);
   const [currentPdfPage, setCurrentPdfPage] = useState(0);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showWrongOnly, setShowWrongOnly] = useState(false);
 
   // state로 전달된 값 꺼내기
   const {
@@ -33,6 +34,23 @@ const QuizExplanation = () => {
   const allExplanation = Array.isArray(rawExplanation.results)
     ? rawExplanation.results
     : [];
+
+  // 오답만 보기용 필터링된 퀴즈 목록
+  const getFilteredQuizzes = () => {
+    if (!showWrongOnly) return initialQuizzes;
+
+    return initialQuizzes.filter((q) => {
+      if (q.userAnswer === undefined || q.userAnswer === null) return false;
+
+      const correctOption = q.selections.find((opt) => opt.correct === true);
+      if (!correctOption) return false;
+
+      return Number(q.userAnswer) !== Number(correctOption.id);
+    });
+  };
+
+  const filteredQuizzes = getFilteredQuizzes();
+  const filteredTotalQuestions = filteredQuizzes.length;
 
   // 로딩 체크
   const [isLoading, setIsLoading] = useState(true);
@@ -216,6 +234,22 @@ const QuizExplanation = () => {
     setCurrentPdfPage(0);
   }, [currentQuestion]);
 
+  // 오답만 보기 토글 시 현재 문제 유효성 체크
+  useEffect(() => {
+    if (showWrongOnly) {
+      if (filteredTotalQuestions === 0) {
+        // 오답이 없는 경우 토글을 다시 끄고 알림
+        setShowWrongOnly(false);
+        CustomToast.error("오답이 없습니다!");
+        return;
+      }
+
+      if (currentQuestion > filteredTotalQuestions) {
+        setCurrentQuestion(1);
+      }
+    }
+  }, [showWrongOnly, filteredTotalQuestions, currentQuestion]);
+
   if (isLoading) {
     return (
       <div className="spinner-container">
@@ -226,10 +260,13 @@ const QuizExplanation = () => {
   }
 
   // 현재 문제 객체
-  const currentQuiz = initialQuizzes[currentQuestion - 1] || {
-    selections: [],
-    userAnswer: 0,
-  };
+  const currentQuizIndex = showWrongOnly
+    ? currentQuestion - 1
+    : currentQuestion - 1;
+
+  const currentQuiz = showWrongOnly
+    ? filteredQuizzes[currentQuestion - 1] || { selections: [], userAnswer: 0 }
+    : initialQuizzes[currentQuestion - 1] || { selections: [], userAnswer: 0 };
 
   // 이 문제에 대응하는 해설을 찾되, "allExplanation"이 배열이므로 find 사용 가능
   const thisExplanationObj =
@@ -251,7 +288,10 @@ const QuizExplanation = () => {
     }
   };
   const handleNext = () => {
-    if (currentQuestion < totalQuestions) {
+    const maxQuestions = showWrongOnly
+      ? filteredTotalQuestions
+      : totalQuestions;
+    if (currentQuestion < maxQuestions) {
       const nextQuestion = currentQuestion + 1;
       // 문제 네비게이션 추적
       trackQuizEvents.navigateQuestion(
@@ -282,6 +322,15 @@ const QuizExplanation = () => {
     setShowPdf(newShowPdf);
     // PDF 슬라이드 토글 추적
     trackQuizEvents.togglePdfSlide(problemSetId, newShowPdf);
+  };
+
+  // 오답만 보기 토글 핸들러
+  const handleWrongOnlyToggle = () => {
+    const newShowWrongOnly = !showWrongOnly;
+    setShowWrongOnly(newShowWrongOnly);
+
+    // 토글 시 첫 번째 문제로 이동
+    setCurrentQuestion(1);
   };
 
   // PDF 페이지 네비게이션 핸들러
@@ -317,20 +366,17 @@ const QuizExplanation = () => {
         <div className="layout-container">
           {/* 좌측 번호 패널 */}
           <aside className="left-panel">
-            {initialQuizzes.map((q) => {
+            {filteredQuizzes.map((q, index) => {
               let resultClass = "";
-              if (q.userAnswer) {
-                // userAnswer가 0이 아닌 경우(즉, truthy)
+              if (q.userAnswer !== undefined && q.userAnswer !== null) {
+                // userAnswer가 존재하는 경우 (0 포함)
                 const correctOption = q.selections.find(
                   (opt) => opt.correct === true
                 );
 
                 if (correctOption) {
                   // 데이터 타입 불일치 방지를 위해 숫자로 변환하여 비교
-                  if (
-                    Number(q.userAnswer) === Number(correctOption.id) &&
-                    Number(q.userAnswer) !== 0
-                  ) {
+                  if (Number(q.userAnswer) === Number(correctOption.id)) {
                     resultClass = " correct";
                   } else {
                     resultClass = " incorrect";
@@ -342,9 +388,19 @@ const QuizExplanation = () => {
                 <button
                   key={q.number}
                   className={`skipped-button${resultClass}${
-                    q.number === currentQuestion ? " current" : ""
+                    showWrongOnly
+                      ? index + 1 === currentQuestion
+                        ? " current"
+                        : ""
+                      : q.number === currentQuestion
+                      ? " current"
+                      : ""
                   }`}
-                  onClick={() => handleQuestionClick(q.number)}
+                  onClick={() =>
+                    showWrongOnly
+                      ? handleQuestionClick(index + 1)
+                      : handleQuestionClick(q.number)
+                  }
                 >
                   {q.number}
                 </button>
@@ -354,10 +410,43 @@ const QuizExplanation = () => {
 
           {/* 가운데 패널: 문제 + 선지 + 확인 + 해설 */}
           <section className="center-panel">
-            <div className="counter-wrapper">
+            <div
+              className="counter-wrapper"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+                position: "relative",
+              }}
+            >
               <span className="question-counter">
-                {currentQuestion} / {totalQuestions}
+                {currentQuestion} /{" "}
+                {showWrongOnly ? filteredTotalQuestions : totalQuestions}
               </span>
+
+              {/* 오답만 보기 토글 */}
+              <div
+                className="toggle-wrapper"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  position: "absolute",
+                  right: "0",
+                }}
+              >
+                <span style={{ marginRight: "0.5rem", fontSize: "0.9rem" }}>
+                  ❌ 오답만
+                </span>
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={showWrongOnly}
+                    onChange={handleWrongOnlyToggle}
+                  />
+                  <span className="slider round" />
+                </label>
+              </div>
             </div>
 
             <div
@@ -399,7 +488,10 @@ const QuizExplanation = () => {
               <button
                 className="nav-button"
                 onClick={handleNext}
-                disabled={currentQuestion === totalQuestions}
+                disabled={
+                  currentQuestion ===
+                  (showWrongOnly ? filteredTotalQuestions : totalQuestions)
+                }
               >
                 다음
               </button>
