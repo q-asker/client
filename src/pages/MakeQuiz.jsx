@@ -105,7 +105,7 @@ const MakeQuiz = () => {
 
     if (f.size > MAX_FILE_SIZE) {
       CustomToast.error(
-        `파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`
+        `파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 있습니다.`
       );
       return;
     }
