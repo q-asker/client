@@ -19,7 +19,7 @@ const QuizExplanation = () => {
   const [pdfWidth, setPdfWidth] = useState(600);
   const pdfContainerRef = useRef(null);
   const [currentPdfPage, setCurrentPdfPage] = useState(0);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  // const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showWrongOnly, setShowWrongOnly] = useState(false);
 
   // state로 전달된 값 꺼내기
@@ -55,7 +55,8 @@ const QuizExplanation = () => {
   // 로딩 체크
   const [isLoading, setIsLoading] = useState(true);
 
-  // 피드백 다이얼로그 관련 함수들
+  // 피드백 다이얼로그 관련 함수들 - 주석 처리
+  /*
   const handleOpenFeedback = () => {
     window.open("https://forms.gle/ABE8458smVmXeu6s8", "_blank");
     setShowFeedbackModal(false);
@@ -120,8 +121,15 @@ const QuizExplanation = () => {
       navigate(targetPath);
     }
   };
+  */
 
-  // 피드백 다이얼로그 컴포넌트
+  // 피드백 다이얼로그 없이 바로 이동하는 함수
+  const handleExit = (targetPath = "/") => {
+    navigate(targetPath);
+  };
+
+  // 피드백 다이얼로그 컴포넌트 - 주석 처리
+  /*
   const FeedbackModal = () => (
     <div className="feedback-modal-overlay" onClick={handleOverlayClick}>
       <div className="feedback-modal">
@@ -195,6 +203,7 @@ const QuizExplanation = () => {
       </div>
     </div>
   );
+  */
 
   // 모든 useEffect를 여기로 이동
   useEffect(() => {
@@ -350,14 +359,11 @@ const QuizExplanation = () => {
 
   return (
     <div className="app-container">
-      {/* 피드백 모달 */}
-      {showFeedbackModal && <FeedbackModal />}
+      {/* 피드백 모달 - 주석 처리 */}
+      {/* {showFeedbackModal && <FeedbackModal />} */}
 
       <header className="navbar">
-        <button
-          className="close-button"
-          onClick={() => handleExitWithFeedback("/")}
-        >
+        <button className="close-button" onClick={() => handleExit("/")}>
           x
         </button>
       </header>
@@ -496,10 +502,7 @@ const QuizExplanation = () => {
                 다음
               </button>
             </nav>
-            <button
-              className="go-home-button"
-              onClick={() => handleExitWithFeedback("/")}
-            >
+            <button className="go-home-button" onClick={() => handleExit("/")}>
               홈으로
             </button>
 
