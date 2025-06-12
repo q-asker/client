@@ -191,6 +191,7 @@ const MakeQuiz = () => {
       const newQuizRecord = {
         problemSetId,
         fileName,
+        fileSize: file.size,
         questionCount,
         quizLevel,
         createdAt: new Date().toISOString(),
@@ -231,18 +232,14 @@ const MakeQuiz = () => {
         const latest = history[0];
         setLatestQuiz(latest);
 
-        // 파일이 업로드되지 않은 상태에서만 최신 퀴즈 자동 로드
-        if (!uploadedUrl && !problemSetId) {
-          setProblemSetId(latest.problemSetId);
+        if (!uploadedUrl) {
           // 파일 정보도 복원 (가상의 파일 객체 생성)
           const virtualFile = {
             name: latest.fileName,
-            size: 0, // 실제 크기는 알 수 없음
+            size: latest.fileSize,
           };
           setFile(virtualFile);
           setUploadedUrl(latest.uploadedUrl);
-          setQuestionCount(latest.questionCount);
-          setQuizLevel(latest.quizLevel);
         }
       }
     } catch (error) {
@@ -305,6 +302,52 @@ const MakeQuiz = () => {
     loadLatestQuiz();
   }, []);
 
+  const handleRemoveFile = () => {
+    if (file) {
+      trackMakeQuizEvents.deleteFile(file.name);
+    }
+    resetAllStates();
+  };
+
+  const resetAllStates = () => {
+    setFile(null);
+    setUploadedUrl(null);
+    setQuizData(null);
+    setIsDragging(false);
+    setQuestionType("객관식");
+    setQuestionCount(5);
+    setIsProcessing(false);
+    setVersion(0);
+    setIsSidebarOpen(false);
+    setProblemSetId(null);
+    setQuizLevel("RECALL");
+    setPageMode("전체");
+    setStartPage("");
+    setEndPage("");
+    setCountText("");
+    setShowWaitMessage(false);
+    setLatestQuiz(null);
+  };
+
+  const handleReCreate = () => {
+    setProblemSetId(null);
+    setQuizData(null);
+    setVersion((prev) => prev + 1);
+    setPageMode("전체");
+    setStartPage("");
+    setEndPage("");
+    setCountText("");
+    setShowWaitMessage(false);
+    setLatestQuiz(null);
+  };
+
+  const handleNavigateToQuiz = () => {
+    trackMakeQuizEvents.navigateToQuiz(problemSetId);
+    navigate(`/quiz/${problemSetId}`, {
+      state: { uploadedUrl },
+    });
+  };
+
   return (
     <>
       <Header
@@ -350,17 +393,8 @@ const MakeQuiz = () => {
             <>
               <div className="file-icon">📄</div>
               <h3>{file.name}</h3>
-              <p>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-              <button
-                className="remove-button"
-                onClick={() => {
-                  if (file) {
-                    trackMakeQuizEvents.deleteFile(file.name);
-                  }
-                  setFile(null);
-                  setUploadedUrl(null);
-                }}
-              >
+              {file.size && <p>{(file.size / 1024 / 1024).toFixed(2)} MB</p>}
+              <button className="remove-button" onClick={handleRemoveFile}>
                 ✕ 파일 삭제
               </button>
             </>
@@ -518,38 +552,15 @@ const MakeQuiz = () => {
                     </h3>
                   </div>
                   <div className="problem-actions">
-                    <button
-                      className="btn cancle"
-                      onClick={() => {
-                        if (file) {
-                          trackMakeQuizEvents.deleteFile(file.name);
-                        }
-                        setFile(null);
-                        setUploadedUrl(null);
-                        setVersion(0);
-                      }}
-                    >
+                    <button className="btn cancle" onClick={handleRemoveFile}>
                       다른 파일 넣기
                     </button>
-                    <button
-                      className="btn manage"
-                      onClick={() => {
-                        setProblemSetId(null);
-                        setQuizData(null);
-                        setQuizLevel("RECALL");
-                        setPageMode("전체");
-                      }}
-                    >
+                    <button className="btn manage" onClick={handleReCreate}>
                       다른 문제 생성
                     </button>
                     <button
                       className="btn mapping"
-                      onClick={() => {
-                        trackMakeQuizEvents.navigateToQuiz(problemSetId);
-                        navigate(`/quiz/${problemSetId}`, {
-                          state: { uploadedUrl },
-                        });
-                      }}
+                      onClick={handleNavigateToQuiz}
                     >
                       문제로 이동하기
                     </button>
