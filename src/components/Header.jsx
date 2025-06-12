@@ -66,7 +66,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
         </div>
         <div className="nav-link-area">
           <button className="nav-link" onClick={handleQuizManagement}>
-            📋 퀴즈 기록
+            📋 <strong>퀴즈 기록</strong>
           </button>
         </div>
       </div>
@@ -88,7 +88,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
             ➕ 문제 만들기
           </button>
           <button className="nav-link" onClick={handleQuizManagement}>
-            📋 퀴즈 기록
+            📋 <strong>퀴즈 기록</strong>
           </button>
           <button className="nav-link" onClick={handleStatistics}>
             📊 통계
