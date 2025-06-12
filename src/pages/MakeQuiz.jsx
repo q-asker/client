@@ -233,6 +233,7 @@ const MakeQuiz = () => {
         setLatestQuiz(latest);
 
         if (!uploadedUrl) {
+          setProblemSetId(latest.problemSetId);
           // 파일 정보도 복원 (가상의 파일 객체 생성)
           const virtualFile = {
             name: latest.fileName,
@@ -332,7 +333,6 @@ const MakeQuiz = () => {
   const handleReCreate = () => {
     setProblemSetId(null);
     setQuizData(null);
-    setVersion((prev) => prev + 1);
     setPageMode("전체");
     setStartPage("");
     setEndPage("");
