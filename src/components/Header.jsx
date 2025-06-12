@@ -90,11 +90,11 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           <button className="nav-link" onClick={handleQuizManagement}>
             📋 퀴즈 기록
           </button>
-          <button className="nav-link" onClick={handleHelp}>
-            ❓ 도움말
-          </button>
           <button className="nav-link" onClick={handleStatistics}>
             📊 통계
+          </button>
+          <button className="nav-link" onClick={handleHelp}>
+            ❓ 도움말
           </button>
         </nav>
       </aside>
