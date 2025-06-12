@@ -130,6 +130,7 @@ body {
   border-radius: 0.5rem;
   padding: 1rem;
   justify-content: space-between;
+  align-items: center;
 }
 
 .solve-check-container {
@@ -139,6 +140,31 @@ body {
 .solve-question-text {
   margin: 0;
   font-size: 1rem;
+}
+
+/* 검토 체크박스 스타일 */
+.solve-question-area label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #4a5568;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.solve-question-area label:hover {
+  color: #6a33f8;
+}
+
+.solve-question-area label input[type="checkbox"] {
+  margin-right: 0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: #6a33f8;
+  cursor: pointer;
+  transform: scale(1.1);
 }
 
 /* 선택지 리스트 - 세로 배치 */
@@ -154,7 +180,8 @@ body {
   align-items: center;
   background-color: #fff;
   border-radius: 0.5rem;
-  padding: 0.75rem;
+  padding: 1.25rem 0.75rem;
+  min-height: 3.5rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -180,7 +207,8 @@ body {
 
 .solve-option-text {
   font-size: 1rem;
-  line-height: 1;
+  line-height: 1.8;
+  padding-right: 0.75rem;
 }
 
 /* 제출 버튼 */
@@ -295,7 +323,7 @@ body {
     font-size: 0.9rem;
   }
   .solve-question-nav span {
-    flex: 1;                      /* “현재/전체” 텍스트도 버튼과 같은 너비로 */
+    flex: 1;                      /* "현재/전체" 텍스트도 버튼과 같은 너비로 */
     text-align: center;           /* 가운데 정렬 */
     font-size: 0.9rem;
   }
@@ -323,10 +351,13 @@ body {
     margin-top: 0.5rem;
   }
   .solve-option {
-    padding: 0.5rem;
+    padding: 1rem 0.5rem;
+    min-height: 3rem;
   }
   .solve-option .solve-option-text {
     font-size: 0.9rem;
+    line-height: 1.6;
+    padding-right: 0.5rem;
   }
   .solve-option-icon {
     width: 1.5rem;
@@ -334,7 +365,18 @@ body {
     margin-right: 0.5rem;
   }
 
-  /* 8) 확인 버튼 및 제출하기 버튼을 폭 100%로 */
+  /* 8) 검토 체크박스 모바일 스타일 */
+  .solve-question-area label {
+    font-size: 0.9rem;
+  }
+  
+  .solve-question-area label input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    transform: scale(1);
+  }
+
+  /* 9) 확인 버튼 및 제출하기 버튼을 폭 100%로 */
   .solve-submit-button {
     width: 100%;
     padding: 0.75rem;

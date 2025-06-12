@@ -188,10 +188,6 @@ const SolveQuiz = () => {
       // 문제 네비게이션 추적
       trackQuizEvents.navigateQuestion(problemSetId, currentQuestion, num);
     }
-
-    setQuizzes((prev) =>
-      prev.map((q, idx) => (idx === num - 1 ? { ...q, check: false } : q))
-    );
     setCurrentQuestion(num);
   };
 
@@ -263,7 +259,7 @@ const SolveQuiz = () => {
                       checked={currentQuiz.check || false}
                       onChange={handleCheckToggle}
                     />{" "}
-                    검토하기
+                    검토
                   </label>
                 </div>
                 <div className="solve-options-container">
