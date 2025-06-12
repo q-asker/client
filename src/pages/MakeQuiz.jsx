@@ -358,7 +358,7 @@ const MakeQuiz = () => {
                     trackMakeQuizEvents.deleteFile(file.name);
                   }
                   setFile(null);
-                  window.location.reload();
+                  setUploadedUrl(null);
                 }}
               >
                 ✕ 파일 삭제
@@ -477,9 +477,9 @@ const MakeQuiz = () => {
                   }
                 }}
               >
-                <option value="RECALL">Recall</option>
-                <option value="SKILLS">Skills</option>
-                <option value="STRATEGIC">Strategic</option>
+                <option value="RECALL">Easy</option>
+                <option value="SKILLS">Normal</option>
+                <option value="STRATEGIC">Hard</option>
               </select>
 
               {/* ② 선택한 난이도에 해당하는 설명을 옆에 출력 */}
@@ -527,12 +527,19 @@ const MakeQuiz = () => {
                         setFile(null);
                         setUploadedUrl(null);
                         setVersion(0);
-                        window.location.reload();
                       }}
                     >
                       다른 파일 넣기
                     </button>
-                    <button className="btn manage" onClick={generateQuestions}>
+                    <button
+                      className="btn manage"
+                      onClick={() => {
+                        setProblemSetId(null);
+                        setQuizData(null);
+                        setQuizLevel("RECALL");
+                        setPageMode("전체");
+                      }}
+                    >
                       다른 문제 생성
                     </button>
                     <button
