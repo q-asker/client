@@ -1,4 +1,4 @@
-name: DEV용 S3에 업로드드
+name: DEV용 S3에 업로드
 
 on:
   push:
