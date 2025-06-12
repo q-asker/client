@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { trackHelpEvents } from "../utils/analytics";
 import "./Help.css";
 
@@ -233,13 +233,13 @@ const Help = () => {
               <h4>🎯 난이도별 활용법</h4>
               <ul>
                 <li>
-                  <strong>Recall:</strong> 시험 전 기본 개념 점검
+                  <strong>Easy:</strong> 시험 전 기본 개념 점검
                 </li>
                 <li>
-                  <strong>Skills:</strong> 실습이나 과제 준비
+                  <strong>Medium:</strong> 실습이나 과제 준비
                 </li>
                 <li>
-                  <strong>Strategic:</strong> 심화 학습 및 응용 연습
+                  <strong>Hard:</strong> 심화 학습 및 응용 연습
                 </li>
               </ul>
             </div>

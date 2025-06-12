@@ -31,7 +31,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
 
   const handleQuizManagement = () => {
     setIsSidebarOpen(false);
-    CustomToast.info("개발중입니다!");
+    navigate("/history");
   };
 
   const handleStatistics = () => {
@@ -42,6 +42,10 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
   const handleHelp = () => {
     setIsSidebarOpen(false);
     navigate("/help?source=header");
+  };
+
+  const handleLogoClick = () => {
+    navigate("/");
   };
 
   return (
@@ -55,8 +59,15 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           >
             ☰
           </button>
-          <span className="logo-icon">❓</span>
-          <h1 className="logo-text">Q-Asker</h1>
+          <div className="logo-area-inner" onClick={handleLogoClick}>
+            <span className="logo-icon">❓</span>
+            <h1 className="logo-text">Q-Asker</h1>
+          </div>
+        </div>
+        <div className="nav-link-area">
+          <button className="nav-link" onClick={handleQuizManagement}>
+            📋 <strong>퀴즈 기록</strong>
+          </button>
         </div>
       </div>
       <aside
@@ -77,7 +88,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
             ➕ 문제 만들기
           </button>
           <button className="nav-link" onClick={handleQuizManagement}>
-            📋 문제 관리
+            📋 <strong>퀴즈 기록</strong>
           </button>
           <button className="nav-link" onClick={handleStatistics}>
             📊 통계

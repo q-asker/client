@@ -124,21 +124,53 @@ body {
 }
 
 /* 질문 텍스트 박스 */
-.solve-question-area {
+.solve-question-and-review-wrapper {
   display: flex;
   background-color: #e6ebf1;
   border-radius: 0.5rem;
   padding: 1rem;
-  justify-content: space-between;
+  align-items: center;
 }
 
-.solve-check-container {
-  margin-right: 0;
+.solve-question-area {
+  flex: 1;
+  padding-right: 0.75rem; /* 문제와 구분선 사이 간격 */
 }
 
 .solve-question-text {
   margin: 0;
   font-size: 1rem;
+  line-height: 1.5;
+}
+
+.solve-review-area {
+  border-left: 1px solid #c8d0d9;
+  padding-left: 0.75rem;
+}
+
+/* 검토 체크박스 스타일 */
+.solve-review-area label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #4a5568;
+  transition: color 0.2s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.solve-review-area label:hover {
+  color: #6a33f8;
+}
+
+.solve-review-area label input[type="checkbox"] {
+  margin-right: 0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: #6a33f8;
+  cursor: pointer;
 }
 
 /* 선택지 리스트 - 세로 배치 */
@@ -154,7 +186,8 @@ body {
   align-items: center;
   background-color: #fff;
   border-radius: 0.5rem;
-  padding: 0.75rem;
+  padding: 1.25rem 0.75rem;
+  min-height: 3.5rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -180,7 +213,8 @@ body {
 
 .solve-option-text {
   font-size: 1rem;
-  line-height: 1;
+  line-height: 1.8;
+  padding-right: 0.75rem;
 }
 
 /* 제출 버튼 */
@@ -295,7 +329,7 @@ body {
     font-size: 0.9rem;
   }
   .solve-question-nav span {
-    flex: 1;                      /* “현재/전체” 텍스트도 버튼과 같은 너비로 */
+    flex: 1;                      /* "현재/전체" 텍스트도 버튼과 같은 너비로 */
     text-align: center;           /* 가운데 정렬 */
     font-size: 0.9rem;
   }
@@ -323,10 +357,13 @@ body {
     margin-top: 0.5rem;
   }
   .solve-option {
-    padding: 0.5rem;
+    padding: 1rem 0.5rem;
+    min-height: 3rem;
   }
   .solve-option .solve-option-text {
     font-size: 0.9rem;
+    line-height: 1.6;
+    padding-right: 0.5rem;
   }
   .solve-option-icon {
     width: 1.5rem;
@@ -334,7 +371,17 @@ body {
     margin-right: 0.5rem;
   }
 
-  /* 8) 확인 버튼 및 제출하기 버튼을 폭 100%로 */
+  /* 8) 검토 체크박스 모바일 스타일 */
+  .solve-question-area label {
+    font-size: 0.9rem;
+  }
+  
+  .solve-question-area label input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  /* 9) 확인 버튼 및 제출하기 버튼을 폭 100%로 */
   .solve-submit-button {
     width: 100%;
     padding: 0.75rem;
@@ -347,5 +394,255 @@ body {
     margin-top: 1rem;
   }
 
+  /* --- 반응형: 문제+검토 영역 --- */
+  .solve-question-and-review-wrapper {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .solve-question-area {
+    padding-right: 0;
+    width: 100%; /* 너비를 100%로 설정 */
+  }
+
+  .solve-review-area {
+    border-left: none;
+    padding-left: 0;
+    align-self: flex-end; /* 검토 영역을 오른쪽으로 정렬 */
+  }
+
   /* 9) (원한다면) 로딩 스피너 중앙 정렬 유지 */
+}
+
+/* 제출 다이얼로그 스타일 */
+.submit-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.submit-dialog {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.submit-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.submit-dialog-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.submit-dialog-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.submit-dialog-close:hover {
+  background-color: #f3f4f6;
+}
+
+.submit-dialog-content {
+  padding: 24px;
+}
+
+.submit-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.stat-value {
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.stat-value.answered {
+  color: #059669;
+  background-color: #d1fae5;
+}
+
+.stat-value.unanswered {
+  color: #dc2626;
+  background-color: #fee2e2;
+}
+
+.stat-value.review {
+  color: #d97706;
+  background-color: #fef3c7;
+}
+
+.submit-answers h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.answers-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.answer-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.answer-item:last-child {
+  border-bottom: none;
+}
+
+.answer-number {
+  font-weight: 600;
+  color: #374151;
+  min-width: 50px;
+}
+
+.answer-text {
+  flex: 1;
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.answer-text.unanswered {
+  color: #dc2626;
+  font-style: italic;
+}
+
+.answer-text.review {
+  color: #d97706;
+}
+
+.review-badge {
+  background-color: #fbbf24;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.submit-dialog-buttons {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid #e5e7eb;
+  justify-content: flex-end;
+}
+
+.submit-button {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.submit-button.cancel {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.submit-button.cancel:hover {
+  background-color: #e5e7eb;
+}
+
+.submit-button.confirm {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.submit-button.confirm:hover {
+  background-color: #2563eb;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .submit-dialog {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .submit-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .submit-dialog-buttons {
+    flex-direction: column;
+  }
+  
+  .submit-button {
+    width: 100%;
+  }
 }

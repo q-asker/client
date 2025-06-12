@@ -20,6 +20,7 @@ const QuizExplanation = () => {
   const pdfContainerRef = useRef(null);
   const [currentPdfPage, setCurrentPdfPage] = useState(0);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showWrongOnly, setShowWrongOnly] = useState(false);
 
   // state로 전달된 값 꺼내기
   const {
@@ -28,13 +29,28 @@ const QuizExplanation = () => {
     uploadedUrl,
   } = state || {};
 
-  const isPdfFile = uploadedUrl?.toLowerCase().endsWith(".pdf");
-
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const totalQuestions = initialQuizzes.length;
   const allExplanation = Array.isArray(rawExplanation.results)
     ? rawExplanation.results
     : [];
+
+  // 오답만 보기용 필터링된 퀴즈 목록
+  const getFilteredQuizzes = () => {
+    if (!showWrongOnly) return initialQuizzes;
+
+    return initialQuizzes.filter((q) => {
+      if (q.userAnswer === undefined || q.userAnswer === null) return false;
+
+      const correctOption = q.selections.find((opt) => opt.correct === true);
+      if (!correctOption) return false;
+
+      return Number(q.userAnswer) !== Number(correctOption.id);
+    });
+  };
+
+  const filteredQuizzes = getFilteredQuizzes();
+  const filteredTotalQuestions = filteredQuizzes.length;
 
   // 로딩 체크
   const [isLoading, setIsLoading] = useState(true);
@@ -218,6 +234,22 @@ const QuizExplanation = () => {
     setCurrentPdfPage(0);
   }, [currentQuestion]);
 
+  // 오답만 보기 토글 시 현재 문제 유효성 체크
+  useEffect(() => {
+    if (showWrongOnly) {
+      if (filteredTotalQuestions === 0) {
+        // 오답이 없는 경우 토글을 다시 끄고 알림
+        setShowWrongOnly(false);
+        CustomToast.error("오답이 없습니다!");
+        return;
+      }
+
+      if (currentQuestion > filteredTotalQuestions) {
+        setCurrentQuestion(1);
+      }
+    }
+  }, [showWrongOnly, filteredTotalQuestions, currentQuestion]);
+
   if (isLoading) {
     return (
       <div className="spinner-container">
@@ -228,10 +260,13 @@ const QuizExplanation = () => {
   }
 
   // 현재 문제 객체
-  const currentQuiz = initialQuizzes[currentQuestion - 1] || {
-    selections: [],
-    userAnswer: 0,
-  };
+  const currentQuizIndex = showWrongOnly
+    ? currentQuestion - 1
+    : currentQuestion - 1;
+
+  const currentQuiz = showWrongOnly
+    ? filteredQuizzes[currentQuestion - 1] || { selections: [], userAnswer: 0 }
+    : initialQuizzes[currentQuestion - 1] || { selections: [], userAnswer: 0 };
 
   // 이 문제에 대응하는 해설을 찾되, "allExplanation"이 배열이므로 find 사용 가능
   const thisExplanationObj =
@@ -253,7 +288,10 @@ const QuizExplanation = () => {
     }
   };
   const handleNext = () => {
-    if (currentQuestion < totalQuestions) {
+    const maxQuestions = showWrongOnly
+      ? filteredTotalQuestions
+      : totalQuestions;
+    if (currentQuestion < maxQuestions) {
       const nextQuestion = currentQuestion + 1;
       // 문제 네비게이션 추적
       trackQuizEvents.navigateQuestion(
@@ -284,6 +322,15 @@ const QuizExplanation = () => {
     setShowPdf(newShowPdf);
     // PDF 슬라이드 토글 추적
     trackQuizEvents.togglePdfSlide(problemSetId, newShowPdf);
+  };
+
+  // 오답만 보기 토글 핸들러
+  const handleWrongOnlyToggle = () => {
+    const newShowWrongOnly = !showWrongOnly;
+    setShowWrongOnly(newShowWrongOnly);
+
+    // 토글 시 첫 번째 문제로 이동
+    setCurrentQuestion(1);
   };
 
   // PDF 페이지 네비게이션 핸들러
@@ -319,27 +366,87 @@ const QuizExplanation = () => {
         <div className="layout-container">
           {/* 좌측 번호 패널 */}
           <aside className="left-panel">
-            {initialQuizzes.map((q) => (
-              <button
-                key={q.number}
-                className={`skipped-button${
-                  q.userAnswer !== 0 ? " answered" : ""
-                }${q.check ? " checked" : ""}${
-                  q.number === currentQuestion ? " current" : ""
-                }`}
-                onClick={() => handleQuestionClick(q.number)}
-              >
-                {q.number}
-              </button>
-            ))}
+            {filteredQuizzes.map((q, index) => {
+              let resultClass = "";
+              if (q.userAnswer !== undefined && q.userAnswer !== null) {
+                // userAnswer가 존재하는 경우 (0 포함)
+                const correctOption = q.selections.find(
+                  (opt) => opt.correct === true
+                );
+
+                if (correctOption) {
+                  // 데이터 타입 불일치 방지를 위해 숫자로 변환하여 비교
+                  if (Number(q.userAnswer) === Number(correctOption.id)) {
+                    resultClass = " correct";
+                  } else {
+                    resultClass = " incorrect";
+                  }
+                }
+              }
+
+              return (
+                <button
+                  key={q.number}
+                  className={`skipped-button${resultClass}${
+                    showWrongOnly
+                      ? index + 1 === currentQuestion
+                        ? " current"
+                        : ""
+                      : q.number === currentQuestion
+                      ? " current"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    showWrongOnly
+                      ? handleQuestionClick(index + 1)
+                      : handleQuestionClick(q.number)
+                  }
+                >
+                  {q.number}
+                </button>
+              );
+            })}
           </aside>
 
           {/* 가운데 패널: 문제 + 선지 + 확인 + 해설 */}
           <section className="center-panel">
-            <div className="counter-wrapper">
+            <div
+              className="counter-wrapper"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+                position: "relative",
+              }}
+            >
               <span className="question-counter">
-                {currentQuestion} / {totalQuestions}
+                {currentQuestion} /{" "}
+                {showWrongOnly ? filteredTotalQuestions : totalQuestions}
               </span>
+
+              {/* 오답만 보기 토글 */}
+              <div
+                className="toggle-wrapper"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  position: "absolute",
+                  right: "0",
+                }}
+              >
+                <span style={{ marginRight: "0.5rem", fontSize: "0.9rem" }}>
+                  ❌ 오답만
+                </span>
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={showWrongOnly}
+                    onChange={handleWrongOnlyToggle}
+                  />
+                  <span className="slider round" />
+                </label>
+              </div>
             </div>
 
             <div
@@ -381,7 +488,10 @@ const QuizExplanation = () => {
               <button
                 className="nav-button"
                 onClick={handleNext}
-                disabled={currentQuestion === totalQuestions}
+                disabled={
+                  currentQuestion ===
+                  (showWrongOnly ? filteredTotalQuestions : totalQuestions)
+                }
               >
                 다음
               </button>
@@ -396,6 +506,25 @@ const QuizExplanation = () => {
             <div className="explanation-box">
               <h3 className="explanation-title">해설</h3>
               <p className="explanation-text">{thisExplanationText}</p>
+
+              <div className="all-referenced-pages">
+                <h4 className="all-pages-title">📚 참조 페이지</h4>
+                <div className="pages-list">
+                  {allExplanation[currentQuestion - 1]?.referencedPages?.map(
+                    (page, index) => (
+                      <span
+                        key={index}
+                        className={`page-number ${
+                          currentPdfPage === index ? "active" : ""
+                        }`}
+                        onClick={() => setCurrentPdfPage(index)}
+                      >
+                        {page}
+                      </span>
+                    )
+                  )}
+                </div>
+              </div>
 
               {/**추가 사항 */}
               <div className="pdf-slide-box">
@@ -421,45 +550,45 @@ const QuizExplanation = () => {
                   </label>
                 </div>
               </div>
-              {showPdf &&
-                (isPdfFile ? (
-                  <div className="pdf-slide-box" ref={pdfContainerRef}>
-                    <div className="pdf-navigation">
-                      <button
-                        className="pdf-nav-button"
-                        onClick={handlePrevPdfPage}
-                        disabled={currentPdfPage === 0}
-                      >
-                        ←
-                      </button>
-                      <span className="pdf-page-counter">
-                        슬라이드의
-                        {" " +
-                          allExplanation[currentQuestion - 1]?.referencedPages[
-                            currentPdfPage
-                          ] +
-                          " "}
-                        페이지
-                      </span>
-                      <button
-                        className="pdf-nav-button"
-                        onClick={handleNextPdfPage}
-                        disabled={
-                          currentPdfPage ===
-                          allExplanation[currentQuestion - 1].referencedPages
-                            .length -
-                            1
-                        }
-                      >
-                        →
-                      </button>
-                    </div>
+              {showPdf && (
+                <div className="pdf-slide-box" ref={pdfContainerRef}>
+                  <div className="pdf-navigation">
+                    <button
+                      className="pdf-nav-button"
+                      onClick={handlePrevPdfPage}
+                      disabled={currentPdfPage === 0}
+                    >
+                      ←
+                    </button>
+                    <span className="pdf-page-counter">
+                      슬라이드의
+                      {" " +
+                        allExplanation[currentQuestion - 1]?.referencedPages[
+                          currentPdfPage
+                        ] +
+                        " "}
+                      페이지
+                    </span>
+                    <button
+                      className="pdf-nav-button"
+                      onClick={handleNextPdfPage}
+                      disabled={
+                        currentPdfPage ===
+                        allExplanation[currentQuestion - 1].referencedPages
+                          .length -
+                          1
+                      }
+                    >
+                      →
+                    </button>
+                  </div>
+                  {!uploadedUrl ? (
+                    <p>파일 링크가 만료되었습니다.</p>
+                  ) : uploadedUrl.toLowerCase().endsWith(".pdf") ? (
                     <Document
                       file={uploadedUrl}
                       loading={<p>PDF 로딩 중...</p>}
-                      onLoadError={(err) =>
-                        console.error("PDF 로드 에러:", err)
-                      }
+                      onLoadError={(err) => <p>파일이 존재하지 않습니다.</p>}
                     >
                       <Page
                         pageNumber={
@@ -472,10 +601,11 @@ const QuizExplanation = () => {
                         renderAnnotationLayer={false}
                       />
                     </Document>
-                  </div>
-                ) : (
-                  <p>현재는 pdf파일만 지원합니다.</p>
-                ))}
+                  ) : (
+                    <p>현재는 pdf 파일만 지원합니다.</p>
+                  )}
+                </div>
+              )}
             </div>
           </section>
 
