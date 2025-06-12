@@ -99,7 +99,7 @@ const MakeQuiz = () => {
   const selectFile = async (f, method = "click") => {
     const ext = f.name.split(".").pop().toLowerCase();
     if (!["pptx", "pdf"].includes(ext)) {
-      CustomToast.error("PPTX 또는 PDF 파일만 업로드 가능합니다.");
+      CustomToast.error("PPTX 또는 PDF 파일만 업로드 가능합니다 예.");
       return;
     }
 
