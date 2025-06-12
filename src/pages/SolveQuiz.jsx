@@ -2,7 +2,7 @@
 
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { trackQuizEvents } from "../utils/analytics";
 import "./SolveQuiz.css";
@@ -19,6 +19,7 @@ const SolveQuiz = () => {
   const [currentTime, setCurrentTime] = useState("00:00:00");
   const [selectedOption, setSelectedOption] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
+  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const totalQuestions = quizzes.length;
 
   // Redirect if no problemSetId
@@ -163,12 +164,13 @@ const SolveQuiz = () => {
   };
 
   const handleFinish = () => {
+    setShowSubmitDialog(true);
+  };
+
+  const handleConfirmSubmit = useCallback(() => {
     const unansweredCount = quizzes.filter((q) => q.userAnswer === 0).length;
     const reviewCount = quizzes.filter((q) => q.check).length;
     const answeredCount = quizzes.length - unansweredCount;
-
-    const message = `안푼 문제: ${unansweredCount}개, 검토할 문제: ${reviewCount}개\n정말 제출하시겠습니까?`;
-    if (!window.confirm(message)) return;
 
     // 퀴즈 제출 추적
     trackQuizEvents.submitQuiz(
@@ -181,7 +183,11 @@ const SolveQuiz = () => {
     navigate(`/result/${problemSetId}`, {
       state: { quizzes, totalTime: currentTime, uploadedUrl },
     });
-  };
+  }, [quizzes, problemSetId, currentTime, uploadedUrl, navigate]);
+
+  const handleCancelSubmit = useCallback(() => {
+    setShowSubmitDialog(false);
+  }, []);
 
   const handleJumpTo = (num) => {
     if (num !== currentQuestion) {
@@ -190,6 +196,17 @@ const SolveQuiz = () => {
     }
     setCurrentQuestion(num);
   };
+
+  // 제출 다이얼로그용 통계 계산
+  const unansweredCount = quizzes.filter((q) => q.userAnswer === 0).length;
+  const reviewCount = quizzes.filter((q) => q.check).length;
+  const answeredCount = quizzes.length - unansweredCount;
+
+  const handleOverlayClick = useCallback((e) => {
+    if (e.target === e.currentTarget) {
+      setShowSubmitDialog(false);
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -204,6 +221,93 @@ const SolveQuiz = () => {
 
   return (
     <div className="solve-app-container">
+      {/* 제출 다이얼로그 */}
+      {showSubmitDialog && (
+        <div className="submit-dialog-overlay" onClick={handleOverlayClick}>
+          <div className="submit-dialog">
+            <div className="submit-dialog-header">
+              <h2>제출 확인</h2>
+              <button
+                className="submit-dialog-close"
+                onClick={handleCancelSubmit}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="submit-dialog-content">
+              {/* 상단 통계 정보 */}
+              <div className="submit-stats">
+                <div className="stat-item">
+                  <span className="stat-label">전체 문제:</span>
+                  <span className="stat-value">{quizzes.length}개</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">답변한 문제:</span>
+                  <span className="stat-value answered">{answeredCount}개</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">안푼 문제:</span>
+                  <span className="stat-value unanswered">
+                    {unansweredCount}개
+                  </span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">검토할 문제:</span>
+                  <span className="stat-value review">{reviewCount}개</span>
+                </div>
+              </div>
+
+              {/* 하단 문제별 선택 답안 */}
+              <div className="submit-answers">
+                <h3>선택한 답안</h3>
+                <div className="answers-list">
+                  {quizzes.map((quiz) => {
+                    const selectedAnswer =
+                      quiz.userAnswer === 0
+                        ? "미선택"
+                        : quiz.selections?.find(
+                            (sel) => sel.id === quiz.userAnswer
+                          )?.content || `${quiz.userAnswer}번`;
+
+                    return (
+                      <div key={quiz.number} className="answer-item">
+                        <span className="answer-number">{quiz.number}번:</span>
+                        <span
+                          className={`answer-text ${
+                            quiz.userAnswer === 0 ? "unanswered" : ""
+                          } ${quiz.check ? "review" : ""}`}
+                        >
+                          {selectedAnswer}
+                          {quiz.check && (
+                            <span className="review-badge">검토</span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="submit-dialog-buttons">
+              <button
+                className="submit-button cancel"
+                onClick={handleCancelSubmit}
+              >
+                취소
+              </button>
+              <button
+                className="submit-button confirm"
+                onClick={handleConfirmSubmit}
+              >
+                제출하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="solve-navbar">
         {/* 헤더는 항상 보여주고 */}
         <button className="solve-close-button" onClick={() => navigate("/")}>
