@@ -179,7 +179,7 @@ const MakeQuiz = () => {
     } catch (error) {
       CustomToast.error(
         error?.response?.data?.message ||
-          "문제 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+          "문제 생성 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요."
       );
     } finally {
       setIsProcessing(false);
