@@ -177,10 +177,7 @@ const MakeQuiz = () => {
         generationTime
       );
     } catch (error) {
-      CustomToast.error(
-        error?.response?.data?.message ||
-          "문제 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-      );
+      resetAllStates();
     } finally {
       setIsProcessing(false);
     }
