@@ -176,6 +176,8 @@ const MakeQuiz = () => {
         result.problemSetId,
         generationTime
       );
+    } catch (error) {
+      resetAllStates();
     } finally {
       setIsProcessing(false);
     }
