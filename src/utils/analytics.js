@@ -284,3 +284,81 @@ export const trackHelpEvents = {
     });
   },
 };
+
+// QuizHistory 페이지 이벤트들
+export const trackQuizHistoryEvents = {
+  // 히스토리 페이지 진입
+  viewHistory: (totalQuizzes, completedQuizzes, averageScore) => {
+    logEvent("view_quiz_history", {
+      total_quizzes: totalQuizzes,
+      completed_quizzes: completedQuizzes,
+      average_score: averageScore,
+      completion_rate: totalQuizzes > 0 ? Math.round((completedQuizzes / totalQuizzes) * 100) : 0,
+    });
+  },
+
+  // 해설 보기 버튼 클릭
+  clickViewExplanation: (problemSetId, quizLevel, score) => {
+    logEvent("history_view_explanation", {
+      problem_set_id: problemSetId,
+      quiz_level: quizLevel,
+      score: score,
+    });
+  },
+
+  // 다시풀기 버튼 클릭 (완료된 퀴즈)
+  clickRetryQuiz: (problemSetId, quizLevel, previousScore) => {
+    logEvent("history_retry_quiz", {
+      problem_set_id: problemSetId,
+      quiz_level: quizLevel,
+      previous_score: previousScore,
+    });
+  },
+
+  // 퀴즈 풀기 버튼 클릭 (미완료 퀴즈)
+  clickResumeQuiz: (problemSetId, quizLevel, questionCount) => {
+    logEvent("history_resume_quiz", {
+      problem_set_id: problemSetId,
+      quiz_level: quizLevel,
+      question_count: questionCount,
+    });
+  },
+
+  // 개별 기록 삭제
+  deleteQuizRecord: (problemSetId, quizStatus, quizLevel) => {
+    logEvent("history_delete_record", {
+      problem_set_id: problemSetId,
+      quiz_status: quizStatus, // 'completed' or 'created'
+      quiz_level: quizLevel,
+    });
+  },
+
+  // 전체 기록 삭제
+  clearAllHistory: (totalRecords, completedRecords) => {
+    logEvent("history_clear_all", {
+      total_records: totalRecords,
+      completed_records: completedRecords,
+    });
+  },
+
+  // 통계 카드 상호작용
+  interactWithStats: (statType, statValue) => {
+    logEvent("history_stats_interact", {
+      stat_type: statType, // 'total', 'completed', 'completion_rate', 'average_score'
+      stat_value: statValue,
+    });
+  },
+
+  // 히스토리 페이지 체류 시간
+  trackTimeSpent: (timeSpent, totalQuizzes) => {
+    logEvent("history_time_spent", {
+      time_seconds: timeSpent,
+      total_quizzes: totalQuizzes,
+    });
+  },
+
+  // 빈 히스토리에서 퀴즈 만들기 버튼 클릭
+  clickCreateFromEmpty: () => {
+    logEvent("history_create_from_empty");
+  },
+};

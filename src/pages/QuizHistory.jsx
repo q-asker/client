@@ -1,8 +1,9 @@
 import CustomToast from "#shared/toast";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import axiosInstance from "#shared/api";
+import { trackQuizHistoryEvents } from "../utils/analytics";
 import "./QuizHistory.css";
 
 const QuizHistory = () => {
@@ -11,6 +12,9 @@ const QuizHistory = () => {
   const [loading, setLoading] = useState(true);
   const [explanationLoading, setExplanationLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // 체류 시간 추적을 위한 ref
+  const startTimeRef = useRef(Date.now());
 
   // 퀴즈 기록 불러오기
   const loadQuizHistory = () => {
@@ -84,6 +88,13 @@ const QuizHistory = () => {
       CustomToast.info("완료된 퀴즈만 해설을 볼 수 있습니다.");
       return;
     }
+
+    // 해설 보기 버튼 클릭 추적
+    trackQuizHistoryEvents.clickViewExplanation(
+      record.problemSetId,
+      record.quizLevel,
+      record.score
+    );
 
     console.log("=== 해설 페이지 이동 시작 ===");
     console.log("선택된 기록:", record);
@@ -172,6 +183,23 @@ const QuizHistory = () => {
 
   // 퀴즈 다시 풀기 (문제 생성 페이지로 이동)
   const navigateToQuiz = (record) => {
+    // 퀴즈 상태에 따라 다른 이벤트 추적
+    if (record.status === "completed") {
+      // 완료된 퀴즈 다시 풀기
+      trackQuizHistoryEvents.clickRetryQuiz(
+        record.problemSetId,
+        record.quizLevel,
+        record.score
+      );
+    } else {
+      // 미완료 퀴즈 이어서 풀기
+      trackQuizHistoryEvents.clickResumeQuiz(
+        record.problemSetId,
+        record.quizLevel,
+        record.questionCount
+      );
+    }
+
     navigate(`/quiz/${record.problemSetId}`, {
       state: {
         uploadedUrl: record.uploadedUrl,
@@ -183,6 +211,17 @@ const QuizHistory = () => {
   const deleteQuizRecord = (problemSetId) => {
     if (window.confirm("이 기록을 삭제하시겠습니까?")) {
       try {
+        const record = quizHistory.find(
+          (item) => item.problemSetId === problemSetId
+        );
+
+        // 삭제 이벤트 추적
+        trackQuizHistoryEvents.deleteQuizRecord(
+          problemSetId,
+          record?.status || "unknown",
+          record?.quizLevel || "unknown"
+        );
+
         const updatedHistory = quizHistory.filter(
           (item) => item.problemSetId !== problemSetId
         );
@@ -204,6 +243,16 @@ const QuizHistory = () => {
       )
     ) {
       try {
+        const completed = quizHistory.filter(
+          (item) => item.status === "completed"
+        );
+
+        // 전체 삭제 이벤트 추적
+        trackQuizHistoryEvents.clearAllHistory(
+          quizHistory.length,
+          completed.length
+        );
+
         localStorage.removeItem("quizHistory");
         setQuizHistory([]);
         CustomToast.success("모든 기록이 삭제되었습니다.");
@@ -260,6 +309,40 @@ const QuizHistory = () => {
   };
 
   const stats = getStats();
+
+  // 페이지 진입 및 체류 시간 추적
+  useEffect(() => {
+    if (!loading && quizHistory.length >= 0) {
+      // 페이지 진입 이벤트 추적
+      trackQuizHistoryEvents.viewHistory(
+        stats.totalQuizzes,
+        stats.completedQuizzes,
+        stats.averageScore
+      );
+    }
+  }, [loading, stats.totalQuizzes, stats.completedQuizzes, stats.averageScore]);
+
+  // 페이지 떠날 때 체류 시간 추적
+  useEffect(() => {
+    return () => {
+      const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
+      if (timeSpent > 3) {
+        // 3초 이상 머문 경우만 추적
+        trackQuizHistoryEvents.trackTimeSpent(timeSpent, quizHistory.length);
+      }
+    };
+  }, [quizHistory.length]);
+
+  // 통계 카드 클릭 핸들러 추가
+  const handleStatClick = (statType, statValue) => {
+    trackQuizHistoryEvents.interactWithStats(statType, statValue);
+  };
+
+  // 빈 히스토리에서 퀴즈 만들기 클릭
+  const handleCreateFromEmpty = () => {
+    trackQuizHistoryEvents.clickCreateFromEmpty();
+    navigate("/");
+  };
 
   if (loading) {
     return (
@@ -342,6 +425,24 @@ const QuizHistory = () => {
           </div>
         )}
 
+        {/* 퀴즈 보관 안내 */}
+        {quizHistory.length > 0 && (
+          <div className="storage-notice-section">
+            <div className="storage-notice-header">
+              <span className="storage-notice-icon">📋</span>
+              <h3 className="storage-notice-title">퀴즈 보관 정책</h3>
+            </div>
+            <div className="storage-notice-content">
+              • 퀴즈 기록은 최대 <strong>20개</strong>까지 자동으로 저장됩니다
+              <br />• 생성된 퀴즈는{" "}
+              <strong>24시간 후 서버에서 자동 삭제</strong>되어 해설을 볼 수
+              없게 됩니다
+              <br />• 중요한 퀴즈는 생성 후 24시간 내에 완료하여 기록을
+              남겨두시기 바랍니다
+            </div>
+          </div>
+        )}
+
         {/* 기록 목록 */}
         <div className="quiz-history-content">
           {quizHistory.length === 0 ? (
@@ -349,7 +450,10 @@ const QuizHistory = () => {
               <div className="empty-icon">📋</div>
               <h3>아직 만든 퀴즈가 없습니다</h3>
               <p>퀴즈를 만들어서 문제를 풀어보세요!</p>
-              <button className="create-quiz-btn" onClick={() => navigate("/")}>
+              <button
+                className="create-quiz-btn"
+                onClick={handleCreateFromEmpty}
+              >
                 퀴즈 만들기
               </button>
             </div>
@@ -397,13 +501,21 @@ const QuizHistory = () => {
 
                   <div className="history-actions">
                     {record.status === "completed" ? (
-                      <button
-                        className="action-btn view-btn"
-                        onClick={() => navigateToExplanation(record)}
-                        disabled={explanationLoading}
-                      >
-                        {explanationLoading ? "로딩..." : "해설 보기"}
-                      </button>
+                      <>
+                        <button
+                          className="action-btn view-btn"
+                          onClick={() => navigateToExplanation(record)}
+                          disabled={explanationLoading}
+                        >
+                          {explanationLoading ? "로딩..." : "해설 보기"}
+                        </button>
+                        <button
+                          className="action-btn retry-btn"
+                          onClick={() => navigateToQuiz(record)}
+                        >
+                          다시 풀기
+                        </button>
+                      </>
                     ) : (
                       <button
                         className="action-btn quiz-btn"

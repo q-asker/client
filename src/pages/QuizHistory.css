@@ -224,6 +224,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
+  margin-left: 0;
 }
 
 .status-badge.completed {
@@ -420,7 +421,55 @@
   .status-badge {
     font-size: 0.75rem;
     padding: 0.2rem 0.6rem;
+    margin-left: 0;
   }
+}
+
+/* 퀴즈 보관 안내 박스 */
+.storage-notice-section {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(255, 234, 167, 0.3);
+}
+
+.storage-notice-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.storage-notice-icon {
+  margin-right: 10px;
+  font-size: 1.3rem;
+}
+
+.storage-notice-title {
+  margin: 0;
+  color: #856404;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.storage-notice-content {
+  padding-left: 30px;
+  color: #856404;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+/* 다시풀기 버튼 */
+.retry-btn {
+  background-color: #8b5cf6;
+  color: white;
+}
+
+.retry-btn:hover {
+  background-color: #7c3aed;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 @media (max-width: 480px) {
@@ -446,4 +495,51 @@
   .status-badge {
     margin-left: 0;
   }
+}
+
+/* 퀴즈 보관 안내 박스 */
+.storage-notice-section {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(255, 234, 167, 0.3);
+}
+
+.storage-notice-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.storage-notice-icon {
+  margin-right: 10px;
+  font-size: 1.3rem;
+}
+
+.storage-notice-title {
+  margin: 0;
+  color: #856404;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.storage-notice-content {
+  padding-left: 30px;
+  color: #856404;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+/* 다시풀기 버튼 */
+.retry-btn {
+  background-color: #8b5cf6;
+  color: white;
+}
+
+.retry-btn:hover {
+  background-color: #7c3aed;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
