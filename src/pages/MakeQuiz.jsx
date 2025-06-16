@@ -1,8 +1,11 @@
 // src/pages/MakeQuiz.jsx
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import Header from "../components/Header";
 import { trackMakeQuizEvents } from "../utils/analytics";
 import "./MakeQuiz.css";
@@ -23,6 +26,11 @@ const levelDescriptions = {
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
+
 const MakeQuiz = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
@@ -37,8 +45,9 @@ const MakeQuiz = () => {
   const [problemSetId, setProblemSetId] = useState(null);
   const [quizLevel, setQuizLevel] = useState("RECALL"); // 기본 난이도 설정
   const [pageMode, setPageMode] = useState("전체"); // "전체" 또는 "사용자 지정"
-  const [startPage, setStartPage] = useState(""); // 시작 페이지
-  const [endPage, setEndPage] = useState(""); // 끝 페이지
+  const [numPages, setNumPages] = useState(null);
+  const [selectedPages, setSelectedPages] = useState([]);
+  const pdfPreviewRef = useRef(null);
   const [countText, setCountText] = useState(""); // 로딩 점 애니메이션용
   const [showWaitMessage, setShowWaitMessage] = useState(false); // 5초 후 대기 메시지 표시용
   const [latestQuiz, setLatestQuiz] = useState(null); // 최신 퀴즈 미리보기용
@@ -146,21 +155,19 @@ const MakeQuiz = () => {
       questionType,
       quizLevel,
       pageMode,
-      startPage,
-      endPage
+      selectedPages.length,
+      numPages
     );
 
-    const pageSelected = pageMode === "전체" ? false : true;
     try {
       setIsProcessing(true);
+      console.log("selectedPages", selectedPages);
       const response = await axiosInstance.post(`/generation`, {
         uploadedUrl: uploadedUrl,
         quizCount: questionCount,
         quizType: "MULTIPLE",
         difficultyType: quizLevel,
-        pageSelected: pageMode === "사용자 지정",
-        startPageNumber: parseInt(startPage) || null,
-        endPageNumber: parseInt(endPage) || null,
+        pageNumbers: selectedPages,
       });
       const result = response.data;
       console.log("생성된 문제 데이터:", result);
@@ -325,8 +332,8 @@ const MakeQuiz = () => {
     setProblemSetId(null);
     setQuizLevel("RECALL");
     setPageMode("전체");
-    setStartPage("");
-    setEndPage("");
+    setNumPages(null);
+    setSelectedPages([]);
     setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
@@ -336,8 +343,8 @@ const MakeQuiz = () => {
     setProblemSetId(null);
     setQuizData(null);
     setPageMode("전체");
-    setStartPage("");
-    setEndPage("");
+    setNumPages(null);
+    setSelectedPages([]);
     setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
@@ -348,6 +355,30 @@ const MakeQuiz = () => {
     navigate(`/quiz/${problemSetId}`, {
       state: { uploadedUrl },
     });
+  };
+
+  const onDocumentLoadSuccess = ({ numPages: nextNumPages }) => {
+    setNumPages(nextNumPages);
+    setSelectedPages(Array.from({ length: nextNumPages }, (_, i) => i + 1));
+    setPageMode("전체");
+  };
+
+  const handlePageSelection = (pageNumber) => {
+    setSelectedPages((prevSelectedPages) => {
+      if (prevSelectedPages.includes(pageNumber)) {
+        return prevSelectedPages.filter((p) => p !== pageNumber);
+      } else {
+        return [...prevSelectedPages, pageNumber].sort((a, b) => a - b);
+      }
+    });
+  };
+
+  const handleSelectAllPages = () => {
+    if (selectedPages.length === numPages) {
+      setSelectedPages([]);
+    } else {
+      setSelectedPages(Array.from({ length: numPages }, (_, i) => i + 1));
+    }
   };
 
   return (
@@ -460,42 +491,70 @@ const MakeQuiz = () => {
 
             <h3>특정 페이지를 지정하고 싶으신가요?</h3>
             <div className="page-decide">
-              <input
-                type="number"
-                min="1"
-                value={startPage}
-                disabled={pageMode === "전체"}
-                onChange={(e) => setStartPage(e.target.value)}
-              />
-              <span>부터</span>
-
-              <input
-                type="number"
-                min="1"
-                value={endPage}
-                disabled={pageMode === "전체"}
-                onChange={(e) => setEndPage(e.target.value)}
-              />
-              <span>까지</span>
-
               <select
                 value={pageMode}
                 onChange={(e) => {
                   const mode = e.target.value;
-                  if (pageMode !== mode) {
-                    trackMakeQuizEvents.changeQuizOption("page_mode", mode);
-                    setPageMode(mode);
-                    if (mode === "전체") {
-                      setStartPage("");
-                      setEndPage("");
-                    }
+                  setPageMode(mode);
+                  if (mode === "전체") {
+                    setSelectedPages(
+                      Array.from({ length: numPages }, (_, i) => i + 1)
+                    );
+                  } else {
+                    setSelectedPages([]);
                   }
+                  trackMakeQuizEvents.changeQuizOption("page_mode", mode);
                 }}
               >
                 <option value="전체">전체</option>
                 <option value="사용자 지정">사용자 지정</option>
               </select>
             </div>
+
+            {uploadedUrl && (
+              <div className="pdf-preview-container" ref={pdfPreviewRef}>
+                <div className="pdf-preview-header">
+                  <h4>PDF 미리보기 및 페이지 선택</h4>
+                  <button
+                    onClick={handleSelectAllPages}
+                    disabled={pageMode === "전체"}
+                  >
+                    {selectedPages.length === numPages
+                      ? "전체 선택"
+                      : "전체 선택"}
+                  </button>
+                </div>
+                <Document
+                  file={uploadedUrl}
+                  onLoadSuccess={onDocumentLoadSuccess}
+                  onLoadError={console.error}
+                >
+                  <div className="pdf-preview-grid">
+                    {Array.from(new Array(numPages), (el, index) => (
+                      <div
+                        key={`page_${index + 1}`}
+                        className={`pdf-page-item ${
+                          selectedPages.includes(index + 1) ? "selected" : ""
+                        } ${pageMode === "전체" ? "disabled" : ""}`}
+                        onClick={() => {
+                          if (pageMode !== "전체") {
+                            handlePageSelection(index + 1);
+                          }
+                        }}
+                      >
+                        <Page
+                          pageNumber={index + 1}
+                          width={150}
+                          renderTextLayer={false}
+                          renderAnnotationLayer={false}
+                        />
+                        <p>페이지 {index + 1}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Document>
+              </div>
+            )}
 
             <h3>문제 난이도 설정하기</h3>
             <div className="level-selector-row">
