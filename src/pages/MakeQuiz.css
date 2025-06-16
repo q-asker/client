@@ -250,285 +250,289 @@
 .count-control input {
   width: 60px;
   text-align: center;
-  border-top: 1px solid #d1d5db;
-  border-bottom: 1px solid #d1d5db;
+  border: 1px solid #d1d5db;
 }
 .mode-control .mode-buttons {
   display: flex;
 }
 .mode-control button {
   flex: 1;
-  padding: 8px 0;
+  padding: 12px 0;
   border: 1px solid #d1d5db;
+  background: white;
   cursor: pointer;
 }
 .mode-control button:first-child {
-  border-radius: 8px 0 0 8px;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
 }
 .mode-control button:last-child {
-  border-radius: 0 8px 8px 0;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 .mode-control .active {
-  background: #6366f1;
-  color: white;
-  border-color: #6366f1;
+  background: #eef2ff;
+  color: #4f46e5;
+  border-color: #a5b4fc;
 }
 .preview-panel {
-  background: white;
+  background: #f9fafb;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   padding: 24px;
-  margin-bottom: 32px;
+  margin-top: 24px;
+  border: 1px solid #e5e7eb;
 }
 .preview-panel h3 {
+  margin-top: 0;
   margin-bottom: 16px;
 }
 .processing {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
 }
 .spinner {
-  margin: 0 auto 16px;
-  width: 48px;
-  height: 48px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #6366f1;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
   border-radius: 50%;
+  width: 40px;
+  height: 40px;
   animation: spin 1s linear infinite;
+  margin-bottom: 16px;
 }
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 .progress-bar {
-  background: #e5e7eb;
-  border-radius: 4px;
-  height: 8px;
   width: 100%;
-  margin-top: 8px;
+  background: #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
 }
 .progress-bar div {
+  height: 10px;
   background: #6366f1;
-  height: 100%;
-  border-radius: 4px;
   transition: width 0.3s;
 }
+
 .placeholder {
-  text-align: center;
   color: #6b7280;
-  padding: 40px;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
+  text-align: center;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .action-buttons {
   display: flex;
-  gap: 16px;
   justify-content: center;
-  margin-bottom: 64px;
+  align-items: center; /* 버튼 높이를 맞추기 위해 추가 */
+  margin-top: 24px;
+  gap: 1rem;
 }
 .connected-problem {
-  margin-top: 2rem;
+  margin-top: 24px;
 }
 .connected-problem h2 {
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: #111827;
 }
 
 .problem-card {
+  width: 100%;
+  max-width: 1200px;
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   display: flex;
   align-items: center;
-  background: #eef2ff;
-  border-radius: 8px;
-  padding: 1rem;
-  gap: 1rem;
+  gap: 1.5rem;
+  transition: box-shadow 0.2s;
+  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+}
+.problem-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .problem-icon {
   font-size: 2rem;
+  flex-shrink: 0;
 }
-
+.problem-details {
+  flex-grow: 0;
+}
 .problem-details h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+  color: #111827;
 }
 .problem-details p {
-  margin: 4px 0 0;
-  font-size: 0.85rem;
-  color: #555;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+  display: flex;
+  gap: 1rem;
+}
+.problem-details p span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .problem-actions {
-  margin-left: auto;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  margin-left: auto;
 }
 
-/* 버튼 공통 스타일 (이전과 동일) */
 .btn {
   padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 0.9rem;
+  border: 1px solid transparent;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .btn.cancle {
-  background: #6366f1;
-  color: #fff;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
 }
 .btn.cancle:hover {
-  background-color: #8b5cf6;
-  transform: scale(1.02);
+  background-color: #fca5a5;
+  color: #b91c1c;
 }
 .btn.manage {
-  background: #6366f1;
-  color: #fff;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  background-color: #dbeafe;
+  color: #2563eb;
+  border-color: #bfdbfe;
 }
 .btn.manage:hover {
-  background-color: #8b5cf6;
-  transform: scale(1.02);
+  background-color: #93c5fd;
+  color: #1d4ed8;
 }
 .btn.mapping {
-  background: #6366f1;
-  color: #fff;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  background-color: #6366f1;
+  color: white;
 }
 .btn.mapping:hover {
-  background-color: #8b5cf6;
-  transform: scale(1.02);
+  background-color: #4f46e5;
 }
 .btn.change {
-  margin-top: 1rem;
-  background: transparent;
-  color: #6366f1;
-  border: 1px solid #6366f1;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border-color: #d1d5db;
+}
+.btn.change:hover {
+  background-color: #e5e7eb;
 }
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 .document-preview {
-  margin-top: 2rem;
+  margin-top: 32px;
 }
 .document-preview h2 {
-  margin-bottom: 0.5rem;
-  font-size: 1.2rem;
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: #111827;
 }
 
-/* placeholder / 카드 감싸는 컨테이너 */
 .preview-content {
-  border: 1px solid #ddd;
+  background: #f9fafb;
   border-radius: 8px;
   padding: 2rem;
-  min-height: 120px;
+  min-height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  text-align: center;
+  border: 1px solid #e5e7eb;
 }
-
-/* placeholder 텍스트 */
 .preview-content p {
-  color: #777;
+  color: #6b7280;
   margin: 0;
 }
 
-/* 녹색 카드 (문제 세트) */
 .problem-card {
-  display: flex;
-  align-items: center;
-  background: #eef2ff;
-  width: 100%;
-  border-radius: 8px;
-  padding: 1rem;
-  gap: 1rem;
+  /* ... Existing problem-card styles ... */
+  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
 }
-
-.problem-icon {
-  font-size: 2rem;
-}
-
-.problem-details h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-.problem-details p {
-  margin: 4px 0 0;
-  font-size: 0.85rem;
-  color: #555;
-}
-
+.problem-icon,
+.problem-details,
 .problem-actions {
-  margin-left: auto;
-  display: flex;
-  gap: 0.5rem;
+  flex-basis: auto; /* Allow flexible sizing */
 }
 
 /* ──────────────────────────────────── */
-/* (추가) 특정 페이지 지정용 스타일 */
+/* 페이지 범위 지정 */
 .page-decide {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 16px;
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
 .page-decide input[type="number"] {
-  width: 64px;
-  padding: 8px 6px;
+  width: 80px;
+  padding: 8px 12px;
+  font-size: 1rem;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #111827;
-  background: #fff;
-  transition: background 0.2s, border-color 0.2s;
+  border-radius: 8px;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-
-.page-decide input[type="number"]:disabled {
-  background: #f3f4f6;
-  border-color: #e5e7eb;
-  color: #9ca3af;
-  cursor: not-allowed;
-}
-
-.page-decide span {
-  font-size: 14px;
-  color: #374151;
-}
-
-.page-decide select {
-  padding: 8px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #374151;
-  background: #fff;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.page-decide select:hover {
-  border-color: #a1a1aa;
-}
-
-.page-decide select:focus {
+.page-decide input[type="number"]:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
 }
-
-/* 1. select와 설명 텍스트를 가로로 배치하는 Flex 컨테이너 */
-.level-selector-row {
-  display: flex;
-  align-items: center;  /* select 박스와 설명 텍스트를 위쪽 정렬 */
-  gap: 1rem;                /* select와 description 사이 간격 */
-  margin-bottom: 1rem;      /* 아래 요소와의 여백 */
+.page-decide input[type="number"]:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+  color: #9ca3af;
 }
 
-/* 2. select 박스 스타일(기존에 있으면 통합, 없으면 추가) */
+.page-decide span {
+  color: #374151;
+  font-weight: 500;
+}
+
+.page-decide select {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.page-decide select:hover {
+  border-color: #a5b4fc;
+}
+.page-decide select:focus {
+  outline: 2px solid #c7d2fe;
+}
+
+
+/* ──────────────────────────────────── */
+/* 난이도 설정 */
+.level-selector-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 .level-selector-row select {
   padding: 0.4rem 0.8rem;
   font-size: 1rem;
@@ -537,80 +541,139 @@
   background-color: #fff;
 }
 
-/* 3. 선택된 난이도 설명 텍스트(pre 태그) */
 .level-description {
-  /* 텍스트와 테두리 사이에 충분한 여백을 줍니다 */
   padding: 1rem;
-
-  /* 흰색 배경, 검정(진한 회색) 텍스트 */
   background-color: #ffffff;
   color: #222222;
-
-  /* 얇은 회색 테두리, 둥근 모서리 */
   border: 1px solid #dddddd;
   border-radius: 0.5rem;
-
-  /* 박스 높이 제한 (필요에 따라 px 값을 조정하세요) */
   max-height: 320px;
-
-  /* 내용이 길어지면 세로 스크롤바 표시, 가로 스크롤 숨김 */
   overflow-y: auto;
   overflow-x: hidden;
-
-  /* 줄바꿈(\n)을 화면에도 반영 */
   white-space: pre-wrap;
-  word-break: keep-all; /* 한국어가 잘리지 않도록 */
-
-  /* 위아래 여백을 주어 주변 요소와 간격 확보 */
-  margin-top: 1rem;
+  word-break: keep-all;
+  margin-top: 0;
   margin-bottom: 1rem;
-
-  /* (선택) 살짝 그림자를 주어 카드 느낌을 낼 수 있습니다 */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  flex-grow: 1;
 }
-
-/* 2. 스크롤바를 조금 더 깔끔하게 가꿔주는 설정 (Chromium 기반 브라우저용) */
 .level-description::-webkit-scrollbar {
-  width: 8px;              /* 스크롤바 전체 너비 */
+  width: 8px;
 }
-
 .level-description::-webkit-scrollbar-track {
-  background: #f0f0f0;      /* 스크롤바 배경(트랙) */
+  background: #f0f0f0;
   border-radius: 4px;
 }
-
 .level-description::-webkit-scrollbar-thumb {
-  background-color: #c2c2c2; /* 스크롤바 막대 색상 */
+  background-color: #c2c2c2;
   border-radius: 4px;
-  border: 2px solid #f0f0f0; /* 트랙과 구분을 위해 살짝 테두리 */
+  border: 2px solid #f0f0f0;
 }
 
-.level-selector-row:hover {
-  border-color: #a1a1aa;
-}
-
-.level-selector-row:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
-}
 .level-counter-wrapper {
   width: 100%;
   text-align: center;
-  margin-bottom: 1rem;  /* 필요하다면 상하 간격 조절 */
+  margin-bottom: 1rem;
+}
+
+/* ──────────────────────────────────── */
+/* PDF Previewer */
+
+.pdf-preview-container {
+  margin-top: 24px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.pdf-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.pdf-preview-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.pdf-preview-header button {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pdf-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.pdf-page-item {
+  border: 2px solid #e5e7eb;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+
+.pdf-page-item.selected {
+  border-color: #6366f1;
+}
+
+.pdf-page-item.disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.pdf-page-item p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+
+.pdf-page-item .react-pdf__Page__canvas {
+  border-radius: 4px;
+}
+
+.pdf-page-item p::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin-right: 8px;
+    background-color: white;
+}
+
+.pdf-page-item.selected p::before {
+    background-color: #6366f1;
+    border-color: #6366f1;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8l3 3 5-5'/%3e%3c/svg%3e");
 }
 
 /* ──────────────────────────────────── */
 /* (2) 모바일 대응용 미디어쿼리 시작 */
 @media (max-width: 768px) {
-  /* ── (1) .main 너비를 화면 90%로 줄이고 중앙 정렬 유지 ── */
   .main {
     width: 90%;
     margin-top: 24px;
     padding: 0 8px;
   }
 
-  /* ── (2) 업로드 섹션 패딩·폰트 축소 ── */
   .upload-section {
     padding: 24px;
   }
@@ -630,7 +693,6 @@
     font-size: 0.9rem;
   }
 
-  /* ── (3) 옵션 패널 margin·패딩 축소 ── */
   .options-panel {
     padding: 16px;
     margin: 24px 0;
@@ -640,7 +702,6 @@
     margin-bottom: 16px;
   }
 
-  /* ── (4) 세그먼티드 컨트롤 축소 ── */
   .segmented-control {
     margin: 16px 0;
   }
@@ -649,13 +710,11 @@
     font-size: 0.9rem;
   }
 
-  /* ── (5) 슬라이더 컨트롤 텍스트 축소 ── */
   .slider-control label {
     font-size: 0.9rem;
     margin-bottom: 8px;
   }
 
-  /* ── (6) "문서 미리보기" 영역 패딩 축소 ── */
   .preview-panel {
     padding: 16px;
   }
@@ -671,14 +730,13 @@
     font-size: 0.9rem;
   }
 
-  /* ── (7) action-buttons 영역 ── */
   .action-buttons {
     flex-direction: column;
     gap: 12px;
     margin-bottom: 32px;
   }
   .secondary-button {
-    margin: 24px 0 0 0; /* 상단 간격은 유지하되, 왼쪽 여백을 제거 */
+    margin: 0;
   }
   .primary-button.large,
   .secondary-button {
@@ -687,7 +745,6 @@
     font-size: 0.9rem;
   }
 
-  /* ── (8) problem-card (세트 카드) 축소 ── */
   .problem-card {
     flex-direction: column;
     align-items: flex-start;
@@ -714,13 +771,11 @@
     font-size: 0.85rem;
   }
 
-  /* ── (9) 옵션 그리드(columns) 1열로 변경 ── */
   .options-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  /* ── (10) slider-control input 높이 축소 ── */
   .slider-control input[type="range"] {
     height: 3px;
   }
@@ -729,7 +784,6 @@
     height: 14px;
   }
 
-  /* ── (11) .count-control 버튼/인풋 축소 ── */
   .count-control button {
     padding: 6px 8px;
   }
@@ -738,65 +792,55 @@
     font-size: 0.9rem;
   }
 
-  /* ── (12) select 박스 padding 축소 ── */
   .option-item select {
     padding: 6px;
     font-size: 0.9rem;
   }
 
-  /* ── (13) 모드 컨트롤 버튼 축소 ── */
   .mode-control button {
     padding: 6px 0;
     font-size: 0.9rem;
   }
 
-  /* ── (14) placeholder 텍스트 축소 ── */
   .preview-content p {
     font-size: 0.9rem;
   }
 
    .page-decide {
-    display: flex;
-    gap: 8px;                    /* 요소 간 간격 축소 */
-    margin-top: 12px;            /* 위쪽 여백 조금 줄임 */
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 12px;
   }
 
   .page-decide input[type="number"] {
-    width: 100%;                 /* 모바일에서는 입력란을 가로 100%로 */
-    font-size: 0.9rem;           /* 폰트 크기 조금 축소 */
-    padding: 6px 8px;            /* 패딩 축소 */
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 6px 8px;
   }
 
   .page-decide span {
-    display: none;               /* "부터"/"까지" 텍스트는 가리지 않도록 숨기거나, 원한다면 크기만 줄여도 됩니다 */
-    /* 만약 숨기지 않고 남기려면 아래처럼 조절해도 됩니다.
-    font-size: 0.9rem;
-    margin-left: 0;
-    margin-bottom: 4px;
-    */
+   display: none;
   }
 
   .page-decide select {
-    width: 100%;                 /* 선택박스도 가로 100% */
+    width: 100%;
     font-size: 0.9rem;
     padding: 6px 8px;
   }
   .level-selector-row {
     flex-direction: column;
-    align-items: stretch;  /* 가로 100%로 넓히기 위함 */
-    gap: 0.5rem;           /* 모바일에서는 간격을 조금 더 좁게 */
+    align-items: stretch;
+    gap: 0.5rem;
   }
 
-  /* (2) select 박스 자체를 축소된 패딩/폰트크기로 만듭니다 */
   .level-selector-row select {
-    width: 100%;           /* 모바일에서는 전체 너비 차지 */
-    padding: 0.4rem 0.6rem;/* 패딩을 줄여서 컴팩트하게 */
-    font-size: 0.9rem;     /* 폰트 크기 축소 */
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
   }
   .level-description {
     max-height: 240px;
     padding: 0.8rem;
   }
 }
-
-/* ──────────────────────────────────── */
