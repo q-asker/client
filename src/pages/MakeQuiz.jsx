@@ -696,7 +696,7 @@ const MakeQuiz = () => {
                       className="btn mapping"
                       onClick={handleNavigateToQuiz}
                     >
-                      문제로 이동하기
+                      문제 풀기
                     </button>
                   </div>
                 </div>
