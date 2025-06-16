@@ -23,6 +23,8 @@ const QuizExplanation = () => {
   // const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showWrongOnly, setShowWrongOnly] = useState(false);
   const [specificExplanation, setSpecificExplanation] = useState("");
+  const [isSpecificExplanationLoading, setIsSpecificExplanationLoading] =
+    useState(false);
 
   // state로 전달된 값 꺼내기
   const {
@@ -316,15 +318,18 @@ const QuizExplanation = () => {
   };
 
   const handleFetchSpecificExplanation = async () => {
+    setIsSpecificExplanationLoading(true);
     try {
-      const response = await axiosInstance.post(
+      const response = await axiosInstance.get(
         `/specific-explanation/${problemSetId}?number=${currentQuiz.number}`
       );
       setSpecificExplanation(response.data.specificExplanation);
     } catch (error) {
       console.error("상세 해설을 불러오는데 실패했습니다.", error);
       // 임시: 에러 발생 시 모의 상세 해설을 표시합니다.
-      setSpecificExplanation("상세 해설 메세지입니다");
+      CustomToast.error("상세 해설을 불러오는데 실패했습니다.");
+    } finally {
+      setIsSpecificExplanationLoading(false);
     }
   };
 
@@ -528,8 +533,13 @@ const QuizExplanation = () => {
                 <button
                   className="detailed-explanation-button"
                   onClick={handleFetchSpecificExplanation}
+                  disabled={isSpecificExplanationLoading}
                 >
-                  상세 해설 보기
+                  {isSpecificExplanationLoading ? (
+                    <div className="spinner-in-button" />
+                  ) : (
+                    "AI 상세 해설 보기"
+                  )}
                 </button>
               </div>
               <p className="explanation-text">{thisExplanationText}</p>
