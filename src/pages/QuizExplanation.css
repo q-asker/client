@@ -256,29 +256,66 @@ body {
   background-color: #8b5cf6;
 }
 .submit-button:disabled {
-  background-color: #aaa;
-  cursor: default;
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 /* ─── 해설 박스 ─── */
 .explanation-box {
   background-color: #fff;
-  border: 1px solid #e0e0e0;
   border-radius: 0.5rem;
-  padding: 1rem;
-  margin-top: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 1.5rem;
 }
+
+.explanation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem; /* 기존 title의 margin-bottom을 여기로 이동 */
+}
+
 .explanation-title {
-  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  margin-bottom: 0; /* 헤더로 이동했으므로 제거 */
+  color: #333;
+}
+
+.detailed-explanation-button {
+  background-color: #6a33f8;
+  border: 1px solid #6a33f8;
+  color: #fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.detailed-explanation-button:hover {
+  background-color: #8b5cf6;
+  color: #fff;
+}
+
+.explanation-text {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #333;
+}
+
+.specific-explanation-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.specific-explanation-title {
   font-size: 1.1rem;
   font-weight: bold;
-}
-.explanation-text {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.5;
   color: #333;
+  margin-bottom: 0.75rem;
 }
 
 /* 우측 패널 (비워두었음) */
@@ -791,4 +828,14 @@ input:checked + .slider::before {
 .page-number.active {
   background-color: #007bff;
   color: white;
+}
+
+.spinner-in-button {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
 }
