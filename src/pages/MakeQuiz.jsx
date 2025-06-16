@@ -47,7 +47,9 @@ const MakeQuiz = () => {
   const [pageMode, setPageMode] = useState("전체"); // "전체" 또는 "사용자 지정"
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
+  const [hoveredPage, setHoveredPage] = useState(null); // { pageNumber: number, style: object }
   const pdfPreviewRef = useRef(null);
+  const hoverTimeoutRef = useRef(null);
   const [countText, setCountText] = useState(""); // 로딩 점 애니메이션용
   const [showWaitMessage, setShowWaitMessage] = useState(false); // 5초 후 대기 메시지 표시용
   const [latestQuiz, setLatestQuiz] = useState(null); // 최신 퀴즈 미리보기용
@@ -334,6 +336,7 @@ const MakeQuiz = () => {
     setPageMode("전체");
     setNumPages(null);
     setSelectedPages([]);
+    setHoveredPage(null);
     setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
@@ -345,6 +348,7 @@ const MakeQuiz = () => {
     setPageMode("전체");
     setNumPages(null);
     setSelectedPages([]);
+    setHoveredPage(null);
     setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
@@ -379,6 +383,49 @@ const MakeQuiz = () => {
     } else {
       setSelectedPages(Array.from({ length: numPages }, (_, i) => i + 1));
     }
+  };
+
+  const handlePageMouseEnter = (e, pageNumber) => {
+    // 모바일 너비에서는 미리보기 기능을 비활성화
+    if (window.innerWidth <= 768) return;
+
+    if (pageMode === "전체" || !pdfPreviewRef.current) return;
+
+    const containerRect = pdfPreviewRef.current.getBoundingClientRect();
+    const itemRect = e.currentTarget.getBoundingClientRect();
+    const itemWidth = itemRect.width;
+    const midpoint = containerRect.left + containerRect.width / 2;
+
+    const PREVIEW_WIDTH = 660; // CSS에 정의된 너비 + 패딩
+    const GAP = 10; // 컴포넌트와 미리보기 사이 간격
+
+    // 수직 위치를 아이템보다 조금 더 높게 조정 (e.g., 100px 위로)
+    let top = itemRect.top - containerRect.top - 100;
+    // 단, 그리드 상단 밖으로 벗어나지 않도록 최소 위치를 0으로 설정
+    if (top < 0) {
+      top = 0;
+    }
+
+    const style = {
+      top: `${top}px`,
+      width: `${PREVIEW_WIDTH}px`,
+    };
+
+    if (itemRect.left < midpoint) {
+      // Item is on the left, show preview on the right
+      style.left = `${itemRect.left - containerRect.left + itemWidth + GAP}px`;
+    } else {
+      // Item is on the right, show preview on the left
+      style.left = `${
+        itemRect.left - containerRect.left - PREVIEW_WIDTH - GAP
+      }px`;
+    }
+
+    setHoveredPage({ pageNumber, style });
+  };
+
+  const handlePageMouseLeave = () => {
+    setHoveredPage(null);
   };
 
   return (
@@ -529,28 +576,54 @@ const MakeQuiz = () => {
                   onLoadSuccess={onDocumentLoadSuccess}
                   onLoadError={console.error}
                 >
-                  <div className="pdf-preview-grid">
-                    {Array.from(new Array(numPages), (el, index) => (
-                      <div
-                        key={`page_${index + 1}`}
-                        className={`pdf-page-item ${
-                          selectedPages.includes(index + 1) ? "selected" : ""
-                        } ${pageMode === "전체" ? "disabled" : ""}`}
-                        onClick={() => {
-                          if (pageMode !== "전체") {
-                            handlePageSelection(index + 1);
+                  <div className="pdf-grid-and-preview-wrapper">
+                    <div
+                      className="pdf-preview-grid"
+                      onMouseLeave={handlePageMouseLeave}
+                    >
+                      {Array.from(new Array(numPages), (el, index) => (
+                        <div
+                          key={`page_${index + 1}`}
+                          className={`pdf-page-item ${
+                            selectedPages.includes(index + 1) ? "selected" : ""
+                          } ${pageMode === "전체" ? "disabled" : ""} ${
+                            hoveredPage && hoveredPage.pageNumber === index + 1
+                              ? "hover-active"
+                              : ""
+                          }`}
+                          onClick={() => {
+                            if (pageMode !== "전체") {
+                              handlePageSelection(index + 1);
+                            }
+                          }}
+                          onMouseEnter={(e) =>
+                            handlePageMouseEnter(e, index + 1)
                           }
-                        }}
+                        >
+                          <Page
+                            pageNumber={index + 1}
+                            width={150}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                          />
+                          <p>페이지 {index + 1}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {hoveredPage && (
+                      <div
+                        className="pdf-side-preview"
+                        style={hoveredPage.style}
                       >
                         <Page
-                          pageNumber={index + 1}
-                          width={150}
+                          pageNumber={hoveredPage.pageNumber}
+                          width={640}
                           renderTextLayer={false}
                           renderAnnotationLayer={false}
                         />
-                        <p>페이지 {index + 1}</p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </Document>
               </div>
