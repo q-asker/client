@@ -212,6 +212,123 @@ const Help = () => {
               </li>
             </ul>
           </div>
+
+          <div className="step-card">
+            <h3>6단계: 퀴즈 히스토리 관리</h3>
+            <ul>
+              <li>
+                📋 <strong>기록 자동 저장:</strong> 만든 퀴즈가 자동으로
+                히스토리에 저장
+              </li>
+              <li>
+                📊 <strong>통계 확인:</strong> 총 퀴즈 수, 완료율, 평균 점수
+                한눈에 보기
+              </li>
+              <li>
+                🔍 <strong>상태별 관리:</strong> 완료/미완료 퀴즈 구분하여 표시
+              </li>
+              <li>
+                🎯 <strong>재시도 가능:</strong> 미완료 퀴즈는 언제든 다시 풀이
+                가능
+              </li>
+              <li>
+                📚 <strong>해설 재확인:</strong> 완료된 퀴즈의 해설을 언제든
+                다시 볼 수 있음
+              </li>
+              <li>
+                🗑️ <strong>기록 관리:</strong> 개별 또는 전체 기록 삭제 기능
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section
+          className="help-section"
+          onMouseEnter={() => handleSectionHover("quiz_history")}
+        >
+          <h2>📚 퀴즈 히스토리 활용법</h2>
+
+          <div className="step-card">
+            <h3>📋 기록 확인하기</h3>
+            <ul>
+              <li>
+                📊 <strong>통계 대시보드:</strong> 상단에서 전체 퀴즈 현황을
+                한눈에 확인
+              </li>
+              <li>
+                📝 <strong>총 퀴즈 수:</strong> 지금까지 만든 퀴즈의 총 개수
+              </li>
+              <li>
+                ✅ <strong>완료한 퀴즈:</strong> 끝까지 풀어본 퀴즈 개수
+              </li>
+              <li>
+                📈 <strong>완료율:</strong> 퀴즈 완주 비율 (%)
+              </li>
+              <li>
+                🏆 <strong>평균 점수:</strong> 완료한 퀴즈들의 평균 점수
+              </li>
+            </ul>
+          </div>
+
+          <div className="step-card">
+            <h3>🎯 퀴즈 상태 관리</h3>
+            <ul>
+              <li>
+                🟢 <strong>완료 상태:</strong> 초록색 표시로 완료된 퀴즈 구분
+              </li>
+              <li>
+                🟡 <strong>미완료 상태:</strong> 노란색 표시로 아직 안 푼 퀴즈
+                구분
+              </li>
+              <li>
+                📊 <strong>상세 정보:</strong> 문제 수, 난이도, 점수, 소요시간
+                표시
+              </li>
+              <li>
+                📅 <strong>날짜 정보:</strong> 퀴즈 생성일과 완료일 확인
+              </li>
+            </ul>
+          </div>
+
+          <div className="step-card">
+            <h3>🔄 재학습 기능</h3>
+            <ul>
+              <li>
+                🎮 <strong>퀴즈 다시 풀기:</strong> 미완료 퀴즈를 언제든 이어서
+                풀기
+              </li>
+              <li>
+                📚 <strong>해설 다시 보기:</strong> 완료된 퀴즈의 해설을 반복
+                학습
+              </li>
+              <li>
+                🔍 <strong>약점 분석:</strong> 틀린 문제들을 다시 확인하여 학습
+              </li>
+              <li>
+                📈 <strong>성과 비교:</strong> 같은 자료로 여러 번 시도하여 실력
+                향상 확인
+              </li>
+            </ul>
+          </div>
+
+          <div className="step-card">
+            <h3>🗂️ 기록 정리하기</h3>
+            <ul>
+              <li>
+                🗑️ <strong>개별 삭제:</strong> 필요없는 퀴즈 기록을 하나씩 삭제
+              </li>
+              <li>
+                🧹 <strong>전체 삭제:</strong> 모든 기록을 한 번에 정리
+              </li>
+              <li>
+                💾 <strong>자동 저장:</strong> 최대 20개까지 자동으로 관리
+              </li>
+              <li>
+                🔒 <strong>로컬 저장:</strong> 모든 기록은 브라우저에 안전하게
+                저장
+              </li>
+            </ul>
+          </div>
         </section>
 
         <section
@@ -263,6 +380,39 @@ const Help = () => {
                 <li>문제가 이상할 때: 다른 난이도로 재생성 시도</li>
               </ul>
             </div>
+
+            <div className="tip-card">
+              <h4>📚 히스토리 활용</h4>
+              <ul>
+                <li>
+                  <strong>복습 계획:</strong> 완료율이 낮은 퀴즈부터 우선 도전
+                </li>
+                <li>
+                  <strong>성과 추적:</strong> 평균 점수 변화로 학습 진도 확인
+                </li>
+                <li>
+                  <strong>효율적 학습:</strong> 미완료 퀴즈를 모두 완료한 후 새
+                  퀴즈 생성
+                </li>
+              </ul>
+            </div>
+
+            <div className="tip-card">
+              <h4>🎯 학습 전략</h4>
+              <ul>
+                <li>
+                  <strong>점진적 난이도:</strong> Easy → Medium → Hard 순서로
+                  도전
+                </li>
+                <li>
+                  <strong>반복 학습:</strong> 같은 자료로 다른 난이도 퀴즈 생성
+                </li>
+                <li>
+                  <strong>약점 파악:</strong> 히스토리를 통해 자주 틀리는 유형
+                  분석
+                </li>
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -287,6 +437,18 @@ const Help = () => {
               </li>
               <li>
                 📱 <strong>브라우저:</strong> 최신 브라우저 사용을 권장합니다
+              </li>
+              <li>
+                💾 <strong>기록 저장:</strong> 퀴즈 기록은 브라우저에만
+                저장되므로, 브라우저 데이터를 삭제하면 기록이 사라집니다
+              </li>
+              <li>
+                🔄 <strong>기기 변경:</strong> 다른 기기나 브라우저에서는 기존
+                기록이 보이지 않습니다
+              </li>
+              <li>
+                🗑️ <strong>기록 삭제:</strong> 삭제된 퀴즈 기록은 복구할 수
+                없으니 신중하게 삭제하세요
               </li>
             </ul>
           </div>
