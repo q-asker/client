@@ -514,7 +514,7 @@ const MakeQuiz = () => {
             {uploadedUrl && (
               <div className="pdf-preview-container" ref={pdfPreviewRef}>
                 <div className="pdf-preview-header">
-                  <h4>PDF 미리보기 및 페이지 선택</h4>
+                  <h4>미리보기 및 페이지 선택</h4>
                   <button
                     onClick={handleSelectAllPages}
                     disabled={pageMode === "전체"}
