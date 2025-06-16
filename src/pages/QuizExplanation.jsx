@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { trackQuizEvents } from "../utils/analytics";
 import "./QuizExplanation.css";
+import axiosInstance from "#shared/api";
 
 import { Document, Page, pdfjs } from "react-pdf";
 
@@ -21,6 +22,7 @@ const QuizExplanation = () => {
   const [currentPdfPage, setCurrentPdfPage] = useState(0);
   // const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showWrongOnly, setShowWrongOnly] = useState(false);
+  const [specificExplanation, setSpecificExplanation] = useState("");
 
   // state로 전달된 값 꺼내기
   const {
@@ -241,6 +243,7 @@ const QuizExplanation = () => {
 
   useEffect(() => {
     setCurrentPdfPage(0);
+    setSpecificExplanation("");
   }, [currentQuestion]);
 
   // 오답만 보기 토글 시 현재 문제 유효성 체크
@@ -309,6 +312,19 @@ const QuizExplanation = () => {
         nextQuestion
       );
       setCurrentQuestion(nextQuestion);
+    }
+  };
+
+  const handleFetchSpecificExplanation = async () => {
+    try {
+      const response = await axiosInstance.post(
+        `/specific-explanation/${problemSetId}?number=${currentQuiz.number}`
+      );
+      setSpecificExplanation(response.data.specificExplanation);
+    } catch (error) {
+      console.error("상세 해설을 불러오는데 실패했습니다.", error);
+      // 임시: 에러 발생 시 모의 상세 해설을 표시합니다.
+      setSpecificExplanation("상세 해설 메세지입니다");
     }
   };
 
@@ -507,8 +523,23 @@ const QuizExplanation = () => {
             </button>
 
             <div className="explanation-box">
-              <h3 className="explanation-title">해설</h3>
+              <div className="explanation-header">
+                <h3 className="explanation-title">해설</h3>
+                <button
+                  className="detailed-explanation-button"
+                  onClick={handleFetchSpecificExplanation}
+                >
+                  상세 해설 보기
+                </button>
+              </div>
               <p className="explanation-text">{thisExplanationText}</p>
+
+              {specificExplanation && (
+                <div className="specific-explanation-section">
+                  <h4 className="specific-explanation-title">상세 해설</h4>
+                  <p className="explanation-text">{specificExplanation}</p>
+                </div>
+              )}
 
               <div className="all-referenced-pages">
                 <h4 className="all-pages-title">📚 참조 페이지</h4>
