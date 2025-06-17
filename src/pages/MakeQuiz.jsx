@@ -629,7 +629,7 @@ const MakeQuiz = () => {
               </div>
             )}
 
-            <h3>문제 난이도 설정하기</h3>
+            <h3>문제 단계 설정하기</h3>
             <div className="level-selector-row">
               {/* ① 난이도 선택박스 */}
               <select

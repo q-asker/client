@@ -815,7 +815,7 @@ input:checked + .slider::before {
 
 .page-number {
   padding: 0.25rem 0.75rem;
-  background-color: #e9ecef;
+  background-color: ㄸㄸ#e9ecef;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
