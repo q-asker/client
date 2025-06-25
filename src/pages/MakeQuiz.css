@@ -616,14 +616,29 @@
   padding: 5px;
 }
 
+.pdf-grid-and-preview-wrapper {
+  position: relative;
+}
+
 .pdf-page-item {
   border: 2px solid #e5e7eb;
   border-radius: 4px;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
   position: relative;
   text-align: center;
   overflow: hidden;
+}
+
+.pdf-page-item:not(.disabled):hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.pdf-page-item.hover-active {
+  border-color: #a5b4fc;
+  box-shadow: 0 0 0 2px #a5b4fc;
 }
 
 .pdf-page-item.selected {
@@ -663,6 +678,18 @@
     background-color: #6366f1;
     border-color: #6366f1;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8l3 3 5-5'/%3e%3c/svg%3e");
+}
+
+.pdf-side-preview {
+  position: absolute;
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 30;
+  pointer-events: none; /* Prevent preview from capturing mouse events */
+  transition: opacity 0.2s ease-in-out, top 0.1s;
+  opacity: 1;
 }
 
 /* ──────────────────────────────────── */
@@ -769,6 +796,7 @@
     margin-right: 0.5rem;
     padding: 8px 0;
     font-size: 0.85rem;
+    white-space: nowrap;
   }
 
   .options-grid {
