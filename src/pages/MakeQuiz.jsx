@@ -1,11 +1,11 @@
 // src/pages/MakeQuiz.jsx
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
-import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { trackMakeQuizEvents } from "../utils/analytics";
 import "./MakeQuiz.css";
@@ -725,15 +725,15 @@ const MakeQuiz = () => {
       </main>
       {/* Footer */}
       <footer className="footer">
-        © 2025 Q-Asker. All rights reserved. 문의 및 피드백 : inhapj01@gmail.com
-        <br></br>
-        문의 및 지원 구글 폼 :{" "}
+        © 2025 Q-Asker. All rights reserved.
+        <br></br>문의 및 피드백 :
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
           target="_blank"
         >
-          문의 링크
+          구글폼 링크
         </a>
+        <span>, inhapj01@gmail.com</span>
       </footer>
     </>
   );
