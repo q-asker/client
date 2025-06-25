@@ -1,11 +1,9 @@
 import CustomToast from "#shared/toast";
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./Header.css";
 
 const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
-  const navigate = useNavigate();
-
   useEffect(() => {
     const handleClickOutside = (e) => {
       const sidebar = document.getElementById("sidebar");
@@ -26,12 +24,10 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
   // 네비게이션 핸들러들
   const handleMakeQuiz = () => {
     setIsSidebarOpen(false);
-    navigate("/");
   };
 
   const handleQuizManagement = () => {
     setIsSidebarOpen(false);
-    navigate("/history");
   };
 
   const handleStatistics = () => {
@@ -41,11 +37,6 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
 
   const handleHelp = () => {
     setIsSidebarOpen(false);
-    navigate("/help?source=header");
-  };
-
-  const handleLogoClick = () => {
-    navigate("/");
   };
 
   return (
@@ -59,15 +50,21 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           >
             ☰
           </button>
-          <div className="logo-area-inner" onClick={handleLogoClick}>
-            <span className="logo-icon">❓</span>
-            <h1 className="logo-text">Q-Asker</h1>
-          </div>
+          <h1 className="logo-area-inner">
+            <Link to="/" className="logo-link">
+              <span className="logo-icon">❓</span>
+              <span className="logo-text">Q-Asker</span>
+            </Link>
+          </h1>
         </div>
         <div className="nav-link-area">
-          <button className="nav-link" onClick={handleQuizManagement}>
+          <Link
+            to="/history"
+            className="nav-link"
+            onClick={handleQuizManagement}
+          >
             📋 <strong>퀴즈 기록</strong>
-          </button>
+          </Link>
         </div>
       </div>
       <aside
@@ -84,18 +81,26 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           </button>
         </div>
         <nav>
-          <button className="nav-link" onClick={handleMakeQuiz}>
+          <Link to="/" className="nav-link" onClick={handleMakeQuiz}>
             ➕ 문제 만들기
-          </button>
-          <button className="nav-link" onClick={handleQuizManagement}>
+          </Link>
+          <Link
+            to="/history"
+            className="nav-link"
+            onClick={handleQuizManagement}
+          >
             📋 퀴즈 기록
-          </button>
+          </Link>
           <button className="nav-link" onClick={handleStatistics}>
             📊 통계
           </button>
-          <button className="nav-link" onClick={handleHelp}>
+          <Link
+            to="/help?source=header"
+            className="nav-link"
+            onClick={handleHelp}
+          >
             ❓ 도움말
-          </button>
+          </Link>
         </nav>
       </aside>
     </header>
