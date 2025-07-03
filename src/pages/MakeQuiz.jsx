@@ -6,7 +6,8 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "../components/header";
+import Help from "../components/help";
 import { trackMakeQuizEvents } from "../utils/analytics";
 import "./MakeQuiz.css";
 
@@ -435,9 +436,8 @@ const MakeQuiz = () => {
         toggleSidebar={toggleSidebar}
         setIsSidebarOpen={setIsSidebarOpen}
       />
-
-      <main className="main">
-        <section
+      <div className="main">
+        <div
           className={`upload-section ${isDragging ? "dragging" : ""}`}
           onDragOver={handleDragOver}
           onDragEnter={handleDragEnter}
@@ -453,7 +453,7 @@ const MakeQuiz = () => {
           ) : !uploadedUrl ? (
             <>
               <div className="upload-icon">☁️</div>
-              <h3>파일을 여기에 드래그하세요</h3>
+              <div className="upload-title">파일을 여기에 드래그하세요</div>
               <p>또는</p>
               <label className="upload-button">
                 파일 선택하기
@@ -463,16 +463,16 @@ const MakeQuiz = () => {
                   onChange={handleFileInput}
                 />
               </label>
-              <p className="hint">지원 파일 형식: PPTX, PDF</p>
               <p className="hint">
-                파일 크기 제한: {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>파일
-                page 제한: 100page 이하
+                지원 파일 형식: PPTX, PDF <br></br>파일 크기 제한:{" "}
+                {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>
               </p>
+              <p className="hint">파일 page 제한: 선택했을 때 100page 이하</p>
             </>
           ) : (
             <>
               <div className="file-icon">📄</div>
-              <h3>{file.name}</h3>
+              <div className="file-name">{file.name}</div>
               {file.size && <p>{(file.size / 1024 / 1024).toFixed(2)} MB</p>}
               <button className="remove-button" onClick={handleRemoveFile}>
                 ✕ 파일 삭제
@@ -483,11 +483,11 @@ const MakeQuiz = () => {
             🚨파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.<br></br>{" "}
             24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.
           </p>
-        </section>
+        </div>
         {/* Options Panel */}
         {uploadedUrl && !problemSetId && (
-          <section className="options-panel">
-            <h3>퀴즈 생성 옵션</h3>
+          <div className="options-panel">
+            <div className="options-title">퀴즈 생성 옵션</div>
             {/* 문제 유형 세그먼티드 */}
             <div className="segmented-control question-type">
               {["객관식", "빈칸"].map((type) => (
@@ -536,7 +536,7 @@ const MakeQuiz = () => {
               />
             </div>
 
-            <h3>특정 페이지를 지정하고 싶으신가요?</h3>
+            <div className="page-title">특정 페이지를 지정하고 싶으신가요?</div>
             <div className="page-decide">
               <select
                 value={pageMode}
@@ -561,7 +561,7 @@ const MakeQuiz = () => {
             {uploadedUrl && (
               <div className="pdf-preview-container" ref={pdfPreviewRef}>
                 <div className="pdf-preview-header">
-                  <h4>미리보기 및 페이지 선택</h4>
+                  <div className="preview-title">미리보기 및 페이지 선택</div>
                   <button
                     onClick={handleSelectAllPages}
                     disabled={pageMode === "전체"}
@@ -629,7 +629,7 @@ const MakeQuiz = () => {
               </div>
             )}
 
-            <h3>문제 단계 설정하기</h3>
+            <div className="level-title">문제 단계 설정하기</div>
             <div className="level-selector-row">
               {/* ① 난이도 선택박스 */}
               <select
@@ -657,12 +657,12 @@ const MakeQuiz = () => {
                 </pre>
               </div>
             </div>
-          </section>
+          </div>
         )}
         {/* ① 문서 미리보기 */}
         {uploadedUrl && (
-          <section className="document-preview">
-            <h2>문서 미리보기</h2>
+          <div className="document-preview">
+            <div className="document-title">문서 미리보기</div>
             <div className="preview-content">
               {isProcessing ? (
                 <div className="processing">
@@ -680,10 +680,10 @@ const MakeQuiz = () => {
                 <div className="problem-card">
                   <div className="problem-icon">📝</div>
                   <div className="problem-details">
-                    <h3>
+                    <div className="problem-title">
                       {file.name}
                       {version > 0 && `.ver${version}`}
-                    </h3>
+                    </div>
                   </div>
                   <div className="problem-actions">
                     <button className="btn cancle" onClick={handleRemoveFile}>
@@ -702,7 +702,7 @@ const MakeQuiz = () => {
                 </div>
               )}
             </div>
-          </section>
+          </div>
         )}
 
         {uploadedUrl && !problemSetId && (
@@ -714,19 +714,14 @@ const MakeQuiz = () => {
             >
               {isProcessing ? "생성 중..." : "문제 생성하기"}
             </button>
-            <button
-              className="secondary-button"
-              onClick={() => navigate("/help?source=makeQuiz")}
-            >
-              도움말
-            </button>
           </div>
         )}
-      </main>
+      </div>
+      <Help />
       {/* Footer */}
-      <footer className="footer">
+      <div className="footer">
         © 2025 Q-Asker. All rights reserved.
-        <br></br>문의 및 피드백 :
+        <br></br>문의 및 피드백<span>: </span>
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
           target="_blank"
@@ -734,7 +729,7 @@ const MakeQuiz = () => {
           구글폼 링크
         </a>
         <span>, inhapj01@gmail.com</span>
-      </footer>
+      </div>
     </>
   );
 };
