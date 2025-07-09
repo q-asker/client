@@ -378,6 +378,37 @@ const QuizExplanation = () => {
     }
   };
 
+  // URL을 링크로 변환하는 함수
+  const renderTextWithLinks = (text) => {
+    if (!text) return text;
+
+    // URL 패턴을 찾는 정규식 (http:// 또는 https://로 시작하는 URL)
+    const urlRegex = /(https?:\/\/[^\s)]+)/g;
+
+    const parts = text.split(urlRegex);
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <a
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "#0066cc",
+              textDecoration: "underline",
+              wordBreak: "break-all",
+            }}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <div className="app-container">
       {/* 피드백 모달 - 주석 처리 */}
@@ -547,7 +578,9 @@ const QuizExplanation = () => {
               {specificExplanation && (
                 <div className="specific-explanation-section">
                   <h4 className="specific-explanation-title">상세 해설</h4>
-                  <p className="explanation-text">{specificExplanation}</p>
+                  <p className="explanation-text">
+                    {renderTextWithLinks(specificExplanation)}
+                  </p>
                 </div>
               )}
 
