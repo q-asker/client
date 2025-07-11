@@ -25,7 +25,7 @@ const levelDescriptions = {
     '예) "OO 알고리즘을 사용해 특정 상황을 해결하는 방식을 고르시오", "제시된 코드 조각에서 발생할 수 있는 최악의 시간 복잡도를 판단하고, 이유를 선택하시오"',
 };
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 30 * 1024 * 1024;
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -459,7 +459,7 @@ const MakeQuiz = () => {
                 파일 선택하기
                 <input
                   type="file"
-                  accept=".pptx, .pdf"
+                  accept=".ppt, .pptx, .pdf"
                   onChange={handleFileInput}
                 />
               </label>

@@ -223,8 +223,8 @@ const Help = () => {
             Q-Asker: PDF/PPT 파일로 무료 AI 퀴즈 생성
           </h1>
           <p className="help-subtitle">
-            가지고 계신 학습 자료(PDF, PPT)로 무료 AI 퀴즈를 만드는 가장 쉬운
-            방법을 알려드립니다.
+            가지고 계신 학습 자료(PDF, PPT)로 AI 퀴즈를 만드는 가장 쉬운 방법을
+            알려드립니다.
           </p>
           <button
             className="help-toggle-button"
