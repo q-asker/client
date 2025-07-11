@@ -1,8 +1,8 @@
-import CustomToast from "#shared/toast";
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
 import axiosInstance from "#shared/api";
+import CustomToast from "#shared/toast";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Header from "../components/header";
 import { trackQuizHistoryEvents } from "../utils/analytics";
 import "./QuizHistory.css";
 
@@ -467,7 +467,9 @@ const QuizHistory = () => {
                   <div className="history-main">
                     <div className="history-title">
                       <span className="file-icon">📄</span>
-                      <span className="file-name">{record.fileName}</span>
+                      <span className="history-file-name">
+                        {record.fileName}
+                      </span>
                       <span className={`status-badge ${record.status}`}>
                         {record.status === "completed" ? "완료" : "미완료"}
                       </span>
