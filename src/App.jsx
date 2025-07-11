@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "./App.css";
-import Help from "./pages/Help";
 import MakeQuiz from "./pages/MakeQuiz";
 import QuizExplanation from "./pages/QuizExplanation";
 import QuizHistory from "./pages/QuizHistory";
@@ -35,7 +34,6 @@ const getPageTitle = (pathname) => {
     "/result": "퀴즈 결과",
     "/explanation": "퀴즈 해설",
     "/history": "퀴즈 기록",
-    "/help": "도움말",
   };
 
   // 동적 라우트 처리
@@ -67,7 +65,6 @@ const App = () => {
           element={<QuizExplanation />}
         />
         <Route path="/history" element={<QuizHistory />} />
-        <Route path="/help" element={<Help />} />
       </Routes>
     </BrowserRouter>
   );
