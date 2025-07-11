@@ -92,7 +92,7 @@ const Help = () => {
         {
           "@type": "HowToStep",
           name: "1단계: PDF/PPT 파일 업로드",
-          text: "AI 퀴즈 생성을 위해 분석할 PDF 또는 PPT 파일을 업로드합니다. 텍스트가 선명한 원본 파일일수록 AI 퀴즈의 품질이 높아집니다.",
+          text: "AI 퀴즈 생성을 위해 PDF 또는 PPT 파일을 업로드합니다. 원하는 페이지를 지정하면 AI 퀴즈 생성시 더 좋은 퀴즈를 만들 수 있습니다.",
           url: `${canonicalUrl}#how-to-use`,
         },
         {
@@ -104,7 +104,7 @@ const Help = () => {
         {
           "@type": "HowToStep",
           name: "3단계: AI 퀴즈 자동 생성",
-          text: "설정이 끝나면 AI가 문서 내용을 분석하여 PDF 퀴즈 또는 PPT 퀴즈를 자동으로 생성합니다. 업로드한 파일이 인터랙티브한 문제로 변환됩니다.",
+          text: "설정이 끝나면 AI가 문서 내용을 분석하여 PDF 퀴즈 또는 PPT 퀴즈를 자동으로 생성합니다.",
           url: `${canonicalUrl}#how-to-use`,
         },
         {
@@ -116,7 +116,7 @@ const Help = () => {
         {
           "@type": "HowToStep",
           name: "5단계: 결과 확인 및 해설 학습",
-          text: "채점 결과와 함께 모든 문제에 대한 상세한 해설을 제공합니다. AI가 찾아준 원본 위치를 통해 PDF/PPT 내용을 다시 확인하며 깊이 있는 학습을 할 수 있습니다.",
+          text: "채점 결과와 함께 모든 문제에 대한 상세한 해설을 제공합니다. 참조한 페이지 미리보기를 통해 PDF/PPT 내용을 다시 확인하며 깊이 있는 학습을 할 수 있습니다.",
           url: `${canonicalUrl}#how-to-use`,
         },
         {
@@ -173,7 +173,7 @@ const Help = () => {
         {/* === [SEO 강화] Description 태그: 검색 결과 페이지의 미리보기 텍스트. 클릭을 유도하는 문장으로 구성 === */}
         <meta
           name="description"
-          content="PDF, PPT 파일만 업로드하면 AI가 자동으로 퀴즈를 생성합니다. 회원가입 없이 무료로 사용하고, Webb's Dok 이론 기반의 단계별 난이도로 학습 효과를 높여보세요. 시험 대비, 복습에 최적화된 AI 퀴즈 생성 솔루션입니다."
+          content="PDF, PPT 파일만 업로드하면 AI가 자동으로 퀴즈를 생성해줍니다. 회원가입 없이 무료로 사용하고, 단계별 난이도로 학습 효과를 높여보세요. 시험 대비, 복습에 최적화된 AI 퀴즈 생성 솔루션입니다."
         />
         {/* === [SEO 강화] Keywords 태그: 관련 검색어 확장. (참고: 구글은 keywords 태그의 중요도를 낮게 보지만, 다른 검색 엔진에는 여전히 유효할 수 있음) === */}
         <meta
@@ -185,11 +185,11 @@ const Help = () => {
         {/* === [SEO 강화] Open Graph (소셜 미디어 공유용) === */}
         <meta
           property="og:title"
-          content="PDF, PPT 파일로 AI 퀴즈 자동 생성 | Q-Asker"
+          content="Q-Asker: PDF/PPT 파일로 무료 AI 퀴즈 생성"
         />
         <meta
           property="og:description"
-          content="수업 자료, 강의안, 업무 매뉴얼(PDF/PPT)로 AI 퀴즈를 만들어보세요. Q-Asker는 똑똑한 AI가 만드는 무료 퀴즈 생성기로 학습과 업무 효율을 높여줍니다."
+          content="PDF, PPT 파일만 업로드하면 AI가 자동으로 퀴즈를 생성해줍니다. 회원가입 없이 무료로 사용하고, 단계별 난이도로 학습 효과를 높여보세요. 시험 대비, 복습에 최적화된 AI 퀴즈 생성 솔루션입니다."
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={canonicalUrl} />
@@ -200,11 +200,11 @@ const Help = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
-          content="가장 쉬운 AI 퀴즈 생성 방법 | Q-Asker"
+          content="Q-Asker: PDF/PPT 파일로 무료 AI 퀴즈 생성"
         />
         <meta
           name="twitter:description"
-          content="가지고 있는 PDF, PPT 파일로 AI 퀴즈를 만드는 가장 쉬운 방법. 학생, 교사, 기업을 위한 최고의 학습 파트너, Q-Asker."
+          content="PDF, PPT 파일만 업로드하면 AI가 자동으로 퀴즈를 생성해줍니다. 회원가입 없이 무료로 사용하고, 단계별 난이도로 학습 효과를 높여보세요. 시험 대비, 복습에 최적화된 AI 퀴즈 생성 솔루션입니다."
         />
         <meta name="twitter:image" content={twitterImageUrl} />
 
@@ -318,8 +318,8 @@ const Help = () => {
                   📈 <strong>성과 확인:</strong> 점수, 소요시간 등 결과 확인
                 </li>
                 <li>
-                  📚 <strong>상세 해설:</strong> 문제별 자세한 설명과 원본 위치
-                  제공
+                  📚 <strong>상세 해설:</strong> 문제별 자세한 설명과 참조한
+                  페이지 미리보기 제공
                 </li>
                 <li>
                   🔄 <strong>반복 학습:</strong> 틀린 문제 중심 재학습 가능
@@ -479,8 +479,8 @@ const Help = () => {
             <h2 id="contact-support">📞 문의 및 피드백</h2>
             <p>
               Q-Asker 사용 중 궁금한 점이나 개선 아이디어가 있으시면 언제든지
-              연락주세요. 여러분의 목소리가 더 좋은{" "}
-              <strong>AI 퀴즈 생성</strong> 서비스를 만듭니다.
+              알려주세요! 더 좋은 <strong>AI 퀴즈 생성</strong> 서비스를
+              만드는데 큰 도움이 됩니다.
             </p>
             <div className="contact-info">
               <p>
