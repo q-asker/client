@@ -12,7 +12,7 @@ const Help = () => {
   const MaxTime = 30;
   const MinTime = 10;
 
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const startTimeRef = useRef(Date.now());
   const scrollTrackingRef = useRef({
