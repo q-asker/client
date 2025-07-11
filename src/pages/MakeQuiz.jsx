@@ -726,9 +726,12 @@ const MakeQuiz = () => {
           href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
           target="_blank"
         >
-          구글폼 링크
+          구글 폼 링크
         </a>
-        <span>, inhapj01@gmail.com</span>
+        <span>, </span>
+        <a href="mailto:inhapj01@gmail.com" aria-label="Q-Asker 이메일 문의">
+          inhapj01@gmail.com
+        </a>
       </div>
     </>
   );
