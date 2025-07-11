@@ -3,12 +3,12 @@ name: DEV용 S3에 업로드
 on:
   push:
     branches:
-      - develop
+      - ICC-109-dev-branch-cicd
   workflow_dispatch:
 
 jobs:
   build:
-    name: 프론트엔드 빌드
+    name: 프론트엔드 빌드 및 S3 배포
     runs-on: ubuntu-latest
 
     env:
@@ -25,7 +25,7 @@ jobs:
       - name: Node.js 설치
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22.15.0
 
       - name: 의존성 설치
         run: npm install
@@ -46,29 +46,6 @@ jobs:
 
       - name: S3에 정적 파일 업로드
         run: |
-          aws s3 sync ./dist s3://${{ env.S3_BUCKET_NAME }} --delete
-
-  invalidate:
-    name: CloudFront 캐시 무효화
-    needs: build
-    runs-on: ubuntu-latest
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
-
-    steps:
-      - name: AWS 인증
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: CloudFront 캐시 무효화
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
+          aws s3 sync ./dist s3://${{ env.S3_BUCKET_NAME }} --delete \
+          --acl public-read \
+          --cache-control "no-cache"
