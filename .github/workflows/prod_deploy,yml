@@ -1,0 +1,43 @@
+name: main 브랜치 배포
+
+on:
+  push:
+    branches:
+      - ICC-110-main-branch-cicd
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: GitHub 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: EC2에 SSH 접속 후 배포
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/client
+            git pull origin main
+            npm install
+            npm run build
+
+            # S3 업로드
+            aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
+
+            # CloudFront 초기화
+            mkdir -p ~/.aws
+            cat > ~/.aws/credentials <<EOL
+            [default]
+            aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            region=ap-northeast-2
+            EOL
+
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} \
+              --paths "/*"
