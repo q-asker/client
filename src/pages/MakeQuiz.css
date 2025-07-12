@@ -51,6 +51,16 @@
   font-size: 48px;
   margin-bottom: 16px;
 }
+
+/* 업로드 버튼 컨테이너 */
+.upload-buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+}
+
 .upload-button {
   display: inline-block;
   background: #6366f1;
@@ -74,6 +84,92 @@
   height: 100%;
   cursor: pointer;
 }
+
+/* OCR 섹션 */
+.ocr-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ocr-button {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.ocr-button:hover {
+  background-color: #059669;
+  transform: scale(1.02);
+}
+
+/* 말풍선 스타일 */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 280px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 12px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 20%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.tooltip .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 25%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+/* 말풍선 아이콘에 호버할 때 */
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* OCR 버튼에 호버할 때 인접한 말풍선 보이기 */
+.ocr-button:hover + .tooltip .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* 말풍선 아이콘 */
+.tooltip::before {
+  content: "💬";
+  font-size: 16px;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover::before {
+  opacity: 1;
+}
+
 .upload-section .processing {
   display: flex;
   flex-direction: column;
@@ -731,10 +827,65 @@
   .hint {
     font-size: 0.9rem;
   }
-  .upload-button {
-    padding: 6px 12px;
-    font-size: 0.9rem;
+
+  /* 모바일에서 업로드 버튼 컨테이너 */
+  .upload-buttons-container {
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px 0;
   }
+
+  .upload-button {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* 모바일에서 OCR 섹션 */
+  .ocr-section {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ocr-button {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  /* 모바일에서 말풍선 스타일 */
+  .tooltip .tooltip-text {
+    width: 250px;
+    left: 15%;
+    margin-left: -50px;
+    bottom: 110%;
+    font-size: 11px;
+    padding: 10px;
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .tooltip .tooltip-text::after {
+    left: 30%;
+  }
+
+  /* 모바일에서 말풍선 아이콘에 호버할 때 */
+  .tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* 모바일에서 OCR 버튼에 호버할 때 */
+  .ocr-button:hover + .tooltip .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .tooltip::before {
+    font-size: 14px;
+  }
+
   .remove-button {
     padding: 6px 12px;
     font-size: 0.9rem;

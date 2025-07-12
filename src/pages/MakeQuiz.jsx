@@ -6,9 +6,9 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/header";
-import Help from "../components/help";
+import Header from "../components/Header";
 import { trackMakeQuizEvents } from "../utils/analytics";
+import Help from "../components/help";
 import "./MakeQuiz.css";
 
 const levelDescriptions = {
@@ -25,7 +25,7 @@ const levelDescriptions = {
     '예) "OO 알고리즘을 사용해 특정 상황을 해결하는 방식을 고르시오", "제시된 코드 조각에서 발생할 수 있는 최악의 시간 복잡도를 판단하고, 이유를 선택하시오"',
 };
 
-const MAX_FILE_SIZE = 30 * 1024 * 1024;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -48,9 +48,7 @@ const MakeQuiz = () => {
   const [pageMode, setPageMode] = useState("전체"); // "전체" 또는 "사용자 지정"
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
-  const [hoveredPage, setHoveredPage] = useState(null); // { pageNumber: number, style: object }
   const pdfPreviewRef = useRef(null);
-  const hoverTimeoutRef = useRef(null);
   const [countText, setCountText] = useState(""); // 로딩 점 애니메이션용
   const [showWaitMessage, setShowWaitMessage] = useState(false); // 5초 후 대기 메시지 표시용
   const [latestQuiz, setLatestQuiz] = useState(null); // 최신 퀴즈 미리보기용
@@ -337,7 +335,6 @@ const MakeQuiz = () => {
     setPageMode("전체");
     setNumPages(null);
     setSelectedPages([]);
-    setHoveredPage(null);
     setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
@@ -349,7 +346,6 @@ const MakeQuiz = () => {
     setPageMode("전체");
     setNumPages(null);
     setSelectedPages([]);
-    setHoveredPage(null);
     setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
@@ -386,49 +382,6 @@ const MakeQuiz = () => {
     }
   };
 
-  const handlePageMouseEnter = (e, pageNumber) => {
-    // 모바일 너비에서는 미리보기 기능을 비활성화
-    if (window.innerWidth <= 768) return;
-
-    if (pageMode === "전체" || !pdfPreviewRef.current) return;
-
-    const containerRect = pdfPreviewRef.current.getBoundingClientRect();
-    const itemRect = e.currentTarget.getBoundingClientRect();
-    const itemWidth = itemRect.width;
-    const midpoint = containerRect.left + containerRect.width / 2;
-
-    const PREVIEW_WIDTH = 660; // CSS에 정의된 너비 + 패딩
-    const GAP = 10; // 컴포넌트와 미리보기 사이 간격
-
-    // 수직 위치를 아이템보다 조금 더 높게 조정 (e.g., 100px 위로)
-    let top = itemRect.top - containerRect.top - 100;
-    // 단, 그리드 상단 밖으로 벗어나지 않도록 최소 위치를 0으로 설정
-    if (top < 0) {
-      top = 0;
-    }
-
-    const style = {
-      top: `${top}px`,
-      width: `${PREVIEW_WIDTH}px`,
-    };
-
-    if (itemRect.left < midpoint) {
-      // Item is on the left, show preview on the right
-      style.left = `${itemRect.left - containerRect.left + itemWidth + GAP}px`;
-    } else {
-      // Item is on the right, show preview on the left
-      style.left = `${
-        itemRect.left - containerRect.left - PREVIEW_WIDTH - GAP
-      }px`;
-    }
-
-    setHoveredPage({ pageNumber, style });
-  };
-
-  const handlePageMouseLeave = () => {
-    setHoveredPage(null);
-  };
-
   return (
     <>
       <Header
@@ -436,6 +389,7 @@ const MakeQuiz = () => {
         toggleSidebar={toggleSidebar}
         setIsSidebarOpen={setIsSidebarOpen}
       />
+
       <div className="main">
         <div
           className={`upload-section ${isDragging ? "dragging" : ""}`}
@@ -453,26 +407,47 @@ const MakeQuiz = () => {
           ) : !uploadedUrl ? (
             <>
               <div className="upload-icon">☁️</div>
-              <div className="upload-title">파일을 여기에 드래그하세요</div>
-              <p>또는</p>
-              <label className="upload-button">
-                파일 선택하기
-                <input
-                  type="file"
-                  accept=".ppt, .pptx, .pdf"
-                  onChange={handleFileInput}
-                />
-              </label>
+              <h3>파일을 여기에 드래그하세요</h3>
+              <div className="upload-buttons-container">
+                <label className="upload-button">
+                  파일 선택하기
+                  <input
+                    type="file"
+                    accept=".pptx, .pdf"
+                    onChange={handleFileInput}
+                  />
+                </label>
+                <p>또는</p>
+                <div className="ocr-section">
+                  <button
+                    className="ocr-button"
+                    onClick={() =>
+                      window.open(
+                        "https://tools.pdf24.org/ko/ocr-pdf",
+                        "_blank"
+                      )
+                    }
+                  >
+                    OCR 변환하기
+                  </button>
+                  <div className="tooltip">
+                    <span className="tooltip-text">
+                      이미지나 스캔된 PDF를 텍스트로 변환하여
+                      <br />더 정확한 문제 생성이 가능합니다
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <p className="hint">지원 파일 형식: PPTX, PDF</p>
               <p className="hint">
-                지원 파일 형식: PPTX, PDF <br></br>파일 크기 제한:{" "}
-                {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>
+                파일 크기 제한: {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>파일
+                page 제한: 100page 이하
               </p>
-              <p className="hint">파일 page 제한: 선택했을 때 100page 이하</p>
             </>
           ) : (
             <>
               <div className="file-icon">📄</div>
-              <div className="file-name">{file.name}</div>
+              <h3>{file.name}</h3>
               {file.size && <p>{(file.size / 1024 / 1024).toFixed(2)} MB</p>}
               <button className="remove-button" onClick={handleRemoveFile}>
                 ✕ 파일 삭제
@@ -486,8 +461,8 @@ const MakeQuiz = () => {
         </div>
         {/* Options Panel */}
         {uploadedUrl && !problemSetId && (
-          <div className="options-panel">
-            <div className="options-title">퀴즈 생성 옵션</div>
+          <section className="options-panel">
+            <h3>퀴즈 생성 옵션</h3>
             {/* 문제 유형 세그먼티드 */}
             <div className="segmented-control question-type">
               {["객관식", "빈칸"].map((type) => (
@@ -536,7 +511,7 @@ const MakeQuiz = () => {
               />
             </div>
 
-            <div className="page-title">특정 페이지를 지정하고 싶으신가요?</div>
+            <h3>특정 페이지를 지정하고 싶으신가요?</h3>
             <div className="page-decide">
               <select
                 value={pageMode}
@@ -561,7 +536,7 @@ const MakeQuiz = () => {
             {uploadedUrl && (
               <div className="pdf-preview-container" ref={pdfPreviewRef}>
                 <div className="pdf-preview-header">
-                  <div className="preview-title">미리보기 및 페이지 선택</div>
+                  <h4>PDF 미리보기 및 페이지 선택</h4>
                   <button
                     onClick={handleSelectAllPages}
                     disabled={pageMode === "전체"}
@@ -576,60 +551,34 @@ const MakeQuiz = () => {
                   onLoadSuccess={onDocumentLoadSuccess}
                   onLoadError={console.error}
                 >
-                  <div className="pdf-grid-and-preview-wrapper">
-                    <div
-                      className="pdf-preview-grid"
-                      onMouseLeave={handlePageMouseLeave}
-                    >
-                      {Array.from(new Array(numPages), (el, index) => (
-                        <div
-                          key={`page_${index + 1}`}
-                          className={`pdf-page-item ${
-                            selectedPages.includes(index + 1) ? "selected" : ""
-                          } ${pageMode === "전체" ? "disabled" : ""} ${
-                            hoveredPage && hoveredPage.pageNumber === index + 1
-                              ? "hover-active"
-                              : ""
-                          }`}
-                          onClick={() => {
-                            if (pageMode !== "전체") {
-                              handlePageSelection(index + 1);
-                            }
-                          }}
-                          onMouseEnter={(e) =>
-                            handlePageMouseEnter(e, index + 1)
-                          }
-                        >
-                          <Page
-                            pageNumber={index + 1}
-                            width={150}
-                            renderTextLayer={false}
-                            renderAnnotationLayer={false}
-                          />
-                          <p>페이지 {index + 1}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    {hoveredPage && (
+                  <div className="pdf-preview-grid">
+                    {Array.from(new Array(numPages), (el, index) => (
                       <div
-                        className="pdf-side-preview"
-                        style={hoveredPage.style}
+                        key={`page_${index + 1}`}
+                        className={`pdf-page-item ${
+                          selectedPages.includes(index + 1) ? "selected" : ""
+                        } ${pageMode === "전체" ? "disabled" : ""}`}
+                        onClick={() => {
+                          if (pageMode !== "전체") {
+                            handlePageSelection(index + 1);
+                          }
+                        }}
                       >
                         <Page
-                          pageNumber={hoveredPage.pageNumber}
-                          width={640}
+                          pageNumber={index + 1}
+                          width={150}
                           renderTextLayer={false}
                           renderAnnotationLayer={false}
                         />
+                        <p>페이지 {index + 1}</p>
                       </div>
-                    )}
+                    ))}
                   </div>
                 </Document>
               </div>
             )}
 
-            <div className="level-title">문제 단계 설정하기</div>
+            <h3>문제 난이도 설정하기</h3>
             <div className="level-selector-row">
               {/* ① 난이도 선택박스 */}
               <select
@@ -657,12 +606,12 @@ const MakeQuiz = () => {
                 </pre>
               </div>
             </div>
-          </div>
+          </section>
         )}
         {/* ① 문서 미리보기 */}
         {uploadedUrl && (
           <div className="document-preview">
-            <div className="document-title">문서 미리보기</div>
+            <h2>문서 미리보기</h2>
             <div className="preview-content">
               {isProcessing ? (
                 <div className="processing">
@@ -680,10 +629,10 @@ const MakeQuiz = () => {
                 <div className="problem-card">
                   <div className="problem-icon">📝</div>
                   <div className="problem-details">
-                    <div className="problem-title">
+                    <h3>
                       {file.name}
                       {version > 0 && `.ver${version}`}
-                    </div>
+                    </h3>
                   </div>
                   <div className="problem-actions">
                     <button className="btn cancle" onClick={handleRemoveFile}>
@@ -696,7 +645,7 @@ const MakeQuiz = () => {
                       className="btn mapping"
                       onClick={handleNavigateToQuiz}
                     >
-                      문제 풀기
+                      문제로 이동하기
                     </button>
                   </div>
                 </div>
@@ -714,25 +663,28 @@ const MakeQuiz = () => {
             >
               {isProcessing ? "생성 중..." : "문제 생성하기"}
             </button>
+            <button
+              className="secondary-button"
+              onClick={() => navigate("/help?source=makeQuiz")}
+            >
+              도움말
+            </button>
           </div>
         )}
       </div>
       <Help />
       {/* Footer */}
-      <div className="footer">
-        © 2025 Q-Asker. All rights reserved.
-        <br></br>문의 및 피드백<span>: </span>
+      <footer className="footer">
+        © 2025 Q-Asker. All rights reserved. 문의 및 피드백 : inhapj01@gmail.com
+        <br></br>
+        문의 및 지원 구글 폼 :{" "}
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
           target="_blank"
         >
-          구글 폼 링크
+          문의 링크
         </a>
-        <span>, </span>
-        <a href="mailto:inhapj01@gmail.com" aria-label="Q-Asker 이메일 문의">
-          inhapj01@gmail.com
-        </a>
-      </div>
+      </footer>
     </>
   );
 };
