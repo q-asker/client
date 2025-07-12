@@ -1,7 +1,7 @@
 import CustomToast from "#shared/toast";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import "./Header.css";
+import "./index.css";
 
 const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
   useEffect(() => {
@@ -94,13 +94,6 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           <button className="nav-link" onClick={handleStatistics}>
             📊 통계
           </button>
-          <Link
-            to="/help?source=header"
-            className="nav-link"
-            onClick={handleHelp}
-          >
-            ❓ 도움말
-          </Link>
         </nav>
       </aside>
     </header>
