@@ -1,3 +1,4 @@
+import { initGA, logPageView } from "#utils/analytics";
 import React, { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -7,7 +8,6 @@ import QuizExplanation from "./pages/QuizExplanation";
 import QuizHistory from "./pages/QuizHistory";
 import QuizResult from "./pages/QuizResult";
 import SolveQuiz from "./pages/SolveQuiz";
-import { initGA, logPageView } from "./utils/analytics";
 
 // Google Analytics 측정 ID (실제 GA4 측정 ID로 교체 필요)
 const GA_MEASUREMENT_ID =

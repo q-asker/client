@@ -1,11 +1,10 @@
-import CustomToast from "#shared/toast";
-import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { trackQuizEvents } from "../utils/analytics";
-import "./QuizExplanation.css";
 import axiosInstance from "#shared/api";
-
+import CustomToast from "#shared/toast";
+import { trackQuizEvents } from "#utils/analytics";
+import React, { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import "./QuizExplanation.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
