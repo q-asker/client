@@ -3,7 +3,7 @@ name: PROD용 S3에 업로드 및 CLOUDFRONT 초기화
 on:
   push:
     branches:
-      - ICC-110-main-branch-cicd
+      - main
 
 jobs:
   deploy:
@@ -12,19 +12,12 @@ jobs:
     steps:
       - name: GitHub 코드 체크아웃
         uses: actions/checkout@v4
-        
-      - name: AWS 로그인
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
-          aws-region: ${{ secrets.AWS_REGION_PROD }}
 
-      - name: EC2에 SSH 접속 후 빌드, S3 업로드
+      - name: EC2에 SSH 접속 후 배포
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }} 
+          username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
@@ -36,8 +29,15 @@ jobs:
             # S3 업로드
             aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
 
-      - name: CloudFront 초기화
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} \
-            --paths "/*"
+            # CloudFront 초기화
+            mkdir -p ~/.aws
+            cat > ~/.aws/credentials <<EOL
+            [default]
+            aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+            aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+            region=${{ secrets.AWS_REGION_PROD }}
+            EOL
+
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} \
+              --paths "/*"
