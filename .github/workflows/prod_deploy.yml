@@ -12,6 +12,13 @@ jobs:
     steps:
       - name: GitHub 코드 체크아웃
         uses: actions/checkout@v4
+        
+      - name: AWS 로그인
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: ${{ secrets.AWS_REGION_PROD }}
 
       - name: EC2에 SSH 접속 후 빌드, S3 업로드
         uses: appleboy/ssh-action@v1.0.0
@@ -28,14 +35,7 @@ jobs:
 
             # S3 업로드
             aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
-      
-      - name: AWS 로그인
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
-          aws-region: ${{ secrets.AWS_REGION_PROD }}
-      
+
       - name: CloudFront 초기화
         run: |
           aws cloudfront create-invalidation \
