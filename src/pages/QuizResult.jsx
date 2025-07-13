@@ -1,7 +1,7 @@
 import axiosInstance from "#shared/api";
+import { trackQuizEvents, trackResultEvents } from "#utils/analytics";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { trackQuizEvents, trackResultEvents } from "../utils/analytics";
 import "./QuizResult.css";
 
 const QuizResult = () => {

@@ -1,9 +1,9 @@
+import Header from "#components/header";
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
+import { trackQuizHistoryEvents } from "#utils/analytics";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/header";
-import { trackQuizHistoryEvents } from "../utils/analytics";
 import "./QuizHistory.css";
 
 const QuizHistory = () => {
