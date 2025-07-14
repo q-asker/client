@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: GitHub 코드 체크아웃
-        uses: actions/checkout@v4
-
       - name: EC2에 SSH 접속 후 배포
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -27,13 +24,13 @@ jobs:
             npm run build
             # S3 업로드
             aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
-          steps:
+
       - name: AWS 로그인
         uses: aws-actions/configure-aws-credentials@v4
         with:
-            aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ${{ env.AWS_REGION }}
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_REGION }}
 
       - name: CloudFront 초기화
         run: |
