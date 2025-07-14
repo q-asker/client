@@ -22,19 +22,16 @@ jobs:
             git pull origin main
             npm install
             npm run build
- 
             # S3 업로드
             aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
+      
+      - name: AWS 로그인
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: ${{ secrets.AWS_REGION_PROD }}
 
-            # CloudFront 초기화
-            mkdir -p ~/.aws
-            cat > ~/.aws/credentials <<EOL
-            [default]
-            aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
-            aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
-            region=${{ secrets.AWS_REGION_PROD }}
-            EOL
-
-            aws cloudfront create-invalidation \
-              --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} \
-              --paths "/*"
+      - name: CloudFront 캐시 무효화
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} --paths "/*"
+ 
