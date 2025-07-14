@@ -22,24 +22,11 @@ jobs:
             git pull origin main
             npm install
             npm run build
+ 
+            # S3 업로드
+            aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
 
-            echo "======[BEFORE S3 SYNC]======"
-            echo "[ENV] AWS_PROFILE: $AWS_PROFILE"
-            echo "[ENV] AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
-            echo "[CHECK] ~/.aws 디렉토리:"
-            ls -al ~/.aws || echo "No ~/.aws directory"
-            echo "[CHECK] ~/.aws/credentials 파일:"
-            cat ~/.aws/credentials || echo "No credentials file"
-            echo "[CHECK] 현재 AWS 인증 상태 (configure list):"
-            aws configure list || echo "configure list 실패"
-            echo "[CHECK] 현재 인증 주체 (sts get-caller-identity):"
-            aws sts get-caller-identity || echo "IAM 인증 실패"
-            echo "======[RUNNING aws s3 sync]======"
-            aws s3 sync ./dist ${{ secrets.S3_URL }} --delete || echo "S3 sync 실패"
-            echo "======[AFTER S3 SYNC]======"
-
-            echo "======[BEFORE CLOUDFRONT INVALIDATION]======"
-            echo "[ACTION] Writing new credentials for CloudFront"
+            # CloudFront 초기화
             mkdir -p ~/.aws
             cat > ~/.aws/credentials <<EOL
             [default]
@@ -47,13 +34,7 @@ jobs:
             aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
             region=${{ secrets.AWS_REGION_PROD }}
             EOL
-            echo "[CHECK] ~/.aws/credentials after write:"
-            cat ~/.aws/credentials
-            echo "[CHECK] 인증 상태 (configure list):"
-            aws configure list || echo "configure list 실패"
-            echo "[CHECK] 인증 주체 (sts get-caller-identity):"
-            aws sts get-caller-identity || echo "IAM 인증 실패"
-            echo "[ACTION] Invalidating CloudFront cache..."
+
             aws cloudfront create-invalidation \
               --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} \
               --paths "/*"
