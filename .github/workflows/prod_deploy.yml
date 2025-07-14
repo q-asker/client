@@ -22,11 +22,22 @@ jobs:
             git pull origin main
             npm install
             npm run build
- 
-            # S3 업로드
-            aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
 
-            # CloudFront 초기화
+            echo "======[BEFORE S3 SYNC]====="
+            echo "[ENV] AWS_PROFILE: $AWS_PROFILE"
+            echo "[ENV] AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+            echo "[ENV] AWS config files:"
+            ls -al ~/.aws || echo "No ~/.aws directory"
+            cat ~/.aws/credentials || echo "No credentials file"
+            aws sts get-caller-identity || echo "Unable to get caller identity"
+
+            echo "[ACTION] Running aws s3 sync..."
+            aws s3 sync ./dist ${{ secrets.S3_URL }} --delete || echo "S3 sync failed"
+
+            echo "======[AFTER S3 SYNC / BEFORE CLOUDFRONT]====="
+            aws sts get-caller-identity || echo "Unable to get caller identity"
+
+            echo "[ACTION] Writing new credentials file for CloudFront"
             mkdir -p ~/.aws
             cat > ~/.aws/credentials <<EOL
             [default]
@@ -35,6 +46,12 @@ jobs:
             region=${{ secrets.AWS_REGION_PROD }}
             EOL
 
+            echo "[ENV] AWS_ACCESS_KEY_ID after setting credentials:"
+            echo $AWS_ACCESS_KEY_ID
+            echo "credentials file after write:"
+            cat ~/.aws/credentials
+
+            echo "[ACTION] Invalidating CloudFront cache..."
             aws cloudfront create-invalidation \
               --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} \
               --paths "/*"
