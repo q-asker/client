@@ -10,22 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 코드 체크아웃
-        uses: actions/checkout@v4
-
-      - name: Node 설치 및 빌드
-        run: |
-          npm ci
-          npm run build
+      - name: EC2에 SSH 접속 후 배포
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/client
+            git pull origin main
+            npm install
+            npm run build
+            # S3 업로드
+            aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
+      
       - name: AWS 로그인
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
           aws-region: ${{ secrets.AWS_REGION_PROD }}
-
-      - name: S3 업로드
-        run: aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
 
       - name: CloudFront 캐시 무효화
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} --paths "/*"
