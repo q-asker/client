@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: GitHub 코드 체크아웃
-        uses: actions/checkout@v4
-
       - name: EC2에 SSH 접속 후 배포
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -25,7 +22,7 @@ jobs:
             git pull origin main
             npm install
             npm run build
-
+ 
             # S3 업로드
             aws s3 sync ./dist ${{ secrets.S3_URL }} --delete
 
