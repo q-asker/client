@@ -3,6 +3,7 @@ import Help from "#components/help";
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import { trackMakeQuizEvents } from "#utils/analytics";
+import { addQuizToSitemap } from "#utils/sitemap";
 import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -355,7 +356,14 @@ const MakeQuiz = () => {
     setLatestQuiz(null);
   };
 
-  const handleNavigateToQuiz = () => {
+  const handleNavigateToQuiz = async () => {
+    // 사이트맵에 새로운 퀴즈 URL 추가
+    try {
+      await addQuizToSitemap(problemSetId);
+    } catch (error) {
+      console.error("Failed to update sitemap:", error);
+    }
+
     trackMakeQuizEvents.navigateToQuiz(problemSetId);
     navigate(`/quiz/${problemSetId}`, {
       state: { uploadedUrl },
