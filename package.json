@@ -1,15 +1,14 @@
 {
-  "name": "vite-project",
+  "name": "q-asker",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.1.2",
   "type": "module",
   "scripts": {
     "dev": "vite --mode dev",
     "remote": "vite --mode remote",
-    "build": "npm run generate-sitemap && vite build --mode prod",
+    "build": "vite build --mode prod",
     "lint": "eslint .",
-    "preview": "vite preview --mode prod",
-    "generate-sitemap": "node scripts/generate-sitemap.js"
+    "preview": "vite preview --mode prod"
   },
   "dependencies": {
     "axios": "^1.9.0",
