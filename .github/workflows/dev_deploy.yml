@@ -16,7 +16,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
-      VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+      ENV_PROD: ${{ secrets.ENV_PROD }}
 
     steps:
       - name: 코드 체크 아웃
@@ -30,9 +30,9 @@ jobs:
       - name: 의존성 설치
         run: npm install
 
-      - name: .env.production 파일 생성
+      - name: .env.prod 파일 생성
         run: |
-          echo "VITE_BASE_URL=$VITE_BASE_URL" > .env.production
+          echo ${{ env.ENV_PROD }} > .env.prod
 
       - name: 빌드
         run: npm run build
