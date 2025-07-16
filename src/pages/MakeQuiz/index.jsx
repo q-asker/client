@@ -314,6 +314,8 @@ const MakeQuiz = () => {
   // 컴포넌트 마운트 시 최신 퀴즈 로드
   useEffect(() => {
     loadLatestQuiz();
+    // 페이지 진입 트래킹
+    trackMakeQuizEvents.viewMakeQuiz();
   }, []);
 
   const handleRemoveFile = () => {
