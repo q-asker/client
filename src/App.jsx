@@ -1,6 +1,12 @@
 import { initGA, logPageView } from "#utils/analytics";
 import React, { useEffect } from "react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "./App.css";
 import MakeQuiz from "./pages/MakeQuiz";
@@ -64,6 +70,7 @@ const App = () => {
           element={<QuizExplanation />}
         />
         <Route path="/history" element={<QuizHistory />} />
+        <Route path="/help" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
