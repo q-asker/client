@@ -111,7 +111,7 @@ const MakeQuiz = () => {
   const selectFile = async (f, method = "click") => {
     const ext = f.name.split(".").pop().toLowerCase();
     if (!["ppt", "pptx", "pdf"].includes(ext)) {
-      CustomToast.error("지원하지 않은 확장자입니다");
+      CustomToast.error("지원하지 않는 파일 형식입니다");
       return;
     }
 

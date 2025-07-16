@@ -10,8 +10,7 @@ import QuizResult from "./pages/QuizResult";
 import SolveQuiz from "./pages/SolveQuiz";
 
 // Google Analytics 측정 ID (실제 GA4 측정 ID로 교체 필요)
-const GA_MEASUREMENT_ID =
-  import.meta.env.VITE_GA_MEASUREMENT_ID || "G-XXXXXXXXXX";
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
 // 페이지뷰 추적 컴포넌트
 const PageViewTracker = () => {
