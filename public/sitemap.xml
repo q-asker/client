@@ -4,15 +4,15 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
                             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
-    <loc>https://your-domain.com/</loc>
+    <loc>https://q-asker.com/</loc>
     <lastmod>2025-07-16T05:39:43.156Z</lastmod>
-    <changefreq>daily</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://your-domain.com/history</loc>
+    <loc>https://q-asker.com/history</loc>
     <lastmod>2025-07-16T05:39:43.156Z</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 </urlset>
