@@ -110,8 +110,8 @@ const MakeQuiz = () => {
   };
   const selectFile = async (f, method = "click") => {
     const ext = f.name.split(".").pop().toLowerCase();
-    if (!["pptx", "pdf"].includes(ext)) {
-      CustomToast.error("PPTX 또는 PDF 파일만 업로드 가능합니다.");
+    if (!["ppt", "pptx", "pdf"].includes(ext)) {
+      CustomToast.error("지원하지 않은 확장자입니다");
       return;
     }
 
@@ -466,7 +466,7 @@ const MakeQuiz = () => {
                 />
               </div>
               <p className="hint">
-                지원 파일 형식: PPTX, PDF <br></br>파일 크기 제한:{" "}
+                지원 파일 형식: PPT, PPTX, PDF <br></br>파일 크기 제한:{" "}
                 {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>
               </p>
               <p className="hint">파일 page 제한: 선택했을 때 100page 이하</p>
