@@ -31,7 +31,7 @@ jobs:
           script: |
             cd ~/client
             git pull origin main
-            echo ${{ env.ENV_PROD }} > .env.prod
+            echo "${{ env.ENV_PROD }}" > .env.prod
             npm install
             npm run build
             # S3 업로드
