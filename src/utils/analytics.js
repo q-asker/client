@@ -145,6 +145,13 @@ export const trackQuizEvents = {
 
 // MakeQuiz 페이지 이벤트들
 export const trackMakeQuizEvents = {
+  // 페이지 진입
+  viewMakeQuiz: (source = "direct") => {
+    logEvent("view_make_quiz", {
+      source: source, // 'direct', 'header', 'help', 'history' 등
+    });
+  },
+
   // 파일 업로드 시작
   startFileUpload: (fileName, fileSize, fileType) => {
     logEvent("file_upload_start", {
@@ -293,7 +300,10 @@ export const trackQuizHistoryEvents = {
       total_quizzes: totalQuizzes,
       completed_quizzes: completedQuizzes,
       average_score: averageScore,
-      completion_rate: totalQuizzes > 0 ? Math.round((completedQuizzes / totalQuizzes) * 100) : 0,
+      completion_rate:
+        totalQuizzes > 0
+          ? Math.round((completedQuizzes / totalQuizzes) * 100)
+          : 0,
     });
   },
 
