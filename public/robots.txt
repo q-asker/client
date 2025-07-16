@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# 사이트맵 위치
+Sitemap: https://www.q-asker.com/sitemap.xml
+
+# 파비콘 위치
+Allow: /favicon.ico
+Allow: /favicon-*.png
+Allow: /favicon.svg

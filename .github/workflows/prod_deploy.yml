@@ -1,0 +1,48 @@
+name: PROD용 S3에 업로드 및 CLOUDFRONT 초기화
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID_PROD: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+      AWS_SECRET_ACCESS_KEY_PROD: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+      AWS_REGION_PROD: ${{ secrets.AWS_REGION_PROD }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+      EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+      S3_URL: ${{ secrets.S3_URL }}
+      ENV_PROD: ${{ secrets.ENV_PROD }}
+
+    steps:
+      - name: EC2에 SSH 접속 후 배포
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ env.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/client
+            git pull origin main
+            echo ${{ env.ENV_PROD }} > .env.prod
+            npm install
+            npm run build
+            # S3 업로드
+            aws s3 sync ./dist ${{ env.S3_URL }} --delete
+
+      - name: AWS 로그인
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: ${{ env.AWS_REGION_PROD }}
+
+      - name: CloudFront 캐시 무효화
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} --paths "/*"
