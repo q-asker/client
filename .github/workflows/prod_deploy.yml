@@ -3,7 +3,7 @@ name: PROD용 S3에 업로드 및 CLOUDFRONT 초기화
 on:
   push:
     branches:
-      - main
+      - ICC-124-CICD
   workflow_dispatch:
 
 jobs:
