@@ -127,3 +127,14 @@
 .tooltip::before {
   font-size: 14px;
 }
+
+@media (max-width: 768px) {
+  .ocr-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
+  }
+  .tooltip {
+    display: none;
+  }
+}
