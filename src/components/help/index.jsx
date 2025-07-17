@@ -98,108 +98,154 @@ const Help = () => {
           isExpanded ? "expanded" : "collapsed"
         }`}
       >
-        {/* === [개선] 단계별 가이드 섹션 === */}
+        {/* === 단계별 가이드 섹션 === */}
         <section
           className="help-section"
           onMouseEnter={() => handleSectionHover("usage_guide")}
+          itemscope
+          itemtype="https://schema.org/HowTo"
         >
           <h2 id="how-to-use">📝 PDF/PPT로 AI 퀴즈 만들기 6단계 가이드</h2>
           {/* 각 단계별 내용은 기존과 유사하게 유지 */}
-          <article className="step-card">
-            <h3>1단계: 파일 업로드</h3>
-            <ul>
-              <li>
-                📄 <strong>지원 형식:</strong> PDF, PPT, PPTX (PowerPoint)
-              </li>
-              <li>
-                📤 <strong>업로드:</strong> 파일을 드래그하거나 버튼 클릭
-              </li>
-              <li>
-                💡 <strong>팁:</strong> 원하는 페이지를 지정하면{" "}
-                <strong>AI 퀴즈 생성</strong>시 더 좋은 퀴즈를 만들 수 있습니다.
-              </li>
-            </ul>
+          <article
+            class="step-card"
+            itemprop="step"
+            itemscope
+            itemtype="https://schema.org/HowToStep"
+          >
+            <h3 itemprop="name">1단계: 파일 업로드</h3>
+            <div itemprop="text">
+              <ul>
+                <li>
+                  📄 <strong>지원 형식:</strong> PDF, PPT, PPTX (PowerPoint)
+                </li>
+                <li>
+                  📤 <strong>업로드:</strong> 파일을 드래그하거나 버튼 클릭
+                </li>
+                <li>
+                  💡 <strong>팁:</strong> 원하는 페이지를 지정하면{" "}
+                  <strong>AI 퀴즈 생성</strong>시 더 좋은 퀴즈를 만들 수
+                  있습니다.
+                </li>
+              </ul>
+            </div>
           </article>
-          <article className="step-card">
-            <h3>2단계: 퀴즈 옵션 설정</h3>
-            <ul>
-              <li>
-                🔢 <strong>문제 수량:</strong> {MinMakeQuiz} ~ {MaxMakeQuiz}개 (
-                {MakeQuizStep}개 단위)
-              </li>
-              <li>
-                📑 <strong>페이지 범위:</strong> 전체 또는 특정 페이지 지정
-              </li>
-              <li>
-                🎯 <strong>난이도:</strong> Recall(Easy), Skills(Normal),
-                Strategic(Hard) 중 선택
-              </li>
-            </ul>
+          <article
+            class="step-card"
+            itemprop="step"
+            itemscope
+            itemtype="https://schema.org/HowToStep"
+          >
+            <h3 itemprop="name">2단계: 퀴즈 옵션 설정</h3>
+            <div itemprop="text">
+              <ul>
+                <li>
+                  🔢 <strong>문제 수량:</strong> 5 ~ 25개 (5개 단위)
+                </li>
+                <li>
+                  📑 <strong>페이지 범위:</strong> 전체 또는 특정 페이지 지정
+                </li>
+                <li>
+                  🎯 <strong>난이도:</strong> Recall(Easy), Skills(Normal),
+                  Strategic(Hard) 중 선택
+                </li>
+              </ul>
+            </div>
           </article>
-          <article className="step-card">
-            <h3>3단계: AI 문제 생성</h3>
-            <ul>
-              <li>
-                🤖 <strong>AI 분석:</strong> 업로드된 문서를 AI가 분석하여 문제
-                생성
-              </li>
-              <li>
-                ⏱️ <strong>소요 시간:</strong> 보통 {MinTime}초 ~ {MaxTime}초
-                (문서 길이에 따라 다름)
-              </li>
-              <li>
-                ✅ <strong>완료:</strong> "문제로 이동하기" 버튼으로{" "}
-                <strong>AI 퀴즈 생성</strong> 완료!
-              </li>
-            </ul>
+          <article
+            class="step-card"
+            itemprop="step"
+            itemscope
+            itemtype="https://schema.org/HowToStep"
+          >
+            <h3 itemprop="name">3단계: AI 문제 생성</h3>
+            <div itemprop="text">
+              <ul>
+                <li>
+                  🤖 <strong>AI 분석:</strong> 업로드된 문서를 AI가 분석하여
+                  문제 생성
+                </li>
+                <li>
+                  ⏱️ <strong>소요 시간:</strong> 보통 10초 ~ 30초 (문서 길이에
+                  따라 다름)
+                </li>
+                <li>
+                  ✅ <strong>완료:</strong> "문제로 이동하기" 버튼으로{" "}
+                  <strong>AI 퀴즈 생성</strong> 완료!
+                </li>
+              </ul>
+            </div>
           </article>
-          <article className="step-card">
-            <h3>4단계: 퀴즈 풀기</h3>
-            <ul>
-              <li>
-                🧩 <strong>문제 풀이:</strong> 생성된 객관식 문제를 순서대로
-                풀이
-              </li>
-              <li>
-                🔍 <strong>검토 기능:</strong> 나중에 다시 볼 문제에 체크 표시
-              </li>
-              <li>
-                📊 <strong>네비게이션:</strong> 좌측 번호판으로 빠른 이동
-              </li>
-            </ul>
+          <article
+            class="step-card"
+            itemprop="step"
+            itemscope
+            itemtype="https://schema.org/HowToStep"
+          >
+            <h3 itemprop="name">4단계: 퀴즈 풀기</h3>
+            <div itemprop="text">
+              <ul>
+                <li>
+                  🧩 <strong>문제 풀이:</strong> 생성된 객관식 문제를 순서대로
+                  풀이
+                </li>
+                <li>
+                  🔍 <strong>검토 기능:</strong> 나중에 다시 볼 문제에 체크 표시
+                </li>
+                <li>
+                  📊 <strong>네비게이션:</strong> 좌측 번호판으로 빠른 이동
+                </li>
+              </ul>
+            </div>
           </article>
-          <article className="step-card">
-            <h3>5단계: 결과 및 해설 확인</h3>
-            <ul>
-              <li>
-                📈 <strong>성과 확인:</strong> 점수, 소요시간 등 결과 확인
-              </li>
-              <li>
-                📚 <strong>상세 해설:</strong> 문제별 자세한 설명과 참조한
-                페이지 미리보기 제공
-              </li>
-              <li>
-                🔄 <strong>반복 학습:</strong> 틀린 문제 중심 재학습 가능
-              </li>
-            </ul>
+          <article
+            class="step-card"
+            itemprop="step"
+            itemscope
+            itemtype="https://schema.org/HowToStep"
+          >
+            <h3 itemprop="name">5단계: 결과 및 해설 확인</h3>
+            <div itemprop="text">
+              <ul>
+                <li>
+                  📈 <strong>성과 확인:</strong> 점수, 소요시간 등 결과 확인
+                </li>
+                <li>
+                  📚 <strong>상세 해설:</strong> 문제별 자세한 설명과 참조한
+                  페이지 미리보기 제공
+                </li>
+                <li>
+                  🔄 <strong>반복 학습:</strong> 틀린 문제 중심 재학습 가능
+                </li>
+              </ul>
+            </div>
           </article>
-          <article className="step-card">
-            <h3>6단계: 히스토리 관리</h3>
-            <ul>
-              <li>
-                📋 <strong>자동 저장:</strong> 만든 퀴즈가 히스토리에 자동 저장
-              </li>
-              <li>
-                📊 <strong>성과 추적:</strong> 총 퀴즈 수, 평균 점수 등 확인
-              </li>
-              <li>
-                🎯 <strong>재학습:</strong> 언제든 이어서 풀거나 해설 다시 보기
-              </li>
-            </ul>
+          <article
+            class="step-card"
+            itemprop="step"
+            itemscope
+            itemtype="https://schema.org/HowToStep"
+          >
+            <h3 itemprop="name">6단계: 퀴즈 기록 관리</h3>
+            <div itemprop="text">
+              <ul>
+                <li>
+                  📋 <strong>자동 저장:</strong> 만든 퀴즈가 퀴즈 기록에 자동
+                  저장
+                </li>
+                <li>
+                  📊 <strong>성과 추적:</strong> 총 퀴즈 수, 평균 점수 등 확인
+                </li>
+                <li>
+                  🎯 <strong>재학습:</strong> 언제든 이어서 풀거나 해설 다시
+                  보기
+                </li>
+              </ul>
+            </div>
           </article>
         </section>
 
-        {/* === [개선] 타겟 사용자별 활용 팁 섹션 === */}
+        {/* === 타겟 사용자별 활용 팁 섹션 === */}
         <section
           className="help-section"
           onMouseEnter={() => handleSectionHover("tips")}
@@ -227,7 +273,7 @@ const Help = () => {
           </div>
         </section>
 
-        {/* === [신설] 신뢰도(E-E-A-T) 구축을 위한 섹션 === */}
+        {/* === 신뢰도 섹션 === */}
         <section
           className="help-section"
           onMouseEnter={() => handleSectionHover("trust")}
@@ -265,47 +311,99 @@ const Help = () => {
           </div>
         </section>
 
-        {/* === [신설] FAQ 섹션 === */}
+        {/* === FAQ 섹션 === */}
         <section
           className="help-section"
           onMouseEnter={() => handleSectionHover("faq")}
+          itemscope
+          itemtype="https://schema.org/FAQPage"
         >
           <h2 id="faq">🙋‍♀️ 자주 묻는 질문 (FAQ)</h2>
-          <div className="faq-grid">
-            <div className="faq-item">
-              <h4>Q. Q-Asker는 정말 무료인가요?</h4>
-              <p>
-                네, PDF/PPT 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의
-                회원가입 없이 누구나 자유롭게 이용할 수 있습니다.
-              </p>
+          <div class="faq-grid">
+            <div
+              class="faq-item"
+              itemprop="mainEntity"
+              itemscope
+              itemtype="https://schema.org/Question"
+            >
+              <h4 itemprop="name">Q. Q-Asker는 정말 무료인가요?</h4>
+              <div
+                itemprop="acceptedAnswer"
+                itemscope
+                itemtype="https://schema.org/Answer"
+              >
+                <p itemprop="text">
+                  네, PDF/PPT 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의
+                  회원가입 없이 누구나 자유롭게 이용할 수 있습니다.
+                </p>
+              </div>
             </div>
-            <div className="faq-item">
-              <h4>Q. 업로드한 제 파일은 안전하게 관리되나요?</h4>
-              <p>
-                네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며,
-                24시간 뒤에 삭제됩니다.
-              </p>
+            <div
+              class="faq-item"
+              itemprop="mainEntity"
+              itemscope
+              itemtype="https://schema.org/Question"
+            >
+              <h4 itemprop="name">
+                Q. 업로드한 제 파일은 안전하게 관리되나요?
+              </h4>
+              <div
+                itemprop="acceptedAnswer"
+                itemscope
+                itemtype="https://schema.org/Answer"
+              >
+                <p itemprop="text">
+                  네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며,
+                  24시간 뒤에 삭제됩니다.
+                </p>
+              </div>
             </div>
-            <div className="faq-item">
-              <h4>Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?</h4>
-              <p>
-                AI는 높은 정확도로 문서를 분석하지만, 100% 완벽하지 않을 수
-                있습니다. 생성된 문제는 학습 참고용이며, 중요한 정보는 반드시
-                원본과 교차 확인해주세요.
-              </p>
+            <div
+              class="faq-item"
+              itemprop="mainEntity"
+              itemscope
+              itemtype="https://schema.org/Question"
+            >
+              <h4 itemprop="name">
+                Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?
+              </h4>
+              <div
+                itemprop="acceptedAnswer"
+                itemscope
+                itemtype="https://schema.org/Answer"
+              >
+                <p itemprop="text">
+                  AI는 높은 정확도로 문서를 분석하지만, 100% 완벽하지 않을 수
+                  있습니다. 생성된 문제는 학습 참고용이며, 중요한 정보는 반드시
+                  원본과 교차 확인해주세요.
+                </p>
+              </div>
             </div>
-            <div className="faq-item">
-              <h4>Q. 이미지로 된 PDF 파일도 퀴즈로 만들 수 있나요?</h4>
-              <p>
-                아니요. 현재는 텍스트 선택이 가능한 '텍스트 기반'의 PDF, PPT,
-                PPTX 파일만 지원합니다. 스캔 본이나 사진 형태의 문서는 분석이
-                어렵습니다.
-              </p>
+            <div
+              class="faq-item"
+              itemprop="mainEntity"
+              itemscope
+              itemtype="https://schema.org/Question"
+            >
+              <h4 itemprop="name">
+                Q. 이미지로 된 PDF 파일도 퀴즈로 만들 수 있나요?
+              </h4>
+              <div
+                itemprop="acceptedAnswer"
+                itemscope
+                itemtype="https://schema.org/Answer"
+              >
+                <p itemprop="text">
+                  아니요. 현재는 텍스트 선택이 가능한 '텍스트 기반'의 PDF, PPT,
+                  PPTX 파일만 지원합니다. 스캔 본이나 사진 형태의 문서는 분석이
+                  어렵습니다.
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* === [통합 및 개선] 주의사항 섹션 === */}
+        {/* === 주의사항 섹션 === */}
         <section
           className="help-section"
           onMouseEnter={() => handleSectionHover("warnings")}

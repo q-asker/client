@@ -138,3 +138,6 @@
 .primary-button:hover {
   background: #4f46e5;
 }
+
+@media (max-width: 768px) {
+}

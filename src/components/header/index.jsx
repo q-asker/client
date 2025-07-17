@@ -40,7 +40,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
   };
 
   return (
-    <header className="header">
+    <div className="header">
       <div className="header-inner">
         <div className="logo-area">
           <button
@@ -50,12 +50,12 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           >
             ☰
           </button>
-          <h1 className="logo-area-inner">
+          <div className="logo-area-inner">
             <Link to="/" className="logo-link">
               <span className="logo-icon">❓</span>
               <span className="logo-text">Q-Asker</span>
             </Link>
-          </h1>
+          </div>
         </div>
         <div className="nav-link-area">
           <Link
@@ -96,7 +96,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           </button>
         </nav>
       </aside>
-    </header>
+    </div>
   );
 };
 
