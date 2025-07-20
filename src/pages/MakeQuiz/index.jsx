@@ -49,6 +49,7 @@ const MakeQuiz = () => {
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
   const [hoveredPage, setHoveredPage] = useState(null); // { pageNumber: number, style: object }
+  const [visiblePageCount, setVisiblePageCount] = useState(100); // 점진적 로딩을 위한 가시적 페이지 수
   const pdfPreviewRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
   const [countText, setCountText] = useState(""); // 로딩 점 애니메이션용
@@ -317,6 +318,26 @@ const MakeQuiz = () => {
     trackMakeQuizEvents.viewMakeQuiz();
   }, []);
 
+  // PDF 페이지 점진적 로딩
+  useEffect(() => {
+    if (!numPages || numPages <= 100) return;
+
+    setVisiblePageCount(100); // 초기 100페이지로 설정
+
+    const interval = setInterval(() => {
+      setVisiblePageCount((prev) => {
+        const nextCount = prev + 100;
+        if (nextCount >= numPages) {
+          clearInterval(interval);
+          return numPages;
+        }
+        return nextCount;
+      });
+    }, 3000); // 3초마다 100페이지씩 추가
+
+    return () => clearInterval(interval);
+  }, [numPages]);
+
   const handleRemoveFile = () => {
     if (file) {
       trackMakeQuizEvents.deleteFile(file.name);
@@ -340,6 +361,7 @@ const MakeQuiz = () => {
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
+    setVisiblePageCount(100);
     setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
@@ -352,6 +374,7 @@ const MakeQuiz = () => {
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
+    setVisiblePageCount(100);
     setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
@@ -577,34 +600,49 @@ const MakeQuiz = () => {
                       className="pdf-preview-grid"
                       onMouseLeave={handlePageMouseLeave}
                     >
-                      {Array.from(new Array(numPages), (el, index) => (
-                        <div
-                          key={`page_${index + 1}`}
-                          className={`pdf-page-item ${
-                            selectedPages.includes(index + 1) ? "selected" : ""
-                          } ${pageMode === "전체" ? "disabled" : ""} ${
-                            hoveredPage && hoveredPage.pageNumber === index + 1
-                              ? "hover-active"
-                              : ""
-                          }`}
-                          onClick={() => {
-                            if (pageMode !== "전체") {
-                              handlePageSelection(index + 1);
+                      {Array.from(
+                        new Array(Math.min(visiblePageCount, numPages)),
+                        (el, index) => (
+                          <div
+                            key={`page_${index + 1}`}
+                            className={`pdf-page-item ${
+                              selectedPages.includes(index + 1)
+                                ? "selected"
+                                : ""
+                            } ${pageMode === "전체" ? "disabled" : ""} ${
+                              hoveredPage &&
+                              hoveredPage.pageNumber === index + 1
+                                ? "hover-active"
+                                : ""
+                            }`}
+                            onClick={() => {
+                              if (pageMode !== "전체") {
+                                handlePageSelection(index + 1);
+                              }
+                            }}
+                            onMouseEnter={(e) =>
+                              handlePageMouseEnter(e, index + 1)
                             }
-                          }}
-                          onMouseEnter={(e) =>
-                            handlePageMouseEnter(e, index + 1)
-                          }
-                        >
-                          <Page
-                            pageNumber={index + 1}
-                            width={150}
-                            renderTextLayer={false}
-                            renderAnnotationLayer={false}
-                          />
-                          <p>페이지 {index + 1}</p>
+                          >
+                            <Page
+                              pageNumber={index + 1}
+                              width={150}
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                            />
+                            <p>페이지 {index + 1}</p>
+                          </div>
+                        )
+                      )}
+                      {visiblePageCount < numPages && (
+                        <div className="loading-more-pages">
+                          <div className="spinner" />
+                          <p>
+                            더 많은 페이지 로딩 중... ({visiblePageCount}/
+                            {numPages})
+                          </p>
                         </div>
-                      ))}
+                      )}
                     </div>
 
                     {hoveredPage && (
