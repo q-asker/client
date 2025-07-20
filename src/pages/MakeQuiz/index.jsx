@@ -168,7 +168,7 @@ const MakeQuiz = () => {
       const response = await axiosInstance.post(`/generation`, {
         uploadedUrl: uploadedUrl,
         quizCount: questionCount,
-        quizType: "MULTIPLE",
+        quizType: questionType === "객관식" ? "MULTIPLE" : "OX",
         difficultyType: quizLevel,
         pageNumbers: selectedPages,
       });
@@ -492,23 +492,17 @@ const MakeQuiz = () => {
             <div className="options-title">퀴즈 생성 옵션</div>
             {/* 문제 유형 세그먼티드 */}
             <div className="segmented-control question-type">
-              {["객관식", "빈칸"].map((type) => (
+              {["객관식", "OX 퀴즈"].map((type) => (
                 <button
                   key={type}
                   className={questionType === type ? "active" : ""}
                   onClick={() => {
-                    if (type === "빈칸") {
-                      CustomToast.error("개발중입니다!");
-                      // 빈칸 클릭 시 다시 객관식으로 복원
-                      setQuestionType("객관식");
-                    } else {
-                      if (questionType !== type) {
-                        trackMakeQuizEvents.changeQuizOption(
-                          "question_type",
-                          type
-                        );
-                        setQuestionType(type);
-                      }
+                    if (questionType !== type) {
+                      trackMakeQuizEvents.changeQuizOption(
+                        "question_type",
+                        type
+                      );
+                      setQuestionType(type);
                     }
                   }}
                 >
