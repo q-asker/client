@@ -49,7 +49,7 @@ const MakeQuiz = () => {
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
   const [hoveredPage, setHoveredPage] = useState(null); // { pageNumber: number, style: object }
-  const [visiblePageCount, setVisiblePageCount] = useState(100); // 점진적 로딩을 위한 가시적 페이지 수
+  const [visiblePageCount, setVisiblePageCount] = useState(50); // 점진적 로딩을 위한 가시적 페이지 수
   const pdfPreviewRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
   const [countText, setCountText] = useState(""); // 로딩 점 애니메이션용
@@ -320,20 +320,20 @@ const MakeQuiz = () => {
 
   // PDF 페이지 점진적 로딩
   useEffect(() => {
-    if (!numPages || numPages <= 100) return;
+    if (!numPages || numPages <= 50) return;
 
-    setVisiblePageCount(100); // 초기 100페이지로 설정
+    setVisiblePageCount(50);
 
     const interval = setInterval(() => {
       setVisiblePageCount((prev) => {
-        const nextCount = prev + 100;
+        const nextCount = prev + 50;
         if (nextCount >= numPages) {
           clearInterval(interval);
           return numPages;
         }
         return nextCount;
       });
-    }, 3000); // 3초마다 100페이지씩 추가
+    }, 2500);
 
     return () => clearInterval(interval);
   }, [numPages]);
