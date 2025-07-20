@@ -319,21 +319,24 @@ const MakeQuiz = () => {
   }, []);
 
   // PDF 페이지 점진적 로딩
-  useEffect(() => {
-    if (!numPages || numPages <= 50) return;
 
-    setVisiblePageCount(50);
+  const pageCountToLoad = 50;
+  const loadInterval = 2500;
+  useEffect(() => {
+    if (!numPages || numPages <= pageCountToLoad) return;
+
+    setVisiblePageCount(pageCountToLoad);
 
     const interval = setInterval(() => {
       setVisiblePageCount((prev) => {
-        const nextCount = prev + 50;
+        const nextCount = prev + pageCountToLoad;
         if (nextCount >= numPages) {
           clearInterval(interval);
           return numPages;
         }
         return nextCount;
       });
-    }, 2500);
+    }, loadInterval);
 
     return () => clearInterval(interval);
   }, [numPages]);
