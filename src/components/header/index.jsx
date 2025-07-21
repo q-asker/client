@@ -50,16 +50,14 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           >
             ☰
           </button>
-          <div className="logo-area-inner">
-            <Link to="/" className="logo-link">
-              <img
-                src="/favicon-256x256.png"
-                alt="Q-Asker"
-                className="logo-icon"
-              />
-              <span className="logo-text">Q-Asker</span>
-            </Link>
-          </div>
+          <Link to="/" className="logo-link">
+            <img
+              src="/favicon-256x256.png"
+              alt="Q-Asker"
+              className="logo-icon"
+            />
+            <div className="logo-text">Q-Asker</div>
+          </Link>
         </div>
         <div className="nav-link-area">
           <Link
