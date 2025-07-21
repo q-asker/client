@@ -52,7 +52,11 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           </button>
           <div className="logo-area-inner">
             <Link to="/" className="logo-link">
-              <span className="logo-icon">❓</span>
+              <img
+                src="/favicon-256x256.png"
+                alt="Q-Asker"
+                className="logo-icon"
+              />
               <span className="logo-text">Q-Asker</span>
             </Link>
           </div>
