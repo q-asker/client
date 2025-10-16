@@ -3,6 +3,7 @@ import Help from "#components/help";
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import { trackMakeQuizEvents } from "#utils/analytics";
+import Timer from "#utils/timer";
 import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -52,9 +53,13 @@ const MakeQuiz = () => {
   const [visiblePageCount, setVisiblePageCount] = useState(50); // 점진적 로딩을 위한 가시적 페이지 수
   const pdfPreviewRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
-  const [countText, setCountText] = useState(""); // 로딩 점 애니메이션용
   const [showWaitMessage, setShowWaitMessage] = useState(false); // 5초 후 대기 메시지 표시용
   const [latestQuiz, setLatestQuiz] = useState(null); // 최신 퀴즈 미리보기용
+  const [uploadElapsedTime, setUploadElapsedTime] = useState(0); // 업로드 경과 시간
+  const [generationElapsedTime, setGenerationElapsedTime] = useState(0); // 문제 생성 경과 시간
+  const [fileExtension, setFileExtension] = useState(null); // 파일 확장자
+  const uploadTimerRef = useRef(null); // 업로드 타이머
+  const generationTimerRef = useRef(null); // 문제 생성 타이머
 
   async function uploadFileToServer(file) {
     const formData = new FormData();
@@ -111,6 +116,7 @@ const MakeQuiz = () => {
   };
   const selectFile = async (f, method = "click") => {
     const ext = f.name.split(".").pop().toLowerCase();
+    
     if (!["ppt", "pptx", "pdf"].includes(ext)) {
       CustomToast.error("지원하지 않는 파일 형식입니다");
       return;
@@ -131,17 +137,32 @@ const MakeQuiz = () => {
       trackMakeQuizEvents.startFileUpload(f.name, f.size, ext);
     }
 
+    // 타이머 시작
+    uploadTimerRef.current = new Timer((elapsed) => {
+      setUploadElapsedTime(elapsed);
+    });
+    uploadTimerRef.current.start();
+
+    setFileExtension(ext);
     setIsProcessing(true);
     try {
       const { uploadedUrl } = await uploadFileToServer(f);
       setUploadedUrl(uploadedUrl);
       setFile(f);
 
-      // 파일 업로드 완료 추적
-      const uploadTime = Date.now() - uploadStartTime;
+      // 타이머 정지 및 업로드 완료 추적
+      const uploadTime = uploadTimerRef.current.stop();
       trackMakeQuizEvents.completeFileUpload(f.name, uploadTime);
+    } catch (error) {
+      // 에러 발생 시 타이머 정지
+      if (uploadTimerRef.current) {
+        uploadTimerRef.current.stop();
+      }
+      throw error;
     } finally {
+      setFileExtension(null);
       setIsProcessing(false);
+      setUploadElapsedTime(0);
     }
   };
 
@@ -152,18 +173,11 @@ const MakeQuiz = () => {
       return;
     }
 
-    // 문제 생성 시작 추적
-    const generationStartTime = Date.now();
-    trackMakeQuizEvents.startQuizGeneration(
-      questionCount,
-      questionType,
-      quizLevel,
-      pageMode,
-      selectedPages.length,
-      numPages
-    );
-
     try {
+      generationTimerRef.current = new Timer((elapsed) => {
+        setGenerationElapsedTime(elapsed);
+      });
+      generationTimerRef.current.start();
       setIsProcessing(true);
       console.log("selectedPages", selectedPages);
       const response = await axiosInstance.post(`/generation`, {
@@ -182,15 +196,19 @@ const MakeQuiz = () => {
       saveQuizToHistory(result.problemSetId, file.name);
 
       // 문제 생성 완료 추적
-      const generationTime = Date.now() - generationStartTime;
+      const generationTime = generationTimerRef.current.stop();
       trackMakeQuizEvents.completeQuizGeneration(
         result.problemSetId,
         generationTime
       );
     } catch (error) {
+      if (generationTimerRef.current) {
+        generationTimerRef.current.stop();
+      }
       resetAllStates();
     } finally {
       setIsProcessing(false);
+      setGenerationElapsedTime(0);
     }
   };
 
@@ -261,39 +279,6 @@ const MakeQuiz = () => {
     }
   };
 
-  const getQuiz = async () => {
-    if (!problemSetId) {
-      CustomToast.error("먼저 문제 세트를 생성해주세요.");
-      return;
-    }
-    try {
-      setIsProcessing(true);
-      const response = await axiosInstance.get(`/problem-set/${problemSetId}`);
-      const result = response.data;
-      console.log("가져온 문제 데이터:", result);
-      setQuizData(result);
-      navigate("/quiz", { state: { quizData: result } });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // 점 애니메이션 효과
-  useEffect(() => {
-    if (isProcessing) {
-      const dots = [".", "..", "..."];
-      let index = 0;
-
-      const interval = setInterval(() => {
-        setCountText(dots[index]);
-        index = (index + 1) % dots.length;
-      }, 500); // 0.5초마다 변경
-
-      return () => clearInterval(interval);
-    } else {
-      setCountText("");
-    }
-  }, [isProcessing]);
 
   // 5초 후 대기 메시지 표시
   useEffect(() => {
@@ -319,7 +304,6 @@ const MakeQuiz = () => {
   }, []);
 
   // PDF 페이지 점진적 로딩
-
   const pageCountToLoad = 50;
   const loadInterval = 2500;
   useEffect(() => {
@@ -349,6 +333,12 @@ const MakeQuiz = () => {
   };
 
   const resetAllStates = () => {
+    // 타이머 정리
+    if (uploadTimerRef.current) {
+      uploadTimerRef.current.reset();
+      uploadTimerRef.current = null;
+    }
+    
     setFile(null);
     setUploadedUrl(null);
     setQuizData(null);
@@ -365,9 +355,11 @@ const MakeQuiz = () => {
     setSelectedPages([]);
     setHoveredPage(null);
     setVisiblePageCount(100);
-    setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
+    setUploadElapsedTime(0);
+    setGenerationElapsedTime(0);
+    setFileExtension(null);
   };
 
   const handleReCreate = () => {
@@ -378,9 +370,10 @@ const MakeQuiz = () => {
     setSelectedPages([]);
     setHoveredPage(null);
     setVisiblePageCount(100);
-    setCountText("");
     setShowWaitMessage(false);
     setLatestQuiz(null);
+    setUploadElapsedTime(0);
+    setGenerationElapsedTime(0);
   };
 
   const handleNavigateToQuiz = () => {
@@ -476,7 +469,22 @@ const MakeQuiz = () => {
           {isProcessing && !uploadedUrl ? (
             <div className="processing">
               <div className="spinner" />
-              <p>파일 업로드 중{countText}</p>
+              <div className="upload-status">
+                <div className="upload-title-animated">
+                  파일 업로드 중...{Math.floor(uploadElapsedTime / 1000)}초
+                </div>
+              </div>
+              {fileExtension && fileExtension !== "pdf" && (
+                <div className="conversion-message">
+                  <div className="conversion-text">
+                    <strong>{fileExtension.toUpperCase()}</strong> 파일을 PDF로 변환하고 있어요
+                    <br />
+                    <span className="conversion-subtext">
+                      파일 크기에 따라 시간이 소요될 수 있습니다
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           ) : !uploadedUrl ? (
             <>
@@ -495,7 +503,7 @@ const MakeQuiz = () => {
                 지원 파일 형식: PPT, PPTX, PDF <br></br>파일 크기 제한:{" "}
                 {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>
               </p>
-              <p className="hint">파일 page 제한: 선택했을 때 100page 이하</p>
+              <p className="hint">파일 page  제한: 선택했을 때 100page 이하</p>
             </>
           ) : (
             <>
@@ -704,7 +712,7 @@ const MakeQuiz = () => {
               {isProcessing ? (
                 <div className="processing">
                   <div className="spinner" />
-                  <p>문제 생성 중{countText}</p>
+                  <p>문제 생성 중...{Math.floor(generationElapsedTime / 1000)}초</p>
                   {showWaitMessage && (
                     <p className="wait-message">
                       현재 생성중입니다 조금만 더 기다려주세요!
