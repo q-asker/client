@@ -202,7 +202,7 @@ const MakeQuiz = () => {
         break;
       default:
         // 혹시 모를 기본값
-        apiQuizType = "MULTIPLE";
+        apiQuizType = "BLANK";
     }
 
     try {
