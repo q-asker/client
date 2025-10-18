@@ -331,8 +331,6 @@ const SolveQuiz = () => {
       </header>
 
       <main className="solve-quiz-wrapper">
-        {/* 왼쪽 패널도 그대로 */}
-
         {/* 가운데 패널 */}
         <section className="solve-center-panel">
           <nav className="solve-question-nav">
