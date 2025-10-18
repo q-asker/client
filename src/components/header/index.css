@@ -137,6 +137,20 @@
   background: #4f46e5;
 }
 
+.language-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.language-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #374151;
+}
+
 @media (max-width: 768px) {
   .header-inner {
     padding: 10px;

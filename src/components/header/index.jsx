@@ -73,22 +73,26 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           </button>
         </div>
         <nav>
-          <div className="nav-link">
+          <div className="nav-link language-selector">
             {t("언어")}
-            <button
-              onClick={() => {
-                changeLanguage("en");
-              }}
-            >
-              English
-            </button>
-            <button
-              onClick={() => {
-                changeLanguage("ko");
-              }}
-            >
-              Korean
-            </button>
+            <div>
+              <button
+                className="language-button"
+                onClick={() => {
+                  changeLanguage("ko");
+                }}
+              >
+                🇰🇷
+              </button>
+              <button
+                className="language-button"
+                onClick={() => {
+                  changeLanguage("en");
+                }}
+              >
+                🇬🇧
+              </button>
+            </div>
           </div>
           <div className="nav-link">{t("도움말 보기")}</div>
         </nav>
