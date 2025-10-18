@@ -39,8 +39,7 @@ body {
 
 /* 본문 래퍼: 중앙 정렬 및 여백 */
 .solve-quiz-wrapper {
-  flex: 1;
-  padding: 1.5rem;
+  width: auto;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -288,49 +287,49 @@ body {
   /* 3) 왼쪽 패널(건너뛴 문제 버튼들)을 화면 상단이 아닌 center 아래로 배치하고,
         가로로 돌아가면서 표시되도록 변경 */
   .solve-left-panel {
-    position: static;      /* absolute → static */
+    position: static; /* absolute → static */
     top: auto;
     left: auto;
     transform: none;
-    width: 100%;           /* 전체 폭 사용 */
-    display: flex;         /* 버튼들을 가로 배치하면서 줄바꿈 허용 */
+    width: 100%; /* 전체 폭 사용 */
+    display: flex; /* 버튼들을 가로 배치하면서 줄바꿈 허용 */
     flex-wrap: wrap;
     justify-content: center;
-    padding: 0.5rem 0;     /* 상하 padding */
-    margin: 1rem 0 0 0;    /* 위쪽 여백으로 center-panel과 간격 */
+    padding: 0.5rem 0; /* 상하 padding */
+    margin: 1rem 0 0 0; /* 위쪽 여백으로 center-panel과 간격 */
     background-color: transparent; /* 필요 시 투명 유지 */
-    box-shadow: none;      /* 그림자 제거 */
+    box-shadow: none; /* 그림자 제거 */
   }
   .solve-left-panel .solve-skipped-button {
-    flex: 0 1 auto;        /* 버튼 크기만큼만 차지 */
-    margin: 0.25rem;       /* 버튼 간격 */
-    font-size: 0.85rem;    /* 폰트 크기 약간 축소 */
+    flex: 0 1 auto; /* 버튼 크기만큼만 차지 */
+    margin: 0.25rem; /* 버튼 간격 */
+    font-size: 0.85rem; /* 폰트 크기 약간 축소 */
   }
 
   /* 4) 중앙 패널: 패딩 왼쪽(300px)을 없애고, 폭 100%로 조정 */
   .solve-center-panel {
     flex: 1;
-    padding-left: 0;       /* 기존에 있던 300px 여백 제거 */
-    padding: 1rem;         /* 통일된 padding */
+    padding-left: 0; /* 기존에 있던 300px 여백 제거 */
+    padding: 1rem; /* 통일된 padding */
   }
 
   /* 5) 질문 네비게이션(이전/다음) 버튼 간격 축소 */
   .solve-question-nav {
-    display: flex;                /* 플렉스 레이아웃 사용 */
-    flex-direction: row;          /* 가로 방향으로 나열 */
-    align-items: center;          /* 수직 가운데 정렬 */
+    display: flex; /* 플렉스 레이아웃 사용 */
+    flex-direction: row; /* 가로 방향으로 나열 */
+    align-items: center; /* 수직 가운데 정렬 */
     justify-content: space-between; /* 버튼/텍스트 간 간격을 균등 배치 */
-    gap: 0.5rem;                  /* 항목들 사이의 간격 */
-    margin-bottom: 1rem;          /* 아래쪽 여백 */
+    gap: 0.5rem; /* 항목들 사이의 간격 */
+    margin-bottom: 1rem; /* 아래쪽 여백 */
   }
   .solve-question-nav .solve-nav-button {
-    flex: 1;                      /* 이전/다음 버튼을 동일한 너비로 */
+    flex: 1; /* 이전/다음 버튼을 동일한 너비로 */
     padding: 0.5rem 0.75rem;
     font-size: 0.9rem;
   }
   .solve-question-nav span {
-    flex: 1;                      /* "현재/전체" 텍스트도 버튼과 같은 너비로 */
-    text-align: center;           /* 가운데 정렬 */
+    flex: 1; /* "현재/전체" 텍스트도 버튼과 같은 너비로 */
+    text-align: center; /* 가운데 정렬 */
     font-size: 0.9rem;
   }
 
@@ -375,7 +374,7 @@ body {
   .solve-question-area label {
     font-size: 0.9rem;
   }
-  
+
   .solve-question-area label input[type="checkbox"] {
     width: 1.1rem;
     height: 1.1rem;
@@ -632,16 +631,16 @@ body {
     width: 95%;
     margin: 20px;
   }
-  
+
   .submit-stats {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .submit-dialog-buttons {
     flex-direction: column;
   }
-  
+
   .submit-button {
     width: 100%;
   }

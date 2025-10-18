@@ -39,7 +39,6 @@ const MakeQuiz = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
-  const [quizData, setQuizData] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [questionType, setQuestionType] = useState(t("객관식"));
   const [questionCount, setQuestionCount] = useState(5);
@@ -54,12 +53,11 @@ const MakeQuiz = () => {
   const [hoveredPage, setHoveredPage] = useState(null); // { pageNumber: number, style: object }
   const [visiblePageCount, setVisiblePageCount] = useState(50); // 점진적 로딩을 위한 가시적 페이지 수
   const pdfPreviewRef = useRef(null);
-  const hoverTimeoutRef = useRef(null);
   const [showWaitMessage, setShowWaitMessage] = useState(false); // 5초 후 대기 메시지 표시용
-  const [latestQuiz, setLatestQuiz] = useState(null); // 최신 퀴즈 미리보기용
   const [uploadElapsedTime, setUploadElapsedTime] = useState(0); // 업로드 경과 시간
   const [generationElapsedTime, setGenerationElapsedTime] = useState(0); // 문제 생성 경과 시간
   const [fileExtension, setFileExtension] = useState(null); // 파일 확장자
+  const [showHelp, setShowHelp] = useState(false);
   const uploadTimerRef = useRef(null); // 업로드 타이머
   const generationTimerRef = useRef(null); // 문제 생성 타이머
 
@@ -250,7 +248,6 @@ const MakeQuiz = () => {
         localStorage.setItem("quizHistory", JSON.stringify(existingHistory));
 
         // 최신 퀴즈 상태 업데이트
-        setLatestQuiz(newQuizRecord);
       }
     } catch (error) {
       console.error(t("퀴즈 기록 저장 실패:"), error);
@@ -263,7 +260,6 @@ const MakeQuiz = () => {
       const history = JSON.parse(localStorage.getItem("quizHistory") || "[]");
       if (history.length > 0) {
         const latest = history[0];
-        setLatestQuiz(latest);
 
         if (!uploadedUrl) {
           setProblemSetId(latest.problemSetId);
@@ -342,7 +338,6 @@ const MakeQuiz = () => {
 
     setFile(null);
     setUploadedUrl(null);
-    setQuizData(null);
     setIsDragging(false);
     setQuestionType(t("객관식"));
     setQuestionCount(5);
@@ -357,7 +352,6 @@ const MakeQuiz = () => {
     setHoveredPage(null);
     setVisiblePageCount(100);
     setShowWaitMessage(false);
-    setLatestQuiz(null);
     setUploadElapsedTime(0);
     setGenerationElapsedTime(0);
     setFileExtension(null);
@@ -365,14 +359,12 @@ const MakeQuiz = () => {
 
   const handleReCreate = () => {
     setProblemSetId(null);
-    setQuizData(null);
     setPageMode(t("전체"));
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
     setVisiblePageCount(100);
     setShowWaitMessage(false);
-    setLatestQuiz(null);
     setUploadElapsedTime(0);
     setGenerationElapsedTime(0);
   };
@@ -457,6 +449,7 @@ const MakeQuiz = () => {
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         setIsSidebarOpen={setIsSidebarOpen}
+        setShowHelp={setShowHelp}
       />
 
       <div className="main">
@@ -794,7 +787,7 @@ const MakeQuiz = () => {
           </div>
         )}
         <OcrButton />
-        <Help />
+        {showHelp && <Help />}
       </div>
 
       {/* Footer */}

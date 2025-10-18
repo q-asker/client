@@ -4,7 +4,12 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./index.css";
 
-const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
+const Header = ({
+  isSidebarOpen,
+  toggleSidebar,
+  setIsSidebarOpen,
+  setShowHelp,
+}) => {
   const { changeLanguage } = useLanguageSwitcher();
   const { t } = useTranslation();
   useEffect(() => {
@@ -22,10 +27,26 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [setIsSidebarOpen]);
+  }, [setIsSidebarOpen, setShowHelp]);
 
   const handleQuizManagement = () => {
     setIsSidebarOpen(false);
+  };
+
+  const handleHelp = () => {
+    setIsSidebarOpen(false); // 메뉴창 닫기
+    setShowHelp((prev) => {
+      if (!prev) {
+        // 도움말을 열 때만 스크롤
+        setTimeout(() => {
+          const helpElement = document.getElementById("help-section");
+          if (helpElement) {
+            helpElement.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 100);
+      }
+      return !prev;
+    });
   };
 
   return (
@@ -94,7 +115,9 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
               </button>
             </div>
           </div>
-          <div className="nav-link">{t("도움말 보기")}</div>
+          <div className="nav-link" onClick={handleHelp}>
+            {t("도움말 보기")}
+          </div>
         </nav>
       </aside>
     </div>
