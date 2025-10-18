@@ -185,7 +185,8 @@
 }
 
 .tips-grid,
-.trust-grid {
+.trust-grid,
+.faq-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   gap: 20px;
@@ -193,7 +194,8 @@
 }
 
 .tip-card,
-.trust-card {
+.trust-card,
+.faq-item {
   background: #ffffff;
   color: #374151;
   border: 1px solid #e2e8f0;
@@ -203,13 +205,15 @@
 }
 
 .tip-card:hover,
-.trust-card:hover {
+.trust-card:hover,
+.faq-item:hover {
   border-color: #3b82f6;
   background: #f8fafc;
 }
 
 .tip-card h4,
-.trust-card h4 {
+.trust-card h4,
+.faq-item h4 {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 15px;
@@ -217,13 +221,15 @@
 }
 
 .tip-card ul,
-.trust-card ul {
+.trust-card ul,
+.faq-item ul {
   margin: 0;
   padding-left: 20px;
 }
 
 .tip-card li,
-.trust-card li {
+.trust-card li,
+.faq-item li {
   font-size: 0.95rem;
   line-height: 1.6;
   margin-bottom: 8px;
@@ -231,9 +237,15 @@
 }
 
 .tip-card strong,
-.trust-card strong {
+.trust-card strong,
+.faq-item strong {
   color: #1f2937;
   font-weight: 600;
+}
+
+.faq-item p {
+  color: #475569;
+  line-height: 1.6;
 }
 
 .warning-box {
@@ -345,13 +357,15 @@
   }
 
   .tips-grid,
-  .trust-grid {
+  .trust-grid,
+  .faq-grid {
     grid-template-columns: 1fr;
   }
 
   .tip-card,
   .trust-card,
-  .step-card {
+  .step-card,
+  .faq-item {
     padding: 20px;
   }
 
@@ -378,7 +392,8 @@
 
   .step-card,
   .tip-card,
-  .trust-card {
+  .trust-card,
+  .faq-item {
     padding: 18px;
   }
 }
