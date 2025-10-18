@@ -8,8 +8,6 @@ const Help = () => {
   const { t } = useTranslation();
   const location = useLocation();
 
-  const [isExpanded, setIsExpanded] = useState(false);
-
   const startTimeRef = useRef(Date.now());
   const scrollTrackingRef = useRef({
     25: false,
@@ -63,21 +61,9 @@ const Help = () => {
     trackHelpEvents.interactWithSection(sectionName);
   };
 
-  // 토글 핸들러
-  const handleToggle = () => {
-    setIsExpanded(!isExpanded);
-    trackHelpEvents.interactWithSection(
-      isExpanded ? "collapse_help" : "expand_help"
-    );
-  };
-
   return (
-    <div className="help-container">
-      <article
-        className={`help-content help-detailed ${
-          isExpanded ? "expanded" : "collapsed"
-        }`}
-      >
+    <div id="help-section" className="help-container">
+      <article className="help-content help-detailed">
         <header className="help-header">
           <h1 className="help-title">
             {t("Q-Asker: PDF/PPT 파일로 무료 AI 퀴즈 생성")}
@@ -94,21 +80,21 @@ const Help = () => {
           <section
             className="help-section"
             onMouseEnter={() => handleSectionHover("usage_guide")}
-            itemscope
-            itemtype="https://schema.org/HowTo"
+            itemScope
+            itemType="https://schema.org/HowTo"
           >
             <h2 id="how-to-use">
               {t("📝 PDF/PPT로 AI 퀴즈 만들기 6단계 가이드")}
             </h2>
             {/* 각 단계별 내용은 기존과 유사하게 유지 */}
             <article
-              class="step-card"
-              itemprop="step"
-              itemscope
-              itemtype="https://schema.org/HowToStep"
+              className="step-card"
+              itemProp="step"
+              itemScope
+              itemType="https://schema.org/HowToStep"
             >
-              <h3 itemprop="name">{t("1단계: 파일 업로드")}</h3>
-              <div itemprop="text">
+              <h3 itemProp="name">{t("1단계: 파일 업로드")}</h3>
+              <div itemProp="text">
                 <ul>
                   <li>
                     📄 <strong>{t("지원 형식: ")}</strong> PDF, PPT, PPTX
@@ -128,13 +114,13 @@ const Help = () => {
               </div>
             </article>
             <article
-              class="step-card"
-              itemprop="step"
-              itemscope
-              itemtype="https://schema.org/HowToStep"
+              className="step-card"
+              itemProp="step"
+              itemScope
+              itemType="https://schema.org/HowToStep"
             >
-              <h3 itemprop="name">{t("2단계: 퀴즈 옵션 설정")}</h3>
-              <div itemprop="text">
+              <h3 itemProp="name">{t("2단계: 퀴즈 옵션 설정")}</h3>
+              <div itemProp="text">
                 <ul>
                   <li>
                     🔢 <strong>{t("문제 수량: ")}</strong>
@@ -152,13 +138,13 @@ const Help = () => {
               </div>
             </article>
             <article
-              class="step-card"
-              itemprop="step"
-              itemscope
-              itemtype="https://schema.org/HowToStep"
+              className="step-card"
+              itemProp="step"
+              itemScope
+              itemType="https://schema.org/HowToStep"
             >
-              <h3 itemprop="name">{t("3단계: AI 문제 생성")}</h3>
-              <div itemprop="text">
+              <h3 itemProp="name">{t("3단계: AI 문제 생성")}</h3>
+              <div itemProp="text">
                 <ul>
                   <li>
                     🤖 <strong>{t("AI 분석: ")}</strong>
@@ -178,13 +164,13 @@ const Help = () => {
               </div>
             </article>
             <article
-              class="step-card"
-              itemprop="step"
-              itemscope
-              itemtype="https://schema.org/HowToStep"
+              className="step-card"
+              itemProp="step"
+              itemScope
+              itemType="https://schema.org/HowToStep"
             >
-              <h3 itemprop="name">{t("4단계: 퀴즈 풀기")}</h3>
-              <div itemprop="text">
+              <h3 itemProp="name">{t("4단계: 퀴즈 풀기")}</h3>
+              <div itemProp="text">
                 <ul>
                   <li>
                     🧩 <strong>{t("문제 풀이: ")}</strong>
@@ -202,13 +188,13 @@ const Help = () => {
               </div>
             </article>
             <article
-              class="step-card"
-              itemprop="step"
-              itemscope
-              itemtype="https://schema.org/HowToStep"
+              className="step-card"
+              itemProp="step"
+              itemScope
+              itemType="https://schema.org/HowToStep"
             >
-              <h3 itemprop="name">{t("5단계: 결과 및 해설 확인")}</h3>
-              <div itemprop="text">
+              <h3 itemProp="name">{t("5단계: 결과 및 해설 확인")}</h3>
+              <div itemProp="text">
                 <ul>
                   <li>
                     📈 <strong>{t("성과 확인: ")}</strong>
@@ -226,13 +212,13 @@ const Help = () => {
               </div>
             </article>
             <article
-              class="step-card"
-              itemprop="step"
-              itemscope
-              itemtype="https://schema.org/HowToStep"
+              className="step-card"
+              itemProp="step"
+              itemScope
+              itemType="https://schema.org/HowToStep"
             >
-              <h3 itemprop="name">{t("6단계: 퀴즈 기록 관리")}</h3>
-              <div itemprop="text">
+              <h3 itemProp="name">{t("6단계: 퀴즈 기록 관리")}</h3>
+              <div itemProp="text">
                 <ul>
                   <li>
                     📋 <strong>{t("자동 저장: ")}</strong>
@@ -333,24 +319,24 @@ const Help = () => {
           <section
             className="help-section"
             onMouseEnter={() => handleSectionHover("faq")}
-            itemscope
-            itemtype="https://schema.org/FAQPage"
+            itemScope
+            itemType="https://schema.org/FAQPage"
           >
             <h2 id="faq">{t("🙋‍♀️ 자주 묻는 질문 (FAQ)")}</h2>
-            <div class="faq-grid">
+            <div className="faq-grid">
               <div
-                class="faq-item"
-                itemprop="mainEntity"
-                itemscope
-                itemtype="https://schema.org/Question"
+                className="faq-item"
+                itemProp="mainEntity"
+                itemScope
+                itemType="https://schema.org/Question"
               >
-                <h4 itemprop="name">{t("Q. Q-Asker는 정말 무료인가요?")}</h4>
+                <h4 itemProp="name">{t("Q. Q-Asker는 정말 무료인가요?")}</h4>
                 <div
-                  itemprop="acceptedAnswer"
-                  itemscope
-                  itemtype="https://schema.org/Answer"
+                  itemProp="acceptedAnswer"
+                  itemScope
+                  itemType="https://schema.org/Answer"
                 >
-                  <p itemprop="text">
+                  <p itemProp="text">
                     {t(
                       "네, PDF/PPT 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다."
                     )}
@@ -358,20 +344,20 @@ const Help = () => {
                 </div>
               </div>
               <div
-                class="faq-item"
-                itemprop="mainEntity"
-                itemscope
-                itemtype="https://schema.org/Question"
+                className="faq-item"
+                itemProp="mainEntity"
+                itemScope
+                itemType="https://schema.org/Question"
               >
-                <h4 itemprop="name">
+                <h4 itemProp="name">
                   {t("Q. 업로드한 제 파일은 안전하게 관리되나요?")}
                 </h4>
                 <div
-                  itemprop="acceptedAnswer"
-                  itemscope
-                  itemtype="https://schema.org/Answer"
+                  itemProp="acceptedAnswer"
+                  itemScope
+                  itemType="https://schema.org/Answer"
                 >
-                  <p itemprop="text">
+                  <p itemProp="text">
                     {t(
                       "네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다."
                     )}
@@ -379,20 +365,20 @@ const Help = () => {
                 </div>
               </div>
               <div
-                class="faq-item"
-                itemprop="mainEntity"
-                itemscope
-                itemtype="https://schema.org/Question"
+                className="faq-item"
+                itemProp="mainEntity"
+                itemScope
+                itemType="https://schema.org/Question"
               >
-                <h4 itemprop="name">
+                <h4 itemProp="name">
                   {t("Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?")}
                 </h4>
                 <div
-                  itemprop="acceptedAnswer"
-                  itemscope
-                  itemtype="https://schema.org/Answer"
+                  itemProp="acceptedAnswer"
+                  itemScope
+                  itemType="https://schema.org/Answer"
                 >
-                  <p itemprop="text">
+                  <p itemProp="text">
                     {t(
                       "AI는 높은 정확도로 문서를 분석하지만, 100% 완벽하지 않을 수 있습니다. 생성된 문제는 학습 참고용이며, 중요한 정보는 반드시 원본과 교차 확인해주세요."
                     )}
@@ -400,20 +386,20 @@ const Help = () => {
                 </div>
               </div>
               <div
-                class="faq-item"
-                itemprop="mainEntity"
-                itemscope
-                itemtype="https://schema.org/Question"
+                className="faq-item"
+                itemProp="mainEntity"
+                itemScope
+                itemType="https://schema.org/Question"
               >
-                <h4 itemprop="name">
+                <h4 itemProp="name">
                   {t("Q. 이미지로 된 PDF 파일도 퀴즈로 만들 수 있나요?")}
                 </h4>
                 <div
-                  itemprop="acceptedAnswer"
-                  itemscope
-                  itemtype="https://schema.org/Answer"
+                  itemProp="acceptedAnswer"
+                  itemScope
+                  itemType="https://schema.org/Answer"
                 >
-                  <p itemprop="text">
+                  <p itemProp="text">
                     {t(
                       "아니요. 현재는 텍스트 선택이 가능한 '텍스트 기반'의 PDF, PPT, PPTX 파일만 지원합니다. 스캔 본이나 사진 형태의 문서는 분석이 어렵습니다."
                     )}

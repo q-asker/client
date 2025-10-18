@@ -5,7 +5,7 @@
 }
 
 .header-inner {
-  max-width: 1200px;
+  width: 70%;
   margin: 0 auto;
   padding: 16px;
   display: flex;
@@ -153,6 +153,7 @@
 
 @media (max-width: 768px) {
   .header-inner {
+    width: auto;
     padding: 10px;
   }
 }
