@@ -154,10 +154,8 @@ body {
 /* 질문 내비게이션 */
 .question-nav {
   display: flex;
-  align-items: center;
-  justify-content: space-between; /* 양 끝으로 버튼 배치 */
-  margin-top: 1rem; /* 옵션과 버튼 사이 여백 */
-  margin-bottom: 1rem; /* 버튼과 해설 사이 여백 */
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 /* 이전/다음 버튼 공통 스타일 */
@@ -170,7 +168,6 @@ body {
   background-color: #6a33f8; /* 보라 계열로 예시 지정 */
   color: #fff;
   cursor: pointer;
-  margin: 0 0.5rem; /* 버튼 사이 좌우 간격 */
 }
 
 .nav-button:hover {
@@ -528,9 +525,6 @@ input:checked + .slider::before {
   .question-text {
     font-size: 1rem;
     margin: 0;
-  }
-  .solve-check-container {
-    margin-right: 0;
   }
 
   .options-container {
