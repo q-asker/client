@@ -793,9 +793,10 @@ const MakeQuiz = () => {
             </button>
           </div>
         )}
+        <OcrButton />
+        <Help />
       </div>
-      <OcrButton />
-      <Help />
+
       {/* Footer */}
       <div className="footer">
         © 2025 Q-Asker. All rights reserved.

@@ -3,6 +3,21 @@
   padding-top: 100px;
 }
 
+.button-section {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 1.17em;
+  font-weight: bold;
+  color: #111827;
+  width: fit-content;
+  margin-top: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 8px;
+}
+
 .help-header {
   max-width: 1000px;
   display: flex;
@@ -47,7 +62,6 @@
   font-weight: 600;
   transition: all 0.3s ease;
   display: block;
-  margin: 0 auto 20px auto;
   white-space: nowrap;
 }
 

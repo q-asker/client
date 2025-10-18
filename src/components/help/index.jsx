@@ -7,11 +7,6 @@ import "./index.css";
 const Help = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const MaxMakeQuiz = 25;
-  const MinMakeQuiz = 5;
-  const MakeQuizStep = 5;
-  const MaxTime = 30;
-  const MinTime = 10;
 
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -78,14 +73,6 @@ const Help = () => {
 
   return (
     <div className="help-container">
-      <button
-        className="help-toggle-button"
-        onClick={handleToggle}
-        aria-label={isExpanded ? t("도움말 숨기기") : t("도움말 보기")}
-      >
-        {isExpanded ? t("📖 도움말 숨기기") : t("📚 도움말 보기")}
-      </button>
-
       <article
         className={`help-content help-detailed ${
           isExpanded ? "expanded" : "collapsed"

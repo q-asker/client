@@ -14,14 +14,6 @@ const OcrButton = () => {
       >
         {t("OCR 변환하기")}
       </button>
-      <div className="tooltip">
-        <span className="tooltip-text">
-          {t("이미지나 스캔된 PDF를 텍스트로 변환하여")}
-
-          <br />
-          {t("더 정확한 문제 생성이 가능합니다")}
-        </span>
-      </div>
     </div>
   );
 };
