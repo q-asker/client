@@ -14,6 +14,8 @@ import QuizExplanation from "./pages/QuizExplanation";
 import QuizHistory from "./pages/QuizHistory";
 import QuizResult from "./pages/QuizResult";
 import SolveQuiz from "./pages/SolveQuiz";
+import { I18nProvider } from "i18nexus";
+import { translations } from "../locales";
 
 // Google Analytics 측정 ID (실제 GA4 측정 ID로 교체 필요)
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
@@ -58,21 +60,23 @@ const App = () => {
   }, []);
 
   return (
-    <BrowserRouter>
-      <PageViewTracker />
-      <ToastContainer />
-      <Routes>
-        <Route path="/" element={<MakeQuiz />} />
-        <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
-        <Route path="/result/:problemSetId" element={<QuizResult />} />
-        <Route
-          path="/explanation/:problemSetId"
-          element={<QuizExplanation />}
-        />
-        <Route path="/history" element={<QuizHistory />} />
-        <Route path="/help" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <I18nProvider translations={translations}>
+      <BrowserRouter>
+        <PageViewTracker />
+        <ToastContainer />
+        <Routes>
+          <Route path="/" element={<MakeQuiz />} />
+          <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
+          <Route path="/result/:problemSetId" element={<QuizResult />} />
+          <Route
+            path="/explanation/:problemSetId"
+            element={<QuizExplanation />}
+          />
+          <Route path="/history" element={<QuizHistory />} />
+          <Route path="/help" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </I18nProvider>
   );
 };
 
