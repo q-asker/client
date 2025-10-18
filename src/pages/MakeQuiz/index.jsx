@@ -40,7 +40,7 @@ const MakeQuiz = () => {
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [questionType, setQuestionType] = useState(t("객관식"));
+  const [questionType, setQuestionType] = useState(t("빈칸 넣기"));
   const [questionCount, setQuestionCount] = useState(5);
   const [isProcessing, setIsProcessing] = useState(false);
   const [version, setVersion] = useState(0);
@@ -70,6 +70,23 @@ const MakeQuiz = () => {
     });
     return res.data;
   }
+  // questionType 변경 시 quizLevel 자동으로 변경
+  useEffect(() => {
+    const typeFillInBlank = t("빈칸 넣기");
+    const typeOX = t("OX 퀴즈");
+    const typeMultiple = t("객관식");
+
+    const levelMapping = {
+      [typeFillInBlank]: "RECALL",
+      [typeOX]: "SKILLS",
+      [typeMultiple]: "STRATEGIC",
+    };
+
+    const newLevel = levelMapping[questionType];
+    if (newLevel) {
+      setQuizLevel(newLevel);
+    }
+  }, [questionType, t]);
   // Sidebar toggle & click-outside
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   useEffect(() => {
@@ -172,6 +189,21 @@ const MakeQuiz = () => {
       CustomToast.error(t("파일을 먼저 업로드해주세요."));
       return;
     }
+    let apiQuizType;
+    switch (questionType) {
+      case t("객관식"):
+        apiQuizType = "MULTIPLE";
+        break;
+      case t("OX 퀴즈"):
+        apiQuizType = "OX";
+        break;
+      case t("빈칸 넣기"):
+        apiQuizType = "BLANK";
+        break;
+      default:
+        // 혹시 모를 기본값
+        apiQuizType = "MULTIPLE";
+    }
 
     try {
       generationTimerRef.current = new Timer((elapsed) => {
@@ -183,7 +215,7 @@ const MakeQuiz = () => {
       const response = await axiosInstance.post(`/generation`, {
         uploadedUrl: uploadedUrl,
         quizCount: questionCount,
-        quizType: questionType === t("객관식") ? "MULTIPLE" : "OX",
+        quizType: apiQuizType,
         difficultyType: quizLevel,
         pageNumbers: selectedPages,
       });
@@ -531,7 +563,7 @@ const MakeQuiz = () => {
             <div className="options-title">{t("퀴즈 생성 옵션")}</div>
             {/* 문제 유형 세그먼티드 */}
             <div className="segmented-control question-type">
-              {[t("객관식"), t("OX 퀴즈")].map((type) => (
+              {[t("빈칸 넣기"), t("OX 퀴즈"), t("객관식")].map((type) => (
                 <button
                   key={type}
                   className={questionType === type ? "active" : ""}
@@ -549,10 +581,18 @@ const MakeQuiz = () => {
                 </button>
               ))}
             </div>
+            <div className="level-selector-row">
+              {/* ② 선택한 난이도에 해당하는 설명을 옆에 출력 */}
+              <div className="level-counter-wrapper">
+                <pre className="level-description">
+                  {levelDescriptions[quizLevel]}
+                </pre>
+              </div>
+            </div>
             {/* 문제 수량 슬라이더 */}
             <div className="slider-control">
               <label>
-                {t("문제 수량:")}
+                {t("문제 수량: ")}
                 {questionCount}
                 {t("문제")}
               </label>
@@ -690,35 +730,6 @@ const MakeQuiz = () => {
                 </Document>
               </div>
             )}
-
-            <div className="level-title">{t("문제 단계 설정하기")}</div>
-            <div className="level-selector-row">
-              {/* ① 난이도 선택박스 */}
-              <select
-                value={quizLevel}
-                onChange={(e) => {
-                  const newLevel = e.target.value;
-                  if (quizLevel !== newLevel) {
-                    trackMakeQuizEvents.changeQuizOption(
-                      "quiz_level",
-                      newLevel
-                    );
-                    setQuizLevel(newLevel);
-                  }
-                }}
-              >
-                <option value="RECALL">Easy</option>
-                <option value="SKILLS">Normal</option>
-                <option value="STRATEGIC">Hard</option>
-              </select>
-
-              {/* ② 선택한 난이도에 해당하는 설명을 옆에 출력 */}
-              <div className="level-counter-wrapper">
-                <pre className="level-description">
-                  {levelDescriptions[quizLevel]}
-                </pre>
-              </div>
-            </div>
           </div>
         )}
         {/* ① 문서 미리보기 */}
