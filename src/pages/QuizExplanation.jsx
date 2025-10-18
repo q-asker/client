@@ -375,7 +375,7 @@ const QuizExplanation = () => {
 
               <nav className="question-nav">
                 <button
-                  className="nav-button"
+                  className="nav-button disabled"
                   onClick={handlePrev}
                   disabled={currentQuestion === 1}
                 >

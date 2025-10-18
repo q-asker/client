@@ -90,43 +90,12 @@
 .tooltip:hover::before {
   opacity: 1;
 }
+
 /* 모바일에서 업로드 버튼 컨테이너 */
 .upload-buttons-container {
   flex-direction: column;
   gap: 12px;
   margin: 16px 0;
-}
-
-/* 모바일에서 말풍선 스타일 */
-.tooltip .tooltip-text {
-  width: 250px;
-  left: 15%;
-  margin-left: -50px;
-  bottom: 110%;
-  font-size: 11px;
-  padding: 10px;
-  visibility: hidden;
-  opacity: 0;
-}
-
-.tooltip .tooltip-text::after {
-  left: 30%;
-}
-
-/* 모바일에서 말풍선 아이콘에 호버할 때 */
-.tooltip:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* 모바일에서 OCR 버튼에 호버할 때 */
-.ocr-button:hover + .tooltip .tooltip-text {
-  visibility: visible;
-  opacity: 1;
-}
-
-.tooltip::before {
-  font-size: 14px;
 }
 
 @media (max-width: 768px) {
@@ -135,7 +104,25 @@
     align-items: center;
     gap: 0px;
   }
+
   .tooltip {
     display: none;
+  }
+
+  .tooltip .tooltip-text {
+    width: 250px;
+    left: 15%;
+    margin-left: -50px;
+    bottom: 110%;
+    font-size: 11px;
+    padding: 10px;
+  }
+
+  .tooltip .tooltip-text::after {
+    left: 30%;
+  }
+
+  .tooltip::before {
+    font-size: 14px;
   }
 }
