@@ -34,6 +34,12 @@ body {
   font-family: monospace;
 }
 
+.question-area-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .counter-wrapper {
   display: flex;
   justify-content: space-between;
@@ -95,15 +101,17 @@ body {
   padding: 1rem;
 }
 .skipped-button {
-  min-width: 2rem;
+  width: 2rem;
   height: 2rem;
-  line-height: 2rem;
-  text-align: center;
+  aspect-ratio: 1;
   border: 1px solid #ddd;
   border-radius: 0.25rem;
   background: #fff;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .skipped-button.answered {
   background-color: #dfe4e9;
@@ -111,28 +119,37 @@ body {
 .skipped-button.checked {
   background-color: #ffe082;
 }
-.skipped-button.current {
-  background-color: #6a33f8;
-  color: #fff;
-}
+
 .skipped-button:hover {
   background-color: #e0e4e9;
   transform: scale(1.1);
 }
-.left-panel .skipped-button.incorrect {
-  background-color: #ffdddd !important; /* 연한 빨강 */
-  border-color: #ff7777 !important;
+.skipped-button.incorrect {
+  background-color: #ffdddd;
+  border-color: #ff7777;
 }
-.left-panel .skipped-button.correct {
-  background-color: #ddffdd !important; /* 연한 초록 */
-  border-color: #77ff77 !important;
+.skipped-button.correct {
+  background-color: #ddffdd; /* 연한 초록 */
+  border-color: #77ff77;
+}
+
+.skipped-button.current {
+  background-color: #6a33f8;
+  color: #fff;
+}
+
+.skipped-button.current:hover {
+  background-color: #6a33f8;
+  transform: none;
 }
 
 /* 중앙 패널: 퀴즈 + 해설 영역 */
 .center-panel {
+  width: 90%;
   max-width: 900px;
   margin: 0 auto;
   padding-top: 1.5rem;
+  gap: 1rem;
   display: flex;
   flex-direction: column;
 }
@@ -142,7 +159,6 @@ body {
   border-radius: 0.5rem;
   padding: 1rem;
   justify-content: space-between;
-  /* 이미 다른 스타일이 있다면 그대로 유지 */
 }
 
 /* ─── userAnswer가 0일 경우 question-area에 빨간색 테두리 ─── */
@@ -156,6 +172,8 @@ body {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 /* 이전/다음 버튼 공통 스타일 */
@@ -188,15 +206,6 @@ body {
   display: inline-block; /* inline-block으로 두면 텍스트가 자연스럽게 가운데 정렬됨 */
   font-weight: bold;
   font-size: 1rem;
-}
-
-/* 문제 텍스트 박스 */
-.question-area {
-  display: flex;
-  background-color: #e6ebf1;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  justify-content: space-between;
 }
 .question-text {
   margin: 0;
@@ -300,12 +309,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem; /* 기존 title의 margin-bottom을 여기로 이동 */
+  margin-bottom: 1rem;
 }
 
 .explanation-title {
   font-size: 1.25rem;
-  margin-bottom: 0; /* 헤더로 이동했으므로 제거 */
+  margin: 0; /* 완전히 제거하여 세로 정렬 */
   color: #333;
 }
 
@@ -794,6 +803,12 @@ input:checked + .slider::before {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 1500px) {
+  .left-panel {
+    display: none;
   }
 }
 

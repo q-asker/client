@@ -118,7 +118,11 @@
 /* ──────────────────────────────────── */
 /* 옵션 패널 공통 */
 .options-panel {
-  margin-top: 32px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin: 32px 0;
 }
 .options-title {
   font-size: 18px;
@@ -219,13 +223,6 @@
 
 .upload-section:hover {
   border-color: #8b5cf6;
-}
-.options-panel {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 24px;
-  margin: 32px 0;
 }
 .options-grid {
   display: grid;
