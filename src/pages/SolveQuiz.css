@@ -46,7 +46,7 @@ body {
   flex-direction: column;
   width: 90%;
   max-width: 900px;
-  padding-bottom: 1rem;
+  padding-bottom: 1.5rem;
 }
 
 .solve-left-panel {
