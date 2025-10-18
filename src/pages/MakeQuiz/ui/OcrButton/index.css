@@ -17,10 +17,11 @@
   background: #10b981;
   color: #fff;
   border: none;
-  padding: 8px 16px;
+  padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 1rem;
+  font-weight: 600;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
