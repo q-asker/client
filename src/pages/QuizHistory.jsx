@@ -1,4 +1,4 @@
-import Header from "#components/header";
+import { useTranslation } from "i18nexus";import Header from "#components/header";
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import { trackQuizHistoryEvents } from "#utils/analytics";
@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./QuizHistory.css";
 
-const QuizHistory = () => {
+const QuizHistory = () => {const { t } = useTranslation();
   const navigate = useNavigate();
   const [quizHistory, setQuizHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,36 +20,36 @@ const QuizHistory = () => {
   const loadQuizHistory = () => {
     try {
       const history = JSON.parse(localStorage.getItem("quizHistory") || "[]");
-      console.log("=== 퀴즈 히스토리 전체 데이터 ===");
-      console.log("전체 기록 배열:", history);
-      console.log("총 기록 개수:", history.length);
+      console.log(t("=== 퀴즈 히스토리 전체 데이터 ==="));
+      console.log(t("전체 기록 배열:"), history);
+      console.log(t("총 기록 개수:"), history.length);
 
       // 각 기록 상세 정보 출력
       history.forEach((record, index) => {
         console.log(`--- 기록 ${index + 1} ---`);
-        console.log("문제셋 ID:", record.problemSetId);
-        console.log("파일명:", record.fileName);
-        console.log("문제 개수:", record.questionCount);
-        console.log("퀴즈 레벨:", record.quizLevel);
-        console.log("점수:", record.score);
-        console.log("상태:", record.status);
-        console.log("생성일:", record.createdAt);
-        console.log("완료일:", record.completedAt);
-        console.log("업로드 URL:", record.uploadedUrl);
-        console.log("퀴즈 데이터 존재 여부:", !!record.quizData);
-        console.log("퀴즈 데이터 길이:", record.quizData?.length || 0);
+        console.log(t("문제셋 ID:"), record.problemSetId);
+        console.log(t("파일명:"), record.fileName);
+        console.log(t("문제 개수:"), record.questionCount);
+        console.log(t("퀴즈 레벨:"), record.quizLevel);
+        console.log(t("점수:"), record.score);
+        console.log(t("상태:"), record.status);
+        console.log(t("생성일:"), record.createdAt);
+        console.log(t("완료일:"), record.completedAt);
+        console.log(t("업로드 URL:"), record.uploadedUrl);
+        console.log(t("퀴즈 데이터 존재 여부:"), !!record.quizData);
+        console.log(t("퀴즈 데이터 길이:"), record.quizData?.length || 0);
         if (record.quizData) {
-          console.log("퀴즈 데이터:", record.quizData);
+          console.log(t("퀴즈 데이터:"), record.quizData);
         }
-        console.log("전체 데이터:", record);
+        console.log(t("전체 데이터:"), record);
         console.log("------------------");
       });
 
       setQuizHistory(history);
       return history;
     } catch (error) {
-      console.error("퀴즈 기록 불러오기 실패:", error);
-      CustomToast.error("기록을 불러오는데 실패했습니다.");
+      console.error(t("퀴즈 기록 불러오기 실패:"), error);
+      CustomToast.error(t("기록을 불러오는데 실패했습니다."));
       return [];
     } finally {
       setLoading(false);
@@ -70,11 +70,11 @@ const QuizHistory = () => {
       const sidebar = document.getElementById("sidebar");
       const btn = document.getElementById("menuButton");
       if (
-        sidebar &&
-        !sidebar.contains(e.target) &&
-        btn &&
-        !btn.contains(e.target)
-      ) {
+      sidebar &&
+      !sidebar.contains(e.target) &&
+      btn &&
+      !btn.contains(e.target))
+      {
         setIsSidebarOpen(false);
       }
     };
@@ -85,7 +85,7 @@ const QuizHistory = () => {
   // 해설 페이지로 이동
   const navigateToExplanation = async (record) => {
     if (record.status !== "completed") {
-      CustomToast.info("완료된 퀴즈만 해설을 볼 수 있습니다.");
+      CustomToast.info(t("완료된 퀴즈만 해설을 볼 수 있습니다."));
       return;
     }
 
@@ -96,17 +96,17 @@ const QuizHistory = () => {
       record.score
     );
 
-    console.log("=== 해설 페이지 이동 시작 ===");
-    console.log("선택된 기록:", record);
+    console.log(t("=== 해설 페이지 이동 시작 ==="));
+    console.log(t("선택된 기록:"), record);
 
     setExplanationLoading(true);
 
     try {
       // 저장된 퀴즈 데이터가 있는지 확인
       if (record.quizData && record.quizData.length > 0) {
-        console.log("저장된 퀴즈 데이터 사용:");
-        console.log("퀴즈 데이터:", record.quizData);
-        console.log("퀴즈 데이터 길이:", record.quizData.length);
+        console.log(t("저장된 퀴즈 데이터 사용:"));
+        console.log(t("퀴즈 데이터:"), record.quizData);
+        console.log(t("퀴즈 데이터 길이:"), record.quizData.length);
 
         // 해설 데이터만 API로 가져오기
         console.log(`API 호출: /explanation/${record.problemSetId}`);
@@ -114,21 +114,21 @@ const QuizHistory = () => {
           `/explanation/${record.problemSetId}`
         );
         const explanationData = explanationResponse.data;
-        console.log("해설 데이터:", explanationData);
+        console.log(t("해설 데이터:"), explanationData);
 
         const stateData = {
           quizzes: record.quizData, // 저장된 퀴즈 데이터 사용 (사용자 답안 포함)
           explanation: explanationData,
-          uploadedUrl: record.uploadedUrl,
+          uploadedUrl: record.uploadedUrl
         };
-        console.log("해설 페이지로 전달할 state 데이터:", stateData);
+        console.log(t("해설 페이지로 전달할 state 데이터:"), stateData);
 
         // 해설 페이지로 이동
         navigate(`/explanation/${record.problemSetId}`, {
-          state: stateData,
+          state: stateData
         });
       } else {
-        console.log("저장된 퀴즈 데이터가 없음. API로 데이터 가져오기");
+        console.log(t("저장된 퀴즈 데이터가 없음. API로 데이터 가져오기"));
 
         // 1. 문제 데이터 가져오기
         console.log(`API 호출: /problem-set/${record.problemSetId}`);
@@ -136,8 +136,8 @@ const QuizHistory = () => {
           `/problem-set/${record.problemSetId}`
         );
         const quizData = quizResponse.data;
-        console.log("퀴즈 데이터 응답:", quizResponse);
-        console.log("퀴즈 데이터:", quizData);
+        console.log(t("퀴즈 데이터 응답:"), quizResponse);
+        console.log(t("퀴즈 데이터:"), quizData);
 
         // 2. 해설 데이터 가져오기
         console.log(`API 호출: /explanation/${record.problemSetId}`);
@@ -145,36 +145,36 @@ const QuizHistory = () => {
           `/explanation/${record.problemSetId}`
         );
         const explanationData = explanationResponse.data;
-        console.log("해설 데이터 응답:", explanationResponse);
-        console.log("해설 데이터:", explanationData);
+        console.log(t("해설 데이터 응답:"), explanationResponse);
+        console.log(t("해설 데이터:"), explanationData);
 
         // 3. 최종 전달할 데이터 확인
         const finalQuizzes = quizData.problems || quizData.quizzes || [];
-        console.log("최종 퀴즈 배열:", finalQuizzes);
-        console.log("퀴즈 배열 길이:", finalQuizzes.length);
+        console.log(t("최종 퀴즈 배열:"), finalQuizzes);
+        console.log(t("퀴즈 배열 길이:"), finalQuizzes.length);
 
         const stateData = {
           quizzes: finalQuizzes,
           explanation: explanationData,
-          uploadedUrl: record.uploadedUrl,
+          uploadedUrl: record.uploadedUrl
         };
-        console.log("해설 페이지로 전달할 state 데이터:", stateData);
+        console.log(t("해설 페이지로 전달할 state 데이터:"), stateData);
 
         // 4. 해설 페이지로 이동
         navigate(`/explanation/${record.problemSetId}`, {
-          state: stateData,
+          state: stateData
         });
       }
     } catch (error) {
-      console.error("해설 데이터 로딩 실패:", error);
-      console.error("에러 상세 정보:", {
+      console.error(t("해설 데이터 로딩 실패:"), error);
+      console.error(t("에러 상세 정보:"), {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        config: error.config,
+        config: error.config
       });
-      CustomToast.error(
-        "해설을 불러오는데 실패했습니다. 문제가 삭제되었을 수 있습니다."
+      CustomToast.error(t("해설을 불러오는데 실패했습니다. 문제가 삭제되었을 수 있습니다.")
+
       );
     } finally {
       setExplanationLoading(false);
@@ -202,14 +202,14 @@ const QuizHistory = () => {
 
     navigate(`/quiz/${record.problemSetId}`, {
       state: {
-        uploadedUrl: record.uploadedUrl,
-      },
+        uploadedUrl: record.uploadedUrl
+      }
     });
   };
 
   // 기록 삭제
   const deleteQuizRecord = (problemSetId) => {
-    if (window.confirm("이 기록을 삭제하시겠습니까?")) {
+    if (window.confirm(t("이 기록을 삭제하시겠습니까?"))) {
       try {
         const record = quizHistory.find(
           (item) => item.problemSetId === problemSetId
@@ -227,10 +227,10 @@ const QuizHistory = () => {
         );
         localStorage.setItem("quizHistory", JSON.stringify(updatedHistory));
         setQuizHistory(updatedHistory);
-        CustomToast.success("기록이 삭제되었습니다.");
+        CustomToast.success(t("기록이 삭제되었습니다."));
       } catch (error) {
-        console.error("기록 삭제 실패:", error);
-        CustomToast.error("기록 삭제에 실패했습니다.");
+        console.error(t("기록 삭제 실패:"), error);
+        CustomToast.error(t("기록 삭제에 실패했습니다."));
       }
     }
   };
@@ -238,10 +238,10 @@ const QuizHistory = () => {
   // 모든 기록 삭제
   const clearAllHistory = () => {
     if (
-      window.confirm(
-        "모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
-      )
-    ) {
+    window.confirm(t("모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
+
+    ))
+    {
       try {
         const completed = quizHistory.filter(
           (item) => item.status === "completed"
@@ -255,10 +255,10 @@ const QuizHistory = () => {
 
         localStorage.removeItem("quizHistory");
         setQuizHistory([]);
-        CustomToast.success("모든 기록이 삭제되었습니다.");
+        CustomToast.success(t("모든 기록이 삭제되었습니다."));
       } catch (error) {
-        console.error("전체 기록 삭제 실패:", error);
-        CustomToast.error("기록 삭제에 실패했습니다.");
+        console.error(t("전체 기록 삭제 실패:"), error);
+        CustomToast.error(t("기록 삭제에 실패했습니다."));
       }
     }
   };
@@ -271,7 +271,7 @@ const QuizHistory = () => {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit",
+      minute: "2-digit"
     });
   };
 
@@ -281,29 +281,29 @@ const QuizHistory = () => {
     const totalQuizzes = quizHistory.length;
     const completedQuizzes = completed.length;
     const averageScore =
-      completed.length > 0
-        ? Math.round(
-            completed.reduce((sum, item) => sum + item.score, 0) /
-              completed.length
-          )
-        : 0;
+    completed.length > 0 ?
+    Math.round(
+      completed.reduce((sum, item) => sum + item.score, 0) /
+      completed.length
+    ) :
+    0;
 
     const stats = {
       totalQuizzes,
       completedQuizzes,
       averageScore,
       completionRate:
-        totalQuizzes > 0
-          ? Math.round((completedQuizzes / totalQuizzes) * 100)
-          : 0,
+      totalQuizzes > 0 ?
+      Math.round(completedQuizzes / totalQuizzes * 100) :
+      0
     };
 
-    console.log("=== 퀴즈 통계 정보 ===");
-    console.log("전체 퀴즈 수:", stats.totalQuizzes);
-    console.log("완료된 퀴즈 수:", stats.completedQuizzes);
-    console.log("평균 점수:", stats.averageScore);
-    console.log("완료율:", stats.completionRate + "%");
-    console.log("완료된 퀴즈 배열:", completed);
+    console.log(t("=== 퀴즈 통계 정보 ==="));
+    console.log(t("전체 퀴즈 수:"), stats.totalQuizzes);
+    console.log(t("완료된 퀴즈 수:"), stats.completedQuizzes);
+    console.log(t("평균 점수:"), stats.averageScore);
+    console.log(t("완료율:"), stats.completionRate + "%");
+    console.log(t("완료된 퀴즈 배열:"), completed);
 
     return stats;
   };
@@ -350,16 +350,16 @@ const QuizHistory = () => {
         <Header
           isSidebarOpen={isSidebarOpen}
           toggleSidebar={toggleSidebar}
-          setIsSidebarOpen={setIsSidebarOpen}
-        />
+          setIsSidebarOpen={setIsSidebarOpen} />
+
         <div className="quiz-history-container">
           <div className="loading-container">
             <div className="spinner" />
-            <p>기록을 불러오는 중...</p>
+            <p>{t("기록을 불러오는 중...")}</p>
           </div>
         </div>
-      </>
-    );
+      </>);
+
   }
 
   return (
@@ -367,34 +367,34 @@ const QuizHistory = () => {
       <Header
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+        setIsSidebarOpen={setIsSidebarOpen} />
+
 
       <div className="quiz-history-container">
         <div className="quiz-history-header">
           <div className="header-content">
-            <h1>내 퀴즈 기록</h1>
-            <p>지금까지 만들고 푼 퀴즈들을 확인해보세요</p>
+            <h1>{t("내 퀴즈 기록")}</h1>
+            <p>{t("지금까지 만들고 푼 퀴즈들을 확인해보세요")}</p>
           </div>
 
-          {quizHistory.length > 0 && (
-            <div className="header-actions">
-              <button className="clear-all-btn" onClick={clearAllHistory}>
-                전체 삭제
-              </button>
+          {quizHistory.length > 0 &&
+          <div className="header-actions">
+              <button className="clear-all-btn" onClick={clearAllHistory}>{t("전체 삭제")}
+
+            </button>
             </div>
-          )}
+          }
         </div>
 
         {/* 통계 섹션 */}
-        {quizHistory.length > 0 && (
-          <div className="stats-section">
+        {quizHistory.length > 0 &&
+        <div className="stats-section">
             <div className="stats-grid">
               <div className="stat-card">
                 <div className="stat-icon">📝</div>
                 <div className="stat-content">
                   <div className="stat-number">{stats.totalQuizzes}</div>
-                  <div className="stat-label">총 퀴즈 수</div>
+                  <div className="stat-label">{t("총 퀴즈 수")}</div>
                 </div>
               </div>
 
@@ -402,7 +402,7 @@ const QuizHistory = () => {
                 <div className="stat-icon">✅</div>
                 <div className="stat-content">
                   <div className="stat-number">{stats.completedQuizzes}</div>
-                  <div className="stat-label">완료한 퀴즈</div>
+                  <div className="stat-label">{t("완료한 퀴즈")}</div>
                 </div>
               </div>
 
@@ -410,60 +410,60 @@ const QuizHistory = () => {
                 <div className="stat-icon">📊</div>
                 <div className="stat-content">
                   <div className="stat-number">{stats.completionRate}%</div>
-                  <div className="stat-label">완료율</div>
+                  <div className="stat-label">{t("완료율")}</div>
                 </div>
               </div>
 
               <div className="stat-card">
                 <div className="stat-icon">🏆</div>
                 <div className="stat-content">
-                  <div className="stat-number">{stats.averageScore}점</div>
-                  <div className="stat-label">평균 점수</div>
+                  <div className="stat-number">{stats.averageScore}{t("점")}</div>
+                  <div className="stat-label">{t("평균 점수")}</div>
                 </div>
               </div>
             </div>
           </div>
-        )}
+        }
 
         {/* 퀴즈 보관 안내 */}
-        {quizHistory.length > 0 && (
-          <div className="storage-notice-section">
+        {quizHistory.length > 0 &&
+        <div className="storage-notice-section">
             <div className="storage-notice-header">
               <span className="storage-notice-icon">📋</span>
-              <h3 className="storage-notice-title">퀴즈 보관 정책</h3>
+              <h3 className="storage-notice-title">{t("퀴즈 보관 정책")}</h3>
             </div>
-            <div className="storage-notice-content">
-              • 퀴즈 기록은 최대 <strong>20개</strong>까지 자동으로 저장됩니다
-              <br />• 생성된 퀴즈는{" "}
-              <strong>24시간 후 서버에서 자동 삭제</strong>되어 해설을 볼 수
-              없게 됩니다
-              <br />• 중요한 퀴즈는 생성 후 24시간 내에 완료하여 기록을
-              남겨두시기 바랍니다
-            </div>
+            <div className="storage-notice-content">{t("• 퀴즈 기록은 최대")}
+            <strong>{t("20개")}</strong>{t("까지 자동으로 저장됩니다")}
+            <br />{t("• 생성된 퀴즈는")}{" "}
+              <strong>{t("24시간 후 서버에서 자동 삭제")}</strong>{t("되어 해설을 볼 수\n              없게 됩니다")}
+
+            <br />{t("• 중요한 퀴즈는 생성 후 24시간 내에 완료하여 기록을\n              남겨두시기 바랍니다")}
+
           </div>
-        )}
+          </div>
+        }
 
         {/* 기록 목록 */}
         <div className="quiz-history-content">
-          {quizHistory.length === 0 ? (
-            <div className="empty-history">
+          {quizHistory.length === 0 ?
+          <div className="empty-history">
               <div className="empty-icon">📋</div>
-              <h3>아직 만든 퀴즈가 없습니다</h3>
-              <p>퀴즈를 만들어서 문제를 풀어보세요!</p>
+              <h3>{t("아직 만든 퀴즈가 없습니다")}</h3>
+              <p>{t("퀴즈를 만들어서 문제를 풀어보세요!")}</p>
               <button
-                className="create-quiz-btn"
-                onClick={handleCreateFromEmpty}
-              >
-                퀴즈 만들기
-              </button>
-            </div>
-          ) : (
-            <div className="history-list">
-              {quizHistory.map((record) => (
-                <div
-                  key={record.problemSetId}
-                  className={`history-item ${record.status}`}
-                >
+              className="create-quiz-btn"
+              onClick={handleCreateFromEmpty}>{t("퀴즈 만들기")}
+
+
+            </button>
+            </div> :
+
+          <div className="history-list">
+              {quizHistory.map((record) =>
+            <div
+              key={record.problemSetId}
+              className={`history-item ${record.status}`}>
+
                   <div className="history-main">
                     <div className="history-title">
                       <span className="file-icon">📄</span>
@@ -471,76 +471,76 @@ const QuizHistory = () => {
                         {record.fileName}
                       </span>
                       <span className={`status-badge ${record.status}`}>
-                        {record.status === "completed" ? "완료" : "미완료"}
+                        {record.status === "completed" ? t("완료") : t("미완료")}
                       </span>
                     </div>
 
                     <div className="history-details">
                       <span className="detail-item">
-                        📝 {record.questionCount}문제
-                      </span>
+                        📝 {record.questionCount}{t("문제")}
+                  </span>
                       <span className="detail-item">🎯 {record.quizLevel}</span>
-                      {record.status === "completed" && (
-                        <>
+                      {record.status === "completed" &&
+                  <>
                           <span className="detail-item score">
-                            🏆 {record.score}점 ({record.correctCount}/
+                            🏆 {record.score}{t("점 (")}{record.correctCount}/
                             {record.totalQuestions})
                           </span>
                           <span className="detail-item">
                             ⏱️ {record.totalTime}
                           </span>
                         </>
-                      )}
+                  }
                     </div>
 
                     <div className="history-date">
-                      <div>생성: {formatDate(record.createdAt)}</div>
-                      {record.completedAt && (
-                        <div>완료: {formatDate(record.completedAt)}</div>
-                      )}
+                      <div>{t("생성:")}{formatDate(record.createdAt)}</div>
+                      {record.completedAt &&
+                  <div>{t("완료:")}{formatDate(record.completedAt)}</div>
+                  }
                     </div>
                   </div>
 
                   <div className="history-actions">
-                    {record.status === "completed" ? (
-                      <>
+                    {record.status === "completed" ?
+                <>
                         <button
-                          className="action-btn view-btn"
-                          onClick={() => navigateToExplanation(record)}
-                          disabled={explanationLoading}
-                        >
-                          {explanationLoading ? "로딩..." : "해설 보기"}
+                    className="action-btn view-btn"
+                    onClick={() => navigateToExplanation(record)}
+                    disabled={explanationLoading}>
+
+                          {explanationLoading ? t("로딩...") : t("해설 보기")}
                         </button>
                         <button
-                          className="action-btn retry-btn"
-                          onClick={() => navigateToQuiz(record)}
-                        >
-                          다시 풀기
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        className="action-btn quiz-btn"
-                        onClick={() => navigateToQuiz(record)}
-                      >
-                        퀴즈 풀기
-                      </button>
-                    )}
+                    className="action-btn retry-btn"
+                    onClick={() => navigateToQuiz(record)}>{t("다시 풀기")}
+
+
+                  </button>
+                      </> :
+
+                <button
+                  className="action-btn quiz-btn"
+                  onClick={() => navigateToQuiz(record)}>{t("퀴즈 풀기")}
+
+
+                </button>
+                }
                     <button
-                      className="action-btn delete-btn"
-                      onClick={() => deleteQuizRecord(record.problemSetId)}
-                    >
-                      삭제
-                    </button>
+                  className="action-btn delete-btn"
+                  onClick={() => deleteQuizRecord(record.problemSetId)}>{t("삭제")}
+
+
+                </button>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
-          )}
+          }
         </div>
       </div>
-    </>
-  );
+    </>);
+
 };
 
 export default QuizHistory;

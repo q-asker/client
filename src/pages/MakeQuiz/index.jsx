@@ -1,3 +1,4 @@
+import { useTranslation } from "i18nexus";
 import Header from "#components/header";
 import Help from "#components/help";
 import axiosInstance from "#shared/api";
@@ -34,19 +35,20 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const MakeQuiz = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [quizData, setQuizData] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [questionType, setQuestionType] = useState("객관식");
+  const [questionType, setQuestionType] = useState(t("객관식"));
   const [questionCount, setQuestionCount] = useState(5);
   const [isProcessing, setIsProcessing] = useState(false);
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [problemSetId, setProblemSetId] = useState(null);
   const [quizLevel, setQuizLevel] = useState("RECALL"); // 기본 난이도 설정
-  const [pageMode, setPageMode] = useState("전체"); // "전체" 또는 "사용자 지정"
+  const [pageMode, setPageMode] = useState(t("전체")); // "전체" 또는 "사용자 지정"
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
   const [hoveredPage, setHoveredPage] = useState(null); // { pageNumber: number, style: object }
@@ -116,9 +118,9 @@ const MakeQuiz = () => {
   };
   const selectFile = async (f, method = "click") => {
     const ext = f.name.split(".").pop().toLowerCase();
-    
+
     if (!["ppt", "pptx", "pdf"].includes(ext)) {
-      CustomToast.error("지원하지 않는 파일 형식입니다");
+      CustomToast.error(t("지원하지 않는 파일 형식입니다"));
       return;
     }
 
@@ -169,7 +171,7 @@ const MakeQuiz = () => {
   // Simulate processing
   const generateQuestions = async () => {
     if (!uploadedUrl) {
-      CustomToast.error("파일을 먼저 업로드해주세요.");
+      CustomToast.error(t("파일을 먼저 업로드해주세요."));
       return;
     }
 
@@ -183,12 +185,12 @@ const MakeQuiz = () => {
       const response = await axiosInstance.post(`/generation`, {
         uploadedUrl: uploadedUrl,
         quizCount: questionCount,
-        quizType: questionType === "객관식" ? "MULTIPLE" : "OX",
+        quizType: questionType === t("객관식") ? "MULTIPLE" : "OX",
         difficultyType: quizLevel,
         pageNumbers: selectedPages,
       });
       const result = response.data;
-      console.log("생성된 문제 데이터:", result);
+      console.log(t("생성된 문제 데이터:"), result);
       setProblemSetId(result.problemSetId);
       setVersion((prev) => prev + 1);
 
@@ -251,7 +253,7 @@ const MakeQuiz = () => {
         setLatestQuiz(newQuizRecord);
       }
     } catch (error) {
-      console.error("퀴즈 기록 저장 실패:", error);
+      console.error(t("퀴즈 기록 저장 실패:"), error);
     }
   };
 
@@ -275,10 +277,9 @@ const MakeQuiz = () => {
         }
       }
     } catch (error) {
-      console.error("최신 퀴즈 로딩 실패:", error);
+      console.error(t("최신 퀴즈 로딩 실패:"), error);
     }
   };
-
 
   // 5초 후 대기 메시지 표시
   useEffect(() => {
@@ -338,19 +339,19 @@ const MakeQuiz = () => {
       uploadTimerRef.current.reset();
       uploadTimerRef.current = null;
     }
-    
+
     setFile(null);
     setUploadedUrl(null);
     setQuizData(null);
     setIsDragging(false);
-    setQuestionType("객관식");
+    setQuestionType(t("객관식"));
     setQuestionCount(5);
     setIsProcessing(false);
     setVersion(0);
     setIsSidebarOpen(false);
     setProblemSetId(null);
     setQuizLevel("RECALL");
-    setPageMode("전체");
+    setPageMode(t("전체"));
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
@@ -365,7 +366,7 @@ const MakeQuiz = () => {
   const handleReCreate = () => {
     setProblemSetId(null);
     setQuizData(null);
-    setPageMode("전체");
+    setPageMode(t("전체"));
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
@@ -386,7 +387,7 @@ const MakeQuiz = () => {
   const onDocumentLoadSuccess = ({ numPages: nextNumPages }) => {
     setNumPages(nextNumPages);
     setSelectedPages(Array.from({ length: nextNumPages }, (_, i) => i + 1));
-    setPageMode("전체");
+    setPageMode(t("전체"));
   };
 
   const handlePageSelection = (pageNumber) => {
@@ -411,7 +412,7 @@ const MakeQuiz = () => {
     // 모바일 너비에서는 미리보기 기능을 비활성화
     if (window.innerWidth <= 768) return;
 
-    if (pageMode === "전체" || !pdfPreviewRef.current) return;
+    if (pageMode === t("전체") || !pdfPreviewRef.current) return;
 
     const containerRect = pdfPreviewRef.current.getBoundingClientRect();
     const itemRect = e.currentTarget.getBoundingClientRect();
@@ -457,6 +458,7 @@ const MakeQuiz = () => {
         toggleSidebar={toggleSidebar}
         setIsSidebarOpen={setIsSidebarOpen}
       />
+
       <div className="main">
         <div
           className={`upload-section ${isDragging ? "dragging" : ""}`}
@@ -471,16 +473,19 @@ const MakeQuiz = () => {
               <div className="spinner" />
               <div className="upload-status">
                 <div className="upload-title-animated">
-                  파일 업로드 중...{Math.floor(uploadElapsedTime / 1000)}초
+                  {t("파일 업로드 중...")}
+                  {Math.floor(uploadElapsedTime / 1000)}
+                  {t("초")}
                 </div>
               </div>
               {fileExtension && fileExtension !== "pdf" && (
                 <div className="conversion-message">
                   <div className="conversion-text">
-                    <strong>{fileExtension.toUpperCase()}</strong> 파일을 PDF로 변환하고 있어요
+                    <strong>{fileExtension.toUpperCase()}</strong>
+                    {t("파일을 PDF로 변환하고 있어요")}
                     <br />
                     <span className="conversion-subtext">
-                      파일 크기에 따라 시간이 소요될 수 있습니다
+                      {t("파일 크기에 따라 시간이 소요될 수 있습니다")}
                     </span>
                   </div>
                 </div>
@@ -489,10 +494,13 @@ const MakeQuiz = () => {
           ) : !uploadedUrl ? (
             <>
               <div className="upload-icon">☁️</div>
-              <div className="upload-title">파일을 여기에 드래그하세요</div>
-              <p>또는</p>
+              <div className="upload-title">
+                {t("파일을 여기에 드래그하세요")}
+              </div>
+              <p>{t("또는")}</p>
               <div className="upload-button">
-                파일 선택하기
+                {t("파일 선택하기")}
+
                 <input
                   type="file"
                   accept=".ppt, .pptx, .pdf"
@@ -500,10 +508,13 @@ const MakeQuiz = () => {
                 />
               </div>
               <p className="hint">
-                지원 파일 형식: PPT, PPTX, PDF <br></br>파일 크기 제한:{" "}
-                {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>
+                {t("지원 파일 형식: PPT, PPTX, PDF")}
+                <br></br>
+                {t("파일 크기 제한:")} {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>
               </p>
-              <p className="hint">파일 page  제한: 선택했을 때 100page 이하</p>
+              <p className="hint">
+                {t("파일 page  제한: 선택했을 때 100page 이하")}
+              </p>
             </>
           ) : (
             <>
@@ -511,22 +522,23 @@ const MakeQuiz = () => {
               <div className="file-name">{file.name}</div>
               {file.size && <p>{(file.size / 1024 / 1024).toFixed(2)} MB</p>}
               <button className="remove-button" onClick={handleRemoveFile}>
-                ✕ 파일 삭제
+                {t("✕ 파일 삭제")}
               </button>
             </>
           )}
           <p className="hint">
-            🚨파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.<br></br>{" "}
-            24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.
+            {t("🚨파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.")}
+            <br></br>{" "}
+            {t("24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.")}
           </p>
         </div>
         {/* Options Panel */}
         {uploadedUrl && !problemSetId && (
           <div className="options-panel">
-            <div className="options-title">퀴즈 생성 옵션</div>
+            <div className="options-title">{t("퀴즈 생성 옵션")}</div>
             {/* 문제 유형 세그먼티드 */}
             <div className="segmented-control question-type">
-              {["객관식", "OX 퀴즈"].map((type) => (
+              {[t("객관식"), t("OX 퀴즈")].map((type) => (
                 <button
                   key={type}
                   className={questionType === type ? "active" : ""}
@@ -546,7 +558,11 @@ const MakeQuiz = () => {
             </div>
             {/* 문제 수량 슬라이더 */}
             <div className="slider-control">
-              <label>문제 수량: {questionCount}문제</label>
+              <label>
+                {t("문제 수량:")}
+                {questionCount}
+                {t("문제")}
+              </label>
               <input
                 type="range"
                 min="5"
@@ -566,14 +582,16 @@ const MakeQuiz = () => {
               />
             </div>
 
-            <div className="page-title">특정 페이지를 지정하고 싶으신가요?</div>
+            <div className="page-title">
+              {t("특정 페이지를 지정하고 싶으신가요?")}
+            </div>
             <div className="page-decide">
               <select
                 value={pageMode}
                 onChange={(e) => {
                   const mode = e.target.value;
                   setPageMode(mode);
-                  if (mode === "전체") {
+                  if (mode === t("전체")) {
                     setSelectedPages(
                       Array.from({ length: numPages }, (_, i) => i + 1)
                     );
@@ -583,22 +601,24 @@ const MakeQuiz = () => {
                   trackMakeQuizEvents.changeQuizOption("page_mode", mode);
                 }}
               >
-                <option value="전체">전체</option>
-                <option value="사용자 지정">사용자 지정</option>
+                <option value={t("전체")}>{t("전체")}</option>
+                <option value={t("사용자 지정")}>{t("사용자 지정")}</option>
               </select>
             </div>
 
             {uploadedUrl && (
               <div className="pdf-preview-container" ref={pdfPreviewRef}>
                 <div className="pdf-preview-header">
-                  <div className="preview-title">미리보기 및 페이지 선택</div>
+                  <div className="preview-title">
+                    {t("미리보기 및 페이지 선택")}
+                  </div>
                   <button
                     onClick={handleSelectAllPages}
-                    disabled={pageMode === "전체"}
+                    disabled={pageMode === t("전체")}
                   >
                     {selectedPages.length === numPages
-                      ? "전체 선택"
-                      : "전체 선택"}
+                      ? t("전체 선택")
+                      : t("전체 선택")}
                   </button>
                 </div>
                 <Document
@@ -620,14 +640,14 @@ const MakeQuiz = () => {
                               selectedPages.includes(index + 1)
                                 ? "selected"
                                 : ""
-                            } ${pageMode === "전체" ? "disabled" : ""} ${
+                            } ${pageMode === t("전체") ? "disabled" : ""} ${
                               hoveredPage &&
                               hoveredPage.pageNumber === index + 1
                                 ? "hover-active"
                                 : ""
                             }`}
                             onClick={() => {
-                              if (pageMode !== "전체") {
+                              if (pageMode !== t("전체")) {
                                 handlePageSelection(index + 1);
                               }
                             }}
@@ -641,7 +661,11 @@ const MakeQuiz = () => {
                               renderTextLayer={false}
                               renderAnnotationLayer={false}
                             />
-                            <p>페이지 {index + 1}</p>
+
+                            <p>
+                              {t("페이지")}
+                              {index + 1}
+                            </p>
                           </div>
                         )
                       )}
@@ -649,8 +673,8 @@ const MakeQuiz = () => {
                         <div className="loading-more-pages">
                           <div className="spinner" />
                           <p>
-                            더 많은 페이지 로딩 중... ({visiblePageCount}/
-                            {numPages})
+                            {t("더 많은 페이지 로딩 중... (")}
+                            {visiblePageCount}/{numPages})
                           </p>
                         </div>
                       )}
@@ -674,7 +698,7 @@ const MakeQuiz = () => {
               </div>
             )}
 
-            <div className="level-title">문제 단계 설정하기</div>
+            <div className="level-title">{t("문제 단계 설정하기")}</div>
             <div className="level-selector-row">
               {/* ① 난이도 선택박스 */}
               <select
@@ -707,20 +731,28 @@ const MakeQuiz = () => {
         {/* ① 문서 미리보기 */}
         {uploadedUrl && (
           <div className="document-preview">
-            <div className="document-title">문서 미리보기</div>
+            <div className="document-title">{t("문서 미리보기")}</div>
             <div className="preview-content">
               {isProcessing ? (
                 <div className="processing">
                   <div className="spinner" />
-                  <p>문제 생성 중...{Math.floor(generationElapsedTime / 1000)}초</p>
+                  <p>
+                    {t("문제 생성 중...")}
+                    {Math.floor(generationElapsedTime / 1000)}
+                    {t("초")}
+                  </p>
                   {showWaitMessage && (
                     <p className="wait-message">
-                      현재 생성중입니다 조금만 더 기다려주세요!
+                      {t("현재 생성중입니다 조금만 더 기다려주세요!")}
                     </p>
                   )}
                 </div>
               ) : !problemSetId ? (
-                <p>문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.</p>
+                <p>
+                  {t(
+                    "문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요."
+                  )}
+                </p>
               ) : (
                 <div className="problem-card">
                   <div className="problem-icon">📝</div>
@@ -732,16 +764,16 @@ const MakeQuiz = () => {
                   </div>
                   <div className="problem-actions">
                     <button className="btn cancle" onClick={handleRemoveFile}>
-                      다른 파일 넣기
+                      {t("다른 파일 넣기")}
                     </button>
                     <button className="btn manage" onClick={handleReCreate}>
-                      다른 문제 생성
+                      {t("다른 문제 생성")}
                     </button>
                     <button
                       className="btn mapping"
                       onClick={handleNavigateToQuiz}
                     >
-                      문제 풀기
+                      {t("문제 풀기")}
                     </button>
                   </div>
                 </div>
@@ -757,7 +789,7 @@ const MakeQuiz = () => {
               onClick={generateQuestions}
               disabled={!uploadedUrl || isProcessing}
             >
-              {isProcessing ? "생성 중..." : "문제 생성하기"}
+              {isProcessing ? t("생성 중...") : t("문제 생성하기")}
             </button>
           </div>
         )}
@@ -767,15 +799,20 @@ const MakeQuiz = () => {
       {/* Footer */}
       <div className="footer">
         © 2025 Q-Asker. All rights reserved.
-        <br></br>문의 및 피드백<span>: </span>
+        <br></br>
+        {t("문의 및 피드백")}
+        <span>: </span>
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
           target="_blank"
         >
-          구글 폼 링크
+          {t("구글 폼 링크")}
         </a>
         <span>, </span>
-        <a href="mailto:inhapj01@gmail.com" aria-label="Q-Asker 이메일 문의">
+        <a
+          href="mailto:inhapj01@gmail.com"
+          aria-label={t("Q-Asker 이메일 문의")}
+        >
           inhapj01@gmail.com
         </a>
       </div>

@@ -1,10 +1,10 @@
-import axiosInstance from "#shared/api";
+import { useTranslation } from "i18nexus";import axiosInstance from "#shared/api";
 import { trackQuizEvents, trackResultEvents } from "#utils/analytics";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./QuizResult.css";
 
-const QuizResult = () => {
+const QuizResult = () => {const { t } = useTranslation();
   const { state } = useLocation();
   const navigate = useNavigate();
   const { problemSetId } = useParams();
@@ -21,7 +21,7 @@ const QuizResult = () => {
       console.log(data);
       setExplanation(data);
       navigate(`/explanation/${problemSetId}`, {
-        state: { quizzes, explanation: data, uploadedUrl },
+        state: { quizzes, explanation: data, uploadedUrl }
       });
     } catch (err) {
       navigate("/");
@@ -35,9 +35,9 @@ const QuizResult = () => {
   }, 0);
 
   // 백분율(소수 없이 정수로 반올림)
-  const scorePercent = quizzes.length
-    ? Math.round((correctCount / quizzes.length) * 100)
-    : 0;
+  const scorePercent = quizzes.length ?
+  Math.round(correctCount / quizzes.length * 100) :
+  0;
 
   // 결과 페이지 진입 추적
   useEffect(() => {
@@ -68,12 +68,12 @@ const QuizResult = () => {
 
   // 퀴즈 완료 기록을 localStorage에 업데이트하는 함수
   const updateQuizHistoryResult = (
-    problemSetId,
-    correctCount,
-    totalQuestions,
-    totalTime,
-    score
-  ) => {
+  problemSetId,
+  correctCount,
+  totalQuestions,
+  totalTime,
+  score) =>
+  {
     try {
       const existingHistory = JSON.parse(
         localStorage.getItem("quizHistory") || "[]"
@@ -92,18 +92,18 @@ const QuizResult = () => {
           totalQuestions,
           totalTime,
           completedAt: new Date().toISOString(),
-          quizData: quizzes, // 실제 퀴즈 데이터 저장 (문제, 선택지, 사용자 답안 포함)
+          quizData: quizzes // 실제 퀴즈 데이터 저장 (문제, 선택지, 사용자 답안 포함)
         };
 
-        console.log("=== 퀴즈 완료 데이터 저장 ===");
-        console.log("문제셋 ID:", problemSetId);
-        console.log("저장할 퀴즈 데이터:", quizzes);
-        console.log("업데이트된 히스토리:", existingHistory[existingIndex]);
+        console.log(t("=== 퀴즈 완료 데이터 저장 ==="));
+        console.log(t("문제셋 ID:"), problemSetId);
+        console.log(t("저장할 퀴즈 데이터:"), quizzes);
+        console.log(t("업데이트된 히스토리:"), existingHistory[existingIndex]);
 
         localStorage.setItem("quizHistory", JSON.stringify(existingHistory));
       }
     } catch (error) {
-      console.error("퀴즈 결과 기록 업데이트 실패:", error);
+      console.error(t("퀴즈 결과 기록 업데이트 실패:"), error);
     }
   };
   // ─────────────────
@@ -115,8 +115,8 @@ const QuizResult = () => {
         <div className="metadata-item">
           <span className="metadata-icon">📋</span>
           <div className="metadata-text">
-            <span className="metadata-label">문제 수</span>
-            <span className="metadata-value">{quizzes.length}개</span>
+            <span className="metadata-label">{t("문제 수")}</span>
+            <span className="metadata-value">{quizzes.length}{t("개")}</span>
           </div>
         </div>
 
@@ -124,7 +124,7 @@ const QuizResult = () => {
         <div className="metadata-item">
           <span className="metadata-icon">⏱️</span>
           <div className="metadata-text">
-            <span className="metadata-label">걸린 시간</span>
+            <span className="metadata-label">{t("걸린 시간")}</span>
             <span className="metadata-value">{totalTime}</span>
           </div>
         </div>
@@ -133,8 +133,8 @@ const QuizResult = () => {
         <div className="metadata-item">
           <span className="metadata-icon">🏆</span>
           <div className="metadata-text">
-            <span className="metadata-label">점수</span>
-            <span className="metadata-value">{scorePercent}점</span>
+            <span className="metadata-label">{t("점수")}</span>
+            <span className="metadata-value">{scorePercent}{t("점")}</span>
           </div>
         </div>
       </div>
@@ -146,45 +146,45 @@ const QuizResult = () => {
             const selection = q.selections.find((s) => s.id === userAns) || {};
             const isCorrect = selection.correct === true;
             const correctSelection =
-              q.selections.find((s) => s.correct === true) || {};
+            q.selections.find((s) => s.correct === true) || {};
 
             return (
               <div
                 key={q.number}
                 className={`result-item ${
-                  isCorrect ? "correct-box" : "wrong-box"
-                }`}
-              >
+                isCorrect ? "correct-box" : "wrong-box"}`
+                }>
+
                 <div className="result-question">
                   {q.number}. {q.title}
                 </div>
 
-                <div className="result-user-answer">
-                  선택한 답: {userAns === 0 ? "입력 X" : selection.content}
+                <div className="result-user-answer">{t("선택한 답:")}
+                  {userAns === 0 ? t("입력 X") : selection.content}
                 </div>
 
-                {!isCorrect && (
-                  <div className="result-correct-answer">
-                    정답 답안: {correctSelection.content}
+                {!isCorrect &&
+                <div className="result-correct-answer">{t("정답 답안:")}
+                  {correctSelection.content}
                   </div>
-                )}
+                }
 
                 <div
-                  className={`result-status ${isCorrect ? "correct" : "wrong"}`}
-                >
-                  {isCorrect ? "정답" : "오답"}
+                  className={`result-status ${isCorrect ? "correct" : "wrong"}`}>
+
+                  {isCorrect ? t("정답") : t("오답")}
                 </div>
-              </div>
-            );
+              </div>);
+
           })}
         </section>
       </div>
 
-      <button className="explanation-button" onClick={getQuizExplanation}>
-        해설 보기
+      <button className="explanation-button" onClick={getQuizExplanation}>{t("해설 보기")}
+
       </button>
-    </div>
-  );
+    </div>);
+
 };
 
 export default QuizResult;

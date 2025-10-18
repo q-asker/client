@@ -1,19 +1,24 @@
+import { useTranslation, useLanguageSwitcher} from "i18nexus";
 import CustomToast from "#shared/toast";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./index.css";
 
+
 const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
+  
+  const { changeLanguage} = useLanguageSwitcher();
+  const { t } = useTranslation();
   useEffect(() => {
     const handleClickOutside = (e) => {
       const sidebar = document.getElementById("sidebar");
       const menuBtn = document.getElementById("menuButton");
       if (
-        sidebar &&
-        !sidebar.contains(e.target) &&
-        menuBtn &&
-        !menuBtn.contains(e.target)
-      ) {
+      sidebar &&
+      !sidebar.contains(e.target) &&
+      menuBtn &&
+      !menuBtn.contains(e.target))
+      {
         setIsSidebarOpen(false);
       }
     };
@@ -32,7 +37,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
 
   const handleStatistics = () => {
     setIsSidebarOpen(false);
-    CustomToast.info("개발중입니다!");
+    CustomToast.info(t("개발중입니다!"));
   };
 
   const handleHelp = () => {
@@ -46,16 +51,16 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           <button
             id="menuButton"
             className="icon-button"
-            onClick={toggleSidebar}
-          >
+            onClick={toggleSidebar}>
+
             ☰
           </button>
           <Link to="/" className="logo-link">
             <img
               src="/favicon-256x256.png"
               alt="Q-Asker"
-              className="logo-icon"
-            />
+              className="logo-icon" />
+
             <div className="logo-text">Q-Asker</div>
           </Link>
         </div>
@@ -63,43 +68,49 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen }) => {
           <Link
             to="/history"
             className="nav-link"
-            onClick={handleQuizManagement}
-          >
-            📋 <strong>퀴즈 기록</strong>
+            onClick={handleQuizManagement}>
+
+            📋 <strong>{t("퀴즈 기록")}</strong>
           </Link>
+          <button onClick={() => {
+            changeLanguage("en");
+          }}>English</button>
+          <button onClick={() => {
+            changeLanguage("ko");
+          }}>Korean</button>
         </div>
       </div>
       <aside
         id="sidebar"
-        className={isSidebarOpen ? "sidebar open" : "sidebar"}
-      >
+        className={isSidebarOpen ? "sidebar open" : "sidebar"}>
+
         <div className="sidebar-header">
-          <h2>메뉴</h2>
+          <h2>{t("메뉴")}</h2>
           <button
             className="icon-button"
-            onClick={() => setIsSidebarOpen(false)}
-          >
+            onClick={() => setIsSidebarOpen(false)}>
+
             ✕
           </button>
         </div>
         <nav>
-          <Link to="/" className="nav-link" onClick={handleMakeQuiz}>
-            ➕ 문제 만들기
+          <Link to="/" className="nav-link" onClick={handleMakeQuiz}>{t("➕ 문제 만들기")}
+
           </Link>
           <Link
             to="/history"
             className="nav-link"
-            onClick={handleQuizManagement}
-          >
-            📋 퀴즈 기록
+            onClick={handleQuizManagement}>{t("📋 퀴즈 기록")}
+
+
           </Link>
-          <button className="nav-link" onClick={handleStatistics}>
-            📊 통계
+          <button className="nav-link" onClick={handleStatistics}>{t("📊 통계")}
+
           </button>
         </nav>
       </aside>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Header;

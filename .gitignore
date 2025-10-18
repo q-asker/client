@@ -16,6 +16,7 @@ dist-ssr
 .env.*
 FastAPI
 docker-compose.yml
+gcp-credential.json
 
 # Editor directories and files
 .vscode/*
