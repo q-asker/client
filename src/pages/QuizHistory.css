@@ -1,8 +1,12 @@
 /* QuizHistory.css */
 
+.quiz-history-container-wrapper {
+  width: 100%;
+  background-color: #f9fafb;
+}
+
 .quiz-history-container {
   min-height: 100vh;
-  background-color: #f9fafb;
   padding: 2rem;
   max-width: 70%;
   margin: 0 auto;
