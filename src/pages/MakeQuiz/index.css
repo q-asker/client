@@ -1,12 +1,13 @@
 /* ──────────────────────────────────── */
 /* 전역 레이아웃 */
-.app-container {
-  font-family: sans-serif;
-  background: #f9fafb;
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
 .main {
+  flex: 1;
   width: 70%;
   margin: 0 auto;
   margin-top: 32px;
