@@ -14,17 +14,17 @@ import "./index.css";
 import { OcrButton } from "./ui";
 
 const levelDescriptions = {
-  RECALL:
-    "순수 암기나 단순 이해를 묻는 문제\n" +
-    '예) "OO의 정의는 무엇인가?", "다음 함수의 출력값을 고르시오(정답만 요구)"',
+  RECALL: `순수 암기나 단순 이해를 묻는 문제
+  
+    예) "명제의 _______는 모든 가능한 경우에서 항상 참(True)이 되는 명제를 의미한다."`,
 
-  SKILLS:
-    "주어진 개념을 간단한 맥락에 적용하거나 비교·분석하게 하는 문제\n" +
-    '예) "OO 개념을 사용해 다음 예제에서 오류를 찾아내시오", "아래 두 개념(A, B)의 차이를 고르시오"',
+  SKILLS: `옳고 그름을 판별하는 문제
 
-  STRATEGIC:
-    "한 단계 더 깊은 추론, 문제 해결, 자료 해석, 간단한 설계 등을 요구\n" +
-    '예) "OO 알고리즘을 사용해 특정 상황을 해결하는 방식을 고르시오", "제시된 코드 조각에서 발생할 수 있는 최악의 시간 복잡도를 판단하고, 이유를 선택하시오"',
+    예) "명제 p → q의 대우(contrapositive)와 역(converse)이 모두 참일 때, 반드시 원래의 명제 p → q도 참이 된다." (O/X)`,
+
+  STRATEGIC: `추론, 문제 해결, 자료 해석을 요구하는 문제
+    
+    예) "교수님이 학생들에게 기말고사에서 100점을 받으면 A를 주겠다"라고 약속했습니다. 다음 중 이 논리적 함의(p → q)가 거짓(False)이 되는 경우는?"`,
 };
 
 const MAX_FILE_SIZE = 30 * 1024 * 1024;
@@ -40,7 +40,7 @@ const MakeQuiz = () => {
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [questionType, setQuestionType] = useState(t("객관식"));
+  const [questionType, setQuestionType] = useState(t("빈칸 넣기"));
   const [questionCount, setQuestionCount] = useState(5);
   const [isProcessing, setIsProcessing] = useState(false);
   const [version, setVersion] = useState(0);
@@ -70,6 +70,23 @@ const MakeQuiz = () => {
     });
     return res.data;
   }
+  // questionType 변경 시 quizLevel 자동으로 변경
+  useEffect(() => {
+    const typeFillInBlank = t("빈칸 넣기");
+    const typeOX = t("OX 퀴즈");
+    const typeMultiple = t("객관식");
+
+    const levelMapping = {
+      [typeFillInBlank]: "RECALL",
+      [typeOX]: "SKILLS",
+      [typeMultiple]: "STRATEGIC",
+    };
+
+    const newLevel = levelMapping[questionType];
+    if (newLevel) {
+      setQuizLevel(newLevel);
+    }
+  }, [questionType, t]);
   // Sidebar toggle & click-outside
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   useEffect(() => {
@@ -172,6 +189,21 @@ const MakeQuiz = () => {
       CustomToast.error(t("파일을 먼저 업로드해주세요."));
       return;
     }
+    let apiQuizType;
+    switch (questionType) {
+      case t("객관식"):
+        apiQuizType = "MULTIPLE";
+        break;
+      case t("OX 퀴즈"):
+        apiQuizType = "OX";
+        break;
+      case t("빈칸 넣기"):
+        apiQuizType = "BLANK";
+        break;
+      default:
+        // 혹시 모를 기본값
+        apiQuizType = "BLANK";
+    }
 
     try {
       generationTimerRef.current = new Timer((elapsed) => {
@@ -183,7 +215,7 @@ const MakeQuiz = () => {
       const response = await axiosInstance.post(`/generation`, {
         uploadedUrl: uploadedUrl,
         quizCount: questionCount,
-        quizType: questionType === t("객관식") ? "MULTIPLE" : "OX",
+        quizType: apiQuizType,
         difficultyType: quizLevel,
         pageNumbers: selectedPages,
       });
@@ -531,7 +563,7 @@ const MakeQuiz = () => {
             <div className="options-title">{t("퀴즈 생성 옵션")}</div>
             {/* 문제 유형 세그먼티드 */}
             <div className="segmented-control question-type">
-              {[t("객관식"), t("OX 퀴즈")].map((type) => (
+              {[t("객관식"), t("빈칸 넣기"), t("OX 퀴즈")].map((type) => (
                 <button
                   key={type}
                   className={questionType === type ? "active" : ""}
@@ -549,10 +581,18 @@ const MakeQuiz = () => {
                 </button>
               ))}
             </div>
+            <div className="level-selector-row">
+              {/* ② 선택한 난이도에 해당하는 설명을 옆에 출력 */}
+              <div className="level-counter-wrapper">
+                <pre className="level-description">
+                  {levelDescriptions[quizLevel]}
+                </pre>
+              </div>
+            </div>
             {/* 문제 수량 슬라이더 */}
             <div className="slider-control">
               <label>
-                {t("문제 수량:")}
+                {t("문제 수량: ")}
                 {questionCount}
                 {t("문제")}
               </label>
@@ -690,35 +730,6 @@ const MakeQuiz = () => {
                 </Document>
               </div>
             )}
-
-            <div className="level-title">{t("문제 단계 설정하기")}</div>
-            <div className="level-selector-row">
-              {/* ① 난이도 선택박스 */}
-              <select
-                value={quizLevel}
-                onChange={(e) => {
-                  const newLevel = e.target.value;
-                  if (quizLevel !== newLevel) {
-                    trackMakeQuizEvents.changeQuizOption(
-                      "quiz_level",
-                      newLevel
-                    );
-                    setQuizLevel(newLevel);
-                  }
-                }}
-              >
-                <option value="RECALL">Easy</option>
-                <option value="SKILLS">Normal</option>
-                <option value="STRATEGIC">Hard</option>
-              </select>
-
-              {/* ② 선택한 난이도에 해당하는 설명을 옆에 출력 */}
-              <div className="level-counter-wrapper">
-                <pre className="level-description">
-                  {levelDescriptions[quizLevel]}
-                </pre>
-              </div>
-            </div>
           </div>
         )}
         {/* ① 문서 미리보기 */}
