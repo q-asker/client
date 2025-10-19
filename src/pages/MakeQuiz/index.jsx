@@ -5,7 +5,7 @@ import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import { trackMakeQuizEvents } from "#utils/analytics";
 import Timer from "#utils/timer";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -40,14 +40,14 @@ const MakeQuiz = () => {
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [questionType, setQuestionType] = useState(t("빈칸 넣기"));
+  const [questionType, setQuestionType] = useState("MULTIPLE"); // "MULTIPLE", "BLANK", "OX"
   const [questionCount, setQuestionCount] = useState(5);
   const [isProcessing, setIsProcessing] = useState(false);
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [problemSetId, setProblemSetId] = useState(null);
   const [quizLevel, setQuizLevel] = useState("RECALL"); // 기본 난이도 설정
-  const [pageMode, setPageMode] = useState(t("전체")); // "전체" 또는 "사용자 지정"
+  const [pageMode, setPageMode] = useState("ALL"); // "ALL" 또는 "CUSTOM"
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
   const [hoveredPage, setHoveredPage] = useState(null); // { pageNumber: number, style: object }
@@ -61,6 +61,16 @@ const MakeQuiz = () => {
   const uploadTimerRef = useRef(null); // 업로드 타이머
   const generationTimerRef = useRef(null); // 문제 생성 타이머
 
+  // PDF 옵션 메모이제이션
+  const pdfOptions = useMemo(
+    () => ({
+      cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+      cMapPacked: true,
+      standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
+    }),
+    []
+  );
+
   async function uploadFileToServer(file) {
     const formData = new FormData();
     // 백엔드 @RequestPart("file") 과 동일한 키
@@ -72,21 +82,17 @@ const MakeQuiz = () => {
   }
   // questionType 변경 시 quizLevel 자동으로 변경
   useEffect(() => {
-    const typeFillInBlank = t("빈칸 넣기");
-    const typeOX = t("OX 퀴즈");
-    const typeMultiple = t("객관식");
-
     const levelMapping = {
-      [typeFillInBlank]: "RECALL",
-      [typeOX]: "SKILLS",
-      [typeMultiple]: "STRATEGIC",
+      BLANK: "RECALL",
+      OX: "SKILLS",
+      MULTIPLE: "STRATEGIC",
     };
 
     const newLevel = levelMapping[questionType];
     if (newLevel) {
       setQuizLevel(newLevel);
     }
-  }, [questionType, t]);
+  }, [questionType]);
   // Sidebar toggle & click-outside
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   useEffect(() => {
@@ -189,21 +195,8 @@ const MakeQuiz = () => {
       CustomToast.error(t("파일을 먼저 업로드해주세요."));
       return;
     }
-    let apiQuizType;
-    switch (questionType) {
-      case t("객관식"):
-        apiQuizType = "MULTIPLE";
-        break;
-      case t("OX 퀴즈"):
-        apiQuizType = "OX";
-        break;
-      case t("빈칸 넣기"):
-        apiQuizType = "BLANK";
-        break;
-      default:
-        // 혹시 모를 기본값
-        apiQuizType = "BLANK";
-    }
+    // questionType은 이미 "MULTIPLE", "OX", "BLANK" 형태로 저장되어 있음
+    const apiQuizType = questionType;
 
     try {
       generationTimerRef.current = new Timer((elapsed) => {
@@ -371,14 +364,14 @@ const MakeQuiz = () => {
     setFile(null);
     setUploadedUrl(null);
     setIsDragging(false);
-    setQuestionType(t("객관식"));
+    setQuestionType("MULTIPLE");
     setQuestionCount(5);
     setIsProcessing(false);
     setVersion(0);
     setIsSidebarOpen(false);
     setProblemSetId(null);
     setQuizLevel("RECALL");
-    setPageMode(t("전체"));
+    setPageMode("ALL");
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
@@ -391,7 +384,7 @@ const MakeQuiz = () => {
 
   const handleReCreate = () => {
     setProblemSetId(null);
-    setPageMode(t("전체"));
+    setPageMode("ALL");
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
@@ -411,7 +404,7 @@ const MakeQuiz = () => {
   const onDocumentLoadSuccess = ({ numPages: nextNumPages }) => {
     setNumPages(nextNumPages);
     setSelectedPages(Array.from({ length: nextNumPages }, (_, i) => i + 1));
-    setPageMode(t("전체"));
+    setPageMode("ALL");
   };
 
   const handlePageSelection = (pageNumber) => {
@@ -436,7 +429,7 @@ const MakeQuiz = () => {
     // 모바일 너비에서는 미리보기 기능을 비활성화
     if (window.innerWidth <= 768) return;
 
-    if (pageMode === t("전체") || !pdfPreviewRef.current) return;
+    if (pageMode === "ALL" || !pdfPreviewRef.current) return;
 
     const containerRect = pdfPreviewRef.current.getBoundingClientRect();
     const itemRect = e.currentTarget.getBoundingClientRect();
@@ -563,23 +556,29 @@ const MakeQuiz = () => {
             <div className="options-title">{t("퀴즈 생성 옵션")}</div>
             {/* 문제 유형 세그먼티드 */}
             <div className="segmented-control question-type">
-              {[t("객관식"), t("빈칸 넣기"), t("OX 퀴즈")].map((type) => (
-                <button
-                  key={type}
-                  className={questionType === type ? "active" : ""}
-                  onClick={() => {
-                    if (questionType !== type) {
-                      trackMakeQuizEvents.changeQuizOption(
-                        "question_type",
-                        type
-                      );
-                      setQuestionType(type);
-                    }
-                  }}
-                >
-                  {type}
-                </button>
-              ))}
+              {[
+                { key: "MULTIPLE", label: t("객관식") },
+                { key: "BLANK", label: t("빈칸 넣기") },
+                { key: "OX", label: t("OX 퀴즈") },
+              ].map((type) => {
+                return (
+                  <button
+                    key={type.key}
+                    className={questionType === type.key ? "active" : ""}
+                    onClick={() => {
+                      if (questionType !== type.key) {
+                        trackMakeQuizEvents.changeQuizOption(
+                          "question_type",
+                          type.label
+                        );
+                        setQuestionType(type.key);
+                      }
+                    }}
+                  >
+                    {type.label}
+                  </button>
+                );
+              })}
             </div>
             <div className="level-selector-row">
               {/* ② 선택한 난이도에 해당하는 설명을 옆에 출력 */}
@@ -624,7 +623,7 @@ const MakeQuiz = () => {
                 onChange={(e) => {
                   const mode = e.target.value;
                   setPageMode(mode);
-                  if (mode === t("전체")) {
+                  if (mode === "ALL") {
                     setSelectedPages(
                       Array.from({ length: numPages }, (_, i) => i + 1)
                     );
@@ -634,8 +633,8 @@ const MakeQuiz = () => {
                   trackMakeQuizEvents.changeQuizOption("page_mode", mode);
                 }}
               >
-                <option value={t("전체")}>{t("전체")}</option>
-                <option value={t("사용자 지정")}>{t("사용자 지정")}</option>
+                <option value="ALL">{t("전체")}</option>
+                <option value="CUSTOM">{t("사용자 지정")}</option>
               </select>
             </div>
 
@@ -647,7 +646,7 @@ const MakeQuiz = () => {
                   </div>
                   <button
                     onClick={handleSelectAllPages}
-                    disabled={pageMode === t("전체")}
+                    disabled={pageMode === "ALL"}
                   >
                     {selectedPages.length === numPages
                       ? t("전체 선택")
@@ -658,6 +657,7 @@ const MakeQuiz = () => {
                   file={uploadedUrl}
                   onLoadSuccess={onDocumentLoadSuccess}
                   onLoadError={console.error}
+                  options={pdfOptions}
                 >
                   <div className="pdf-grid-and-preview-wrapper">
                     <div
@@ -673,14 +673,14 @@ const MakeQuiz = () => {
                               selectedPages.includes(index + 1)
                                 ? "selected"
                                 : ""
-                            } ${pageMode === t("전체") ? "disabled" : ""} ${
+                            } ${pageMode === "ALL" ? "disabled" : ""} ${
                               hoveredPage &&
                               hoveredPage.pageNumber === index + 1
                                 ? "hover-active"
                                 : ""
                             }`}
                             onClick={() => {
-                              if (pageMode !== t("전체")) {
+                              if (pageMode !== "ALL") {
                                 handlePageSelection(index + 1);
                               }
                             }}
