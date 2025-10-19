@@ -2,7 +2,7 @@ import { useTranslation } from "i18nexus";
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import { trackQuizEvents } from "#utils/analytics";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./QuizExplanation.css";
@@ -26,6 +26,16 @@ const QuizExplanation = () => {
   const [specificExplanation, setSpecificExplanation] = useState("");
   const [isSpecificExplanationLoading, setIsSpecificExplanationLoading] =
     useState(false);
+
+  // PDF 옵션 메모이제이션
+  const pdfOptions = useMemo(
+    () => ({
+      cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+      cMapPacked: true,
+      standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
+    }),
+    []
+  );
 
   // state로 전달된 값 꺼내기
   const {
@@ -507,6 +517,7 @@ const QuizExplanation = () => {
                       onLoadError={(err) => (
                         <p>{t("파일이 존재하지 않습니다.")}</p>
                       )}
+                      options={pdfOptions}
                     >
                       <Page
                         pageNumber={
