@@ -476,7 +476,7 @@ const MakeQuiz = () => {
   };
 
   return (
-    <>
+    <div className="page-wrapper">
       <Header
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
@@ -821,7 +821,7 @@ const MakeQuiz = () => {
           inhapj01@gmail.com
         </a>
       </div>
-    </>
+    </div>
   );
 };
 
