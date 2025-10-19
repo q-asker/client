@@ -14,17 +14,17 @@ import "./index.css";
 import { OcrButton } from "./ui";
 
 const levelDescriptions = {
-  RECALL:
-    "순수 암기나 단순 이해를 묻는 문제\n" +
-    '예) "OO의 정의는 무엇인가?", "다음 함수의 출력값을 고르시오(정답만 요구)"',
+  RECALL: `순수 암기나 단순 이해를 묻는 문제
+  
+    예) "명제의 _______는 모든 가능한 경우에서 항상 참(True)이 되는 명제를 의미한다."`,
 
-  SKILLS:
-    "주어진 개념을 간단한 맥락에 적용하거나 비교·분석하게 하는 문제\n" +
-    '예) "OO 개념을 사용해 다음 예제에서 오류를 찾아내시오", "아래 두 개념(A, B)의 차이를 고르시오"',
+  SKILLS: `옳고 그름을 판별하는 문제
 
-  STRATEGIC:
-    "한 단계 더 깊은 추론, 문제 해결, 자료 해석, 간단한 설계 등을 요구\n" +
-    '예) "OO 알고리즘을 사용해 특정 상황을 해결하는 방식을 고르시오", "제시된 코드 조각에서 발생할 수 있는 최악의 시간 복잡도를 판단하고, 이유를 선택하시오"',
+    예) "명제 p → q의 대우(contrapositive)와 역(converse)이 모두 참일 때, 반드시 원래의 명제 p → q도 참이 된다." (O/X)`,
+
+  STRATEGIC: `추론, 문제 해결, 자료 해석을 요구하는 문제
+    
+    예) "교수님이 학생들에게 기말고사에서 100점을 받으면 A를 주겠다"라고 약속했습니다. 다음 중 이 논리적 함의(p → q)가 거짓(False)이 되는 경우는?"`,
 };
 
 const MAX_FILE_SIZE = 30 * 1024 * 1024;
@@ -563,7 +563,7 @@ const MakeQuiz = () => {
             <div className="options-title">{t("퀴즈 생성 옵션")}</div>
             {/* 문제 유형 세그먼티드 */}
             <div className="segmented-control question-type">
-              {[t("빈칸 넣기"), t("OX 퀴즈"), t("객관식")].map((type) => (
+              {[t("객관식"), t("빈칸 넣기"), t("OX 퀴즈")].map((type) => (
                 <button
                   key={type}
                   className={questionType === type ? "active" : ""}
