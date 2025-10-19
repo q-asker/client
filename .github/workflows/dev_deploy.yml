@@ -1,0 +1,51 @@
+name: DEV용 S3에 업로드
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 프론트엔드 빌드 및 S3 배포
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      ENV_PROD: ${{ secrets.ENV_PROD }}
+
+    steps:
+      - name: 코드 체크 아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.15.0
+
+      - name: 의존성 설치
+        run: npm install
+
+      - name: .env.prod 파일 생성
+        run: |
+          echo ${{ env.ENV_PROD }} > .env.prod
+
+      - name: 빌드
+        run: npm run build
+
+      - name: AWS 인증
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: S3에 정적 파일 업로드
+        run: |
+          aws s3 sync ./dist s3://${{ env.S3_BUCKET_NAME }} --delete \
+          --acl public-read \
+          --cache-control "no-cache"

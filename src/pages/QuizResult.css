@@ -1,0 +1,239 @@
+.result-container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f4f6f8;
+  min-height: 100vh;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.metadata-box {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem; /* 각 카드 사이 간격 */
+  margin-bottom: 2rem;
+}
+
+/* ──────────────────────────────────────────
+   메타데이터 아이템 (각 카드)
+   ────────────────────────────────────────── */
+.metadata-item {
+  flex: 1; /* 3개 카드가 동일 너비로 분배 */
+  display: flex;
+  align-items: center;
+  background-color: #ffffff; /* 카드 배경 흰색 */
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metadata-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 아이콘 영역 */
+.metadata-icon {
+  font-size: 1.75rem;
+  margin-right: 0.75rem;
+}
+
+/* 텍스트 영역 컨테이너 */
+.metadata-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+/* 레이블 (예: "문제 수") */
+.metadata-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+
+/* 값 (예: "10개", "00:03:45", "80점") */
+.metadata-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #222;
+}
+
+/* ──────────────────────────────────────────
+   문제별 결과 리스트 (기존 스타일 유지)
+   ────────────────────────────────────────── */
+/* (이전 예시에서 이미 작성한 .result-content, .result-item 등은 그대로 두고, 필요 시 아래 예시를 참고해 주세요) */
+
+.result-content {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.result-item {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 5px solid transparent;
+}
+
+.result-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.result-item.correct-box {
+  border-left-color: #3bbb7b;
+}
+
+.result-item.wrong-box {
+  border-left-color: #e05263;
+}
+
+.result-question {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #222;
+}
+
+.result-user-answer {
+  font-size: 1.05rem;
+  padding: 0.75rem 0;
+  position: relative;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.result-user-answer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-top: 1px solid #e2e5e8;
+}
+
+.result-correct-answer {
+  font-size: 1.05rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  background-color: #f0f9f6;
+  border-radius: 0.5rem;
+  color: #2d6a4f;
+  border: 1px solid #cce6db;
+}
+
+.result-status {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.result-status.correct {
+  background-color: #3bbb7b;
+  color: #fff;
+}
+
+.result-status.wrong {
+  background-color: #e05263;
+  color: #fff;
+}
+
+.explanation-button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.85rem 2rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.explanation-button:hover {
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.explanation-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* ──────────────────────────────────────────
+   모바일용 반응형 처리
+   ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .result-container {
+    padding: 1rem;
+  }
+
+  .metadata-box {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .metadata-item {
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
+  }
+  .metadata-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+  }
+  .metadata-label {
+    font-size: 0.95rem;
+  }
+  .metadata-value {
+    font-size: 1.1rem;
+  }
+
+  .result-content {
+    gap: 1rem;
+  }
+
+  .result-item {
+    padding: 1rem 1.5rem;
+  }
+
+  .result-question {
+    font-size: 1.1rem;
+  }
+
+  .result-user-answer,
+  .result-correct-answer {
+    font-size: 1rem;
+  }
+
+  .result-status {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .explanation-button {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.75rem;
+    text-align: center;
+  }
+}
