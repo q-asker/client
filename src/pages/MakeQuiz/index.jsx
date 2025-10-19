@@ -34,19 +34,27 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).toString();
 
+const levelMapping = {
+  BLANK: "RECALL",
+  OX: "SKILLS",
+  MULTIPLE: "STRATEGIC",
+};
+
+const defaultType = "MULTIPLE";
+
 const MakeQuiz = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [questionType, setQuestionType] = useState("MULTIPLE"); // "MULTIPLE", "BLANK", "OX"
+  const [questionType, setQuestionType] = useState(defaultType); // "MULTIPLE", "BLANK", "OX"
   const [questionCount, setQuestionCount] = useState(5);
   const [isProcessing, setIsProcessing] = useState(false);
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [problemSetId, setProblemSetId] = useState(null);
-  const [quizLevel, setQuizLevel] = useState("RECALL"); // 기본 난이도 설정
+  const [quizLevel, setQuizLevel] = useState(levelMapping[defaultType]); // 기본 난이도 설정
   const [pageMode, setPageMode] = useState("ALL"); // "ALL" 또는 "CUSTOM"
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
@@ -82,16 +90,7 @@ const MakeQuiz = () => {
   }
   // questionType 변경 시 quizLevel 자동으로 변경
   useEffect(() => {
-    const levelMapping = {
-      BLANK: "RECALL",
-      OX: "SKILLS",
-      MULTIPLE: "STRATEGIC",
-    };
-
-    const newLevel = levelMapping[questionType];
-    if (newLevel) {
-      setQuizLevel(newLevel);
-    }
+    setQuizLevel(levelMapping[questionType]);
   }, [questionType]);
   // Sidebar toggle & click-outside
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -364,13 +363,13 @@ const MakeQuiz = () => {
     setFile(null);
     setUploadedUrl(null);
     setIsDragging(false);
-    setQuestionType("MULTIPLE");
+    setQuestionType(defaultType);
     setQuestionCount(5);
     setIsProcessing(false);
     setVersion(0);
     setIsSidebarOpen(false);
     setProblemSetId(null);
-    setQuizLevel("RECALL");
+    setQuizLevel(levelMapping[defaultType]);
     setPageMode("ALL");
     setNumPages(null);
     setSelectedPages([]);
@@ -572,6 +571,7 @@ const MakeQuiz = () => {
                           type.label
                         );
                         setQuestionType(type.key);
+                        setQuizLevel(levelMapping[type.key]);
                       }
                     }}
                   >
