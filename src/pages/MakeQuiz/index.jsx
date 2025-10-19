@@ -735,7 +735,7 @@ const MakeQuiz = () => {
         {/* ① 문서 미리보기 */}
         {uploadedUrl && (
           <div className="document-preview">
-            <div className="document-title">{t("문서 미리보기")}</div>
+            <div className="document-title">{t("문제 생성결과")}</div>
             <div className="preview-content">
               {isProcessing ? (
                 <div className="processing">
