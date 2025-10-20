@@ -48,13 +48,21 @@ const MakeQuiz = () => {
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [questionType, setQuestionType] = useState(defaultType); // "MULTIPLE", "BLANK", "OX"
+  const [questionType, setQuestionType] = useState(() => {
+    // localStorage에서 저장된 questionType을 불러옴
+    const savedType = localStorage.getItem("questionType");
+    return savedType || defaultType;
+  }); // "MULTIPLE", "BLANK", "OX"
   const [questionCount, setQuestionCount] = useState(5);
   const [isProcessing, setIsProcessing] = useState(false);
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [problemSetId, setProblemSetId] = useState(null);
-  const [quizLevel, setQuizLevel] = useState(levelMapping[defaultType]); // 기본 난이도 설정
+  const [quizLevel, setQuizLevel] = useState(() => {
+    // localStorage에서 불러온 questionType에 맞는 난이도 설정
+    const savedType = localStorage.getItem("questionType");
+    return levelMapping[savedType || defaultType];
+  }); // 기본 난이도 설정
   const [pageMode, setPageMode] = useState("ALL"); // "ALL" 또는 "CUSTOM"
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
@@ -88,9 +96,11 @@ const MakeQuiz = () => {
     });
     return res.data;
   }
-  // questionType 변경 시 quizLevel 자동으로 변경
+  // questionType 변경 시 quizLevel 자동으로 변경 및 localStorage에 저장
   useEffect(() => {
     setQuizLevel(levelMapping[questionType]);
+    // 사용자가 선택한 questionType을 localStorage에 저장
+    localStorage.setItem("questionType", questionType);
   }, [questionType]);
   // Sidebar toggle & click-outside
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
