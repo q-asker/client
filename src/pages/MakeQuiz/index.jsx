@@ -484,6 +484,7 @@ const MakeQuiz = () => {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
+          <h1>아마존 웹 서비스 장애로 현재 이용이 불가능합니다ㅠㅠ</h1>
           {/* 파일 업로드 중일 때 */}
           {isProcessing && !uploadedUrl ? (
             <div className="processing">
