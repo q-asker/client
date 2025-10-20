@@ -21,7 +21,6 @@ const QuizExplanation = () => {
   const [pdfWidth, setPdfWidth] = useState(600);
   const pdfContainerRef = useRef(null);
   const [currentPdfPage, setCurrentPdfPage] = useState(0);
-  // const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showWrongOnly, setShowWrongOnly] = useState(false);
   const [specificExplanation, setSpecificExplanation] = useState("");
   const [isSpecificExplanationLoading, setIsSpecificExplanationLoading] =
@@ -236,8 +235,18 @@ const QuizExplanation = () => {
   };
 
   const handleNextPdfPage = () => {
-    const currentPages =
-      allExplanation[currentQuestion - 1]?.referencedPages || [];
+    const currentQuiz = showWrongOnly
+      ? filteredQuizzes[currentQuestion - 1] || {
+          selections: [],
+          userAnswer: 0,
+        }
+      : initialQuizzes[currentQuestion - 1] || {
+          selections: [],
+          userAnswer: 0,
+        };
+    const currentExplanation =
+      allExplanation.find((e) => e.number === currentQuiz.number) || {};
+    const currentPages = currentExplanation?.referencedPages || [];
     if (currentPdfPage < currentPages.length - 1) {
       setCurrentPdfPage(currentPdfPage + 1);
     }
@@ -442,19 +451,17 @@ const QuizExplanation = () => {
               <div className="all-referenced-pages">
                 <h4 className="all-pages-title">{t("📚 참조 페이지")}</h4>
                 <div className="pages-list">
-                  {allExplanation[currentQuestion - 1]?.referencedPages?.map(
-                    (page, index) => (
-                      <span
-                        key={index}
-                        className={`page-number ${
-                          currentPdfPage === index ? "active" : ""
-                        }`}
-                        onClick={() => setCurrentPdfPage(index)}
-                      >
-                        {page}
-                      </span>
-                    )
-                  )}
+                  {thisExplanationObj?.referencedPages?.map((page, index) => (
+                    <span
+                      key={index}
+                      className={`page-number ${
+                        currentPdfPage === index ? "active" : ""
+                      }`}
+                      onClick={() => setCurrentPdfPage(index)}
+                    >
+                      {page}
+                    </span>
+                  ))}
                 </div>
               </div>
 
@@ -489,9 +496,7 @@ const QuizExplanation = () => {
                       {t("슬라이드의")}
 
                       {" " +
-                        allExplanation[currentQuestion - 1]?.referencedPages[
-                          currentPdfPage
-                        ] +
+                        thisExplanationObj?.referencedPages?.[currentPdfPage] +
                         " "}
                       {t("페이지")}
                     </span>
@@ -500,9 +505,7 @@ const QuizExplanation = () => {
                       onClick={handleNextPdfPage}
                       disabled={
                         currentPdfPage ===
-                        allExplanation[currentQuestion - 1].referencedPages
-                          .length -
-                          1
+                        (thisExplanationObj?.referencedPages?.length || 1) - 1
                       }
                     >
                       →
@@ -521,9 +524,9 @@ const QuizExplanation = () => {
                     >
                       <Page
                         pageNumber={
-                          allExplanation[currentQuestion - 1].referencedPages[
+                          thisExplanationObj?.referencedPages?.[
                             currentPdfPage
-                          ]
+                          ] || 1
                         }
                         width={pdfWidth}
                         renderTextLayer={false}
