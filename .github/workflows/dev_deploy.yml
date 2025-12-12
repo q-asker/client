@@ -3,7 +3,7 @@ name: DEV용 S3에 업로드
 on:
   push:
     branches:
-      - develop
+      - ICC-203-cd
   workflow_dispatch:
 
 jobs:
