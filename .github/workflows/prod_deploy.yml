@@ -3,7 +3,7 @@ name: S3에 업로드 및 CLOUDFRONT 초기화
 on:
   push:
     branches:
-      - ICC-203-cd
+      - main
   workflow_dispatch:
 
 jobs:
