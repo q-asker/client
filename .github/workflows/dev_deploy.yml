@@ -16,7 +16,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       TEST_S3_NAME: ${{ secrets.TEST_S3_NAME }}
-      ENV_PROD: ${{ secrets.ENV_PROD }}
+      ENV_PROD: ${{ secrets.ENV_DEV }}
 
     steps:
       - name: 코드 체크 아웃
