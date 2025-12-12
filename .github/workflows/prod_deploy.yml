@@ -1,4 +1,4 @@
-name: PROD용 S3에 업로드 및 CLOUDFRONT 초기화
+name: S3에 업로드 및 CLOUDFRONT 초기화
 
 on:
   push:
@@ -10,39 +10,44 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    # 1. 모든 시크릿을 환경 변수(env)로 매핑 (_PROD 제거)
     env:
-      AWS_ACCESS_KEY_ID_PROD: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
-      AWS_SECRET_ACCESS_KEY_PROD: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
-      AWS_REGION_PROD: ${{ secrets.AWS_REGION_PROD }}
-      EC2_HOST: ${{ secrets.EC2_HOST }}
-      EC2_USER: ${{ secrets.EC2_USER }}
-      EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-      S3_URL: ${{ secrets.S3_URL }}
-      ENV_PROD: ${{ secrets.ENV_PROD }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_NAME: ${{ secrets.S3_NAME }}
+      CLOUDFRONT_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+      ENV: ${{ secrets.ENV }}
 
     steps:
-      - name: EC2에 SSH 접속 후 배포
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: ${{ env.EC2_USER }}
-          key: ${{ env.EC2_SSH_KEY }}
-          port: 22
-          script: |
-            cd ~/client
-            git pull origin main
-            echo "${{ env.ENV_PROD }}" > .env.prod
-            npm install
-            npm run build
-            # S3 업로드
-            aws s3 sync ./dist ${{ env.S3_URL }} --delete
+      - name: 소스 코드 체크아웃
+        uses: actions/checkout@v4
 
-      - name: AWS 로그인
+      - name: Node.js 설정 (v24)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: 의존성 설치 및 빌드
+        run: |
+          npm install
+          # env 컨텍스트를 사용하여 .env 파일 생성 (변수명 ENV_PROD -> ENV 로 변경됨)
+          echo "${{ env.ENV }}" > .env.prod
+          npm run build
+
+      - name: AWS 자격 증명 설정
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID_PROD }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY_PROD }}
-          aws-region: ${{ env.AWS_REGION_PROD }}
+          # 상단에 선언한 env 변수를 참조 (변수명 변경 반영)
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: S3 배포
+        # env.S3_URL 참조
+        run: aws s3 sync ./dist s3://${{ env.S3_NAME }} --delete
 
       - name: CloudFront 캐시 무효화
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PROD }} --paths "/*"
+        # env.CLOUDFRONT_ID 참조
+        run: aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_ID }} --paths "/*"
