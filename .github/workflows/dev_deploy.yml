@@ -47,5 +47,4 @@ jobs:
       - name: S3에 정적 파일 업로드
         run: |
           aws s3 sync ./dist s3://${{ env.TEST_S3_NAME }} --delete \
-          --acl public-read \
           --cache-control "no-cache"
