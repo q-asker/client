@@ -11,7 +11,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { useNavigate } from "react-router-dom";
 import "./index.css";
-import { OcrButton } from "./ui";
+import { OcrButton, RecentChanges } from "./ui";
 
 const levelDescriptions = {
   RECALL: `순수 암기나 단순 이해를 묻는 문제
@@ -540,7 +540,8 @@ const MakeQuiz = () => {
                 {t("파일 크기 제한:")} {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>
               </p>
               <p className="hint">
-                {t("파일 page  제한: 선택했을 때 100page 이하")}
+                {t("파일 page  제한: 선택했을 때")}{" "}
+                <strong>150pages 이하</strong>
               </p>
             </>
           ) : (
@@ -809,6 +810,7 @@ const MakeQuiz = () => {
             </button>
           </div>
         )}
+        <RecentChanges />
         <OcrButton />
         {showHelp && <Help />}
       </div>
