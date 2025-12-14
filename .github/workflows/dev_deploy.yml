@@ -15,8 +15,8 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
-      ENV_PROD: ${{ secrets.ENV_PROD }}
+      TEST_S3_NAME: ${{ secrets.TEST_S3_NAME }}
+      ENV_PROD: ${{ secrets.ENV_DEV }}
 
     steps:
       - name: 코드 체크 아웃
@@ -46,6 +46,5 @@ jobs:
 
       - name: S3에 정적 파일 업로드
         run: |
-          aws s3 sync ./dist s3://${{ env.S3_BUCKET_NAME }} --delete \
-          --acl public-read \
+          aws s3 sync ./dist s3://${{ env.TEST_S3_NAME }} --delete \
           --cache-control "no-cache"
