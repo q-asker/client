@@ -78,6 +78,13 @@ const Header = ({
           >
             📋 <strong>{t("퀴즈 기록")}</strong>
           </Link>
+          <Link
+            to="/login"
+            className="nav-link"
+            onClick={() => setIsSidebarOpen(false)}
+          >
+            🔐 <strong>{t("로그인")}</strong>
+          </Link>
         </div>
       </div>
       <aside
