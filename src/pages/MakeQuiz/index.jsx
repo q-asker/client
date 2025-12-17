@@ -539,10 +539,6 @@ const MakeQuiz = () => {
                 <br></br>
                 {t("파일 크기 제한:")} {MAX_FILE_SIZE / 1024 / 1024}MB <br></br>
               </p>
-              <p className="hint">
-                {t("파일 page  제한: 선택했을 때")}{" "}
-                <strong>150pages 이하</strong>
-              </p>
             </>
           ) : (
             <>
@@ -555,6 +551,9 @@ const MakeQuiz = () => {
             </>
           )}
           <p className="hint">
+            <p className="hint">
+              {t("파일 page  제한: 선택했을 때")} <strong>150pages 이하</strong>
+            </p>
             {t("🚨파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.")}
             <br></br>{" "}
             {t("24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.")}
