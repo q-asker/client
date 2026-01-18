@@ -12,19 +12,25 @@ import "react-pdf/dist/Page/TextLayer.css";
 import { useNavigate } from "react-router-dom";
 import "./index.css";
 import { OcrButton, RecentChanges } from "./ui";
+import { uploadFileToServer } from "./util/fileUploader";
 
 const levelDescriptions = {
   RECALL: `순수 암기나 단순 이해를 묻는 문제
   
-    예) "명제의 _______는 모든 가능한 경우에서 항상 참(True)이 되는 명제를 의미한다."`,
+    예) "대한민국의 수도는 _______이다."`,
 
   SKILLS: `옳고 그름을 판별하는 문제
 
-    예) "명제 p → q의 대우(contrapositive)와 역(converse)이 모두 참일 때, 반드시 원래의 명제 p → q도 참이 된다." (O/X)`,
+    예) "지구는 태양 주위를 돈다. (O/X)"`,
 
   STRATEGIC: `추론, 문제 해결, 자료 해석을 요구하는 문제
     
-    예) "교수님이 학생들에게 기말고사에서 100점을 받으면 A를 주겠다"라고 약속했습니다. 다음 중 이 논리적 함의(p → q)가 거짓(False)이 되는 경우는?"`,
+    예) [전제] 물가가 오르면 화폐 가치는 떨어진다. 현재 물가가 급등했다.
+    [질문] 이 경우 화폐 가치의 변화로 가장 적절한 것은?
+       1. 하락한다
+       2. 상승한다
+       3. 변함없다
+       4. 알 수 없다`,
 };
 
 const MAX_FILE_SIZE = 30 * 1024 * 1024;
@@ -87,15 +93,7 @@ const MakeQuiz = () => {
     []
   );
 
-  async function uploadFileToServer(file) {
-    const formData = new FormData();
-    // 백엔드 @RequestPart("file") 과 동일한 키
-    formData.append("file", file);
-    const res = await axiosInstance.post(`/s3/upload`, formData, {
-      isMultipart: true,
-    });
-    return res.data;
-  }
+
   // questionType 변경 시 quizLevel 자동으로 변경 및 localStorage에 저장
   useEffect(() => {
     setQuizLevel(levelMapping[questionType]);
@@ -178,7 +176,7 @@ const MakeQuiz = () => {
     setFileExtension(ext);
     setIsProcessing(true);
     try {
-      const { uploadedUrl } = await uploadFileToServer(f);
+      const uploadedUrl = await uploadFileToServer(f);
       setUploadedUrl(uploadedUrl);
       setFile(f);
 
@@ -190,7 +188,17 @@ const MakeQuiz = () => {
       if (uploadTimerRef.current) {
         uploadTimerRef.current.stop();
       }
-      throw error;
+
+      const message =
+        error?.message === "변환 시간 초과"
+          ? t("파일 변환이 지연되고 있어요. 잠시 후 다시 시도해주세요.")
+          : error?.response?.data?.message ||
+            error?.message ||
+            t("파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.");
+
+      CustomToast.error(message);
+      console.error("파일 업로드 실패:", error);
+      return;
     } finally {
       setFileExtension(null);
       setIsProcessing(false);
