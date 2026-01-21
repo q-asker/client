@@ -63,7 +63,7 @@ const App = () => {
     <I18nProvider translations={translations}>
       <BrowserRouter>
         <PageViewTracker />
-        <ToastContainer />
+        <ToastContainer position="top-center" />
         <Routes>
           <Route path="/" element={<MakeQuiz />} />
           <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
