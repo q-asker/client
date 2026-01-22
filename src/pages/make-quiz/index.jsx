@@ -160,7 +160,6 @@ const MakeQuiz = () => {
     }
 
     // 파일 업로드 시작 추적
-    const uploadStartTime = Date.now();
     if (method === "drag_drop") {
       trackMakeQuizEvents.dragDropFileUpload(f.name, f.size, ext);
     } else {

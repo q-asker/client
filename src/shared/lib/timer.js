@@ -67,4 +67,3 @@ export const formatTime = (milliseconds) => {
 };
 
 export default Timer;
-

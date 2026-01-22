@@ -1,4 +1,4 @@
-import { initGA, logPageView } from "#utils/analytics";
+import { initGA, logPageView } from "#shared/lib/analytics";
 import React, { useEffect } from "react";
 import {
   BrowserRouter,
@@ -9,15 +9,15 @@ import {
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "./App.css";
-import Login from "./pages/Login";
-import LoginRedirect from "./pages/LoginRedirect";
-import MakeQuiz from "./pages/MakeQuiz";
-import QuizExplanation from "./pages/QuizExplanation";
-import QuizHistory from "./pages/QuizHistory";
-import QuizResult from "./pages/QuizResult";
-import SolveQuiz from "./pages/SolveQuiz";
+import Login from "#pages/login";
+import LoginRedirect from "#pages/login-redirect";
+import MakeQuiz from "#pages/make-quiz";
+import QuizExplanation from "#pages/quiz-explanation";
+import QuizHistory from "#pages/quiz-history";
+import QuizResult from "#pages/quiz-result";
+import SolveQuiz from "#pages/solve-quiz";
 import { I18nProvider } from "i18nexus";
-import { translations } from "../locales";
+import { translations } from "#shared/i18n";
 
 // Google Analytics 측정 ID (실제 GA4 측정 ID로 교체 필요)
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;

@@ -1,42 +1,86 @@
 import { useTranslation } from "i18nexus";
-import Header from "#components/header";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authService, useAuthStore } from "#shared/auth";
+import CustomToast from "#shared/toast";
 import "./index.css";
 
-const apiBaseUrl = import.meta.env.VITE_BASE_URL ?? "";
+const LAST_ENDPOINT_STORAGE_KEY = "lastEndpoint";
+
+const buildLoginUrl = () => {
+  const baseUrl = import.meta.env.VITE_BASE_URL || "";
+  const normalizedBaseUrl = baseUrl.endsWith("/")
+    ? baseUrl.slice(0, -1)
+    : baseUrl;
+  return `${normalizedBaseUrl}/auth/login`;
+};
 
 const Login = () => {
   const { t } = useTranslation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
+  const navigate = useNavigate();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const [isChecking, setIsChecking] = useState(true);
 
-  const oauthLinks = {
-    google: `${apiBaseUrl}/oauth2/authorization/google`,
-    kakao: `${apiBaseUrl}/oauth2/authorization/kakao`,
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkAuth = async () => {
+      try {
+        await authService.refresh();
+        if (!isMounted) return;
+        const storedEndpoint =
+          localStorage.getItem(LAST_ENDPOINT_STORAGE_KEY) || "/";
+        const targetEndpoint = storedEndpoint.startsWith("/login")
+          ? "/"
+          : storedEndpoint;
+        navigate(targetEndpoint, { replace: true });
+      } catch (error) {
+        if (isMounted) {
+          setIsChecking(false);
+        }
+      }
+    };
+
+    checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    const storedEndpoint =
+      localStorage.getItem(LAST_ENDPOINT_STORAGE_KEY) || "/";
+    const targetEndpoint = storedEndpoint.startsWith("/login")
+      ? "/"
+      : storedEndpoint;
+    navigate(targetEndpoint, { replace: true });
+  }, [accessToken, navigate]);
+
+  const handleLogin = () => {
+    try {
+      window.location.assign(buildLoginUrl());
+    } catch (error) {
+      CustomToast.error(t("로그인에 실패했습니다. 다시 시도해주세요."));
+    }
   };
 
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
   return (
-    <div className="page-wrapper login-page">
-      <Header
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        setIsSidebarOpen={setIsSidebarOpen}
-        setShowHelp={setShowHelp}
-      />
-      <main className="login-content">
-        <h1>{t("로그인")}</h1>
-        <p>{t("로그인 방법을 선택하세요.")}</p>
-        <div className="login-buttons">
-          <a className="oauth-button google" href={oauthLinks.google}>
-            {t("구글로 계속하기")}
-          </a>
-          <a className="oauth-button kakao" href={oauthLinks.kakao}>
-            {t("카카오로 계속하기")}
-          </a>
-        </div>
-      </main>
+    <div className="login-page">
+      <div className="login-card">
+        <h1 className="login-title">Q-Asker</h1>
+        <p className="login-subtitle">
+          {t("로그인이 필요합니다.")}
+        </p>
+        <button
+          className="login-button"
+          onClick={handleLogin}
+          disabled={isChecking}
+        >
+          {isChecking ? t("로그인 상태 확인 중...") : t("로그인")}
+        </button>
+      </div>
     </div>
   );
 };

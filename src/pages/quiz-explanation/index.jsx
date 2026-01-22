@@ -138,10 +138,6 @@ const QuizExplanation = () => {
   }
 
   // 현재 문제 객체
-  const currentQuizIndex = showWrongOnly
-    ? currentQuestion - 1
-    : currentQuestion - 1;
-
   const currentQuiz = showWrongOnly
     ? filteredQuizzes[currentQuestion - 1] || { selections: [], userAnswer: 0 }
     : initialQuizzes[currentQuestion - 1] || { selections: [], userAnswer: 0 };

@@ -1,7 +1,7 @@
 import { useTranslation } from "i18nexus";
 import axiosInstance from "#shared/api";
 import { trackQuizEvents, trackResultEvents } from "#shared/lib/analytics";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./index.css";
 
@@ -11,7 +11,6 @@ const QuizResult = () => {
   const navigate = useNavigate();
   const { problemSetId } = useParams();
   const { quizzes = [], totalTime = "00:00:00", uploadedUrl } = state || {};
-  const [explanation, setExplanation] = useState(null);
 
   const getQuizExplanation = async () => {
     // 해설 보기 버튼 클릭 추적
@@ -20,7 +19,6 @@ const QuizResult = () => {
     try {
       const res = await axiosInstance.get(`/explanation/${problemSetId}`);
       const data = res.data;
-      setExplanation(data);
       navigate(`/explanation/${problemSetId}`, {
         state: { quizzes, explanation: data, uploadedUrl },
       });

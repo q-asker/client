@@ -1,5 +1,5 @@
 import { useTranslation } from "i18nexus";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { trackHelpEvents } from "#shared/lib/analytics";
 import "./index.css";
