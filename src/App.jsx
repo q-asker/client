@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "./App.css";
+import Login from "./pages/Login";
 import MakeQuiz from "./pages/MakeQuiz";
 import QuizExplanation from "./pages/QuizExplanation";
 import QuizHistory from "./pages/QuizHistory";
@@ -37,6 +38,7 @@ const PageViewTracker = () => {
 const getPageTitle = (pathname) => {
   const pathMap = {
     "/": "퀴즈 생성",
+    "/login": "로그인",
     "/quiz": "퀴즈 풀기",
     "/result": "퀴즈 결과",
     "/explanation": "퀴즈 해설",
@@ -66,6 +68,7 @@ const App = () => {
         <ToastContainer />
         <Routes>
           <Route path="/" element={<MakeQuiz />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
           <Route path="/result/:problemSetId" element={<QuizResult />} />
           <Route

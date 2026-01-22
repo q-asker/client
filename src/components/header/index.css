@@ -56,6 +56,12 @@
   border: none;
   color: #6366f1;
   cursor: pointer;
+  text-decoration: none;
+}
+
+.auth-buttons {
+  display: flex;
+  align-items: center;
 }
 
 .nav-link-area {

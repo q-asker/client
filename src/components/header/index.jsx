@@ -1,5 +1,6 @@
 import { useTranslation, useLanguageSwitcher } from "i18nexus";
 import CustomToast from "#shared/toast";
+import { authService, useAuthStore } from "#shared/auth";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./index.css";
@@ -12,6 +13,8 @@ const Header = ({
 }) => {
   const { changeLanguage } = useLanguageSwitcher();
   const { t } = useTranslation();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = Boolean(accessToken);
   useEffect(() => {
     const handleClickOutside = (e) => {
       const sidebar = document.getElementById("sidebar");
@@ -49,6 +52,15 @@ const Header = ({
     });
   };
 
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      CustomToast.info("로그아웃되었습니다.");
+    } catch (error) {
+      CustomToast.error("로그아웃에 실패했습니다.");
+    }
+  };
+
   return (
     <div className="header">
       <div className="header-inner">
@@ -78,6 +90,17 @@ const Header = ({
           >
             📋 <strong>{t("퀴즈 기록")}</strong>
           </Link>
+          <div className="auth-buttons">
+            {isAuthenticated ? (
+              <button className="text-button" onClick={handleLogout}>
+                {t("로그아웃")}
+              </button>
+            ) : (
+              <Link className="text-button" to="/login">
+                {t("로그인")}
+              </Link>
+            )}
+          </div>
         </div>
       </div>
       <aside

@@ -1,3 +1,4 @@
+import axios from "axios";
 import axiosInstance from "#shared/api";
 
 export async function uploadFileToServer(file) {
@@ -11,11 +12,12 @@ export async function uploadFileToServer(file) {
 
   const encodedFileName = encodeURIComponent(file.name);
 
-  await axiosInstance.put(uploadUrl, file, {
+  await axios.put(uploadUrl, file, {
     headers: {
       "Content-Type": file.type,
       "x-amz-meta-original-filename": encodedFileName,
     },
+    withCredentials: false,
   });
 
   if (!isPdf) {
