@@ -36,7 +36,6 @@ const SolveQuiz = () => {
       try {
         const res = await axiosInstance.get(`/problem-set/${problemSetId}`);
         const data = res.data;
-        console.log(data);
         setQuizzes(data.quiz || []);
 
         // 퀴즈 시작 추적

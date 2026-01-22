@@ -4,9 +4,6 @@ import ReactGA from "react-ga4";
 export const initGA = (measurementId) => {
   if (import.meta.env.DEV) {
     console.group("🚀 Google Analytics 초기화");
-    console.log("📍 측정 ID:", measurementId || "❌ 설정되지 않음");
-    console.log("🛠️ 환경:", import.meta.env.DEV ? "개발" : "프로덕션");
-    console.log("🔧 디버그 모드:", import.meta.env.DEV ? "활성화" : "비활성화");
     console.groupEnd();
   }
 
@@ -17,7 +14,6 @@ export const initGA = (measurementId) => {
     });
 
     if (import.meta.env.DEV) {
-      console.log("✅ Google Analytics 초기화 완료");
     }
   } else {
     if (import.meta.env.DEV) {
@@ -33,9 +29,6 @@ export const logPageView = (path, title) => {
   // 개발 환경에서는 콘솔에 페이지뷰 로그 출력
   if (import.meta.env.DEV) {
     console.group(`📄 GA PageView: ${title}`);
-    console.log("🔗 Path:", path);
-    console.log("📝 Title:", title);
-    console.log("⏰ Timestamp:", new Date().toLocaleTimeString());
     console.groupEnd();
   }
 
@@ -51,8 +44,6 @@ export const logEvent = (eventName, parameters = {}) => {
   // 개발 환경에서는 콘솔에 이벤트 로그 출력
   if (import.meta.env.DEV) {
     console.group(`🔥 GA Event: ${eventName}`);
-    console.log("📊 Parameters:", parameters);
-    console.log("⏰ Timestamp:", new Date().toLocaleTimeString());
     console.groupEnd();
   }
 

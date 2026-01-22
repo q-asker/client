@@ -10,6 +10,7 @@ import {
 import { ToastContainer } from "react-toastify";
 import "./App.css";
 import Login from "./pages/Login";
+import LoginRedirect from "./pages/LoginRedirect";
 import MakeQuiz from "./pages/MakeQuiz";
 import QuizExplanation from "./pages/QuizExplanation";
 import QuizHistory from "./pages/QuizHistory";
@@ -28,7 +29,12 @@ const PageViewTracker = () => {
   useEffect(() => {
     // 페이지 변경시 Google Analytics에 페이지뷰 전송
     const pageTitle = getPageTitle(location.pathname);
-    logPageView(location.pathname + location.search, pageTitle);
+    const pathWithSearch = location.pathname + location.search;
+    logPageView(pathWithSearch, pageTitle);
+
+    if (!location.pathname.startsWith("/login")) {
+      localStorage.setItem("lastEndpoint", pathWithSearch);
+    }
   }, [location]);
 
   return null;
@@ -39,6 +45,7 @@ const getPageTitle = (pathname) => {
   const pathMap = {
     "/": "퀴즈 생성",
     "/login": "로그인",
+    "/login/redirect": "로그인 리다이렉트",
     "/quiz": "퀴즈 풀기",
     "/result": "퀴즈 결과",
     "/explanation": "퀴즈 해설",
@@ -69,6 +76,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<MakeQuiz />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/login/redirect" element={<LoginRedirect />} />
           <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
           <Route path="/result/:problemSetId" element={<QuizResult />} />
           <Route

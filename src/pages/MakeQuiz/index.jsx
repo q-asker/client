@@ -2,6 +2,7 @@ import { useTranslation } from "i18nexus";
 import Header from "#components/header";
 import Help from "#components/help";
 import axiosInstance from "#shared/api";
+import { authService } from "#shared/auth";
 import CustomToast from "#shared/toast";
 import { trackMakeQuizEvents } from "#utils/analytics";
 import Timer from "#utils/timer";
@@ -11,7 +12,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { useNavigate } from "react-router-dom";
 import "./index.css";
-import { OcrButton, RecentChanges } from "./ui";
+import {  RecentChanges } from "./ui";
 import { uploadFileToServer } from "./util/fileUploader";
 
 const levelDescriptions = {
@@ -216,12 +217,17 @@ const MakeQuiz = () => {
     const apiQuizType = questionType;
 
     try {
+      setIsProcessing(true);
+      try {
+        await authService.refresh();
+      } catch (refreshError) {
+        // ignore refresh error and continue with generation
+      }
+
       generationTimerRef.current = new Timer((elapsed) => {
         setGenerationElapsedTime(elapsed);
       });
       generationTimerRef.current.start();
-      setIsProcessing(true);
-      console.log("selectedPages", selectedPages);
       const response = await axiosInstance.post(`/generation`, {
         uploadedUrl: uploadedUrl,
         quizCount: questionCount,
@@ -230,7 +236,6 @@ const MakeQuiz = () => {
         pageNumbers: selectedPages,
       });
       const result = response.data;
-      console.log(t("생성된 문제 데이터:"), result);
       setProblemSetId(result.problemSetId);
       setVersion((prev) => prev + 1);
 
@@ -247,7 +252,6 @@ const MakeQuiz = () => {
       if (generationTimerRef.current) {
         generationTimerRef.current.stop();
       }
-      resetAllStates();
     } finally {
       setIsProcessing(false);
       setGenerationElapsedTime(0);
@@ -818,7 +822,6 @@ const MakeQuiz = () => {
           </div>
         )}
         <RecentChanges />
-        <OcrButton />
         {showHelp && <Help />}
       </div>
 

@@ -22,30 +22,6 @@ const QuizHistory = () => {
   const loadQuizHistory = () => {
     try {
       const history = JSON.parse(localStorage.getItem("quizHistory") || "[]");
-      console.log(t("=== 퀴즈 히스토리 전체 데이터 ==="));
-      console.log(t("전체 기록 배열:"), history);
-      console.log(t("총 기록 개수:"), history.length);
-
-      // 각 기록 상세 정보 출력
-      history.forEach((record, index) => {
-        console.log(`--- 기록 ${index + 1} ---`);
-        console.log(t("문제셋 ID:"), record.problemSetId);
-        console.log(t("파일명:"), record.fileName);
-        console.log(t("문제 개수:"), record.questionCount);
-        console.log(t("퀴즈 레벨:"), record.quizLevel);
-        console.log(t("점수:"), record.score);
-        console.log(t("상태:"), record.status);
-        console.log(t("생성일:"), record.createdAt);
-        console.log(t("완료일:"), record.completedAt);
-        console.log(t("업로드 URL:"), record.uploadedUrl);
-        console.log(t("퀴즈 데이터 존재 여부:"), !!record.quizData);
-        console.log(t("퀴즈 데이터 길이:"), record.quizData?.length || 0);
-        if (record.quizData) {
-          console.log(t("퀴즈 데이터:"), record.quizData);
-        }
-        console.log(t("전체 데이터:"), record);
-        console.log("------------------");
-      });
 
       setQuizHistory(history);
       return history;
@@ -98,69 +74,48 @@ const QuizHistory = () => {
       record.score
     );
 
-    console.log(t("=== 해설 페이지 이동 시작 ==="));
-    console.log(t("선택된 기록:"), record);
-
     setExplanationLoading(true);
 
     try {
       // 저장된 퀴즈 데이터가 있는지 확인
       if (record.quizData && record.quizData.length > 0) {
-        console.log(t("저장된 퀴즈 데이터 사용:"));
-        console.log(t("퀴즈 데이터:"), record.quizData);
-        console.log(t("퀴즈 데이터 길이:"), record.quizData.length);
-
         // 해설 데이터만 API로 가져오기
-        console.log(`API 호출: /explanation/${record.problemSetId}`);
         const explanationResponse = await axiosInstance.get(
           `/explanation/${record.problemSetId}`
         );
         const explanationData = explanationResponse.data;
-        console.log(t("해설 데이터:"), explanationData);
 
         const stateData = {
           quizzes: record.quizData, // 저장된 퀴즈 데이터 사용 (사용자 답안 포함)
           explanation: explanationData,
           uploadedUrl: record.uploadedUrl,
         };
-        console.log(t("해설 페이지로 전달할 state 데이터:"), stateData);
 
         // 해설 페이지로 이동
         navigate(`/explanation/${record.problemSetId}`, {
           state: stateData,
         });
       } else {
-        console.log(t("저장된 퀴즈 데이터가 없음. API로 데이터 가져오기"));
-
         // 1. 문제 데이터 가져오기
-        console.log(`API 호출: /problem-set/${record.problemSetId}`);
         const quizResponse = await axiosInstance.get(
           `/problem-set/${record.problemSetId}`
         );
         const quizData = quizResponse.data;
-        console.log(t("퀴즈 데이터 응답:"), quizResponse);
-        console.log(t("퀴즈 데이터:"), quizData);
 
         // 2. 해설 데이터 가져오기
-        console.log(`API 호출: /explanation/${record.problemSetId}`);
         const explanationResponse = await axiosInstance.get(
           `/explanation/${record.problemSetId}`
         );
         const explanationData = explanationResponse.data;
-        console.log(t("해설 데이터 응답:"), explanationResponse);
-        console.log(t("해설 데이터:"), explanationData);
 
         // 3. 최종 전달할 데이터 확인
         const finalQuizzes = quizData.problems || quizData.quizzes || [];
-        console.log(t("최종 퀴즈 배열:"), finalQuizzes);
-        console.log(t("퀴즈 배열 길이:"), finalQuizzes.length);
 
         const stateData = {
           quizzes: finalQuizzes,
           explanation: explanationData,
           uploadedUrl: record.uploadedUrl,
         };
-        console.log(t("해설 페이지로 전달할 state 데이터:"), stateData);
 
         // 4. 해설 페이지로 이동
         navigate(`/explanation/${record.problemSetId}`, {
@@ -299,13 +254,6 @@ const QuizHistory = () => {
           ? Math.round((completedQuizzes / totalQuizzes) * 100)
           : 0,
     };
-
-    console.log(t("=== 퀴즈 통계 정보 ==="));
-    console.log(t("전체 퀴즈 수:"), stats.totalQuizzes);
-    console.log(t("완료된 퀴즈 수:"), stats.completedQuizzes);
-    console.log(t("평균 점수:"), stats.averageScore);
-    console.log(t("완료율:"), stats.completionRate + "%");
-    console.log(t("완료된 퀴즈 배열:"), completed);
 
     return stats;
   };

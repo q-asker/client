@@ -13,9 +13,8 @@ const extractAccessToken = (authorization) => {
 };
 
 const applyAuthFromResponse = (response) => {
-  const authorization =
-    response?.headers?.authorization || response?.headers?.Authorization;
-  const accessToken = extractAccessToken(authorization);
+
+  const accessToken = response?.data?.accessToken 
   if (accessToken) {
     useAuthStore.getState().setAuth({
       accessToken,
@@ -25,21 +24,11 @@ const applyAuthFromResponse = (response) => {
   return accessToken;
 };
 
-const login = async ({ email, password }) => {
-  const response = await axiosInstance.post(
-    "/auth/login",
-    { email, password },
-    { withCredentials: true }
-  );
-  applyAuthFromResponse(response);
-  return response;
-};
-
 const refresh = async () => {
   const response = await axiosInstance.post(
     "/auth/refresh",
     null,
-    { withCredentials: true, skipAuthRefresh: true }
+    { withCredentials: true, skipAuthRefresh: true, skipErrorToast: true }
   );
   applyAuthFromResponse(response);
   return response;
@@ -53,4 +42,4 @@ const logout = async () => {
   }
 };
 
-export const authService = { login, refresh, logout };
+export const authService = {  refresh, logout };

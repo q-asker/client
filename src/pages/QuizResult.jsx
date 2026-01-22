@@ -18,7 +18,6 @@ const QuizResult = () => {const { t } = useTranslation();
     try {
       const res = await axiosInstance.get(`/explanation/${problemSetId}`);
       const data = res.data;
-      console.log(data);
       setExplanation(data);
       navigate(`/explanation/${problemSetId}`, {
         state: { quizzes, explanation: data, uploadedUrl }
@@ -94,11 +93,6 @@ const QuizResult = () => {const { t } = useTranslation();
           completedAt: new Date().toISOString(),
           quizData: quizzes // 실제 퀴즈 데이터 저장 (문제, 선택지, 사용자 답안 포함)
         };
-
-        console.log(t("=== 퀴즈 완료 데이터 저장 ==="));
-        console.log(t("문제셋 ID:"), problemSetId);
-        console.log(t("저장할 퀴즈 데이터:"), quizzes);
-        console.log(t("업데이트된 히스토리:"), existingHistory[existingIndex]);
 
         localStorage.setItem("quizHistory", JSON.stringify(existingHistory));
       }

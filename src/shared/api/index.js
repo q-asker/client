@@ -51,7 +51,6 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     CustomToast.error(error.message);
-    console.log(error.code, error.message);
     return Promise.reject(error);
   }
 );
@@ -61,55 +60,27 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     let errorToHandle = error;
     const status = error?.response?.status;
-    const originalRequest = error?.config;
+    const { skipAuthRefresh, skipErrorToast } = error?.config || {};
 
-    if (
-      status === 401 &&
-      originalRequest &&
-      !originalRequest._retry &&
-      !originalRequest.skipAuthRefresh
-    ) {
-      originalRequest._retry = true;
-      try {
-        const refreshResponse = await axiosInstance.post(
-          "/auth/refresh",
-          null,
-          { withCredentials: true, skipAuthRefresh: true }
-        );
-        applyAuthFromResponse(refreshResponse);
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        try {
-          await axiosInstance.post(
-            "/auth/logout",
-            null,
-            { withCredentials: true, skipAuthRefresh: true }
-          );
-        } catch (logoutError) {
-          console.log("Refresh 실패 후 logout 실패 ▶", logoutError);
-        }
-        useAuthStore.getState().clearAuth();
-        errorToHandle = refreshError;
+    if (status === 401) {
+      if (skipAuthRefresh) {
+        return Promise.reject(errorToHandle);
+      }
+      useAuthStore.getState().clearAuth();
+      window.location.assign("/login");
+      CustomToast.error("로그인이 필요합니다.");
+      return Promise.reject(errorToHandle);
+    }
+
+    if (!skipErrorToast) {
+      const message =
+        errorToHandle?.response?.data?.message || errorToHandle?.message;
+      if (message) {
+        CustomToast.error(message);
+      } else {
+        CustomToast.error("알 수 없는 오류가 발생했습니다.");
       }
     }
-
-    const message =
-      errorToHandle?.response?.data?.message || errorToHandle?.message;
-    if (message) {
-      CustomToast.error(message);
-    }
-    console.log("Axios Error 전체 ▶", errorToHandle);
-    // 에러를 JSON으로도 찍어볼 수 있습니다. (순환 참조가 있으면 주의)
-    try {
-      console.log("Axios Error.toJSON() ▶", errorToHandle.toJSON());
-    } catch (e) {
-      console.warn("error.toJSON() 출력 중 예외 발생:", e);
-    }
-
-    // error.request나 error.config 같은 속성들도 찍어보세요.
-    console.log("▶ request 객체 ▶", errorToHandle.request);
-    console.log("▶ config ▶", errorToHandle.config);
-    console.log("▶ response ▶", errorToHandle.response);
 
     return Promise.reject(errorToHandle);
   }
