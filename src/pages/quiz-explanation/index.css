@@ -1,0 +1,882 @@
+/* QuizExplanation.css */
+
+/* ─── SolveQuiz 기반 공통 스타일 ─── */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* 네비게이션 바 */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #6a33f8;
+  color: #fff;
+  padding: 1rem;
+}
+.close-button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+.time-display {
+  font-family: monospace;
+}
+
+.question-area-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.counter-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  right: 0;
+}
+
+.toggle-wrapper-invisible {
+  visibility: hidden;
+}
+
+.toggle-label {
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.explanation-link {
+  color: #0066cc;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.switch-with-margin {
+  margin-left: 0.75rem;
+}
+
+/* 본문 래퍼 */
+.quiz-wrapper {
+  width: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.layout-container {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 1500px;
+}
+
+/* 좌측 패널: 문제 번호 버튼 목록 */
+.left-panel {
+  position: absolute;
+  display: grid;
+  transform: translateX(-120%);
+  grid-template-columns: repeat(5, minmax(2rem, 1fr));
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+.skipped-button {
+  width: 2rem;
+  height: 2rem;
+  aspect-ratio: 1;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  background: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.skipped-button.answered {
+  background-color: #dfe4e9;
+}
+.skipped-button.checked {
+  background-color: #ffe082;
+}
+
+.skipped-button:hover {
+  background-color: #e0e4e9;
+  transform: scale(1.1);
+}
+.skipped-button.incorrect {
+  background-color: #ffdddd;
+  border-color: #ff7777;
+}
+.skipped-button.correct {
+  background-color: #ddffdd; /* 연한 초록 */
+  border-color: #77ff77;
+}
+
+.skipped-button.current {
+  background-color: #6a33f8;
+  color: #fff;
+}
+
+.skipped-button.current:hover {
+  background-color: #6a33f8;
+  transform: none;
+}
+
+/* 중앙 패널: 퀴즈 + 해설 영역 */
+.center-panel {
+  width: 90%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 1rem;
+  padding-bottom: 1.5rem;
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+.question-area {
+  display: flex;
+  background-color: #e6ebf1;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  justify-content: space-between;
+}
+
+/* ─── userAnswer가 0일 경우 question-area에 빨간색 테두리 ─── */
+.question-area.unanswered {
+  border: 2px solid #dc3545; /* 빨간 테두리 */
+  border-radius: 0.5rem; /* 기존 border-radius와 동일하게 유지 */
+}
+
+/* 질문 내비게이션 */
+.question-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* 이전/다음 버튼 공통 스타일 */
+.question-nav .nav-button {
+  flex: 1; /* 두 버튼을 동일한 너비로 */
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 0.25rem;
+  background-color: #6a33f8; /* 보라 계열로 예시 지정 */
+  color: #fff;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background-color: #8b5cf6;
+}
+.nav-button:disabled {
+  background-color: #aaa;
+  cursor: default;
+}
+.counter-wrapper {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem; /* 필요하다면 상하 간격 조절 */
+}
+
+/* question-counter 자체에도 블록 레벨 처리(필요 시) */
+.question-counter {
+  display: inline-block; /* inline-block으로 두면 텍스트가 자연스럽게 가운데 정렬됨 */
+  font-weight: bold;
+  font-size: 1rem;
+}
+.question-text {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* ─── "선지" 스타일링 ─── */
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.option {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  padding: 1.25rem 0.75rem;
+  min-height: 3.5rem;
+  cursor: default;
+}
+.option:hover {
+  background-color: #fff; /* hover 시 배경색 변화 막기 */
+}
+
+/* 정답인 선지에 초록 테두리 */
+.option.correct-option {
+  border: 2px solid #28a745;
+}
+
+/* 사용자가 잘못 선택한 오답에 빨강 테두리 */
+.option.wrong-option {
+  border: 2px solid #dc3545;
+}
+
+/* 기본 경계선 (정답/오답 아닌 경우) */
+.option:not(.correct-option):not(.wrong-option) {
+  border: 1px solid #ddd;
+}
+
+.option-icon {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f3f5;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+}
+.option-text {
+  font-size: 1rem;
+  line-height: 1.8;
+  padding-right: 0.75rem;
+}
+
+/* 확인 버튼 */
+.submit-button {
+  background-color: #6a33f8;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  align-self: flex;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.submit-button:hover {
+  background-color: #8b5cf6;
+}
+.go-home-button {
+  background-color: #6a33f8;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  align-self: flex;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.go-home-button:hover {
+  background-color: #8b5cf6;
+}
+.submit-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* ─── 해설 박스 ─── */
+.explanation-box {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 1.5rem;
+}
+
+.explanation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.explanation-title {
+  font-size: 1.25rem;
+  margin: 0; /* 완전히 제거하여 세로 정렬 */
+  color: #333;
+}
+
+.detailed-explanation-button {
+  background-color: #6a33f8;
+  border: 1px solid #6a33f8;
+  color: #fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.detailed-explanation-button:hover {
+  background-color: #8b5cf6;
+  color: #fff;
+}
+
+.explanation-text {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #333;
+}
+
+.specific-explanation-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.specific-explanation-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.75rem;
+}
+
+/* 우측 패널 (비워두었음) */
+.right-panel {
+  flex: 1;
+}
+
+/* 로딩 스피너 */
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* QuizExplanation.css */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px; /* 스위치 전체 너비 */
+  height: 28px; /* 스위치 전체 높이 */
+  vertical-align: middle;
+}
+
+/* 실제 체크박스(input)는 보이지 않도록 숨기기 */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slide-header {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem; /* 위쪽 여백, 필요에 따라 조절 */
+}
+
+/* h4.slide-title 기본 마진 제거 */
+.slide-title {
+  margin: 0;
+  font-size: 1rem; /* 원래 크기 유지 또는 조절 */
+  font-weight: bold;
+}
+/* 슬라이더(토글 배경) */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 14px; /* 전체 높이의 절반 */
+}
+
+/* 슬라이더 안의 동그라미(토글 버튼) */
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+/* 체크(=on) 상태일 때 배경색과 버튼 위치 변경 */
+input:checked + .slider {
+  background-color: #4cd964; /* iOS-그린 컬러 */
+}
+
+input:checked + .slider::before {
+  transform: translateX(22px);
+}
+
+/* 둥근 모서리 스타일 (optional) */
+.slider.round {
+  border-radius: 14px;
+}
+
+.slider.round::before {
+  border-radius: 50%;
+}
+
+/* PDF 슬라이드 박스 스타일 추가 */
+.pdf-slide-box {
+  margin-top: 1rem;
+  width: 100%;
+  overflow-x: auto; /* 가로 스크롤 가능하도록 */
+  overflow-y: hidden;
+}
+
+/* React-PDF 문서 컨테이너 */
+.pdf-slide-box .react-pdf__Document {
+  display: flex;
+  min-height: 500px;
+  justify-content: center;
+}
+
+/* React-PDF 페이지 컨테이너 */
+.pdf-slide-box .react-pdf__Page {
+  max-width: 100%;
+  height: auto;
+}
+
+/* React-PDF 캔버스 */
+.pdf-slide-box .react-pdf__Page__canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+@media (max-width: 768px) {
+  /* 1) 전체 레이아웃을 위→아래 세로 스택으로 변경 */
+  .layout-container {
+    flex-direction: column; /* 좌·중·우 3단 → 세로 스택 */
+  }
+
+  /* 2) 좌측 패널(.left-panel) 숨기기 */
+  .left-panel {
+    display: none;
+  }
+
+  /* 3) 중앙 패널(.center-panel)을 화면 최상단에, 
+         가로 폭 100%로 변경 */
+  .center-panel {
+    flex: 1;
+    padding-left: 0; /* 데스크톱에서는 left-panel 때문에 padding-left를 주었지만, 모바일에선 제거 */
+    padding: 1rem; /* 상하좌우 공통 padding */
+  }
+
+  /* 4) 우측 패널(.right-panel)을 중앙 패널 바로 아래에 표시 */
+  .right-panel {
+    order: 2;
+    width: 100%;
+    margin-top: 1rem; /* 중앙 패널과의 간격 */
+  }
+
+  .question-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .question-nav .nav-button {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  .question-nav .question-counter {
+    flex: 1;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+
+  .question-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+  .question-text {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .option {
+    padding: 1rem 0.5rem;
+    min-height: 3rem;
+  }
+  .option-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+  }
+  .option-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    padding-right: 0.5rem;
+  }
+
+  .submit-button,
+  .go-home-button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+
+  /* 해설 박스 모바일 최적화 */
+  .explanation-box {
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  /* PDF 슬라이드 박스 모바일 최적화 */
+  .pdf-slide-box {
+    margin-top: 0.75rem;
+    padding: 0;
+  }
+
+  /* 슬라이드 헤더 모바일 */
+  .slide-header {
+    margin-top: 0.75rem;
+  }
+}
+
+.pdf-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.pdf-nav-button {
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.pdf-nav-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.pdf-nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pdf-page-counter {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* ──────────────────────────────────────────
+   피드백 설문 다이얼로그 스타일
+   ────────────────────────────────────────── */
+.feedback-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.feedback-modal {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+  position: relative;
+}
+
+.feedback-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.feedback-modal-close:hover {
+  color: #333;
+}
+
+.feedback-modal-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.feedback-modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.feedback-modal-subtitle {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.feedback-modal-content {
+  margin-bottom: 2rem;
+}
+
+.feedback-info-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+.feedback-info-item span:first-child {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.feedback-info-text {
+  font-size: 0.95rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.feedback-modal-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.feedback-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 120px;
+}
+
+.feedback-button-primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.feedback-button-primary:hover {
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.feedback-button-secondary {
+  background-color: #f8f9fa;
+  color: #666;
+  border: 1px solid #dee2e6;
+}
+
+.feedback-button-secondary:hover {
+  background-color: #e9ecef;
+  color: #495057;
+  transform: translateY(-1px);
+}
+
+.feedback-button-tertiary {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  font-size: 0.9rem;
+}
+
+.feedback-button-tertiary:hover {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.feedback-contact-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f0f8ff;
+  border-radius: 0.5rem;
+  border-left: 4px solid #667eea;
+}
+
+.feedback-contact-text {
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+}
+
+.feedback-contact-email {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.feedback-contact-email:hover {
+  text-decoration: underline;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1500px) {
+  .left-panel {
+    display: none;
+  }
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .feedback-modal {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .feedback-modal-title {
+    font-size: 1.3rem;
+  }
+
+  .feedback-modal-buttons {
+    flex-direction: column;
+  }
+
+  .feedback-button {
+    width: 100%;
+  }
+}
+
+/* 전체 참조 페이지 스타일 */
+.all-referenced-pages {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.all-pages-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.pages-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.page-number {
+  padding: 0.25rem 0.75rem;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-number:hover {
+  background-color: #dee2e6;
+}
+
+.page-number.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.spinner-in-button {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}

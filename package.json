@@ -35,9 +35,12 @@
     "vite": "^6.3.5"
   },
   "imports": {
-    "#shared/*": "./src/shared/*/index.js",
-    "#components/*": "./src/components/*/index.jsx",
+    "#app/*": "./src/app/*",
     "#pages/*": "./src/pages/*/index.jsx",
-    "#utils/*": "./src/utils/*.js"
+    "#features/*": "./src/features/*/index.js",
+    "#widgets/*": "./src/widgets/*/index.jsx",
+    "#shared/*": "./src/shared/*/index.js",
+    "#shared/lib/*": "./src/shared/lib/*.js",
+    "#shared/i18n": "./src/shared/i18n/index.js"
   }
 }
