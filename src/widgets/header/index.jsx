@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useHeader } from "./model/useHeader";
+import { useClickOutside } from "#shared/lib/useClickOutside";
 import "./index.css";
 
 const Header = ({
@@ -10,7 +11,7 @@ const Header = ({
   setShowHelp,
 }) => {
   const {
-    state: { t, isAuthenticated },
+    state: { t, isAuthenticated, user },
     actions: {
       handleQuizManagement,
       handleHelp,
@@ -19,6 +20,24 @@ const Header = ({
       closeSidebar,
     },
   } = useHeader({ setIsSidebarOpen, setShowHelp });
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const displayName = useMemo(() => {
+    const name =
+      user?.nickname || user?.name || user?.username || user?.email || "";
+    return name.trim() || t("사용자");
+  }, [t, user]);
+  const profileInitial = useMemo(
+    () => displayName?.trim().slice(0, 1).toUpperCase() || "?",
+    [displayName],
+  );
+
+  useClickOutside({
+    containerId: "profileDropdown",
+    triggerId: "profileButton",
+    onOutsideClick: () => setIsProfileOpen(false),
+    isEnabled: isProfileOpen,
+  });
 
   return (
     <div className="header">
@@ -51,12 +70,37 @@ const Header = ({
           </Link>
           <div className="auth-buttons">
             {isAuthenticated ? (
-              <button className="text-button" onClick={handleLogout}>
-                {t("로그아웃")}
-              </button>
+              <div className="profile-area">
+                <button
+                  id="profileButton"
+                  className="profile-button"
+                  onClick={() => setIsProfileOpen((prev) => !prev)}
+                  aria-expanded={isProfileOpen}
+                  aria-haspopup="true"
+                  title={displayName}
+                  type="button"
+                >
+                  {profileInitial}
+                </button>
+                {isProfileOpen && (
+                  <div id="profileDropdown" className="profile-dropdown">
+                    <span className="profile-name">{displayName}</span>
+                    <button
+                      className="profile-logout"
+                      type="button"
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      🚪 <strong>{t("로그아웃")}</strong>
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link className="text-button" to="/login">
-                {t("로그인")}
+                🔐 <strong>{t("로그인")}</strong>
               </Link>
             )}
           </div>
@@ -68,10 +112,7 @@ const Header = ({
       >
         <div className="sidebar-header">
           <h2>{t("메뉴")}</h2>
-          <button
-            className="icon-button"
-            onClick={closeSidebar}
-          >
+          <button className="icon-button" onClick={closeSidebar}>
             ✕
           </button>
         </div>

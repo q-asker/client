@@ -47,8 +47,8 @@
   font-weight: bold;
 }
 
-.auth-buttons button {
-  margin-left: 12px;
+.auth-buttons .text-button {
+  margin-left: 0;
 }
 
 .text-button {
@@ -62,12 +62,85 @@
 .auth-buttons {
   display: flex;
   align-items: center;
+  width: auto;
+}
+
+.auth-buttons .text-button {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
 }
 
 .nav-link-area {
   display: flex;
-  width: fit-content;
   align-items: center;
+  gap: 12px;
+}
+
+.profile-area {
+  position: relative;
+}
+
+.profile-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e0e7ff;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.profile-button:hover {
+  background: #e0e7ff;
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: white;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 180px;
+  z-index: 1001;
+}
+
+.profile-name {
+  display: block;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.profile-logout {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #6366f1;
+  cursor: pointer;
+  text-align: left;
+  padding: 6px 4px;
+}
+
+.profile-logout:hover {
+  color: #4f46e5;
+}
+
+/* 헤더 상단 링크는 한 줄 유지 */
+.nav-link-area .nav-link {
+  width: auto;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 8px 12px;
 }
 
 /* 사이드바 */

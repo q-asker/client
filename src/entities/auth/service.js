@@ -1,8 +1,21 @@
 import axiosInstance from "#shared/api";
 import { useAuthStore } from "./store";
 
+const decodeBase64Token = (token) => {
+  if (typeof token !== "string" || !token) return null;
+  const normalized = token.replace(/-/g, "+").replace(/_/g, "/");
+  const padding = normalized.length % 4;
+  const padded = padding ? normalized.padEnd(normalized.length + (4 - padding), "=") : normalized;
+  try {
+    return atob(padded);
+  } catch (error) {
+    return token;
+  }
+};
+
 const applyAuthFromResponse = (response) => {
-  const accessToken = response?.data?.accessToken;
+  const rawAccessToken = response?.data?.accessToken;
+  const accessToken = decodeBase64Token(rawAccessToken);
   if (accessToken) {
     useAuthStore.getState().setAuth({
       accessToken,
