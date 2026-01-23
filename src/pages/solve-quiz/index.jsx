@@ -1,10 +1,8 @@
 import { useTranslation } from "i18nexus"; // SolveQuiz.jsx
 
-import axiosInstance from "#shared/api";
-import CustomToast from "#shared/toast";
-import { trackQuizEvents } from "#shared/lib/analytics";
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useSolveQuiz } from "#features/solve-quiz";
 import "./index.css";
 
 const SolveQuiz = () => {
@@ -13,211 +11,38 @@ const SolveQuiz = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { uploadedUrl } = location.state || {};
-
-  // States
-  const [quizzes, setQuizzes] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentTime, setCurrentTime] = useState("00:00:00");
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [currentQuestion, setCurrentQuestion] = useState(1);
-  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
-  const totalQuestions = quizzes.length;
-
-  // Redirect if no problemSetId
-  useEffect(() => {
-    if (!problemSetId) {
-      navigate("/");
-    }
-  }, [problemSetId, navigate]);
-
-  // Fetch quiz data on mount
-  useEffect(() => {
-    const fetchQuiz = async () => {
-      try {
-        const res = await axiosInstance.get(`/problem-set/${problemSetId}`);
-        const data = res.data;
-        setQuizzes(data.quiz || []);
-
-        // 퀴즈 시작 추적
-        trackQuizEvents.startQuiz(problemSetId);
-      } catch (err) {
-        navigate("/");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (problemSetId) {
-      fetchQuiz();
-    } else {
-      setIsLoading(false);
-    }
-  }, [problemSetId, navigate]);
-
-  // Timer effect
-  useEffect(() => {
-    let seconds = 0,
-      minutes = 0,
-      hours = 0;
-    const timer = setInterval(() => {
-      seconds++;
-      if (seconds === 60) {
-        seconds = 0;
-        minutes++;
-      }
-      if (minutes === 60) {
-        minutes = 0;
-        hours++;
-      }
-      setCurrentTime(
-        `${String(hours).padStart(2, "0")}:` +
-          `${String(minutes).padStart(2, "0")}:` +
-          `${String(seconds).padStart(2, "0")}`
-      );
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Sync selected option when question changes
-  useEffect(() => {
-    const saved = quizzes[currentQuestion - 1]?.userAnswer;
-    setSelectedOption(saved && saved !== 0 ? saved : null);
-  }, [currentQuestion, quizzes]);
-
-  // Handlers
-  const handleOptionSelect = (id) => {
-    const currentQuiz = quizzes[currentQuestion - 1];
-    const selectedOption = currentQuiz?.selections?.find((s) => s.id === id);
-
-    // 답안 선택 추적
-    if (selectedOption) {
-      trackQuizEvents.selectAnswer(
-        problemSetId,
-        currentQuestion,
-        id,
-        selectedOption.correct || false
-      );
-    }
-
-    setQuizzes((prev) =>
-      prev.map((q, idx) =>
-        idx === currentQuestion - 1 ? { ...q, userAnswer: id } : q
-      )
-    );
-    setSelectedOption(id);
-  };
-
-  const handlePrev = () => {
-    if (currentQuestion > 1) {
-      const prevQuestion = currentQuestion - 1;
-      trackQuizEvents.navigateQuestion(
-        problemSetId,
-        currentQuestion,
-        prevQuestion
-      );
-      setCurrentQuestion(prevQuestion);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentQuestion < totalQuestions) {
-      const nextQuestion = currentQuestion + 1;
-      trackQuizEvents.navigateQuestion(
-        problemSetId,
-        currentQuestion,
-        nextQuestion
-      );
-      setCurrentQuestion(nextQuestion);
-    }
-  };
-
-  const handleSubmit = () => {
-    // 문제 확인 버튼 클릭 추적
-    trackQuizEvents.confirmAnswer(problemSetId, currentQuestion);
-
-    if (currentQuestion === totalQuestions) {
-      CustomToast.info(t("마지막 문제입니다."));
-      return;
-    }
-
-    const nextQuestion = currentQuestion + 1;
-    trackQuizEvents.navigateQuestion(
-      problemSetId,
+  const {
+    state: {
+      quizzes,
+      isLoading,
+      currentTime,
+      selectedOption,
       currentQuestion,
-      nextQuestion
-    );
-    setCurrentQuestion(nextQuestion);
-  };
-
-  const handleCheckToggle = () => {
-    const currentQuiz = quizzes[currentQuestion - 1];
-    const newCheckState = !currentQuiz.check;
-
-    // 검토 체크박스 토글 추적
-    trackQuizEvents.toggleReview(problemSetId, currentQuestion, newCheckState);
-
-    setQuizzes((prev) =>
-      prev.map((q, idx) =>
-        idx === currentQuestion - 1 ? { ...q, check: newCheckState } : q
-      )
-    );
-  };
-
-  const handleFinish = () => {
-    setShowSubmitDialog(true);
-  };
-
-  const handleConfirmSubmit = useCallback(() => {
-    const unansweredCount = quizzes.filter((q) => q.userAnswer === 0).length;
-    const reviewCount = quizzes.filter((q) => q.check).length;
-    const answeredCount = quizzes.length - unansweredCount;
-
-    // 퀴즈 제출 추적
-    trackQuizEvents.submitQuiz(
-      problemSetId,
+      showSubmitDialog,
+      totalQuestions,
+      unansweredCount,
+      reviewCount,
       answeredCount,
-      quizzes.length,
-      reviewCount
-    );
-
-    navigate(`/result/${problemSetId}`, {
-      state: { quizzes, totalTime: currentTime, uploadedUrl },
-    });
-  }, [quizzes, problemSetId, currentTime, uploadedUrl, navigate]);
-
-  const handleCancelSubmit = useCallback(() => {
-    setShowSubmitDialog(false);
-  }, []);
-
-  const handleJumpTo = (num) => {
-    if (num !== currentQuestion) {
-      // 문제 네비게이션 추적
-      trackQuizEvents.navigateQuestion(problemSetId, currentQuestion, num);
-    }
-    setCurrentQuestion(num);
-  };
-
-  // 제출 다이얼로그용 통계 계산
-  const unansweredCount = quizzes.filter((q) => q.userAnswer === 0).length;
-  const reviewCount = quizzes.filter((q) => q.check).length;
-  const answeredCount = quizzes.length - unansweredCount;
-
-  const handleOverlayClick = useCallback((e) => {
-    if (e.target === e.currentTarget) {
-      setShowSubmitDialog(false);
-    }
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="solve-spinner-container">
-        <div className="solve-spinner" />
-        <p>{t("문제 로딩 중…")}</p>
-      </div>
-    );
-  }
-
-  const currentQuiz = quizzes[currentQuestion - 1] || {};
+      currentQuiz,
+    },
+    actions: {
+      handleOptionSelect,
+      handlePrev,
+      handleNext,
+      handleSubmit,
+      handleCheckToggle,
+      handleFinish,
+      handleConfirmSubmit,
+      handleCancelSubmit,
+      handleJumpTo,
+      handleOverlayClick,
+    },
+  } = useSolveQuiz({
+    t,
+    navigate,
+    problemSetId,
+    uploadedUrl,
+  });
 
   return (
     <div className="solve-app-container">

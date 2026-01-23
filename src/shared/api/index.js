@@ -1,30 +1,17 @@
 import CustomToast from "#shared/toast";
 import axios from "axios";
-import { getAccessToken, useAuthStore } from "../auth/store";
 const apiBaseURL = import.meta.env.VITE_BASE_URL;
 
-const extractAccessToken = (authorization) => {
-  if (!authorization || typeof authorization !== "string") {
-    return null;
-  }
-  const [type, token] = authorization.split(" ");
-  if (token && type.toLowerCase() === "bearer") {
-    return token;
-  }
-  return authorization;
-};
+let getAccessToken = () => null;
+let clearAuth = () => {};
 
-const applyAuthFromResponse = (response) => {
-  const authorization =
-    response?.headers?.authorization || response?.headers?.Authorization;
-  const accessToken = extractAccessToken(authorization);
-  if (accessToken) {
-    useAuthStore.getState().setAuth({
-      accessToken,
-      user: response?.data?.user,
-    });
+export const configureAuth = ({ getAccessToken: getToken, clearAuth: clear }) => {
+  if (typeof getToken === "function") {
+    getAccessToken = getToken;
   }
-  return accessToken;
+  if (typeof clear === "function") {
+    clearAuth = clear;
+  }
 };
 
 const axiosInstance = axios.create({
@@ -66,7 +53,7 @@ axiosInstance.interceptors.response.use(
       if (skipAuthRefresh) {
         return Promise.reject(errorToHandle);
       }
-      useAuthStore.getState().clearAuth();
+      clearAuth();
       window.location.assign("/login");
       CustomToast.error("로그인이 필요합니다.");
       return Promise.reject(errorToHandle);

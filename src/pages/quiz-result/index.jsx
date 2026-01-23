@@ -1,8 +1,7 @@
 import { useTranslation } from "i18nexus";
-import axiosInstance from "#shared/api";
-import { trackQuizEvents, trackResultEvents } from "#shared/lib/analytics";
-import React, { useEffect } from "react";
+import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useQuizResult } from "#features/quiz-result";
 import "./index.css";
 
 const QuizResult = () => {
@@ -11,96 +10,17 @@ const QuizResult = () => {
   const navigate = useNavigate();
   const { problemSetId } = useParams();
   const { quizzes = [], totalTime = "00:00:00", uploadedUrl } = state || {};
-
-  const getQuizExplanation = async () => {
-    // 해설 보기 버튼 클릭 추적
-    trackResultEvents.clickExplanation(problemSetId);
-
-    try {
-      const res = await axiosInstance.get(`/explanation/${problemSetId}`);
-      const data = res.data;
-      navigate(`/explanation/${problemSetId}`, {
-        state: { quizzes, explanation: data, uploadedUrl },
-      });
-    } catch (err) {
-      navigate("/");
-    }
-  };
-  // ─── 점수 계산 ───
-  // 각 문제마다 사용자가 고른 답안이 correct인지 검사
-  const correctCount = quizzes.reduce((count, q) => {
-    const selected = q.selections.find((s) => s.id === q.userAnswer);
-    return count + (selected?.correct ? 1 : 0);
-  }, 0);
-
-  // 백분율(소수 없이 정수로 반올림)
-  const scorePercent = quizzes.length
-    ? Math.round((correctCount / quizzes.length) * 100)
-    : 0;
-
-  // 결과 페이지 진입 추적
-  useEffect(() => {
-    if (problemSetId && quizzes.length > 0) {
-      trackResultEvents.viewResult(
-        problemSetId,
-        correctCount,
-        quizzes.length,
-        totalTime
-      );
-      trackQuizEvents.completeQuiz(
-        problemSetId,
-        correctCount,
-        quizzes.length,
-        totalTime
-      );
-
-      // 퀴즈 완료 기록을 localStorage에 업데이트
-      updateQuizHistoryResult(
-        problemSetId,
-        correctCount,
-        quizzes.length,
-        totalTime,
-        scorePercent
-      );
-    }
-  }, [problemSetId, correctCount, quizzes.length, totalTime, scorePercent]);
-
-  // 퀴즈 완료 기록을 localStorage에 업데이트하는 함수
-  const updateQuizHistoryResult = (
+  const {
+    state: { correctCount, scorePercent },
+    actions: { getQuizExplanation },
+  } = useQuizResult({
+    t,
+    navigate,
     problemSetId,
-    correctCount,
-    totalQuestions,
+    quizzes,
     totalTime,
-    score
-  ) => {
-    try {
-      const existingHistory = JSON.parse(
-        localStorage.getItem("quizHistory") || "[]"
-      );
-
-      const existingIndex = existingHistory.findIndex(
-        (item) => item.problemSetId === problemSetId
-      );
-      if (existingIndex !== -1) {
-        // 기존 기록 업데이트 + 퀴즈 데이터도 함께 저장
-        existingHistory[existingIndex] = {
-          ...existingHistory[existingIndex],
-          status: "completed",
-          score,
-          correctCount,
-          totalQuestions,
-          totalTime,
-          completedAt: new Date().toISOString(),
-          quizData: quizzes, // 실제 퀴즈 데이터 저장 (문제, 선택지, 사용자 답안 포함)
-        };
-
-        localStorage.setItem("quizHistory", JSON.stringify(existingHistory));
-      }
-    } catch (error) {
-      console.error(t("퀴즈 결과 기록 업데이트 실패:"), error);
-    }
-  };
-  // ─────────────────
+    uploadedUrl,
+  });
 
   return (
     <div className="result-container">

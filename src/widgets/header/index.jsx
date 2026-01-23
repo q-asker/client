@@ -1,8 +1,6 @@
-import { useTranslation, useLanguageSwitcher } from "i18nexus";
-import CustomToast from "#shared/toast";
-import { authService, useAuthStore } from "#shared/auth";
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
+import { useHeader } from "./model/useHeader";
 import "./index.css";
 
 const Header = ({
@@ -11,55 +9,16 @@ const Header = ({
   setIsSidebarOpen,
   setShowHelp,
 }) => {
-  const { changeLanguage } = useLanguageSwitcher();
-  const { t } = useTranslation();
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isAuthenticated = Boolean(accessToken);
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      const sidebar = document.getElementById("sidebar");
-      const menuBtn = document.getElementById("menuButton");
-      if (
-        sidebar &&
-        !sidebar.contains(e.target) &&
-        menuBtn &&
-        !menuBtn.contains(e.target)
-      ) {
-        setIsSidebarOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [setIsSidebarOpen, setShowHelp]);
-
-  const handleQuizManagement = () => {
-    setIsSidebarOpen(false);
-  };
-
-  const handleHelp = () => {
-    setIsSidebarOpen(false); // 메뉴창 닫기
-    setShowHelp((prev) => {
-      if (!prev) {
-        // 도움말을 열 때만 스크롤
-        setTimeout(() => {
-          const helpElement = document.getElementById("help-section");
-          if (helpElement) {
-            helpElement.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-        }, 100);
-      }
-      return !prev;
-    });
-  };
-
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-      CustomToast.info("로그아웃되었습니다.");
-    } catch (error) {
-      CustomToast.error("로그아웃에 실패했습니다.");
-    }
-  };
+  const {
+    state: { t, isAuthenticated },
+    actions: {
+      handleQuizManagement,
+      handleHelp,
+      handleLogout,
+      handleLanguageChange,
+      closeSidebar,
+    },
+  } = useHeader({ setIsSidebarOpen, setShowHelp });
 
   return (
     <div className="header">
@@ -111,7 +70,7 @@ const Header = ({
           <h2>{t("메뉴")}</h2>
           <button
             className="icon-button"
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={closeSidebar}
           >
             ✕
           </button>
@@ -122,17 +81,13 @@ const Header = ({
             <div>
               <button
                 className="language-button"
-                onClick={() => {
-                  changeLanguage("ko");
-                }}
+                onClick={() => handleLanguageChange("ko")}
               >
                 🇰🇷
               </button>
               <button
                 className="language-button"
-                onClick={() => {
-                  changeLanguage("en");
-                }}
+                onClick={() => handleLanguageChange("en")}
               >
                 🇬🇧
               </button>

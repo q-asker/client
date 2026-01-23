@@ -1,491 +1,65 @@
 import { useTranslation } from "i18nexus";
 import Header from "#widgets/header";
 import Help from "#widgets/help";
-import axiosInstance from "#shared/api";
-import { authService } from "#shared/auth";
-import CustomToast from "#shared/toast";
-import { trackMakeQuizEvents } from "#shared/lib/analytics";
-import Timer from "#shared/lib/timer";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
+import { useMakeQuiz, levelDescriptions, MAX_FILE_SIZE } from "#features/make-quiz";
+import { Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { useNavigate } from "react-router-dom";
 import "./index.css";
 import RecentChanges from "#widgets/recent-changes";
-import { uploadFileToServer } from "#features/make-quiz";
-
-const levelDescriptions = {
-  RECALL: `순수 암기나 단순 이해를 묻는 문제
-  
-    예) "대한민국의 수도는 _______이다."`,
-
-  SKILLS: `옳고 그름을 판별하는 문제
-
-    예) "지구는 태양 주위를 돈다. (O/X)"`,
-
-  STRATEGIC: `추론, 문제 해결, 자료 해석을 요구하는 문제
-    
-    예) [전제] 물가가 오르면 화폐 가치는 떨어진다. 현재 물가가 급등했다.
-    [질문] 이 경우 화폐 가치의 변화로 가장 적절한 것은?
-       1. 하락한다
-       2. 상승한다
-       3. 변함없다
-       4. 알 수 없다`,
-};
-
-const MAX_FILE_SIZE = 30 * 1024 * 1024;
-
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
-
-const levelMapping = {
-  BLANK: "RECALL",
-  OX: "SKILLS",
-  MULTIPLE: "STRATEGIC",
-};
-
-const defaultType = "MULTIPLE";
 
 const MakeQuiz = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [file, setFile] = useState(null);
-  const [uploadedUrl, setUploadedUrl] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [questionType, setQuestionType] = useState(() => {
-    // localStorage에서 저장된 questionType을 불러옴
-    const savedType = localStorage.getItem("questionType");
-    return savedType || defaultType;
-  }); // "MULTIPLE", "BLANK", "OX"
-  const [questionCount, setQuestionCount] = useState(5);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [version, setVersion] = useState(0);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [problemSetId, setProblemSetId] = useState(null);
-  const [quizLevel, setQuizLevel] = useState(() => {
-    // localStorage에서 불러온 questionType에 맞는 난이도 설정
-    const savedType = localStorage.getItem("questionType");
-    return levelMapping[savedType || defaultType];
-  }); // 기본 난이도 설정
-  const [pageMode, setPageMode] = useState("ALL"); // "ALL" 또는 "CUSTOM"
-  const [numPages, setNumPages] = useState(null);
-  const [selectedPages, setSelectedPages] = useState([]);
-  const [hoveredPage, setHoveredPage] = useState(null); // { pageNumber: number, style: object }
-  const [visiblePageCount, setVisiblePageCount] = useState(50); // 점진적 로딩을 위한 가시적 페이지 수
-  const pdfPreviewRef = useRef(null);
-  const [showWaitMessage, setShowWaitMessage] = useState(false); // 5초 후 대기 메시지 표시용
-  const [uploadElapsedTime, setUploadElapsedTime] = useState(0); // 업로드 경과 시간
-  const [generationElapsedTime, setGenerationElapsedTime] = useState(0); // 문제 생성 경과 시간
-  const [fileExtension, setFileExtension] = useState(null); // 파일 확장자
-  const [showHelp, setShowHelp] = useState(false);
-  const uploadTimerRef = useRef(null); // 업로드 타이머
-  const generationTimerRef = useRef(null); // 문제 생성 타이머
-
-  // PDF 옵션 메모이제이션
-  const pdfOptions = useMemo(
-    () => ({
-      cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
-      cMapPacked: true,
-      standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
-    }),
-    []
-  );
-
-  // questionType 변경 시 quizLevel 자동으로 변경 및 localStorage에 저장
-  useEffect(() => {
-    setQuizLevel(levelMapping[questionType]);
-    // 사용자가 선택한 questionType을 localStorage에 저장
-    localStorage.setItem("questionType", questionType);
-  }, [questionType]);
-  // Sidebar toggle & click-outside
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-  useEffect(() => {
-    const handler = (e) => {
-      const sidebar = document.getElementById("sidebar");
-      const btn = document.getElementById("menuButton");
-      if (
-        sidebar &&
-        !sidebar.contains(e.target) &&
-        btn &&
-        !btn.contains(e.target)
-      ) {
-        setIsSidebarOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  // Drag & Drop
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-  const handleDragEnter = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files.length > 0) {
-      selectFile(e.dataTransfer.files[0], "drag_drop");
-    }
-  };
-
-  // File selection
-  const handleFileInput = (e) => {
-    if (e.target.files.length > 0) selectFile(e.target.files[0], "click");
-  };
-  const selectFile = async (f, method = "click") => {
-    const ext = f.name.split(".").pop().toLowerCase();
-
-    if (!["ppt", "pptx", "pdf"].includes(ext)) {
-      CustomToast.error(t("지원하지 않는 파일 형식입니다"));
-      return;
-    }
-
-    if (f.size > MAX_FILE_SIZE) {
-      CustomToast.error(
-        `파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`
-      );
-      return;
-    }
-
-    // 파일 업로드 시작 추적
-    if (method === "drag_drop") {
-      trackMakeQuizEvents.dragDropFileUpload(f.name, f.size, ext);
-    } else {
-      trackMakeQuizEvents.startFileUpload(f.name, f.size, ext);
-    }
-
-    // 타이머 시작
-    uploadTimerRef.current = new Timer((elapsed) => {
-      setUploadElapsedTime(elapsed);
-    });
-    uploadTimerRef.current.start();
-
-    setFileExtension(ext);
-    setIsProcessing(true);
-    try {
-      const uploadedUrl = await uploadFileToServer(f);
-      setUploadedUrl(uploadedUrl);
-      setFile(f);
-
-      // 타이머 정지 및 업로드 완료 추적
-      const uploadTime = uploadTimerRef.current.stop();
-      trackMakeQuizEvents.completeFileUpload(f.name, uploadTime);
-    } catch (error) {
-      // 에러 발생 시 타이머 정지
-      if (uploadTimerRef.current) {
-        uploadTimerRef.current.stop();
-      }
-
-      const message =
-        error?.message === "변환 시간 초과"
-          ? t("파일 변환이 지연되고 있어요. 잠시 후 다시 시도해주세요.")
-          : error?.response?.data?.message ||
-            error?.message ||
-            t("파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.");
-
-      CustomToast.error(message);
-      console.error("파일 업로드 실패:", error);
-      return;
-    } finally {
-      setFileExtension(null);
-      setIsProcessing(false);
-      setUploadElapsedTime(0);
-    }
-  };
-
-  // Simulate processing
-  const generateQuestions = async () => {
-    if (!uploadedUrl) {
-      CustomToast.error(t("파일을 먼저 업로드해주세요."));
-      return;
-    }
-    // questionType은 이미 "MULTIPLE", "OX", "BLANK" 형태로 저장되어 있음
-    const apiQuizType = questionType;
-
-    try {
-      setIsProcessing(true);
-      try {
-        await authService.refresh();
-      } catch (refreshError) {
-        // ignore refresh error and continue with generation
-      }
-
-      generationTimerRef.current = new Timer((elapsed) => {
-        setGenerationElapsedTime(elapsed);
-      });
-      generationTimerRef.current.start();
-      const response = await axiosInstance.post(`/generation`, {
-        uploadedUrl: uploadedUrl,
-        quizCount: questionCount,
-        quizType: apiQuizType,
-        difficultyType: quizLevel,
-        pageNumbers: selectedPages,
-      });
-      const result = response.data;
-      setProblemSetId(result.problemSetId);
-      setVersion((prev) => prev + 1);
-
-      // 퀴즈 기록을 localStorage에 저장
-      saveQuizToHistory(result.problemSetId, file.name);
-
-      // 문제 생성 완료 추적
-      const generationTime = generationTimerRef.current.stop();
-      trackMakeQuizEvents.completeQuizGeneration(
-        result.problemSetId,
-        generationTime
-      );
-    } catch (error) {
-      if (generationTimerRef.current) {
-        generationTimerRef.current.stop();
-      }
-    } finally {
-      setIsProcessing(false);
-      setGenerationElapsedTime(0);
-    }
-  };
-
-  // 퀴즈 기록을 localStorage에 저장하는 함수
-  const saveQuizToHistory = (problemSetId, fileName) => {
-    try {
-      const existingHistory = JSON.parse(
-        localStorage.getItem("quizHistory") || "[]"
-      );
-
-      const newQuizRecord = {
-        problemSetId,
-        fileName,
-        fileSize: file.size,
-        questionCount,
-        quizLevel,
-        createdAt: new Date().toISOString(),
-        uploadedUrl,
-        status: "created", // created, completed
-        score: null,
-        correctCount: null,
-        totalTime: null,
-      };
-
-      // 중복 확인 (같은 problemSetId가 있으면 업데이트하지 않음)
-      const existingIndex = existingHistory.findIndex(
-        (item) => item.problemSetId === problemSetId
-      );
-      if (existingIndex === -1) {
-        existingHistory.unshift(newQuizRecord); // 최신 항목을 맨 앞에 추가
-
-        // 최대 20개까지만 저장
-        if (existingHistory.length > 20) {
-          existingHistory.splice(20);
-        }
-
-        localStorage.setItem("quizHistory", JSON.stringify(existingHistory));
-
-        // 최신 퀴즈 상태 업데이트
-      }
-    } catch (error) {
-      console.error(t("퀴즈 기록 저장 실패:"), error);
-    }
-  };
-
-  // 최신 퀴즈 정보를 로드하는 함수
-  const loadLatestQuiz = () => {
-    try {
-      const history = JSON.parse(localStorage.getItem("quizHistory") || "[]");
-      if (history.length > 0) {
-        const latest = history[0];
-
-        if (!uploadedUrl) {
-          setProblemSetId(latest.problemSetId);
-          // 파일 정보도 복원 (가상의 파일 객체 생성)
-          const virtualFile = {
-            name: latest.fileName,
-            size: latest.fileSize,
-          };
-          setFile(virtualFile);
-          setUploadedUrl(latest.uploadedUrl);
-        }
-      }
-    } catch (error) {
-      console.error(t("최신 퀴즈 로딩 실패:"), error);
-    }
-  };
-
-  // 5초 후 대기 메시지 표시
-  useEffect(() => {
-    let timer;
-    if (isProcessing && uploadedUrl && !problemSetId) {
-      timer = setTimeout(() => {
-        setShowWaitMessage(true);
-      }, 5000); // 5초 후
-    } else {
-      setShowWaitMessage(false);
-    }
-
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [isProcessing, uploadedUrl, problemSetId]);
-
-  // 컴포넌트 마운트 시 최신 퀴즈 로드
-  useEffect(() => {
-    loadLatestQuiz();
-    // 페이지 진입 트래킹
-    trackMakeQuizEvents.viewMakeQuiz();
-  }, []);
-
-  // PDF 페이지 점진적 로딩
-  const pageCountToLoad = 50;
-  const loadInterval = 2500;
-  useEffect(() => {
-    if (!numPages || numPages <= pageCountToLoad) return;
-
-    setVisiblePageCount(pageCountToLoad);
-
-    const interval = setInterval(() => {
-      setVisiblePageCount((prev) => {
-        const nextCount = prev + pageCountToLoad;
-        if (nextCount >= numPages) {
-          clearInterval(interval);
-          return numPages;
-        }
-        return nextCount;
-      });
-    }, loadInterval);
-
-    return () => clearInterval(interval);
-  }, [numPages]);
-
-  const handleRemoveFile = () => {
-    if (file) {
-      trackMakeQuizEvents.deleteFile(file.name);
-    }
-    resetAllStates();
-  };
-
-  const resetAllStates = () => {
-    // 타이머 정리
-    if (uploadTimerRef.current) {
-      uploadTimerRef.current.reset();
-      uploadTimerRef.current = null;
-    }
-
-    setFile(null);
-    setUploadedUrl(null);
-    setIsDragging(false);
-    setQuestionType(defaultType);
-    setQuestionCount(5);
-    setIsProcessing(false);
-    setVersion(0);
-    setIsSidebarOpen(false);
-    setProblemSetId(null);
-    setQuizLevel(levelMapping[defaultType]);
-    setPageMode("ALL");
-    setNumPages(null);
-    setSelectedPages([]);
-    setHoveredPage(null);
-    setVisiblePageCount(100);
-    setShowWaitMessage(false);
-    setUploadElapsedTime(0);
-    setGenerationElapsedTime(0);
-    setFileExtension(null);
-  };
-
-  const handleReCreate = () => {
-    setProblemSetId(null);
-    setPageMode("ALL");
-    setNumPages(null);
-    setSelectedPages([]);
-    setHoveredPage(null);
-    setVisiblePageCount(100);
-    setShowWaitMessage(false);
-    setUploadElapsedTime(0);
-    setGenerationElapsedTime(0);
-  };
-
-  const handleNavigateToQuiz = () => {
-    trackMakeQuizEvents.navigateToQuiz(problemSetId);
-    navigate(`/quiz/${problemSetId}`, {
-      state: { uploadedUrl },
-    });
-  };
-
-  const onDocumentLoadSuccess = ({ numPages: nextNumPages }) => {
-    setNumPages(nextNumPages);
-    setSelectedPages(Array.from({ length: nextNumPages }, (_, i) => i + 1));
-    setPageMode("ALL");
-  };
-
-  const handlePageSelection = (pageNumber) => {
-    setSelectedPages((prevSelectedPages) => {
-      if (prevSelectedPages.includes(pageNumber)) {
-        return prevSelectedPages.filter((p) => p !== pageNumber);
-      } else {
-        return [...prevSelectedPages, pageNumber].sort((a, b) => a - b);
-      }
-    });
-  };
-
-  const handleSelectAllPages = () => {
-    if (selectedPages.length === numPages) {
-      setSelectedPages([]);
-    } else {
-      setSelectedPages(Array.from({ length: numPages }, (_, i) => i + 1));
-    }
-  };
-
-  const handlePageMouseEnter = (e, pageNumber) => {
-    // 모바일 너비에서는 미리보기 기능을 비활성화
-    if (window.innerWidth <= 768) return;
-
-    if (pageMode === "ALL" || !pdfPreviewRef.current) return;
-
-    const containerRect = pdfPreviewRef.current.getBoundingClientRect();
-    const itemRect = e.currentTarget.getBoundingClientRect();
-    const itemWidth = itemRect.width;
-    const midpoint = containerRect.left + containerRect.width / 2;
-
-    const PREVIEW_WIDTH = 660; // CSS에 정의된 너비 + 패딩
-    const GAP = 10; // 컴포넌트와 미리보기 사이 간격
-
-    // 수직 위치를 아이템보다 조금 더 높게 조정 (e.g., 100px 위로)
-    let top = itemRect.top - containerRect.top - 100;
-    // 단, 그리드 상단 밖으로 벗어나지 않도록 최소 위치를 0으로 설정
-    if (top < 0) {
-      top = 0;
-    }
-
-    const style = {
-      top: `${top}px`,
-      width: `${PREVIEW_WIDTH}px`,
-    };
-
-    if (itemRect.left < midpoint) {
-      // Item is on the left, show preview on the right
-      style.left = `${itemRect.left - containerRect.left + itemWidth + GAP}px`;
-    } else {
-      // Item is on the right, show preview on the left
-      style.left = `${
-        itemRect.left - containerRect.left - PREVIEW_WIDTH - GAP
-      }px`;
-    }
-
-    setHoveredPage({ pageNumber, style });
-  };
-
-  const handlePageMouseLeave = () => {
-    setHoveredPage(null);
-  };
+  const {
+    state: {
+      file,
+      uploadedUrl,
+      isDragging,
+      questionType,
+      questionCount,
+      isProcessing,
+      version,
+      isSidebarOpen,
+      problemSetId,
+      quizLevel,
+      pageMode,
+      numPages,
+      selectedPages,
+      hoveredPage,
+      visiblePageCount,
+      pdfPreviewRef,
+      showWaitMessage,
+      uploadElapsedTime,
+      generationElapsedTime,
+      fileExtension,
+      showHelp,
+      pdfOptions,
+    },
+    actions: {
+      toggleSidebar,
+      setIsSidebarOpen,
+      setShowHelp,
+      handleDragOver,
+      handleDragEnter,
+      handleDragLeave,
+      handleDrop,
+      handleFileInput,
+      handleRemoveFile,
+      handleReCreate,
+      handleNavigateToQuiz,
+      onDocumentLoadSuccess,
+      handlePageSelection,
+      handleSelectAllPages,
+      handlePageMouseEnter,
+      handlePageMouseLeave,
+      generateQuestions,
+      handleQuestionTypeChange,
+      handleQuestionCountChange,
+      handlePageModeChange,
+    },
+  } = useMakeQuiz({ t, navigate });
 
   return (
     <div className="page-wrapper">
@@ -587,14 +161,7 @@ const MakeQuiz = () => {
                     key={type.key}
                     className={questionType === type.key ? "active" : ""}
                     onClick={() => {
-                      if (questionType !== type.key) {
-                        trackMakeQuizEvents.changeQuizOption(
-                          "question_type",
-                          type.label
-                        );
-                        setQuestionType(type.key);
-                        setQuizLevel(levelMapping[type.key]);
-                      }
+                      handleQuestionTypeChange(type.key, type.label);
                     }}
                   >
                     {type.label}
@@ -625,13 +192,7 @@ const MakeQuiz = () => {
                 value={questionCount}
                 onChange={(e) => {
                   const newCount = +e.target.value;
-                  if (questionCount !== newCount) {
-                    trackMakeQuizEvents.changeQuizOption(
-                      "question_count",
-                      newCount
-                    );
-                    setQuestionCount(newCount);
-                  }
+                  handleQuestionCountChange(newCount);
                 }}
               />
             </div>
@@ -644,15 +205,7 @@ const MakeQuiz = () => {
                 value={pageMode}
                 onChange={(e) => {
                   const mode = e.target.value;
-                  setPageMode(mode);
-                  if (mode === "ALL") {
-                    setSelectedPages(
-                      Array.from({ length: numPages }, (_, i) => i + 1)
-                    );
-                  } else {
-                    setSelectedPages([]);
-                  }
-                  trackMakeQuizEvents.changeQuizOption("page_mode", mode);
+                  handlePageModeChange(mode);
                 }}
               >
                 <option value="ALL">{t("전체")}</option>
