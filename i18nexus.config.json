@@ -4,7 +4,7 @@
     "ko"
   ],
   "defaultLanguage": "en",
-  "localesDir": "./locales",
+  "localesDir": "./src/shared/i18n",
   "sourcePattern": "src/**/*.{js,jsx,ts,tsx}",
   "translationImportSource": "i18nexus",
   "googleSheets": {
