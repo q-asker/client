@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useHeader } from "./model/useHeader";
 import { useClickOutside } from "#shared/lib/useClickOutside";
+import Logo from "#shared/ui/logo";
 import "./index.css";
 
 const Header = ({
@@ -51,13 +52,7 @@ const Header = ({
             ☰
           </button>
           <Link to="/" className="logo-link">
-            <img
-              src="/favicon-256x256.png"
-              alt="Q-Asker"
-              className="logo-icon"
-            />
-
-            <div className="logo-text">Q-Asker</div>
+            <Logo />
           </Link>
         </div>
         <div className="nav-link-area">
