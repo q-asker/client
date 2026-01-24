@@ -1,7 +1,6 @@
 const STORAGE_KEY = "lastEndpoint";
 
-export const readLastEndpoint = () =>
-  localStorage.getItem(STORAGE_KEY) || "/";
+export const readLastEndpoint = () => localStorage.getItem(STORAGE_KEY) || "/";
 
 export const writeLastEndpoint = (value) => {
   localStorage.setItem(STORAGE_KEY, value);

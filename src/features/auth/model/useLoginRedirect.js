@@ -6,6 +6,19 @@ import {
   readLastEndpoint,
 } from "#shared/lib/lastEndpointStorage";
 
+let refreshPromise;
+
+const refreshOnce = async () => {
+  if (!refreshPromise) {
+    refreshPromise = authService.refresh().catch((error) => {
+      refreshPromise = null;
+      throw error;
+    });
+  }
+
+  return refreshPromise;
+};
+
 export const useLoginRedirect = ({ navigate }) => {
   useEffect(() => {
     let isMounted = true;
@@ -13,7 +26,7 @@ export const useLoginRedirect = ({ navigate }) => {
     const redirectAfterRefresh = async () => {
       let refreshSucceeded = true;
       try {
-        await authService.refresh();
+        await refreshOnce();
       } catch (error) {
         refreshSucceeded = false;
         console.error("로그인 리다이렉트 실패:", error);
