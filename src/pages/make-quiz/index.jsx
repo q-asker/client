@@ -134,7 +134,7 @@ const MakeQuiz = () => {
               </button>
             </>
           )}
-          <p className="hint">
+          <div className="hint">
             <p className="hint">
               {t("파일 page  제한: 선택했을 때")} <strong>150pages 이하</strong>
             </p>
@@ -143,7 +143,7 @@ const MakeQuiz = () => {
             {t("24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.")}
             <br></br>{" "}
             {t("생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다")}
-          </p>
+          </div>
         </div>
         {/* Options Panel */}
         {uploadedUrl && !problemSetId && (

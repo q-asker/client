@@ -12,7 +12,9 @@ const SolveQuiz = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { uploadedUrl } = location.state || {};
-  const storeProblemSetId = useQuizGenerationStore((state) => state.problemSetId);
+  const storeProblemSetId = useQuizGenerationStore(
+    (state) => state.problemSetId,
+  );
   const streamQuizzes = useQuizGenerationStore((state) => state.quizzes);
   const streamIsLoading = useQuizGenerationStore((state) => state.isLoading);
   const streamTotalCount = useQuizGenerationStore((state) => state.totalCount);
@@ -21,8 +23,7 @@ const SolveQuiz = () => {
     storeProblemSetId === problemSetId ? streamQuizzes : [];
   const isStreaming =
     storeProblemSetId === problemSetId ? streamIsLoading : false;
-  const totalCount =
-    storeProblemSetId === problemSetId ? streamTotalCount : 0;
+  const totalCount = storeProblemSetId === problemSetId ? streamTotalCount : 0;
   const {
     state: {
       quizzes,
@@ -57,6 +58,11 @@ const SolveQuiz = () => {
     streamedQuizzes,
     isStreaming,
   });
+
+  const remainingCount =
+    isStreaming && totalCount > 0
+      ? Math.max(0, totalCount - totalQuestions)
+      : 0;
 
   return (
     <div className="solve-app-container">
@@ -116,7 +122,7 @@ const SolveQuiz = () => {
                       quiz.userAnswer === 0
                         ? t("미선택")
                         : quiz.selections?.find(
-                            (sel) => sel.id === quiz.userAnswer
+                            (sel) => sel.id === quiz.userAnswer,
                           )?.content || `${quiz.userAnswer}번`;
 
                     return (
@@ -182,16 +188,6 @@ const SolveQuiz = () => {
               {t("다음")}
             </button>
           </nav>
-          {isStreaming && totalCount > 0 && (
-            <div className="solve-streaming-status">
-              {t("문제 생성 중...")}
-              <span>
-                {" "}
-                ({totalQuestions}/{totalCount})
-              </span>
-            </div>
-          )}
-
           {/* ─── 여기부터 문제 영역 ─── */}
           {isLoading ? (
             <div className="solve-spinner-container">
@@ -212,6 +208,15 @@ const SolveQuiz = () => {
                     onClick={() => handleJumpTo(q.number)}
                   >
                     {q.number}
+                  </button>
+                ))}
+                {Array.from({ length: remainingCount }).map((_, index) => (
+                  <button
+                    key={`pending-${index}`}
+                    className="solve-skipped-button solve-pending"
+                    disabled
+                  >
+                    …
                   </button>
                 ))}
               </aside>
@@ -270,6 +275,15 @@ const SolveQuiz = () => {
               onClick={() => handleJumpTo(q.number)}
             >
               {q.number}
+            </button>
+          ))}
+          {Array.from({ length: remainingCount }).map((_, index) => (
+            <button
+              key={`pending-bottom-${index}`}
+              className="solve-skipped-button solve-pending"
+              disabled
+            >
+              …
             </button>
           ))}
         </aside>

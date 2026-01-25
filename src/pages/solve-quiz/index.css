@@ -114,6 +114,31 @@ body {
   transform: none;
 }
 
+.solve-skipped-button.solve-pending {
+  background-color: #eef2ff;
+  color: #5b4ed6;
+  border-style: dashed;
+  cursor: default;
+  animation: pendingPulse 1.2s ease-in-out infinite;
+}
+
+.solve-skipped-button.solve-pending:hover {
+  background-color: #eef2ff;
+  transform: none;
+}
+
+@keyframes pendingPulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
 /* 중앙 패널: 퀴즈 풀이 영역 */
 .solve-center-panel {
   max-width: 900px;
@@ -127,17 +152,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.solve-streaming-status {
-  background: #fff;
-  border: 1px dashed #cbd5f5;
-  color: #5b4ed6;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  align-self: flex-start;
 }
 
 .solve-nav-button {
@@ -167,6 +181,8 @@ body {
   margin: 0;
   font-size: 1rem;
   line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .solve-review-area {
@@ -242,6 +258,8 @@ body {
   font-size: 1rem;
   line-height: 1.8;
   padding-right: 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* 제출 버튼 */
