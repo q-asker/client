@@ -188,7 +188,6 @@ export const useMakeQuiz = ({ t, navigate }) => {
           difficultyType: quizLevel,
           pageNumbers: selectedPages,
         },
-        navigate,
         onFirstChunk: ({ problemSetId: nextProblemSetId }) => {
           setProblemSetId(nextProblemSetId);
           setVersion((prev) => prev + 1);
@@ -202,6 +201,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
               generationTime
             );
           }
+          setIsProcessing(false);
         },
         onError: (error) => {
           if (generationTimerRef.current) {

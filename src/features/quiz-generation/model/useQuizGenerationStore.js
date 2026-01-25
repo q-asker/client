@@ -38,7 +38,6 @@ export const useQuizGenerationStore = create((set, get) => ({
 
   startGeneration: async ({
     requestData,
-    navigate,
     onFirstChunk,
     onComplete,
     onError,
@@ -95,9 +94,6 @@ export const useQuizGenerationStore = create((set, get) => ({
         if (!firstChunkHandled && nextProblemSetId) {
           firstChunkHandled = true;
           set({ problemSetId: nextProblemSetId });
-          if (typeof navigate === "function") {
-            navigate(`/quiz/${nextProblemSetId}`);
-          }
           if (typeof onFirstChunk === "function") {
             onFirstChunk({
               problemSetId: nextProblemSetId,

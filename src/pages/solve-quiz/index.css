@@ -583,6 +583,8 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .answer-text.unanswered {

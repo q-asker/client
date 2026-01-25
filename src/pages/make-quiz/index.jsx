@@ -312,26 +312,28 @@ const MakeQuiz = () => {
           <div className="document-preview">
             <div className="document-title">{t("문제 생성결과")}</div>
             <div className="preview-content">
-              {isProcessing ? (
-                <div className="processing">
-                  <div className="spinner" />
-                  <p>
-                    {t("문제 생성 중...")}
-                    {Math.floor(generationElapsedTime / 1000)}
-                    {t("초")}
-                  </p>
-                  {showWaitMessage && (
-                    <p className="wait-message">
-                      {t("현재 생성중입니다 조금만 더 기다려주세요!")}
+              {!problemSetId ? (
+                isProcessing ? (
+                  <div className="processing">
+                    <div className="spinner" />
+                    <p>
+                      {t("문제 생성 중...")}
+                      {Math.floor(generationElapsedTime / 1000)}
+                      {t("초")}
                     </p>
-                  )}
-                </div>
-              ) : !problemSetId ? (
-                <p>
-                  {t(
-                    "문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요."
-                  )}
-                </p>
+                    {showWaitMessage && (
+                      <p className="wait-message">
+                        {t("현재 생성중입니다 조금만 더 기다려주세요!")}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p>
+                    {t(
+                      "문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요."
+                    )}
+                  </p>
+                )
               ) : (
                 <div className="problem-card">
                   <div className="problem-icon">📝</div>
