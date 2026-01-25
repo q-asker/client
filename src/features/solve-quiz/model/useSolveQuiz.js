@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import { trackQuizEvents } from "#shared/lib/analytics";
@@ -13,6 +13,8 @@ export const useSolveQuiz = ({
   navigate,
   problemSetId,
   uploadedUrl,
+  streamedQuizzes = [],
+  isStreaming = false,
 }) => {
   const [quizzes, setQuizzes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +22,7 @@ export const useSolveQuiz = ({
   const [selectedOption, setSelectedOption] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const hasStartedRef = useRef(false);
   const totalQuestions = quizzes.length;
 
   useEffect(() => {
@@ -34,7 +37,10 @@ export const useSolveQuiz = ({
         const res = await axiosInstance.get(`/problem-set/${problemSetId}`);
         const data = res.data;
         setQuizzes(data.quiz || []);
-        trackQuizEvents.startQuiz(problemSetId);
+        if (!hasStartedRef.current) {
+          trackQuizEvents.startQuiz(problemSetId);
+          hasStartedRef.current = true;
+        }
       } catch (err) {
         navigate("/");
       } finally {
@@ -42,12 +48,43 @@ export const useSolveQuiz = ({
       }
     };
 
-    if (problemSetId) {
+    if (problemSetId && !isStreaming && streamedQuizzes.length === 0) {
       fetchQuiz();
-    } else {
+    } else if (!problemSetId) {
       setIsLoading(false);
     }
-  }, [problemSetId, navigate]);
+  }, [problemSetId, navigate, isStreaming, streamedQuizzes.length]);
+
+  useEffect(() => {
+    if (!isStreaming) return;
+
+    if (streamedQuizzes.length === 0) {
+      setIsLoading(true);
+      return;
+    }
+
+    setQuizzes((prev) => {
+      const prevByNumber = new Map(
+        prev.map((quiz) => [quiz.number, quiz])
+      );
+      const merged = streamedQuizzes.map((quiz) => {
+        const prevQuiz = prevByNumber.get(quiz.number);
+        if (!prevQuiz) return quiz;
+        return {
+          ...quiz,
+          userAnswer: prevQuiz.userAnswer,
+          check: prevQuiz.check,
+        };
+      });
+      return merged;
+    });
+
+    setIsLoading(false);
+    if (!hasStartedRef.current && problemSetId) {
+      trackQuizEvents.startQuiz(problemSetId);
+      hasStartedRef.current = true;
+    }
+  }, [streamedQuizzes, isStreaming, problemSetId]);
 
   useEffect(() => {
     let seconds = 0;

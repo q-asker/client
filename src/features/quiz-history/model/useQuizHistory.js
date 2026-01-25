@@ -51,7 +51,7 @@ export const useQuizHistory = ({ t, navigate }) => {
     trackQuizHistoryEvents.clickViewExplanation(
       record.problemSetId,
       record.quizLevel,
-      record.score
+      record.score,
     );
 
     setExplanationLoading(true);
@@ -59,7 +59,7 @@ export const useQuizHistory = ({ t, navigate }) => {
     try {
       if (record.quizData && record.quizData.length > 0) {
         const explanationResponse = await axiosInstance.get(
-          `/explanation/${record.problemSetId}`
+          `/explanation/${record.problemSetId}`,
         );
         const explanationData = explanationResponse.data;
 
@@ -74,12 +74,12 @@ export const useQuizHistory = ({ t, navigate }) => {
         });
       } else {
         const quizResponse = await axiosInstance.get(
-          `/problem-set/${record.problemSetId}`
+          `/problem-set/${record.problemSetId}`,
         );
         const quizData = quizResponse.data;
 
         const explanationResponse = await axiosInstance.get(
-          `/explanation/${record.problemSetId}`
+          `/explanation/${record.problemSetId}`,
         );
         const explanationData = explanationResponse.data;
 
@@ -104,7 +104,7 @@ export const useQuizHistory = ({ t, navigate }) => {
         config: error.config,
       });
       CustomToast.error(
-        t("해설을 불러오는데 실패했습니다. 문제가 삭제되었을 수 있습니다.")
+        t("해설을 불러오는데 실패했습니다. 문제가 삭제되었을 수 있습니다."),
       );
     } finally {
       setExplanationLoading(false);
@@ -116,13 +116,13 @@ export const useQuizHistory = ({ t, navigate }) => {
       trackQuizHistoryEvents.clickRetryQuiz(
         record.problemSetId,
         record.quizLevel,
-        record.score
+        record.score,
       );
     } else {
       trackQuizHistoryEvents.clickResumeQuiz(
         record.problemSetId,
         record.quizLevel,
-        record.questionCount
+        record.questionCount,
       );
     }
 
@@ -137,13 +137,13 @@ export const useQuizHistory = ({ t, navigate }) => {
     if (window.confirm(t("이 기록을 삭제하시겠습니까?"))) {
       try {
         const record = quizHistory.find(
-          (item) => item.problemSetId === problemSetId
+          (item) => item.problemSetId === problemSetId,
         );
 
         trackQuizHistoryEvents.deleteQuizRecord(
           problemSetId,
           record?.status || "unknown",
-          record?.quizLevel || "unknown"
+          record?.quizLevel || "unknown",
         );
 
         const updatedHistory = removeQuizHistoryRecord(problemSetId);
@@ -159,15 +159,17 @@ export const useQuizHistory = ({ t, navigate }) => {
   const clearAllHistory = () => {
     if (
       window.confirm(
-        t("모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
+        t("모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."),
       )
     ) {
       try {
-        const completed = quizHistory.filter((item) => item.status === "completed");
+        const completed = quizHistory.filter(
+          (item) => item.status === "completed",
+        );
 
         trackQuizHistoryEvents.clearAllHistory(
           quizHistory.length,
-          completed.length
+          completed.length,
         );
 
         clearQuizHistory();
@@ -199,7 +201,7 @@ export const useQuizHistory = ({ t, navigate }) => {
       completed.length > 0
         ? Math.round(
             completed.reduce((sum, item) => sum + item.score, 0) /
-              completed.length
+              completed.length,
           )
         : 0;
 
@@ -219,7 +221,7 @@ export const useQuizHistory = ({ t, navigate }) => {
       trackQuizHistoryEvents.viewHistory(
         stats.totalQuizzes,
         stats.completedQuizzes,
-        stats.averageScore
+        stats.averageScore,
       );
     }
   }, [loading, quizHistory.length, stats]);

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { pdfjs } from "react-pdf";
-import axiosInstance from "#shared/api";
 import { authService } from "#entities/auth";
 import CustomToast from "#shared/toast";
 import { trackMakeQuizEvents } from "#shared/lib/analytics";
 import Timer from "#shared/lib/timer";
 import { useClickOutside } from "#shared/lib/useClickOutside";
 import { getLatestQuizRecord, upsertQuizHistoryRecord } from "#shared/lib/quizHistoryStorage";
+import { useQuizGenerationStore } from "#features/quiz-generation";
 import { uploadFileToServer } from "../file-uploader";
 import {
   defaultType,
@@ -51,6 +51,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
   const [showHelp, setShowHelp] = useState(false);
   const uploadTimerRef = useRef(null);
   const generationTimerRef = useRef(null);
+  const startGeneration = useQuizGenerationStore((state) => state.startGeneration);
 
   const pdfOptions = useMemo(
     () => ({
@@ -166,8 +167,8 @@ export const useMakeQuiz = ({ t, navigate }) => {
 
     const apiQuizType = questionType;
 
+    setIsProcessing(true);
     try {
-      setIsProcessing(true);
       try {
         await authService.refresh();
       } catch (refreshError) {
@@ -178,29 +179,45 @@ export const useMakeQuiz = ({ t, navigate }) => {
         setGenerationElapsedTime(elapsed);
       });
       generationTimerRef.current.start();
-      const response = await axiosInstance.post(`/generation`, {
-        uploadedUrl: uploadedUrl,
-        quizCount: questionCount,
-        quizType: apiQuizType,
-        difficultyType: quizLevel,
-        pageNumbers: selectedPages,
+
+      startGeneration({
+        requestData: {
+          uploadedUrl: uploadedUrl,
+          quizCount: questionCount,
+          quizType: apiQuizType,
+          difficultyType: quizLevel,
+          pageNumbers: selectedPages,
+        },
+        onFirstChunk: ({ problemSetId: nextProblemSetId }) => {
+          setProblemSetId(nextProblemSetId);
+          setVersion((prev) => prev + 1);
+          saveQuizToHistory(nextProblemSetId, file.name);
+        },
+        onComplete: (nextProblemSetId) => {
+          if (generationTimerRef.current) {
+            const generationTime = generationTimerRef.current.stop();
+            trackMakeQuizEvents.completeQuizGeneration(
+              nextProblemSetId,
+              generationTime
+            );
+          }
+          setIsProcessing(false);
+        },
+        onError: (error) => {
+          if (generationTimerRef.current) {
+            generationTimerRef.current.stop();
+          }
+          const message =
+            error?.message || t("문제 생성 중 오류가 발생했습니다.");
+          CustomToast.error(message);
+          setIsProcessing(false);
+          setGenerationElapsedTime(0);
+        },
       });
-      const result = response.data;
-      setProblemSetId(result.problemSetId);
-      setVersion((prev) => prev + 1);
-
-      saveQuizToHistory(result.problemSetId, file.name);
-
-      const generationTime = generationTimerRef.current.stop();
-      trackMakeQuizEvents.completeQuizGeneration(
-        result.problemSetId,
-        generationTime
-      );
     } catch (error) {
       if (generationTimerRef.current) {
         generationTimerRef.current.stop();
       }
-    } finally {
       setIsProcessing(false);
       setGenerationElapsedTime(0);
     }
