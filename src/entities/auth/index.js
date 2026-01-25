@@ -6,5 +6,5 @@ configureAuth({
   clearAuth: () => useAuthStore.getState().clearAuth(),
 });
 
-export { useAuthStore } from "./store";
+export { useAuthStore, getAccessToken } from "./store";
 export { authService } from "./service";

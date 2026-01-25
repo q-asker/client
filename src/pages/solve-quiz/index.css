@@ -129,6 +129,17 @@ body {
   justify-content: space-between;
 }
 
+.solve-streaming-status {
+  background: #fff;
+  border: 1px dashed #cbd5f5;
+  color: #5b4ed6;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  align-self: flex-start;
+}
+
 .solve-nav-button {
   background-color: #6a33f8;
   color: #fff;
