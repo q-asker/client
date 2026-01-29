@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "./App.css";
-import Login from "#pages/login";
+import LoginSelect from "#pages/login-select";
 import LoginRedirect from "#pages/login-redirect";
 import MakeQuiz from "#pages/make-quiz";
 import QuizExplanation from "#pages/quiz-explanation";
@@ -27,7 +27,7 @@ const App = () => {
         <ToastContainer />
         <Routes>
           <Route path="/" element={<MakeQuiz />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<LoginSelect />} />
           <Route path="/login/redirect" element={<LoginRedirect />} />
           <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
           <Route path="/result/:problemSetId" element={<QuizResult />} />

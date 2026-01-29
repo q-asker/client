@@ -63,7 +63,7 @@ export const useQuizGenerationStore = create((set, get) => ({
       const response = await fetch(buildApiUrl("/generation"), {
         method: "POST",
         headers: {
-          Accept: "application/x-ndjson",
+          Accept: "text/event-stream",
           "Content-Type": "application/json",
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
@@ -120,32 +120,61 @@ export const useQuizGenerationStore = create((set, get) => ({
         }
       };
 
+      const parseEvent = (rawEvent) => {
+        const lines = rawEvent.split("\n");
+        const dataLines = [];
+        let eventType = null;
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          if (line.startsWith("event:")) {
+            eventType = line.slice(6).trim();
+            continue;
+          }
+          if (line.startsWith("data:")) {
+            dataLines.push(line.slice(5).trimStart());
+          }
+        }
+
+        const payload = dataLines.join("\n").trim();
+        if (!payload || payload === "[DONE]") return;
+
+        if (eventType === "error") {
+          set({ isLoading: false, error: payload });
+          if (typeof onError === "function") {
+            onError(new Error(payload));
+          }
+          return;
+        }
+
+        try {
+          const data = JSON.parse(payload);
+          handleChunk(data);
+        } catch (error) {
+          console.error("SSE 데이터 파싱 실패:", error);
+        }
+      };
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split("\n");
-        buffer = parts.pop() || "";
+        buffer = buffer.replace(/\r\n/g, "\n");
 
-        for (const part of parts) {
-          if (!part.trim()) continue;
-          try {
-            const data = JSON.parse(part);
-            handleChunk(data);
-          } catch (error) {
-            console.error("스트리밍 데이터 파싱 실패:", error);
+        while (buffer.includes("\n\n")) {
+          const boundaryIndex = buffer.indexOf("\n\n");
+          const rawEvent = buffer.slice(0, boundaryIndex);
+          buffer = buffer.slice(boundaryIndex + 2);
+          if (rawEvent.trim()) {
+            parseEvent(rawEvent);
           }
         }
       }
 
       if (buffer.trim()) {
-        try {
-          const data = JSON.parse(buffer);
-          handleChunk(data);
-        } catch (error) {
-          console.error("스트리밍 잔여 데이터 파싱 실패:", error);
-        }
+        buffer = buffer.replace(/\r\n/g, "\n");
+        parseEvent(buffer);
       }
 
       if (activeController === controller) {

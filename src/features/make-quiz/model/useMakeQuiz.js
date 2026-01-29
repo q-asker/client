@@ -62,6 +62,12 @@ export const useMakeQuiz = ({ t, navigate }) => {
     []
   );
 
+  const applyAllPagesSelection = (totalPages) => {
+    setNumPages(totalPages);
+    setSelectedPages(Array.from({ length: totalPages }, (_, i) => i + 1));
+    setPageMode("ALL");
+  };
+
   useEffect(() => {
     setQuizLevel(levelMapping[questionType]);
     localStorage.setItem("questionType", questionType);
@@ -283,6 +289,36 @@ export const useMakeQuiz = ({ t, navigate }) => {
   }, []);
 
   useEffect(() => {
+    if (!uploadedUrl) return;
+
+    let cancelled = false;
+    const loadPdfMetadata = async () => {
+      try {
+        const loadingTask = pdfjs.getDocument(uploadedUrl);
+        const pdf = await loadingTask.promise;
+        if (cancelled) {
+          if (loadingTask?.destroy) {
+            loadingTask.destroy();
+          }
+          return;
+        }
+        applyAllPagesSelection(pdf.numPages);
+        if (pdf?.destroy) {
+          pdf.destroy();
+        }
+      } catch (error) {
+        console.error("PDF 메타데이터 로드 실패:", error);
+      }
+    };
+
+    loadPdfMetadata();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [uploadedUrl]);
+
+  useEffect(() => {
     if (!numPages || numPages <= pageCountToLoad) return;
 
     setVisiblePageCount(pageCountToLoad);
@@ -355,9 +391,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
   };
 
   const onDocumentLoadSuccess = ({ numPages: nextNumPages }) => {
-    setNumPages(nextNumPages);
-    setSelectedPages(Array.from({ length: nextNumPages }, (_, i) => i + 1));
-    setPageMode("ALL");
+    applyAllPagesSelection(nextNumPages);
   };
 
   const handlePageSelection = (pageNumber) => {
