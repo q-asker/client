@@ -185,7 +185,7 @@ const MakeQuiz = () => {
               <div className="option-section">
                 {/* 문제 유형 세그먼티드 */}
                 <div className="section-title">
-                  {t("1. 퀴즈 타입을 선택해보세요")}
+                  {t("1. 퀴즈 타입을 선택하세요!")}
                 </div>
                 <div className="segmented-control question-type">
                   {[
@@ -244,7 +244,7 @@ const MakeQuiz = () => {
               {/* 문제 개수 슬라이더 */}
               <div className="option-section">
                 <div className="section-title">
-                  {t("2. 문제 개수를 지정해보세요")}
+                  {t("2. 문제 개수를 지정하세요!")}
                 </div>
                 <div className="slider-control">
                   <label>
@@ -272,15 +272,16 @@ const MakeQuiz = () => {
                 <div className="page-decide page-decide-custom">
                   <div className="page-title-group">
                     <div className="section-title">
-                      {t("3. 특정 페이지를 지정해보세요")}
+                      {t("3. 특정 페이지를 지정하세요!")}
                     </div>
                     <div className="preview-subtitle">
                       <span className="preview-badge">
+                        {t("최대 ")}
                         {MAX_SELECT_PAGES}
-                        {t("페이지 이하")}
+                        {t(" 페이지")}
                       </span>
                       <span className="preview-subtitle-text">
-                        <strong>{t("만 선택할 수 있어요.")}</strong>
+                        <strong>{t("선택할 수 있어요")}</strong>
                       </span>
                     </div>
                   </div>
@@ -289,41 +290,43 @@ const MakeQuiz = () => {
                       <span className="page-input-label">
                         {t("원하는 페이지 입력:")}
                       </span>
-                      <input
-                        type="number"
-                        min="1"
-                        max={numPages ?? 1}
-                        value={pageRangeStart}
-                        onChange={(e) => setPageRangeStart(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            handleApplyPageRange();
-                          }
-                        }}
-                        disabled={!numPages}
-                      />
-                      <span className="page-range-separator">~</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max={numPages ?? 1}
-                        value={pageRangeEnd}
-                        onChange={(e) => setPageRangeEnd(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            handleApplyPageRange();
-                          }
-                        }}
-                        disabled={!numPages}
-                      />
-                      <button
-                        type="button"
-                        className="apply-range-button"
-                        onClick={handleApplyPageRange}
-                        disabled={!numPages}
-                      >
-                        {t("적용")}
-                      </button>
+                      <div className="page-input-controls">
+                        <input
+                          type="number"
+                          min="1"
+                          max={numPages ?? 1}
+                          value={pageRangeStart}
+                          onChange={(e) => setPageRangeStart(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleApplyPageRange();
+                            }
+                          }}
+                          disabled={!numPages}
+                        />
+                        <span className="page-range-separator">~</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max={numPages ?? 1}
+                          value={pageRangeEnd}
+                          onChange={(e) => setPageRangeEnd(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleApplyPageRange();
+                            }
+                          }}
+                          disabled={!numPages}
+                        />
+                        <button
+                          type="button"
+                          className="apply-range-button"
+                          onClick={handleApplyPageRange}
+                          disabled={!numPages}
+                        >
+                          {t("적용")}
+                        </button>
+                      </div>
                     </div>
                     <div className="preview-actions">
                       <button

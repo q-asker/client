@@ -31,7 +31,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
     const savedType = localStorage.getItem("questionType");
     return savedType || defaultType;
   });
-  const [questionCount, setQuestionCount] = useState(15);
+  const [questionCount, setQuestionCount] = useState(10);
   const [isProcessing, setIsProcessing] = useState(false);
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -483,7 +483,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
         start = Math.max(1, end - MAX_SELECT_PAGES + 1);
       }
       CustomToast.error(
-        t(`${MAX_SELECT_PAGES}페이지 이하만 선택할 수 있어요.`)
+        t(`최대 ${MAX_SELECT_PAGES} 페이지 선택할 수 있어요`)
       );
     }
 
