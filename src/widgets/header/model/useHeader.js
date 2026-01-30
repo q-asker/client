@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation, useLanguageSwitcher } from "i18nexus";
 import CustomToast from "#shared/toast";
 import { authService, useAuthStore } from "#entities/auth";
@@ -10,9 +11,9 @@ const decodeBase64ToUtf8 = (value) => {
   if (!/^[A-Za-z0-9+/=_-]+$/.test(cleaned)) return null;
   const normalized = cleaned.replace(/-/g, "+").replace(/_/g, "/");
   const padding = normalized.length % 4;
-  const padded = padding
-    ? normalized.padEnd(normalized.length + (4 - padding), "=")
-    : normalized;
+  const padded = padding ?
+  normalized.padEnd(normalized.length + (4 - padding), "=") :
+  normalized;
   try {
     const binary = atob(padded);
     const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
@@ -43,12 +44,14 @@ const extractNicknameFromToken = (token) => {
 export const useHeader = ({ setIsSidebarOpen, setShowHelp }) => {
   const { changeLanguage } = useLanguageSwitcher();
   const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = Boolean(accessToken);
   const nicknameFromToken = useMemo(
     () => extractNicknameFromToken(accessToken),
-    [accessToken],
+    [accessToken]
   );
   const resolvedUser = useMemo(() => {
     if (!nicknameFromToken) return user;
@@ -58,7 +61,7 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }) => {
   useClickOutside({
     containerId: "sidebar",
     triggerId: "menuButton",
-    onOutsideClick: () => setIsSidebarOpen(false),
+    onOutsideClick: () => setIsSidebarOpen(false)
   });
 
   const handleQuizManagement = () => {
@@ -88,14 +91,20 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }) => {
   const handleLogout = async () => {
     try {
       await authService.logout();
-      CustomToast.info("로그아웃되었습니다.");
+      CustomToast.info(t("로그아웃되었습니다."));
     } catch (error) {
-      CustomToast.error("로그아웃에 실패했습니다.");
+      CustomToast.error(t("로그아웃에 실패했습니다."));
     }
   };
 
   const handleLanguageChange = (lang) => {
     changeLanguage(lang);
+    if (location.pathname === "/" || location.pathname === "/ko" || location.pathname === "/en") {
+      const targetPath = lang === "en" ? "/en" : "/ko";
+      if (location.pathname !== targetPath) {
+        navigate(targetPath, { replace: true });
+      }
+    }
   };
 
   const closeSidebar = () => {
@@ -109,7 +118,7 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }) => {
       handleHelp,
       handleLogout,
       handleLanguageChange,
-      closeSidebar,
-    },
+      closeSidebar
+    }
   };
 };

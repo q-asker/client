@@ -15,8 +15,8 @@ import {
   MAX_FILE_SIZE,
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
-  pageCountToLoad,
-} from "./constants";
+  pageCountToLoad } from
+"./constants";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -62,7 +62,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
     () => ({
       cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
       cMapPacked: true,
-      standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
+      standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`
     }),
     []
   );
@@ -93,7 +93,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
   useClickOutside({
     containerId: "sidebar",
     triggerId: "menuButton",
-    onOutsideClick: () => setIsSidebarOpen(false),
+    onOutsideClick: () => setIsSidebarOpen(false)
   });
 
   const handleDragOver = (e) => {
@@ -164,14 +164,14 @@ export const useMakeQuiz = ({ t, navigate }) => {
       }
 
       const message =
-        error?.message === "변환 시간 초과"
-          ? t("파일 변환이 지연되고 있어요. 잠시 후 다시 시도해주세요.")
-          : error?.response?.data?.message ||
-            error?.message ||
-            t("파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.");
+      error?.message === t("변환 시간 초과") ?
+      t("파일 변환이 지연되고 있어요. 잠시 후 다시 시도해주세요.") :
+      error?.response?.data?.message ||
+      error?.message ||
+      t("파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.");
 
       CustomToast.error(message);
-      console.error("파일 업로드 실패:", error);
+      console.error(t("파일 업로드 실패:"), error);
       return;
     } finally {
       setFileExtension(null);
@@ -197,9 +197,9 @@ export const useMakeQuiz = ({ t, navigate }) => {
       try {
         await authService.refresh();
       } catch (refreshError) {
+
         // ignore refresh error and continue with generation
       }
-
       generationTimerRef.current = new Timer((elapsed) => {
         setGenerationElapsedTime(elapsed);
       });
@@ -211,7 +211,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
           quizCount: questionCount,
           quizType: apiQuizType,
           difficultyType: quizLevel,
-          pageNumbers: selectedPages,
+          pageNumbers: selectedPages
         },
         onFirstChunk: ({ problemSetId: nextProblemSetId }) => {
           setProblemSetId(nextProblemSetId);
@@ -233,11 +233,11 @@ export const useMakeQuiz = ({ t, navigate }) => {
             generationTimerRef.current.stop();
           }
           const message =
-            error?.message || t("문제 생성 중 오류가 발생했습니다.");
+          error?.message || t("문제 생성 중 오류가 발생했습니다.");
           CustomToast.error(message);
           setIsProcessing(false);
           setGenerationElapsedTime(0);
-        },
+        }
       });
     } catch (error) {
       if (generationTimerRef.current) {
@@ -261,7 +261,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
         status: "created",
         score: null,
         correctCount: null,
-        totalTime: null,
+        totalTime: null
       };
 
       upsertQuizHistoryRecord(newQuizRecord, { max: 20 });
@@ -278,7 +278,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
       setProblemSetId(latest.problemSetId);
       const virtualFile = {
         name: latest.fileName,
-        size: latest.fileSize,
+        size: latest.fileSize
       };
       setFile(virtualFile);
       setUploadedUrl(latest.uploadedUrl);
@@ -326,7 +326,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
           pdf.destroy();
         }
       } catch (error) {
-        console.error("PDF 메타데이터 로드 실패:", error);
+        console.error(t("PDF 메타데이터 로드 실패:"), error);
       }
     };
 
@@ -417,7 +417,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
   const handleNavigateToQuiz = () => {
     trackMakeQuizEvents.navigateToQuiz(problemSetId);
     navigate(`/quiz/${problemSetId}`, {
-      state: { uploadedUrl },
+      state: { uploadedUrl }
     });
   };
 
@@ -460,7 +460,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
 
     const startValue = pageRangeStart === "" ? "1" : pageRangeStart;
     const endValue =
-      pageRangeEnd === "" ? String(numPages) : pageRangeEnd;
+    pageRangeEnd === "" ? String(numPages) : pageRangeEnd;
     const parsedStart = parseInt(startValue, 10);
     const parsedEnd = parseInt(endValue, 10);
 
@@ -514,15 +514,15 @@ export const useMakeQuiz = ({ t, navigate }) => {
 
     const style = {
       top: `${top}px`,
-      width: `${PREVIEW_WIDTH}px`,
+      width: `${PREVIEW_WIDTH}px`
     };
 
     if (itemRect.left < midpoint) {
       style.left = `${itemRect.left - containerRect.left + itemWidth + GAP}px`;
     } else {
       style.left = `${
-        itemRect.left - containerRect.left - PREVIEW_WIDTH - GAP
-      }px`;
+      itemRect.left - containerRect.left - PREVIEW_WIDTH - GAP}px`;
+
     }
 
     setHoveredPage({ pageNumber, style });
@@ -586,7 +586,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
       generationElapsedTime,
       fileExtension,
       showHelp,
-      pdfOptions,
+      pdfOptions
     },
     actions: {
       toggleSidebar,
@@ -613,7 +613,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
       generateQuestions,
       handleQuestionTypeChange,
       handleQuestionCountChange,
-      handlePageModeChange,
-    },
+      handlePageModeChange
+    }
   };
 };

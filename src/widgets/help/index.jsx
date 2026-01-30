@@ -14,7 +14,7 @@ const Help = () => {
       <article className="help-content help-detailed">
         <header className="help-header">
           <h1 className="help-title">
-            {t("Q-Asker: 학습 자료로 무료 AI 퀴즈 생성")}
+            {t("Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성")}
           </h1>
           <p className="help-subtitle">
             {t(
@@ -194,7 +194,7 @@ const Help = () => {
                 <h4>{t("🔄 복습 퀴즈")}</h4>
                 <p>
                   {t(
-                    "PDF, PPT 공부 자료로 퀴즈를 만들어 보세요. 핵심 개념을 빠르게 암기하고 시험 대비에 효과적입니다.",
+                    "PDF, PPT, Word 공부 자료로 퀴즈를 만들어 보세요. 핵심 개념을 빠르게 암기하고 시험 대비에 효과적입니다.",
                   )}
                 </p>
               </div>
@@ -274,7 +274,7 @@ const Help = () => {
                 >
                   <p itemProp="text">
                     {t(
-                      "네, PDF/PPT 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.",
+                      "네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.",
                     )}
                   </p>
                 </div>
