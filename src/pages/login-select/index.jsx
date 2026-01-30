@@ -3,7 +3,7 @@ import React from "react";
 import "./index.css";
 import Logo from "#shared/ui/logo";
 
-const Login = () => {
+const LoginSelect = () => {
   const { t } = useTranslation();
   const baseUrl = import.meta.env.VITE_BASE_URL || "";
   const kakaoLoginUrl = `${baseUrl}/oauth2/authorization/kakao`;
@@ -29,4 +29,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginSelect;

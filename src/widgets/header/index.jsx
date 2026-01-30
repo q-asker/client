@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useHeader } from "./model/useHeader";
 import { useClickOutside } from "#shared/lib/useClickOutside";
@@ -22,6 +22,7 @@ const Header = ({
     },
   } = useHeader({ setIsSidebarOpen, setShowHelp });
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [showNavTooltip, setShowNavTooltip] = useState(false);
 
   const displayName = useMemo(() => {
     const name =
@@ -40,6 +41,33 @@ const Header = ({
     isEnabled: isProfileOpen,
   });
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        const dismissedDate = localStorage.getItem(
+          "headerNavTooltipDismissedDate",
+        );
+        setShowNavTooltip(dismissedDate !== today);
+      } catch (error) {
+        setShowNavTooltip(true);
+      }
+      return undefined;
+    }
+    setShowNavTooltip(false);
+    return undefined;
+  }, [isAuthenticated]);
+
+  const handleNavTooltipClose = () => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      localStorage.setItem("headerNavTooltipDismissedDate", today);
+    } catch (error) {
+      // ignore storage errors
+    }
+    setShowNavTooltip(false);
+  };
+
   return (
     <div className="header">
       <div className="header-inner">
@@ -56,13 +84,29 @@ const Header = ({
           </Link>
         </div>
         <div className="nav-link-area">
-          <Link
-            to="/history"
-            className="nav-link"
-            onClick={handleQuizManagement}
-          >
-            📋 <strong>{t("퀴즈 기록")}</strong>
-          </Link>
+          <div className="nav-link-wrapper">
+            <Link
+              to="/history"
+              className="nav-link"
+              onClick={handleQuizManagement}
+            >
+              <span className="emoji-label">📋</span>
+              <strong>{t("퀴즈 기록")}</strong>
+            </Link>
+            {!isAuthenticated && showNavTooltip && (
+              <span className="nav-tooltip" role="status">
+                {t("로그인하고, 퀴즈기록을 저장해보세요")}
+                <button
+                  type="button"
+                  className="nav-tooltip-close"
+                  aria-label={t("닫기")}
+                  onClick={handleNavTooltipClose}
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+          </div>
           <div className="auth-buttons">
             {isAuthenticated ? (
               <div className="profile-area">
@@ -88,14 +132,16 @@ const Header = ({
                         handleLogout();
                       }}
                     >
-                      🚪 <strong>{t("로그아웃")}</strong>
+                      <span className="emoji-label">🚪</span>
+                      <strong>{t("로그아웃")}</strong>
                     </button>
                   </div>
                 )}
               </div>
             ) : (
               <Link className="text-button" to="/login">
-                🔐 <strong>{t("로그인")}</strong>
+                <span className="emoji-label">🔐</span>
+                <strong>{t("로그인")}</strong>
               </Link>
             )}
           </div>

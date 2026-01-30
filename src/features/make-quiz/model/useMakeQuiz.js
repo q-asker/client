@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { pdfjs } from "react-pdf";
 import { authService } from "#entities/auth";
 import CustomToast from "#shared/toast";
@@ -13,6 +13,8 @@ import {
   levelMapping,
   loadInterval,
   MAX_FILE_SIZE,
+  MAX_SELECT_PAGES,
+  SUPPORTED_EXTENSIONS,
   pageCountToLoad,
 } from "./constants";
 
@@ -29,7 +31,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
     const savedType = localStorage.getItem("questionType");
     return savedType || defaultType;
   });
-  const [questionCount, setQuestionCount] = useState(5);
+  const [questionCount, setQuestionCount] = useState(10);
   const [isProcessing, setIsProcessing] = useState(false);
   const [version, setVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -38,11 +40,14 @@ export const useMakeQuiz = ({ t, navigate }) => {
     const savedType = localStorage.getItem("questionType");
     return levelMapping[savedType || defaultType];
   });
-  const [pageMode, setPageMode] = useState("ALL");
+  const [pageMode, setPageMode] = useState("CUSTOM");
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
   const [hoveredPage, setHoveredPage] = useState(null);
   const [visiblePageCount, setVisiblePageCount] = useState(50);
+  const [pageRangeStart, setPageRangeStart] = useState("");
+  const [pageRangeEnd, setPageRangeEnd] = useState("");
+  const [isPreviewVisible, setIsPreviewVisible] = useState(true);
   const pdfPreviewRef = useRef(null);
   const [showWaitMessage, setShowWaitMessage] = useState(false);
   const [uploadElapsedTime, setUploadElapsedTime] = useState(0);
@@ -60,6 +65,22 @@ export const useMakeQuiz = ({ t, navigate }) => {
       standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
     }),
     []
+  );
+
+  const getSelectablePageCount = useCallback(
+    (totalPages) => Math.min(totalPages, MAX_SELECT_PAGES),
+    []
+  );
+
+  const applyAllPagesSelection = useCallback(
+    (totalPages) => {
+      const selectablePages = getSelectablePageCount(totalPages);
+      setNumPages(totalPages);
+      setSelectedPages(
+        Array.from({ length: selectablePages }, (_, i) => i + 1)
+      );
+    },
+    [getSelectablePageCount]
   );
 
   useEffect(() => {
@@ -105,7 +126,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
   const selectFile = async (nextFile, method = "click") => {
     const ext = nextFile.name.split(".").pop().toLowerCase();
 
-    if (!["ppt", "pptx", "pdf"].includes(ext)) {
+    if (!SUPPORTED_EXTENSIONS.includes(ext)) {
       CustomToast.error(t("지원하지 않는 파일 형식입니다"));
       return;
     }
@@ -162,6 +183,10 @@ export const useMakeQuiz = ({ t, navigate }) => {
   const generateQuestions = async () => {
     if (!uploadedUrl) {
       CustomToast.error(t("파일을 먼저 업로드해주세요."));
+      return;
+    }
+    if (!selectedPages.length) {
+      CustomToast.error(t("페이지를 선택해주세요."));
       return;
     }
 
@@ -283,6 +308,42 @@ export const useMakeQuiz = ({ t, navigate }) => {
   }, []);
 
   useEffect(() => {
+    if (!uploadedUrl) return;
+
+    let cancelled = false;
+    const loadPdfMetadata = async () => {
+      try {
+        const loadingTask = pdfjs.getDocument(uploadedUrl);
+        const pdf = await loadingTask.promise;
+        if (cancelled) {
+          if (loadingTask?.destroy) {
+            loadingTask.destroy();
+          }
+          return;
+        }
+        applyAllPagesSelection(pdf.numPages);
+        if (pdf?.destroy) {
+          pdf.destroy();
+        }
+      } catch (error) {
+        console.error("PDF 메타데이터 로드 실패:", error);
+      }
+    };
+
+    loadPdfMetadata();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [uploadedUrl, applyAllPagesSelection]);
+
+  useEffect(() => {
+    if (!numPages) return;
+    setPageRangeStart("1");
+    setPageRangeEnd(String(Math.min(numPages, MAX_SELECT_PAGES)));
+  }, [numPages]);
+
+  useEffect(() => {
     if (!numPages || numPages <= pageCountToLoad) return;
 
     setVisiblePageCount(pageCountToLoad);
@@ -311,17 +372,20 @@ export const useMakeQuiz = ({ t, navigate }) => {
     setUploadedUrl(null);
     setIsDragging(false);
     setQuestionType(defaultType);
-    setQuestionCount(5);
+    setQuestionCount(15);
     setIsProcessing(false);
     setVersion(0);
     setIsSidebarOpen(false);
     setProblemSetId(null);
     setQuizLevel(levelMapping[defaultType]);
-    setPageMode("ALL");
+    setPageMode("CUSTOM");
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
     setVisiblePageCount(100);
+    setPageRangeStart("");
+    setPageRangeEnd("");
+    setIsPreviewVisible(true);
     setShowWaitMessage(false);
     setUploadElapsedTime(0);
     setGenerationElapsedTime(0);
@@ -342,6 +406,9 @@ export const useMakeQuiz = ({ t, navigate }) => {
     setSelectedPages([]);
     setHoveredPage(null);
     setVisiblePageCount(100);
+    setPageRangeStart("1");
+    setPageRangeEnd(String(Math.min(numPages ?? 1, MAX_SELECT_PAGES)));
+    setIsPreviewVisible(true);
     setShowWaitMessage(false);
     setUploadElapsedTime(0);
     setGenerationElapsedTime(0);
@@ -355,9 +422,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
   };
 
   const onDocumentLoadSuccess = ({ numPages: nextNumPages }) => {
-    setNumPages(nextNumPages);
-    setSelectedPages(Array.from({ length: nextNumPages }, (_, i) => i + 1));
-    setPageMode("ALL");
+    applyAllPagesSelection(nextNumPages);
   };
 
   const handlePageSelection = (pageNumber) => {
@@ -365,22 +430,74 @@ export const useMakeQuiz = ({ t, navigate }) => {
       if (prevSelectedPages.includes(pageNumber)) {
         return prevSelectedPages.filter((p) => p !== pageNumber);
       }
+      if (prevSelectedPages.length >= MAX_SELECT_PAGES) {
+        return prevSelectedPages;
+      }
       return [...prevSelectedPages, pageNumber].sort((a, b) => a - b);
     });
   };
 
   const handleSelectAllPages = () => {
-    if (selectedPages.length === numPages) {
+    if (!numPages) {
+      return;
+    }
+    const selectablePages = getSelectablePageCount(numPages);
+    if (selectedPages.length === selectablePages) {
       setSelectedPages([]);
     } else {
-      setSelectedPages(Array.from({ length: numPages }, (_, i) => i + 1));
+      setSelectedPages(
+        Array.from({ length: selectablePages }, (_, i) => i + 1)
+      );
     }
+  };
+
+  const handleClearAllPages = () => {
+    setSelectedPages([]);
+  };
+
+  const handleApplyPageRange = () => {
+    if (pageMode !== "CUSTOM" || !numPages) return;
+
+    const startValue = pageRangeStart === "" ? "1" : pageRangeStart;
+    const endValue =
+      pageRangeEnd === "" ? String(numPages) : pageRangeEnd;
+    const parsedStart = parseInt(startValue, 10);
+    const parsedEnd = parseInt(endValue, 10);
+
+    if (!Number.isFinite(parsedStart) || !Number.isFinite(parsedEnd)) {
+      CustomToast.error(t("페이지 범위를 올바르게 입력해주세요."));
+      return;
+    }
+
+    let start = Math.max(1, Math.min(parsedStart, numPages));
+    let end = Math.max(1, Math.min(parsedEnd, numPages));
+
+    if (start > end) {
+      [start, end] = [end, start];
+    }
+
+    if (end - start + 1 > MAX_SELECT_PAGES) {
+      end = start + MAX_SELECT_PAGES - 1;
+      if (end > numPages) {
+        end = numPages;
+        start = Math.max(1, end - MAX_SELECT_PAGES + 1);
+      }
+      CustomToast.error(
+        t(`최대 ${MAX_SELECT_PAGES} 페이지 선택할 수 있어요`)
+      );
+    }
+
+    setPageRangeStart(String(start));
+    setPageRangeEnd(String(end));
+    setSelectedPages(
+      Array.from({ length: end - start + 1 }, (_, i) => start + i)
+    );
   };
 
   const handlePageMouseEnter = (e, pageNumber) => {
     if (window.innerWidth <= 768) return;
 
-    if (pageMode === "ALL" || !pdfPreviewRef.current) return;
+    if (!pdfPreviewRef.current) return;
 
     const containerRect = pdfPreviewRef.current.getBoundingClientRect();
     const itemRect = e.currentTarget.getBoundingClientRect();
@@ -433,7 +550,10 @@ export const useMakeQuiz = ({ t, navigate }) => {
   const handlePageModeChange = (mode) => {
     setPageMode(mode);
     if (mode === "ALL") {
-      setSelectedPages(Array.from({ length: numPages }, (_, i) => i + 1));
+      const selectablePages = getSelectablePageCount(numPages ?? 0);
+      setSelectedPages(
+        Array.from({ length: selectablePages }, (_, i) => i + 1)
+      );
     } else {
       setSelectedPages([]);
     }
@@ -457,6 +577,9 @@ export const useMakeQuiz = ({ t, navigate }) => {
       selectedPages,
       hoveredPage,
       visiblePageCount,
+      pageRangeStart,
+      pageRangeEnd,
+      isPreviewVisible,
       pdfPreviewRef,
       showWaitMessage,
       uploadElapsedTime,
@@ -480,6 +603,11 @@ export const useMakeQuiz = ({ t, navigate }) => {
       onDocumentLoadSuccess,
       handlePageSelection,
       handleSelectAllPages,
+      handleClearAllPages,
+      handleApplyPageRange,
+      setPageRangeStart,
+      setPageRangeEnd,
+      setIsPreviewVisible,
       handlePageMouseEnter,
       handlePageMouseLeave,
       generateQuestions,

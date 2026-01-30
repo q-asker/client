@@ -17,4 +17,18 @@
   font-size: 24px;
   color: #6366f1;
   font-weight: bold;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .logo-icon {
+    width: 22px;
+    height: 22px;
+    margin-right: 6px;
+    margin-bottom: 3px;
+  }
+
+  .logo-text {
+    font-size: 18px;
+  }
 }
