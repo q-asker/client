@@ -1,7 +1,7 @@
 {
-  "name": "Q-Asker: PDF/PPT 파일로 무료 AI 퀴즈 생성",
+  "name": "Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성",
   "short_name": "Q-Asker",
-  "description": "PDF, PPT 파일만 업로드하면 AI가 자동으로 퀴즈를 생성해줍니다. 회원가입 없이 무료로 사용하고, 단계별 난이도로 학습 효과를 높여보세요.",
+  "description": "PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.",
   "theme_color": "#4F46E5",
   "background_color": "#ffffff",
   "display": "standalone",

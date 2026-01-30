@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useTranslation } from "i18nexus";import { useEffect, useState } from "react";
 import axiosInstance from "#shared/api";
 
 const formatDate = (isoString) => {
@@ -7,14 +7,14 @@ const formatDate = (isoString) => {
     timeZone: "Asia/Seoul",
     year: "numeric",
     month: "2-digit",
-    day: "2-digit",
-  })
-    .format(date)
-    .replace(/\. /g, ".")
-    .replace(/\.$/, "");
+    day: "2-digit"
+  }).
+  format(date).
+  replace(/\. /g, ".").
+  replace(/\.$/, "");
 };
 
-export const useRecentChanges = () => {
+export const useRecentChanges = () => {const { t } = useTranslation();
   const [changes, setChanges] = useState([]);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export const useRecentChanges = () => {
         const data = res.data;
         setChanges(data.updateLogs || []);
       } catch (err) {
-        console.error("변경사항 로드 실패:", err);
+        console.error(t("변경사항 로드 실패:"), err);
       }
     };
 
@@ -33,6 +33,6 @@ export const useRecentChanges = () => {
 
   return {
     state: { changes },
-    actions: { formatDate },
+    actions: { formatDate }
   };
 };
