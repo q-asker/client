@@ -156,10 +156,6 @@
 /* ──────────────────────────────────── */
 /* 옵션 패널 공통 */
 .options-panel {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 24px;
   margin: 32px 0;
 }
 
@@ -369,6 +365,20 @@
   margin: 8px 0;
 }
 
+.file-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.file-size {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0;
+}
+
 .section-title,
 .level-title {
   font-size: 18px;
@@ -501,6 +511,13 @@
   justify-content: center;
   align-items: center; /* 버튼 높이를 맞추기 위해 추가 */
   gap: 1rem;
+  flex-direction: column;
+}
+.action-guide {
+  margin: 0.25rem 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  text-align: center;
 }
 .connected-problem {
   margin-top: 24px;
@@ -508,7 +525,6 @@
 
 .problem-card {
   width: 100%;
-  max-width: 1200px;
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
@@ -518,6 +534,7 @@
   gap: 1.5rem;
   transition: box-shadow 0.2s;
   flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+  box-sizing: border-box;
 }
 .problem-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -529,12 +546,15 @@
 }
 .problem-details {
   flex-grow: 0;
+  min-width: 0;
 }
 .problem-title {
   margin: 0 0 0.25rem;
   font-size: 1.1rem;
   color: #111827;
   font-weight: 600;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .problem-details p {
   margin: 0;
@@ -555,6 +575,8 @@
   flex-shrink: 0;
   align-items: center;
   margin-left: auto;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .btn {
@@ -781,7 +803,6 @@
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 1rem;
 }
 
 .level-selector-row select {
@@ -818,6 +839,8 @@
   border: 1px solid #d7dfe8;
   padding: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .quiz-example-title {
@@ -1159,7 +1182,6 @@
   }
 
   .options-panel {
-    padding: 16px;
     margin: 24px 0;
   }
   .section-title {
@@ -1348,10 +1370,28 @@
     margin-top: 12px;
   }
 
+  .preview-toggle-button {
+    display: none;
+  }
+
+  .page-input-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .page-input-label {
+    width: 100%;
+  }
+
   .page-decide input[type="number"] {
     width: 100%;
     font-size: 0.9rem;
     padding: 6px 8px;
+  }
+
+  .page-decide .apply-range-button {
+    width: 100%;
   }
 
   .page-range-header {
@@ -1366,6 +1406,17 @@
 
   .page-range-separator {
     display: none;
+  }
+
+  .preview-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .preview-actions button {
+    width: 100%;
   }
 
   .page-decide select {
@@ -1412,5 +1463,11 @@
   .quiz-example-question-text,
   .quiz-example-option-text {
     font-size: 0.9rem;
+  }
+
+  .quiz-example-question-text,
+  .quiz-example-option-text {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 }

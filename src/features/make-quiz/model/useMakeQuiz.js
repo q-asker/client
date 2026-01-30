@@ -185,6 +185,10 @@ export const useMakeQuiz = ({ t, navigate }) => {
       CustomToast.error(t("파일을 먼저 업로드해주세요."));
       return;
     }
+    if (!selectedPages.length) {
+      CustomToast.error(t("페이지를 선택해주세요."));
+      return;
+    }
 
     const apiQuizType = questionType;
 
@@ -368,7 +372,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
     setUploadedUrl(null);
     setIsDragging(false);
     setQuestionType(defaultType);
-    setQuestionCount(5);
+    setQuestionCount(15);
     setIsProcessing(false);
     setVersion(0);
     setIsSidebarOpen(false);
