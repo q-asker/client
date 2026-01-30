@@ -5,6 +5,7 @@ import "./App.css";
 import LoginSelect from "#pages/login-select";
 import LoginRedirect from "#pages/login-redirect";
 import MakeQuiz from "#pages/make-quiz";
+import PrivacyPolicy from "#pages/privacy-policy";
 import QuizExplanation from "#pages/quiz-explanation";
 import QuizHistory from "#pages/quiz-history";
 import QuizResult from "#pages/quiz-result";
@@ -29,6 +30,7 @@ const App = () => {
           <Route path="/" element={<MakeQuiz />} />
           <Route path="/login" element={<LoginSelect />} />
           <Route path="/login/redirect" element={<LoginRedirect />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
           <Route path="/result/:problemSetId" element={<QuizResult />} />
           <Route
