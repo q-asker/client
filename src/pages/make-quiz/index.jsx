@@ -141,7 +141,7 @@ const MakeQuiz = () => {
                 <div className="file-name">{file.name}</div>
                 {file.size && (
                   <span className="file-size">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                    ({(file.size / 1024 / 1024).toFixed(2)} MB)
                   </span>
                 )}
               </div>
