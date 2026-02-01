@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { fetchEventSource } from "@microsoft/fetch-event-source";
 import axiosInstance from "#shared/api";
 import { getAccessToken } from "#entities/auth";
 
@@ -58,133 +59,100 @@ export const useQuizGenerationStore = create((set, get) => ({
       error: null,
     });
 
+    const accessToken = getAccessToken();
+    let firstChunkHandled = false;
+
     try {
-      const accessToken = getAccessToken();
-      const response = await fetch(buildApiUrl("/generation"), {
+      await fetchEventSource(buildApiUrl("/generation"), {
         method: "POST",
         headers: {
-          Accept: "text/event-stream",
           "Content-Type": "application/json",
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
-        credentials: "include",
         body: JSON.stringify(requestData),
         signal: controller.signal,
+        openWhenHidden: true,
+
+        async onopen(response) {
+          if (response.ok) {
+            return;
+          }
+          throw new Error("문제 생성 요청에 실패했습니다.");
+        },
+
+        onmessage(msg) {
+          if (msg.event === "error") {
+            throw new Error(msg.data);
+          }
+
+          if (msg.data === "[DONE]" || !msg.data) {
+            return;
+          }
+
+          try {
+            const data = JSON.parse(msg.data);
+
+            const nextProblemSetId = data?.problemSetId;
+            const nextTotalCount = Number(
+              data?.totalCount ?? data?.problemCount ?? data?.quizCount ?? 0,
+            );
+
+            if (!firstChunkHandled && nextProblemSetId) {
+              firstChunkHandled = true;
+              set({ problemSetId: nextProblemSetId });
+              if (typeof onFirstChunk === "function") {
+                onFirstChunk({
+                  problemSetId: nextProblemSetId,
+                  totalCount: nextTotalCount,
+                });
+              }
+            }
+
+            if (nextTotalCount > 0 && get().totalCount === 0) {
+              set({ totalCount: nextTotalCount });
+            }
+
+            const quizzesFromChunk = Array.isArray(data?.quiz) ? data.quiz : [];
+            const hasSingleQuizPayload =
+              data &&
+              (data.title || data.content || data.question || data.selections);
+
+            if (quizzesFromChunk.length > 0) {
+              set((state) => ({
+                quizzes: [...state.quizzes, ...quizzesFromChunk],
+              }));
+            } else if (hasSingleQuizPayload) {
+              set((state) => ({ quizzes: [...state.quizzes, data] }));
+            }
+          } catch (error) {
+            console.error("SSE 데이터 파싱 실패:", error);
+          }
+        },
+
+        onclose() {
+          throw new Error("STREAM_COMPLETE");
+        },
+
+        onerror(err) {
+          throw err;
+        },
       });
-
-      if (!response.ok) {
-        throw new Error("문제 생성 요청에 실패했습니다.");
+    } catch (error) {
+      if (error.message === "STREAM_COMPLETE") {
+        if (activeController === controller) {
+          set({ isLoading: false });
+          if (typeof onComplete === "function") {
+            onComplete(get().problemSetId);
+          }
+        }
+        return;
       }
 
-      if (!response.body) {
-        throw new Error("스트리밍 응답을 읽을 수 없습니다.");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let firstChunkHandled = false;
-
-      const handleChunk = (data) => {
-        const nextProblemSetId = data?.problemSetId;
-        const nextTotalCount = Number(
-          data?.totalCount ?? data?.problemCount ?? data?.quizCount ?? 0,
-        );
-
-        if (!firstChunkHandled && nextProblemSetId) {
-          firstChunkHandled = true;
-          set({ problemSetId: nextProblemSetId });
-          if (typeof onFirstChunk === "function") {
-            onFirstChunk({
-              problemSetId: nextProblemSetId,
-              totalCount: nextTotalCount,
-            });
-          }
-        }
-
-        if (nextTotalCount > 0 && get().totalCount === 0) {
-          set({ totalCount: nextTotalCount });
-        }
-
-        const quizzesFromChunk = Array.isArray(data?.quiz) ? data.quiz : [];
-        const hasSingleQuizPayload =
-          data &&
-          (data.title || data.content || data.question || data.selections);
-
-        if (quizzesFromChunk.length > 0) {
-          set((state) => ({
-            quizzes: [...state.quizzes, ...quizzesFromChunk],
-          }));
-        } else if (hasSingleQuizPayload) {
-          set((state) => ({ quizzes: [...state.quizzes, data] }));
-        }
-      };
-
-      const parseEvent = (rawEvent) => {
-        const lines = rawEvent.split("\n");
-        const dataLines = [];
-        let eventType = null;
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          if (line.startsWith("event:")) {
-            eventType = line.slice(6).trim();
-            continue;
-          }
-          if (line.startsWith("data:")) {
-            dataLines.push(line.slice(5).trimStart());
-          }
-        }
-
-        const payload = dataLines.join("\n").trim();
-        if (!payload || payload === "[DONE]") return;
-
-        if (eventType === "error") {
-          set({ isLoading: false, error: payload });
-          if (typeof onError === "function") {
-            onError(new Error(payload));
-          }
-          return;
-        }
-
-        try {
-          const data = JSON.parse(payload);
-          handleChunk(data);
-        } catch (error) {
-          console.error("SSE 데이터 파싱 실패:", error);
-        }
-      };
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        buffer = buffer.replace(/\r\n/g, "\n");
-
-        while (buffer.includes("\n\n")) {
-          const boundaryIndex = buffer.indexOf("\n\n");
-          const rawEvent = buffer.slice(0, boundaryIndex);
-          buffer = buffer.slice(boundaryIndex + 2);
-          if (rawEvent.trim()) {
-            parseEvent(rawEvent);
-          }
-        }
-      }
-
-      if (buffer.trim()) {
-        buffer = buffer.replace(/\r\n/g, "\n");
-        parseEvent(buffer);
+      if (error.name === "AbortError") {
+        return;
       }
 
       if (activeController === controller) {
-        set({ isLoading: false });
-        if (typeof onComplete === "function") {
-          onComplete(get().problemSetId);
-        }
-      }
-    } catch (error) {
-      if (error?.name !== "AbortError" && activeController === controller) {
         set({ isLoading: false, error: error?.message || "알 수 없는 오류" });
         if (typeof onError === "function") {
           onError(error);
