@@ -3,8 +3,8 @@
     "en",
     "ko"
   ],
-  "defaultLanguage": "en",
-  "localesDir": "./locales",
+  "defaultLanguage": "ko",
+  "localesDir": "./src/shared/i18n",
   "sourcePattern": "src/**/*.{js,jsx,ts,tsx}",
   "translationImportSource": "i18nexus",
   "googleSheets": {

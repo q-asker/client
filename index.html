@@ -40,30 +40,41 @@
 
     <!-- 테마 색상 -->
     <meta name="theme-color" content="#4F46E5" />
+    <meta name="application-name" content="Q-Asker" />
+    <meta name="apple-mobile-web-app-title" content="Q-Asker" />
+    <meta name="format-detection" content="telephone=no" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Q-Asker: PDF/PPT 파일로 무료 AI 퀴즈 생성</title>
+    <title>Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성</title>
 
     <!-- SEO 메타 태그 -->
     <meta name="author" content="Q-Asker" />
+    <meta name="robots" content="index,follow" />
+    <meta
+      name="googlebot"
+      content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+    />
     <meta
       name="description"
-      content="PDF, PPT 파일만 업로드하면 AI가 자동으로 퀴즈를 생성해줍니다. 회원가입 없이 무료로 사용하고, 단계별 난이도로 학습 효과를 높여보세요. 시험 대비, 복습에 최적화된 AI 퀴즈 생성 솔루션입니다."
+      content="PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요."
     />
     <meta
       name="keywords"
-      content="pdf 퀴즈 생성, ppt 퀴즈 생성, ai 퀴즈 생성, ai 문제 만들기, pdf 문제 만들기, ppt 문제 만들기, 시험 문제 자동 생성, 온라인 퀴즈 만들기, 무료 퀴즈 생성기, Q-Asker"
+      content="pdf 퀴즈 생성, ppt 퀴즈 만들기, word 퀴즈 생성, ai 퀴즈 생성, 시험 문제 자동 생성, 문서 퀴즈 변환, ocr 퀴즈, 온라인 퀴즈 만들기, Q-Asker"
     />
     <link rel="canonical" href="https://www.q-asker.com" />
+    <link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko" />
+    <link rel="alternate" hreflang="en" href="https://www.q-asker.com/en" />
+    <link rel="alternate" hreflang="x-default" href="https://www.q-asker.com" />
 
     <!-- Open Graph (소셜 미디어 공유용) -->
-    <meta
-      property="og:title"
-      content="Q-Asker: PDF/PPT 파일로 무료 AI 퀴즈 생성"
-    />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:title" content="Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성" />
     <meta
       property="og:description"
-      content="PDF, PPT 파일만 업로드하면 AI가 자동으로 퀴즈를 생성해줍니다. 회원가입 없이 무료로 사용하고, 단계별 난이도로 학습 효과를 높여보세요. 시험 대비, 복습에 최적화된 AI 퀴즈 생성 솔루션입니다."
+      content="PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요."
+  
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.q-asker.com" />
@@ -71,47 +82,58 @@
       property="og:image"
       content="https://www.q-asker.com/background.png"
     />
+    <meta
+      property="og:image:secure_url"
+      content="https://www.q-asker.com/background.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="683" />
+    <meta property="og:image:height" content="341" />
+    <meta
+      property="og:image:alt"
+      content="Q-Asker AI 퀴즈 생성 서비스 소개 이미지"
+    />
     <meta property="og:site_name" content="Q-Asker" />
 
     <!-- Twitter Cards (트위터 공유용) -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="Q-Asker: PDF/PPT 파일로 무료 AI 퀴즈 생성"
-    />
+    <meta name="twitter:title" content="Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성" />
     <meta
       name="twitter:description"
-      content="PDF, PPT 파일만 업로드하면 AI가 자동으로 퀴즈를 생성해줍니다. 회원가입 없이 무료로 사용하고, 단계별 난이도로 학습 효과를 높여보세요. 시험 대비, 복습에 최적화된 AI 퀴즈 생성 솔루션입니다."
+      content="PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요."
     />
     <meta
       name="twitter:image"
       content="https://www.q-asker.com/background.png"
     />
+    <meta name="twitter:domain" content="www.q-asker.com" />
+    <meta name="twitter:image:alt" content="Q-Asker AI 퀴즈 생성 서비스 소개 이미지" />
 
     <!-- 구조화된 데이터 (JSON-LD) -->
-    <script type="application/ld+json">
+    <script id="ld-howto" type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "HowTo",
-        "name": "PDF, PPT로 퀴즈를 생성하는 방법",
-        "description": "Q-Asker의 AI 퀴즈 생성 기능을 사용하면, 가지고 계신 PDF, PPT 학습 자료로 자동 퀴즈를 만들 수 있습니다. 몇 단계만으로 복잡한 문서가 학습에 최적화된 AI 퀴즈로 완성됩니다.",
+        "name": "학습 자료로 퀴즈를 생성하는 방법",
+        "description": "PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.",
+        "inLanguage": "ko",
         "step": [
           {
             "@type": "HowToStep",
-            "name": "1단계: PDF/PPT 파일 업로드",
-            "text": "AI 퀴즈 생성을 위해 PDF 또는 PPT 파일을 업로드합니다. 원하는 페이지를 지정하면 AI 퀴즈 생성시 더 좋은 퀴즈를 만들 수 있습니다.",
+            "name": "1단계: 학습 자료 파일 업로드",
+            "text": "AI 퀴즈 생성을 위해 PDF, PPT, Word 등 학습 자료 파일을 업로드합니다. 원하는 페이지를 지정하면 AI 퀴즈 생성시 더 좋은 퀴즈를 만들 수 있습니다.",
             "url": "https://www.q-asker.com#how-to-use"
           },
           {
             "@type": "HowToStep",
             "name": "2단계: AI 퀴즈 옵션 설정",
-            "text": "자동으로 생성할 문제 수량, 페이지 범위, 그리고 AI가 만들 퀴즈의 난이도(Easy, Normal, Hard)를 선택하여 맞춤형 AI 퀴즈 생성을 준비합니다.",
+            "text": "자동으로 생성할 문제 수량, 페이지 범위, 그리고 퀴즈 유형(빈칸, OX, 객관식)을 선택하여 맞춤형 AI 퀴즈 생성을 준비합니다.",
             "url": "https://www.q-asker.com#how-to-use"
           },
           {
             "@type": "HowToStep",
             "name": "3단계: AI 퀴즈 자동 생성",
-            "text": "설정이 끝나면 AI가 문서 내용을 분석하여 PDF 퀴즈 또는 PPT 퀴즈를 자동으로 생성합니다.",
+            "text": "설정이 끝나면 AI가 문서 내용을 분석하여 퀴즈를 자동으로 생성합니다.",
             "url": "https://www.q-asker.com#how-to-use"
           },
           {
@@ -123,7 +145,7 @@
           {
             "@type": "HowToStep",
             "name": "5단계: 결과 확인 및 해설 학습",
-            "text": "채점 결과와 함께 모든 문제에 대한 상세한 해설을 제공합니다. 참조한 페이지 미리보기를 통해 PDF/PPT 내용을 다시 확인하며 깊이 있는 학습을 할 수 있습니다.",
+            "text": "채점 결과와 함께 모든 문제에 대한 상세한 해설을 제공합니다. 참조한 페이지 미리보기를 통해 내용을 다시 확인하며 깊이 있는 학습을 할 수 있습니다.",
             "url": "https://www.q-asker.com#how-to-use"
           },
           {
@@ -135,41 +157,59 @@
         ]
       }
     </script>
-    <script type="application/ld+json">
+    <script id="ld-website" type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Q-Asker",
+        "url": "https://www.q-asker.com",
+        "inLanguage": "ko"
+      }
+    </script>
+    <script id="ld-organization" type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Q-Asker",
+        "url": "https://www.q-asker.com",
+        "logo": "https://www.q-asker.com/favicon-512x512.png"
+      }
+    </script>
+    <script id="ld-faq" type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "PDF나 PPT 파일로 AI 퀴즈를 만드는 기능은 무료인가요?",
+            "name": "Q. Q-Asker는 정말 무료인가요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "네, Q-Asker의 핵심 기능인 PDF/PPT 기반 AI 퀴즈 생성은 현재 완전 무료로 제공됩니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다."
+              "text": "네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다."
             }
           },
           {
             "@type": "Question",
-            "name": "PDF/PPT 퀴즈 생성을 위해 업로드한 파일은 안전한가요?",
+            "name": "Q. 업로드한 제 파일은 안전하게 관리되나요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "네. PDF 또는 PPT 퀴즈 생성을 위해 업로드된 파일은 오직 퀴즈를 만드는 데만 일시적으로 사용되며 24시간 뒤에 안전하게 삭제됩니다."
+              "text": "네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다."
             }
           },
           {
             "@type": "Question",
-            "name": "AI가 생성한 PDF/PPT 퀴즈의 정확도는 어떤가요?",
+            "name": "Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "AI는 높은 정확도로 PDF/PPT 문서의 핵심 내용을 파악하여 퀴즈를 생성하지만, 100% 완벽하지 않을 수 있습니다. AI가 생성한 모든 문제는 학습 참고용이며, 중요한 정보는 반드시 원본 문서를 통해 교차 확인하시기 바랍니다."
+              "text": "AI는 높은 정확도로 문서를 분석하지만, 100% 완벽하지 않을 수 있습니다. 생성된 문제는 학습 참고용이며, 중요한 정보는 반드시 원본과 교차 확인해주세요."
             }
           },
           {
             "@type": "Question",
-            "name": "이미지나 스캔한 PDF, PPT로도 AI 퀴즈 생성이 가능한가요?",
+            "name": "Q. 이미지로 된 파일도 퀴즈로 만들 수 있나요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "아니요. 현재 Q-Asker의 AI 퀴즈 생성 기능은 텍스트를 선택하고 복사할 수 있는 '텍스트 기반'의 PDF, PPT, PPTX 파일만 지원합니다. 스캔 본이나 이미지 형태의 문서로는 AI가 내용을 분석할 수 없습니다."
+              "text": "네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다."
             }
           }
         ]
@@ -178,6 +218,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/app/main.jsx"></script>
   </body>
 </html>

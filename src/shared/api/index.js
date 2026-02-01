@@ -2,8 +2,21 @@ import CustomToast from "#shared/toast";
 import axios from "axios";
 const apiBaseURL = import.meta.env.VITE_BASE_URL;
 
+let getAccessToken = () => null;
+let clearAuth = () => {};
+
+export const configureAuth = ({ getAccessToken: getToken, clearAuth: clear }) => {
+  if (typeof getToken === "function") {
+    getAccessToken = getToken;
+  }
+  if (typeof clear === "function") {
+    clearAuth = clear;
+  }
+};
+
 const axiosInstance = axios.create({
   baseURL: apiBaseURL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,6 +24,13 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
+    const accessToken = getAccessToken();
+    if (accessToken) {
+      config.headers = config.headers ?? {};
+      if (!config.headers.Authorization) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+    }
     if (config.isMultipart) {
       delete config.headers["Content-Type"];
     }
@@ -18,29 +38,38 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     CustomToast.error(error.message);
-    console.log(error.code, error.message);
     return Promise.reject(error);
   }
 );
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    CustomToast.error(error.response.data.message);
-    console.log("Axios Error 전체 ▶", error);
-    // 에러를 JSON으로도 찍어볼 수 있습니다. (순환 참조가 있으면 주의)
-    try {
-      console.log("Axios Error.toJSON() ▶", error.toJSON());
-    } catch (e) {
-      console.warn("error.toJSON() 출력 중 예외 발생:", e);
+  async (error) => {
+    let errorToHandle = error;
+    const status = error?.response?.status;
+    const { skipAuthRefresh, skipErrorToast } = error?.config || {};
+
+    if (status === 401) {
+      if (skipAuthRefresh) {
+        return Promise.reject(errorToHandle);
+      }
+      clearAuth();
+      window.location.assign("/login");
+      CustomToast.error("로그인이 필요합니다.");
+      return Promise.reject(errorToHandle);
     }
 
-    // error.request나 error.config 같은 속성들도 찍어보세요.
-    console.log("▶ request 객체 ▶", error.request);
-    console.log("▶ config ▶", error.config);
-    console.log("▶ response ▶", error.response);
+    if (!skipErrorToast) {
+      const message =
+        errorToHandle?.response?.data?.message || errorToHandle?.message;
+      if (message) {
+        CustomToast.error(message);
+      } else {
+        CustomToast.error("알 수 없는 오류가 발생했습니다.");
+      }
+    }
 
-    return Promise.reject(error);
+    return Promise.reject(errorToHandle);
   }
 );
 
