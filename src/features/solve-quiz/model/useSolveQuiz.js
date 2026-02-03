@@ -31,11 +31,34 @@ export const useSolveQuiz = ({
     }
   }, [problemSetId, navigate]);
 
+  const resumeGeneration = useQuizGenerationStore(
+    (state) => state.resumeGeneration
+  );
+
+  // ... (기타 상태들)
+
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
         const res = await axiosInstance.get(`/problem-set/${problemSetId}`);
         const data = res.data;
+
+        if (data.generationStatus === "GENERATING") {
+          // 생성 중인 경우 sessionId를 사용하여 스트림 재연결 (이어받기)
+          const sessionId = data.sessionId || problemSetId; // sessionId가 없다면 problemSetId 사용 시도
+
+          resumeGeneration({
+            sessionId,
+            onComplete: () => {
+              // 완료 시 추가 동작이 필요하다면 여기에 작성
+              // 예: 완료 토스트 메시지 등
+            },
+            onError: (err) => {
+              console.error("재연결 스트림 에러:", err);
+            },
+          });
+        }
+
         setQuizzes(data.quiz || []);
         if (!hasStartedRef.current) {
           trackQuizEvents.startQuiz(problemSetId);

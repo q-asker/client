@@ -213,12 +213,11 @@ export const useMakeQuiz = ({ t, navigate }) => {
           difficultyType: quizLevel,
           pageNumbers: selectedPages
         },
-        onFirstChunk: ({ problemSetId: nextProblemSetId }) => {
+        onSuccess: (nextProblemSetId) => {
           setProblemSetId(nextProblemSetId);
           setVersion((prev) => prev + 1);
           saveQuizToHistory(nextProblemSetId, file.name);
-        },
-        onComplete: (nextProblemSetId) => {
+
           if (generationTimerRef.current) {
             const generationTime = generationTimerRef.current.stop();
             trackMakeQuizEvents.completeQuizGeneration(
@@ -335,7 +334,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
     return () => {
       cancelled = true;
     };
-  }, [uploadedUrl, applyAllPagesSelection]);
+  }, [uploadedUrl, applyAllPagesSelection, t]);
 
   useEffect(() => {
     if (!numPages) return;
