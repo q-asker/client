@@ -1,5 +1,8 @@
 import { create } from "zustand";
+import { v4 as uuidv4 } from "uuid";
 import axiosInstance from "#shared/api";
+
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export const useQuizGenerationStore = create((set) => ({
   quizzes: [],
@@ -26,52 +29,21 @@ export const useQuizGenerationStore = create((set) => ({
       totalCount: 0,
       isLoading: true,
       problemSetId: null,
-      uploadedUrl: requestData?.uploadedUrl ?? null,
+      uploadedUrl: requestData.uploadedUrl,
       error: null,
     });
 
-    try {
-      const res = await axiosInstance.post("/generation", requestData);
-      const { problemSetId } = res.data;
+    const sessionId = uuidv4();
+    const eventSource = new EventSource(`${baseUrl}/${sessionId}/stream`);
 
-      set({
-        isLoading: false,
-        problemSetId,
-      });
-
-      if (onSuccess) {
-        onSuccess(problemSetId);
-      }
-    } catch (error) {
-      set({
-        isLoading: false,
-        error: error?.message || "문제 생성 요청에 실패했습니다.",
-      });
-      if (typeof onError === "function") {
-        onError(error);
-      }
-    }
+    eventSource.addEventListener("created", (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+    });
   },
 
   loadProblemSet: async (problemSetId) => {
     set({ isLoading: true, error: null, problemSetId });
-    try {
-      const res = await axiosInstance.get(`/problem-set/${problemSetId}`);
-      const data = res.data || {};
-      const quizzes = data.quiz || data.quizzes || data.problems || [];
-      set({
-        quizzes,
-        totalCount: Array.isArray(quizzes) ? quizzes.length : 0,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        isLoading: false,
-        error:
-          error?.response?.data?.message ||
-          error?.message ||
-          "문제집을 불러오지 못했습니다.",
-      });
-    }
+    
   },
 }));

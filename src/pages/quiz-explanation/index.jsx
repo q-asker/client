@@ -9,45 +9,13 @@ const QuizExplanation = () => {
   const { t } = useTranslation();
   const { problemSetId } = useParams();
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state: locationState } = useLocation();
   const {
     quizzes: initialQuizzes = [],
     explanation: rawExplanation = [],
     uploadedUrl,
-  } = state || {};
-  const {
-    state: {
-      showPdf,
-      pdfWidth,
-      pdfContainerRef,
-      currentPdfPage,
-      showWrongOnly,
-      specificExplanation,
-      isSpecificExplanationLoading,
-      currentQuestion,
-      totalQuestions,
-      filteredQuizzes,
-      filteredTotalQuestions,
-      isLoading,
-      currentQuiz,
-      thisExplanationText,
-      thisExplanationObj,
-      pdfOptions,
-    },
-    actions: {
-      handleExit,
-      handlePrev,
-      handleNext,
-      handleFetchSpecificExplanation,
-      handleQuestionClick,
-      handlePdfToggle,
-      handleWrongOnlyToggle,
-      handlePrevPdfPage,
-      handleNextPdfPage,
-      setCurrentPdfPage,
-      renderTextWithLinks,
-    },
-  } = useQuizExplanation({
+  } = locationState || {};
+  const { state, actions } = useQuizExplanation({
     t,
     navigate,
     problemSetId,
@@ -55,8 +23,15 @@ const QuizExplanation = () => {
     rawExplanation,
     uploadedUrl,
   });
+  const { quiz, pdf, explanation, ui } = state;
+  const {
+    quiz: quizActions,
+    pdf: pdfActions,
+    explanation: explanationActions,
+    common: commonActions,
+  } = actions;
 
-  if (isLoading) {
+  if (ui.isLoading) {
     return (
       <div className="spinner-container">
         <div className="spinner" />
@@ -68,7 +43,10 @@ const QuizExplanation = () => {
   return (
     <div className="app-container">
       <header className="navbar">
-        <button className="close-button" onClick={() => handleExit("/")}>
+        <button
+          className="close-button"
+          onClick={() => commonActions.handleExit("/")}
+        >
           x
         </button>
       </header>
@@ -82,16 +60,18 @@ const QuizExplanation = () => {
                 <label className="switch">
                   <input
                     type="checkbox"
-                    checked={showWrongOnly}
-                    onChange={handleWrongOnlyToggle}
+                    checked={quiz.showWrongOnly}
+                    onChange={quizActions.handleWrongOnlyToggle}
                   />
 
                   <span className="slider round" />
                 </label>
               </div>
               <span className="question-counter">
-                {currentQuestion} /{" "}
-                {showWrongOnly ? filteredTotalQuestions : totalQuestions}
+                {quiz.currentQuestion} /{" "}
+                {quiz.showWrongOnly
+                  ? quiz.filteredTotalQuestions
+                  : quiz.totalQuestions}
               </span>
 
               <div className="toggle-wrapper">
@@ -99,8 +79,8 @@ const QuizExplanation = () => {
                 <label className="switch">
                   <input
                     type="checkbox"
-                    checked={showWrongOnly}
-                    onChange={handleWrongOnlyToggle}
+                    checked={quiz.showWrongOnly}
+                    onChange={quizActions.handleWrongOnlyToggle}
                   />
 
                   <span className="slider round" />
@@ -110,7 +90,7 @@ const QuizExplanation = () => {
             <div className="question-area-container">
               {/* 좌측 번호 패널 */}
               <aside className="left-panel">
-                {filteredQuizzes.map((q, index) => {
+                {quiz.filteredQuizzes.map((q, index) => {
                   let resultClass = "";
                   if (q.userAnswer !== undefined && q.userAnswer !== null) {
                     // userAnswer가 존재하는 경우 (0 포함)
@@ -132,18 +112,18 @@ const QuizExplanation = () => {
                     <button
                       key={q.number}
                       className={`skipped-button${resultClass}${
-                        showWrongOnly
-                          ? index + 1 === currentQuestion
+                        quiz.showWrongOnly
+                          ? index + 1 === quiz.currentQuestion
                             ? " current"
                             : ""
-                          : q.number === currentQuestion
+                          : q.number === quiz.currentQuestion
                           ? " current"
                           : ""
                       }`}
                       onClick={() =>
-                        showWrongOnly
-                          ? handleQuestionClick(index + 1)
-                          : handleQuestionClick(q.number)
+                        quiz.showWrongOnly
+                          ? quizActions.handleQuestionClick(index + 1)
+                          : quizActions.handleQuestionClick(q.number)
                       }
                     >
                       {q.number}
@@ -153,17 +133,17 @@ const QuizExplanation = () => {
               </aside>
               <div
                 className={`question-area${
-                  currentQuiz.userAnswer === 0 ? " unanswered" : ""
+                  quiz.currentQuiz.userAnswer === 0 ? " unanswered" : ""
                 }`}
               >
-                <p className="question-text">{currentQuiz.title}</p>
+                <p className="question-text">{quiz.currentQuiz.title}</p>
               </div>
 
               <div className="options-container">
-                {currentQuiz.selections.map((opt, idx) => {
+                {quiz.currentQuiz.selections.map((opt, idx) => {
                   const isCorrectOption = opt.correct === true;
                   const isWrongSelected =
-                    currentQuiz.userAnswer === opt.id && !opt.correct;
+                    quiz.currentQuiz.userAnswer === opt.id && !opt.correct;
                   const borderClass = isCorrectOption
                     ? "correct-option"
                     : isWrongSelected
@@ -181,18 +161,20 @@ const QuizExplanation = () => {
               <nav className="question-nav">
                 <button
                   className="nav-button disabled"
-                  onClick={handlePrev}
-                  disabled={currentQuestion === 1}
+                  onClick={quizActions.handlePrev}
+                  disabled={quiz.currentQuestion === 1}
                 >
                   {t("이전")}
                 </button>
 
                 <button
                   className="nav-button"
-                  onClick={handleNext}
+                  onClick={quizActions.handleNext}
                   disabled={
-                    currentQuestion ===
-                    (showWrongOnly ? filteredTotalQuestions : totalQuestions)
+                    quiz.currentQuestion ===
+                    (quiz.showWrongOnly
+                      ? quiz.filteredTotalQuestions
+                      : quiz.totalQuestions)
                   }
                 >
                   {t("다음")}
@@ -200,7 +182,7 @@ const QuizExplanation = () => {
               </nav>
               <button
                 className="go-home-button"
-                onClick={() => handleExit("/")}
+                onClick={() => commonActions.handleExit("/")}
               >
                 {t("홈으로")}
               </button>
@@ -211,25 +193,29 @@ const QuizExplanation = () => {
                 <h3 className="explanation-title">{t("해설")}</h3>
                 <button
                   className="detailed-explanation-button"
-                  onClick={handleFetchSpecificExplanation}
-                  disabled={isSpecificExplanationLoading}
+                  onClick={explanationActions.handleFetchSpecificExplanation}
+                  disabled={explanation.isSpecificExplanationLoading}
                 >
-                  {isSpecificExplanationLoading ? (
+                  {explanation.isSpecificExplanationLoading ? (
                     <div className="spinner-in-button" />
                   ) : (
                     t("AI 상세 해설 보기")
                   )}
                 </button>
               </div>
-              <p className="explanation-text">{thisExplanationText}</p>
+              <p className="explanation-text">
+                {explanation.thisExplanationText}
+              </p>
 
-              {specificExplanation && (
+              {explanation.specificExplanation && (
                 <div className="specific-explanation-section">
                   <h4 className="specific-explanation-title">
                     {t("상세 해설")}
                   </h4>
                   <p className="explanation-text">
-                    {renderTextWithLinks(specificExplanation)}
+                    {explanationActions.renderTextWithLinks(
+                      explanation.specificExplanation
+                    )}
                   </p>
                 </div>
               )}
@@ -237,17 +223,19 @@ const QuizExplanation = () => {
               <div className="all-referenced-pages">
                 <h4 className="all-pages-title">{t("📚 참조 페이지")}</h4>
                 <div className="pages-list">
-                  {thisExplanationObj?.referencedPages?.map((page, index) => (
-                    <span
-                      key={index}
-                      className={`page-number ${
-                        currentPdfPage === index ? "active" : ""
-                      }`}
-                      onClick={() => setCurrentPdfPage(index)}
-                    >
-                      {page}
-                    </span>
-                  ))}
+                  {explanation.thisExplanationObj?.referencedPages?.map(
+                    (page, index) => (
+                      <span
+                        key={index}
+                        className={`page-number ${
+                          pdf.currentPdfPage === index ? "active" : ""
+                        }`}
+                        onClick={() => pdfActions.setCurrentPdfPage(index)}
+                      >
+                        {page}
+                      </span>
+                    )
+                  )}
                 </div>
               </div>
 
@@ -260,21 +248,21 @@ const QuizExplanation = () => {
                   <label className="switch switch-with-margin">
                     <input
                       type="checkbox"
-                      checked={showPdf}
-                      onChange={handlePdfToggle}
+                      checked={pdf.showPdf}
+                      onChange={pdfActions.handlePdfToggle}
                     />
 
                     <span className="slider round" />
                   </label>
                 </div>
               </div>
-              {showPdf && (
-                <div className="pdf-slide-box" ref={pdfContainerRef}>
+              {pdf.showPdf && (
+                <div className="pdf-slide-box" ref={pdf.pdfContainerRef}>
                   <div className="pdf-navigation">
                     <button
                       className="pdf-nav-button"
-                      onClick={handlePrevPdfPage}
-                      disabled={currentPdfPage === 0}
+                      onClick={pdfActions.handlePrevPdfPage}
+                      disabled={pdf.currentPdfPage === 0}
                     >
                       ←
                     </button>
@@ -282,16 +270,20 @@ const QuizExplanation = () => {
                       {t("슬라이드의")}
 
                       {" " +
-                        thisExplanationObj?.referencedPages?.[currentPdfPage] +
+                        explanation.thisExplanationObj?.referencedPages?.[
+                          pdf.currentPdfPage
+                        ] +
                         " "}
                       {t("페이지")}
                     </span>
                     <button
                       className="pdf-nav-button"
-                      onClick={handleNextPdfPage}
+                      onClick={pdfActions.handleNextPdfPage}
                       disabled={
-                        currentPdfPage ===
-                        (thisExplanationObj?.referencedPages?.length || 1) - 1
+                        pdf.currentPdfPage ===
+                        (explanation.thisExplanationObj?.referencedPages
+                          ?.length || 1) -
+                          1
                       }
                     >
                       →
@@ -306,15 +298,15 @@ const QuizExplanation = () => {
                       onLoadError={(err) => (
                         <p>{t("파일이 존재하지 않습니다.")}</p>
                       )}
-                      options={pdfOptions}
+                      options={pdf.pdfOptions}
                     >
                       <Page
                         pageNumber={
-                          thisExplanationObj?.referencedPages?.[
-                            currentPdfPage
+                          explanation.thisExplanationObj?.referencedPages?.[
+                            pdf.currentPdfPage
                           ] || 1
                         }
-                        width={pdfWidth}
+                        width={pdf.pdfWidth}
                         renderTextLayer={false}
                         renderAnnotationLayer={false}
                       />

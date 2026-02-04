@@ -21,93 +21,50 @@ const MakeQuiz = () => {
   const acceptExtensions = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(
     ", "
   );
+  const { state, actions } = useMakeQuiz({ t, navigate });
+  const { upload, options, pages, generation, ui, isProcessing, pdfOptions } =
+    state;
   const {
-    state: {
-      file,
-      uploadedUrl,
-      isDragging,
-      questionType,
-      questionCount,
-      isProcessing,
-      version,
-      isSidebarOpen,
-      problemSetId,
-      quizLevel,
-      numPages,
-      selectedPages,
-      hoveredPage,
-      visiblePageCount,
-      pageRangeStart,
-      pageRangeEnd,
-      isPreviewVisible,
-      pdfPreviewRef,
-      showWaitMessage,
-      uploadElapsedTime,
-      generationElapsedTime,
-      fileExtension,
-      showHelp,
-      pdfOptions,
-    },
-    actions: {
-      toggleSidebar,
-      setIsSidebarOpen,
-      setShowHelp,
-      handleDragOver,
-      handleDragEnter,
-      handleDragLeave,
-      handleDrop,
-      handleFileInput,
-      handleRemoveFile,
-      handleReCreate,
-      handleNavigateToQuiz,
-      onDocumentLoadSuccess,
-      handlePageSelection,
-      handleSelectAllPages,
-      handleClearAllPages,
-      handleApplyPageRange,
-      setPageRangeStart,
-      setPageRangeEnd,
-      setIsPreviewVisible,
-      handlePageMouseEnter,
-      handlePageMouseLeave,
-      generateQuestions,
-      handleQuestionTypeChange,
-      handleQuestionCountChange,
-    },
-  } = useMakeQuiz({ t, navigate });
+    upload: uploadActions,
+    options: optionActions,
+    pages: pageActions,
+    generation: generationActions,
+    ui: uiActions,
+    common: commonActions,
+  } = actions;
 
   return (
     <div className="page-wrapper">
       <Header
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        setIsSidebarOpen={setIsSidebarOpen}
-        setShowHelp={setShowHelp}
+        isSidebarOpen={ui.isSidebarOpen}
+        toggleSidebar={uiActions.toggleSidebar}
+        setIsSidebarOpen={uiActions.setIsSidebarOpen}
+        setShowHelp={uiActions.setShowHelp}
       />
 
       <div className="main">
         <div
-          className={`upload-section ${isDragging ? "dragging" : ""}`}
-          onDragOver={handleDragOver}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          className={`upload-section ${upload.isDragging ? "dragging" : ""}`}
+          onDragOver={uploadActions.handleDragOver}
+          onDragEnter={uploadActions.handleDragEnter}
+          onDragLeave={uploadActions.handleDragLeave}
+          onDrop={uploadActions.handleDrop}
         >
           {/* 파일 업로드 중일 때 */}
-          {isProcessing && !uploadedUrl ? (
+          {isProcessing && !upload.uploadedUrl ? (
             <div className="processing">
               <div className="spinner" />
               <div className="upload-status">
                 <div className="upload-title-animated">
                   {t("파일 업로드 중...")}
-                  {Math.floor(uploadElapsedTime / 1000)}
+                  {Math.floor(upload.uploadElapsedTime / 1000)}
                   {t("초")}
                 </div>
               </div>
-              {fileExtension && fileExtension !== "pdf" && (
+              {upload.fileExtension && upload.fileExtension !== "pdf" && (
                 <div className="conversion-message">
                   <div className="conversion-text">
-                    <strong>{fileExtension.toUpperCase()}</strong>
+                    <strong>{upload.fileExtension.toUpperCase()}</strong>
                     {t("파일을 PDF로 변환하고 있어요")}
                     <br />
                     <span className="conversion-subtext">
@@ -117,7 +74,7 @@ const MakeQuiz = () => {
                 </div>
               )}
             </div>
-          ) : !uploadedUrl ? (
+          ) : !upload.uploadedUrl ? (
             <>
               <div className="upload-icon">☁️</div>
               <div className="upload-title">
@@ -130,7 +87,7 @@ const MakeQuiz = () => {
                 <input
                   type="file"
                   accept={acceptExtensions}
-                  onChange={handleFileInput}
+                  onChange={uploadActions.handleFileInput}
                 />
               </div>
             </>
@@ -138,19 +95,22 @@ const MakeQuiz = () => {
             <>
               <div className="file-icon">📄</div>
               <div className="file-meta">
-                <div className="file-name">{file.name}</div>
-                {file.size && (
+                <div className="file-name">{upload.file.name}</div>
+                {upload.file.size && (
                   <span className="file-size">
-                    ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                    ({(upload.file.size / 1024 / 1024).toFixed(2)} MB)
                   </span>
                 )}
               </div>
-              <button className="remove-button" onClick={handleRemoveFile}>
+              <button
+                className="remove-button"
+                onClick={commonActions.handleRemoveFile}
+              >
                 {t("✕ 파일 삭제")}
               </button>
             </>
           )}
-          {!uploadedUrl && (
+          {!upload.uploadedUrl && (
             <>
               <div className="hint">
                 <ul className="hint-list">
@@ -179,7 +139,7 @@ const MakeQuiz = () => {
           )}
         </div>
         {/* Options Panel */}
-        {uploadedUrl && !problemSetId && (
+        {upload.uploadedUrl && !generation.problemSetId && (
           <div className="options-panel">
             <>
               <div className="option-section">
@@ -196,9 +156,14 @@ const MakeQuiz = () => {
                     return (
                       <button
                         key={type.key}
-                        className={questionType === type.key ? "active" : ""}
+                        className={
+                          options.questionType === type.key ? "active" : ""
+                        }
                         onClick={() => {
-                          handleQuestionTypeChange(type.key, type.label);
+                          optionActions.handleQuestionTypeChange(
+                            type.key,
+                            type.label
+                          );
                         }}
                       >
                         {type.label}
@@ -211,16 +176,17 @@ const MakeQuiz = () => {
                   <div className="level-counter-wrapper">
                     <div className="quiz-example-card">
                       <div className="quiz-example-title">
-                        {levelDescriptions[quizLevel]?.title}
+                        {levelDescriptions[options.quizLevel]?.title}
                       </div>
                       <div className="quiz-example-question">
                         <p className="quiz-example-question-text">
-                          {levelDescriptions[quizLevel]?.question}
+                          {levelDescriptions[options.quizLevel]?.question}
                         </p>
                       </div>
-                      {levelDescriptions[quizLevel]?.options?.length > 0 && (
+                      {levelDescriptions[options.quizLevel]?.options?.length >
+                        0 && (
                         <div className="quiz-example-options">
-                          {levelDescriptions[quizLevel].options.map(
+                          {levelDescriptions[options.quizLevel].options.map(
                             (option, index) => (
                               <div
                                 key={`${option}-${index}`}
@@ -250,7 +216,7 @@ const MakeQuiz = () => {
                   <label>
                     <strong>{t("문제 개수: ")}</strong>
                     <span className="count-badge">
-                      {questionCount}
+                      {options.questionCount}
                       {t("문제")}
                     </span>
                   </label>
@@ -259,10 +225,10 @@ const MakeQuiz = () => {
                     min="5"
                     max="25"
                     step="5"
-                    value={questionCount}
+                    value={options.questionCount}
                     onChange={(e) => {
                       const newCount = +e.target.value;
-                      handleQuestionCountChange(newCount);
+                      optionActions.handleQuestionCountChange(newCount);
                     }}
                   />
                 </div>
@@ -294,35 +260,39 @@ const MakeQuiz = () => {
                         <input
                           type="number"
                           min="1"
-                          max={numPages ?? 1}
-                          value={pageRangeStart}
-                          onChange={(e) => setPageRangeStart(e.target.value)}
+                          max={pages.numPages ?? 1}
+                          value={pages.pageRangeStart}
+                          onChange={(e) =>
+                            pageActions.setPageRangeStart(e.target.value)
+                          }
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                              handleApplyPageRange();
+                              pageActions.handleApplyPageRange();
                             }
                           }}
-                          disabled={!numPages}
+                          disabled={!pages.numPages}
                         />
                         <span className="page-range-separator">~</span>
                         <input
                           type="number"
                           min="1"
-                          max={numPages ?? 1}
-                          value={pageRangeEnd}
-                          onChange={(e) => setPageRangeEnd(e.target.value)}
+                          max={pages.numPages ?? 1}
+                          value={pages.pageRangeEnd}
+                          onChange={(e) =>
+                            pageActions.setPageRangeEnd(e.target.value)
+                          }
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                              handleApplyPageRange();
+                              pageActions.handleApplyPageRange();
                             }
                           }}
-                          disabled={!numPages}
+                          disabled={!pages.numPages}
                         />
                         <button
                           type="button"
                           className="apply-range-button"
-                          onClick={handleApplyPageRange}
-                          disabled={!numPages}
+                          onClick={pageActions.handleApplyPageRange}
+                          disabled={!pages.numPages}
                         >
                           {t("적용")}
                         </button>
@@ -331,53 +301,60 @@ const MakeQuiz = () => {
                     <div className="preview-actions">
                       <button
                         className="select-all-button"
-                        onClick={handleSelectAllPages}
+                        onClick={pageActions.handleSelectAllPages}
                       >
-                        {selectedPages.length === numPages
+                        {pages.selectedPages.length === pages.numPages
                           ? t("전체 선택")
                           : t("전체 선택")}
                       </button>
                       <button
                         className="clear-all-button"
-                        onClick={handleClearAllPages}
+                        onClick={pageActions.handleClearAllPages}
                       >
                         {t("전체 해제")}
                       </button>
                       <button
                         className={`preview-toggle-button ${
-                          isPreviewVisible ? "is-active" : ""
+                          pages.isPreviewVisible ? "is-active" : ""
                         }`}
                         type="button"
-                        onClick={() => setIsPreviewVisible((prev) => !prev)}
+                        onClick={() =>
+                          pageActions.setIsPreviewVisible((prev) => !prev)
+                        }
                       >
-                        {isPreviewVisible
+                        {pages.isPreviewVisible
                           ? t("미리보기 끄기")
                           : t("미리보기 켜기")}
                       </button>
                     </div>
                   </div>
                 </div>
-                {uploadedUrl && (
-                  <div className="pdf-preview-container" ref={pdfPreviewRef}>
+                {upload.uploadedUrl && (
+                  <div
+                    className="pdf-preview-container"
+                    ref={pages.pdfPreviewRef}
+                  >
                     <div className="selected-count preview-subtitle">
                       <strong>{t("선택된 페이지 수: ")}</strong>
                       <span className="preview-badge">
-                        {selectedPages.length}/{numPages ?? 0}
+                        {pages.selectedPages.length}/{pages.numPages ?? 0}
                       </span>
                     </div>
                     <Document
-                      file={uploadedUrl}
-                      onLoadSuccess={onDocumentLoadSuccess}
+                      file={upload.uploadedUrl}
+                      onLoadSuccess={pageActions.onDocumentLoadSuccess}
                       onLoadError={console.error}
                       options={pdfOptions}
                     >
                       <div className="pdf-grid-and-preview-wrapper">
                         <div
                           className="pdf-preview-grid"
-                          onMouseLeave={handlePageMouseLeave}
+                          onMouseLeave={pageActions.handlePageMouseLeave}
                         >
                           {Array.from(
-                            new Array(Math.min(visiblePageCount, numPages)),
+                            new Array(
+                              Math.min(pages.visiblePageCount, pages.numPages)
+                            ),
                             (el, index) => {
                               const pageNumber = index + 1;
                               const isDisabled = false;
@@ -386,22 +363,27 @@ const MakeQuiz = () => {
                                 <div
                                   key={`page_${pageNumber}`}
                                   className={`pdf-page-item ${
-                                    selectedPages.includes(pageNumber)
+                                    pages.selectedPages.includes(pageNumber)
                                       ? "selected"
                                       : ""
                                   } ${isDisabled ? "disabled" : ""} ${
-                                    hoveredPage &&
-                                    hoveredPage.pageNumber === pageNumber
+                                    pages.hoveredPage &&
+                                    pages.hoveredPage.pageNumber === pageNumber
                                       ? "hover-active"
                                       : ""
                                   }`}
                                   onClick={() => {
                                     if (!isDisabled) {
-                                      handlePageSelection(pageNumber);
+                                      pageActions.handlePageSelection(
+                                        pageNumber
+                                      );
                                     }
                                   }}
                                   onMouseEnter={(e) => {
-                                    handlePageMouseEnter(e, pageNumber);
+                                    pageActions.handlePageMouseEnter(
+                                      e,
+                                      pageNumber
+                                    );
                                   }}
                                 >
                                   <Page
@@ -419,24 +401,24 @@ const MakeQuiz = () => {
                               );
                             }
                           )}
-                          {visiblePageCount < numPages && (
+                          {pages.visiblePageCount < pages.numPages && (
                             <div className="loading-more-pages">
                               <div className="spinner" />
                               <p>
                                 {t("더 많은 페이지 로딩 중... (")}
-                                {visiblePageCount}/{numPages})
+                                {pages.visiblePageCount}/{pages.numPages})
                               </p>
                             </div>
                           )}
                         </div>
 
-                        {isPreviewVisible && hoveredPage && (
+                        {pages.isPreviewVisible && pages.hoveredPage && (
                           <div
                             className="pdf-side-preview"
-                            style={hoveredPage.style}
+                            style={pages.hoveredPage.style}
                           >
                             <Page
-                              pageNumber={hoveredPage.pageNumber}
+                              pageNumber={pages.hoveredPage.pageNumber}
                               width={640}
                               renderTextLayer={false}
                               renderAnnotationLayer={false}
@@ -458,14 +440,14 @@ const MakeQuiz = () => {
                     <div className="spinner" />
                     <p>
                       {t("문제 생성 중...")}
-                      {Math.floor(generationElapsedTime / 1000)}
+                      {Math.floor(generation.generationElapsedTime / 1000)}
                       {t("초")}
                       <br></br>{" "}
                       {t(
                         "생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다."
                       )}
                     </p>
-                    {showWaitMessage && (
+                    {generation.showWaitMessage && (
                       <p className="wait-message">
                         {t("현재 생성중입니다 조금만 더 기다려주세요!")}
                       </p>
@@ -482,14 +464,16 @@ const MakeQuiz = () => {
               <div className="action-buttons">
                 <button
                   className="primary-button large"
-                  onClick={generateQuestions}
+                  onClick={generationActions.generateQuestions}
                   disabled={
-                    !uploadedUrl || isProcessing || !selectedPages.length
+                    !upload.uploadedUrl ||
+                    isProcessing ||
+                    !pages.selectedPages.length
                   }
                 >
                   {isProcessing ? t("생성 중...") : t("문제 생성하기")}
                 </button>
-                {!isProcessing && !selectedPages.length && (
+                {!isProcessing && !pages.selectedPages.length && (
                   <p className="action-guide">
                     {t("페이지 정보를 불러오는 중입니다. 잠시만 기다려주세요.")}
                   </p>
@@ -498,25 +482,34 @@ const MakeQuiz = () => {
             </div>
           </div>
         )}
-        {uploadedUrl && problemSetId && (
+        {upload.uploadedUrl && generation.problemSetId && (
           <div className="option-section document-preview">
             <div className="section-title">{t("생성된 문제")}</div>
             <div className="problem-card">
               <div className="problem-icon">📝</div>
               <div className="problem-details">
                 <div className="problem-title">
-                  {file.name}
-                  {version > 0 && `.ver${version}`}
+                  {upload.file.name}
+                  {generation.version > 0 && `.ver${generation.version}`}
                 </div>
               </div>
               <div className="problem-actions">
-                <button className="btn cancle" onClick={handleRemoveFile}>
+                <button
+                  className="btn cancle"
+                  onClick={commonActions.handleRemoveFile}
+                >
                   {t("다른 파일 넣기")}
                 </button>
-                <button className="btn manage" onClick={handleReCreate}>
+                <button
+                  className="btn manage"
+                  onClick={commonActions.handleReCreate}
+                >
                   {t("다른 문제 생성")}
                 </button>
-                <button className="btn mapping" onClick={handleNavigateToQuiz}>
+                <button
+                  className="btn mapping"
+                  onClick={generationActions.handleNavigateToQuiz}
+                >
                   {t("문제 풀기")}
                 </button>
               </div>
@@ -524,7 +517,7 @@ const MakeQuiz = () => {
           </div>
         )}
         <RecentChanges />
-        {showHelp && <Help />}
+        {ui.showHelp && <Help />}
       </div>
 
       {/* Footer */}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import { trackQuizEvents } from "#shared/lib/analytics";
+import { useQuizGenerationStore } from "#features/quiz-generation";
 
 const buildTimerLabel = (hours, minutes, seconds) =>
   `${String(hours).padStart(2, "0")}:` +
@@ -260,29 +261,33 @@ export const useSolveQuiz = ({
 
   return {
     state: {
-      quizzes,
-      isLoading,
-      currentTime,
-      selectedOption,
-      currentQuestion,
-      showSubmitDialog,
-      totalQuestions,
-      unansweredCount,
-      reviewCount,
-      answeredCount,
-      currentQuiz,
+      quiz: {
+        quizzes,
+        isLoading,
+        currentTime,
+        selectedOption,
+        currentQuestion,
+        showSubmitDialog,
+        totalQuestions,
+        unansweredCount,
+        reviewCount,
+        answeredCount,
+        currentQuiz
+      }
     },
     actions: {
-      handleOptionSelect,
-      handlePrev,
-      handleNext,
-      handleSubmit,
-      handleCheckToggle,
-      handleFinish,
-      handleConfirmSubmit,
-      handleCancelSubmit,
-      handleJumpTo,
-      handleOverlayClick,
-    },
+      quiz: {
+        handleOptionSelect,
+        handlePrev,
+        handleNext,
+        handleSubmit,
+        handleCheckToggle,
+        handleFinish,
+        handleConfirmSubmit,
+        handleCancelSubmit,
+        handleJumpTo,
+        handleOverlayClick
+      }
+    }
   };
 };

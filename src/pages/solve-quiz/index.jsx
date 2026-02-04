@@ -13,7 +13,7 @@ const SolveQuiz = () => {
   const location = useLocation();
   const { uploadedUrl } = location.state || {};
   const storeProblemSetId = useQuizGenerationStore(
-    (state) => state.problemSetId,
+    (state) => state.problemSetId
   );
   const streamQuizzes = useQuizGenerationStore((state) => state.quizzes);
   const streamIsLoading = useQuizGenerationStore((state) => state.isLoading);
@@ -24,33 +24,7 @@ const SolveQuiz = () => {
   const isStreaming =
     storeProblemSetId === problemSetId ? streamIsLoading : false;
   const totalCount = storeProblemSetId === problemSetId ? streamTotalCount : 0;
-  const {
-    state: {
-      quizzes,
-      isLoading,
-      currentTime,
-      selectedOption,
-      currentQuestion,
-      showSubmitDialog,
-      totalQuestions,
-      unansweredCount,
-      reviewCount,
-      answeredCount,
-      currentQuiz,
-    },
-    actions: {
-      handleOptionSelect,
-      handlePrev,
-      handleNext,
-      handleSubmit,
-      handleCheckToggle,
-      handleFinish,
-      handleConfirmSubmit,
-      handleCancelSubmit,
-      handleJumpTo,
-      handleOverlayClick,
-    },
-  } = useSolveQuiz({
+  const { state, actions } = useSolveQuiz({
     t,
     navigate,
     problemSetId,
@@ -58,23 +32,28 @@ const SolveQuiz = () => {
     streamedQuizzes,
     isStreaming,
   });
+  const { quiz } = state;
+  const { quiz: quizActions } = actions;
 
   const remainingCount =
     isStreaming && totalCount > 0
-      ? Math.max(0, totalCount - totalQuestions)
+      ? Math.max(0, totalCount - quiz.totalQuestions)
       : 0;
 
   return (
     <div className="solve-app-container">
       {/* 제출 다이얼로그 */}
-      {showSubmitDialog && (
-        <div className="submit-dialog-overlay" onClick={handleOverlayClick}>
+      {quiz.showSubmitDialog && (
+        <div
+          className="submit-dialog-overlay"
+          onClick={quizActions.handleOverlayClick}
+        >
           <div className="submit-dialog">
             <div className="submit-dialog-header">
               <h2>{t("제출 확인")}</h2>
               <button
                 className="submit-dialog-close"
-                onClick={handleCancelSubmit}
+                onClick={quizActions.handleCancelSubmit}
               >
                 ×
               </button>
@@ -86,28 +65,28 @@ const SolveQuiz = () => {
                 <div className="stat-item">
                   <span className="stat-label">{t("전체 문제:")}</span>
                   <span className="stat-value">
-                    {quizzes.length}
+                    {quiz.quizzes.length}
                     {t("개")}
                   </span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">{t("답변한 문제:")}</span>
                   <span className="stat-value answered">
-                    {answeredCount}
+                    {quiz.answeredCount}
                     {t("개")}
                   </span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">{t("안푼 문제:")}</span>
                   <span className="stat-value unanswered">
-                    {unansweredCount}
+                    {quiz.unansweredCount}
                     {t("개")}
                   </span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">{t("검토할 문제:")}</span>
                   <span className="stat-value review">
-                    {reviewCount}
+                    {quiz.reviewCount}
                     {t("개")}
                   </span>
                 </div>
@@ -117,27 +96,27 @@ const SolveQuiz = () => {
               <div className="submit-answers">
                 <h3>{t("선택한 답안")}</h3>
                 <div className="answers-list">
-                  {quizzes.map((quiz) => {
+                  {quiz.quizzes.map((quizItem) => {
                     const selectedAnswer =
-                      quiz.userAnswer === 0
+                      quizItem.userAnswer === 0
                         ? t("미선택")
-                        : quiz.selections?.find(
-                            (sel) => sel.id === quiz.userAnswer,
-                          )?.content || `${quiz.userAnswer}번`;
+                        : quizItem.selections?.find(
+                            (sel) => sel.id === quizItem.userAnswer
+                          )?.content || `${quizItem.userAnswer}번`;
 
                     return (
-                      <div key={quiz.number} className="answer-item">
+                      <div key={quizItem.number} className="answer-item">
                         <span className="answer-number">
-                          {quiz.number}
+                          {quizItem.number}
                           {t("번:")}
                         </span>
                         <span
                           className={`answer-text ${
-                            quiz.userAnswer === 0 ? "unanswered" : ""
-                          } ${quiz.check ? "review" : ""}`}
+                            quizItem.userAnswer === 0 ? "unanswered" : ""
+                          } ${quizItem.check ? "review" : ""}`}
                         >
                           {selectedAnswer}
-                          {quiz.check && (
+                          {quizItem.check && (
                             <span className="review-badge">{t("검토")}</span>
                           )}
                         </span>
@@ -151,13 +130,13 @@ const SolveQuiz = () => {
             <div className="submit-dialog-buttons">
               <button
                 className="submit-button cancel"
-                onClick={handleCancelSubmit}
+                onClick={quizActions.handleCancelSubmit}
               >
                 {t("취소")}
               </button>
               <button
                 className="submit-button confirm"
-                onClick={handleConfirmSubmit}
+                onClick={quizActions.handleConfirmSubmit}
               >
                 {t("제출하기")}
               </button>
@@ -171,25 +150,31 @@ const SolveQuiz = () => {
         <button className="solve-close-button" onClick={() => navigate("/")}>
           x
         </button>
-        <div className="solve-time-display">{currentTime}</div>
+        <div className="solve-time-display">{quiz.currentTime}</div>
       </header>
 
       <main className="solve-quiz-wrapper">
         {/* 가운데 패널 */}
         <section className="solve-center-panel">
           <nav className="solve-question-nav">
-            <button className="solve-nav-button" onClick={handlePrev}>
+            <button
+              className="solve-nav-button"
+              onClick={quizActions.handlePrev}
+            >
               {t("이전")}
             </button>
             <span>
-              {currentQuestion} / {totalQuestions}
+              {quiz.currentQuestion} / {quiz.totalQuestions}
             </span>
-            <button className="solve-nav-button" onClick={handleNext}>
+            <button
+              className="solve-nav-button"
+              onClick={quizActions.handleNext}
+            >
               {t("다음")}
             </button>
           </nav>
           {/* ─── 여기부터 문제 영역 ─── */}
-          {isLoading ? (
+          {quiz.isLoading ? (
             <div className="solve-spinner-container">
               <div className="solve-spinner" />
               <p>{t("문제 로딩 중…")}</p>
@@ -197,15 +182,15 @@ const SolveQuiz = () => {
           ) : (
             <div className="solve-question-and-review-container">
               <aside className="solve-left-panel">
-                {quizzes.map((q) => (
+                {quiz.quizzes.map((q) => (
                   <button
                     key={q.number}
                     className={`solve-skipped-button${
                       q.userAnswer !== 0 ? " solve-answered" : ""
                     }${q.check ? " solve-checked" : ""}${
-                      q.number === currentQuestion ? " solve-current" : ""
+                      q.number === quiz.currentQuestion ? " solve-current" : ""
                     }`}
-                    onClick={() => handleJumpTo(q.number)}
+                    onClick={() => quizActions.handleJumpTo(q.number)}
                   >
                     {q.number}
                   </button>
@@ -222,27 +207,29 @@ const SolveQuiz = () => {
               </aside>
               <div className="solve-question-and-review-wrapper">
                 <div className="solve-question-area">
-                  <p className="solve-question-text">{currentQuiz.title}</p>
+                  <p className="solve-question-text">
+                    {quiz.currentQuiz.title}
+                  </p>
                 </div>
                 <div className="solve-review-area">
                   <label>
                     <input
                       type="checkbox"
-                      checked={currentQuiz.check || false}
-                      onChange={handleCheckToggle}
+                      checked={quiz.currentQuiz.check || false}
+                      onChange={quizActions.handleCheckToggle}
                     />{" "}
                     {t("검토")}
                   </label>
                 </div>
               </div>
               <div className="solve-options-container">
-                {currentQuiz.selections.map((opt, idx) => (
+                {quiz.currentQuiz.selections.map((opt, idx) => (
                   <div
                     key={opt.id}
                     className={`solve-option${
-                      selectedOption === opt.id ? " solve-selected" : ""
+                      quiz.selectedOption === opt.id ? " solve-selected" : ""
                     }`}
-                    onClick={() => handleOptionSelect(opt.id)}
+                    onClick={() => quizActions.handleOptionSelect(opt.id)}
                   >
                     <span className="solve-option-icon">{idx + 1}</span>
                     <span className="solve-option-text">{opt.content}</span>
@@ -253,26 +240,29 @@ const SolveQuiz = () => {
           )}
           {/* ─── 여기까지 문제 영역 ─── */}
 
-          <button className="solve-submit-button" onClick={handleSubmit}>
+          <button
+            className="solve-submit-button"
+            onClick={quizActions.handleSubmit}
+          >
             {t("확인")}
           </button>
           <button
             className="solve-submit-button solve-submit-all-button"
-            onClick={handleFinish}
+            onClick={quizActions.handleFinish}
           >
             {t("제출하기")}
           </button>
         </section>
         <aside className="solve-bottom-panel">
-          {quizzes.map((q) => (
+          {quiz.quizzes.map((q) => (
             <button
               key={q.number}
               className={`solve-skipped-button${
                 q.userAnswer !== 0 ? " solve-answered" : ""
               }${q.check ? " solve-checked" : ""}${
-                q.number === currentQuestion ? " solve-current" : ""
+                q.number === quiz.currentQuestion ? " solve-current" : ""
               }`}
-              onClick={() => handleJumpTo(q.number)}
+              onClick={() => quizActions.handleJumpTo(q.number)}
             >
               {q.number}
             </button>

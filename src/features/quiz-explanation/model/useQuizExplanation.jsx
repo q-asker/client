@@ -59,8 +59,14 @@ export const useQuizExplanation = ({
 
   const currentQuiz = useMemo(() => {
     return showWrongOnly
-      ? filteredQuizzes[currentQuestion - 1] || { selections: [], userAnswer: 0 }
-      : initialQuizzes[currentQuestion - 1] || { selections: [], userAnswer: 0 };
+      ? filteredQuizzes[currentQuestion - 1] || {
+          selections: [],
+          userAnswer: 0,
+        }
+      : initialQuizzes[currentQuestion - 1] || {
+          selections: [],
+          userAnswer: 0,
+        };
   }, [showWrongOnly, filteredQuizzes, initialQuizzes, currentQuestion]);
 
   const thisExplanationObj = useMemo(() => {
@@ -230,36 +236,52 @@ export const useQuizExplanation = ({
 
   return {
     state: {
-      uploadedUrl,
-      showPdf,
-      pdfWidth,
-      pdfContainerRef,
-      currentPdfPage,
-      showWrongOnly,
-      specificExplanation,
-      isSpecificExplanationLoading,
-      currentQuestion,
-      totalQuestions,
-      filteredQuizzes,
-      filteredTotalQuestions,
-      isLoading,
-      currentQuiz,
-      thisExplanationText,
-      thisExplanationObj,
-      pdfOptions,
+      quiz: {
+        currentQuestion,
+        totalQuestions,
+        filteredQuizzes,
+        filteredTotalQuestions,
+        currentQuiz,
+        showWrongOnly,
+      },
+      pdf: {
+        showPdf,
+        pdfWidth,
+        pdfContainerRef,
+        currentPdfPage,
+        pdfOptions,
+      },
+      explanation: {
+        specificExplanation,
+        isSpecificExplanationLoading,
+        thisExplanationText,
+        thisExplanationObj,
+      },
+      ui: {
+        isLoading,
+        uploadedUrl,
+      },
     },
     actions: {
-      handleExit,
-      handlePrev,
-      handleNext,
-      handleFetchSpecificExplanation,
-      handleQuestionClick,
-      handlePdfToggle,
-      handleWrongOnlyToggle,
-      handlePrevPdfPage,
-      handleNextPdfPage,
-      setCurrentPdfPage,
-      renderTextWithLinks,
+      quiz: {
+        handlePrev,
+        handleNext,
+        handleQuestionClick,
+        handleWrongOnlyToggle,
+      },
+      pdf: {
+        handlePdfToggle,
+        handlePrevPdfPage,
+        handleNextPdfPage,
+        setCurrentPdfPage,
+      },
+      explanation: {
+        handleFetchSpecificExplanation,
+        renderTextWithLinks,
+      },
+      common: {
+        handleExit,
+      },
     },
   };
 };
