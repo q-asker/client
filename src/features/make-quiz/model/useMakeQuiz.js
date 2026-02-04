@@ -5,7 +5,6 @@ import CustomToast from "#shared/toast";
 import { trackMakeQuizEvents } from "#shared/lib/analytics";
 import Timer from "#shared/lib/timer";
 import { useClickOutside } from "#shared/lib/useClickOutside";
-import { getLatestQuizRecord, upsertQuizHistoryRecord } from "#shared/lib/quizHistoryStorage";
 import { useQuizGenerationStore } from "#features/quiz-generation";
 import { uploadFileToServer } from "../file-uploader";
 import {
@@ -216,8 +215,6 @@ export const useMakeQuiz = ({ t, navigate }) => {
         onSuccess: (nextProblemSetId) => {
           setProblemSetId(nextProblemSetId);
           setVersion((prev) => prev + 1);
-          saveQuizToHistory(nextProblemSetId, file.name);
-
           if (generationTimerRef.current) {
             const generationTime = generationTimerRef.current.stop();
             trackMakeQuizEvents.completeQuizGeneration(
@@ -247,45 +244,6 @@ export const useMakeQuiz = ({ t, navigate }) => {
     }
   };
 
-  const saveQuizToHistory = (nextProblemSetId, fileName) => {
-    try {
-      const newQuizRecord = {
-        problemSetId: nextProblemSetId,
-        fileName,
-        fileSize: file.size,
-        questionCount,
-        quizLevel,
-        createdAt: new Date().toISOString(),
-        uploadedUrl,
-        status: "created",
-        score: null,
-        correctCount: null,
-        totalTime: null
-      };
-
-      upsertQuizHistoryRecord(newQuizRecord, { max: 20 });
-    } catch (error) {
-      console.error(t("퀴즈 기록 저장 실패:"), error);
-    }
-  };
-
-  const loadLatestQuiz = () => {
-    try {
-      const latest = getLatestQuizRecord();
-      if (!latest || uploadedUrl) return;
-
-      setProblemSetId(latest.problemSetId);
-      const virtualFile = {
-        name: latest.fileName,
-        size: latest.fileSize
-      };
-      setFile(virtualFile);
-      setUploadedUrl(latest.uploadedUrl);
-    } catch (error) {
-      console.error(t("최신 퀴즈 로딩 실패:"), error);
-    }
-  };
-
   useEffect(() => {
     let timer;
     if (isProcessing && uploadedUrl && !problemSetId) {
@@ -302,7 +260,6 @@ export const useMakeQuiz = ({ t, navigate }) => {
   }, [isProcessing, uploadedUrl, problemSetId]);
 
   useEffect(() => {
-    loadLatestQuiz();
     trackMakeQuizEvents.viewMakeQuiz();
   }, []);
 

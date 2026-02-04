@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import axiosInstance from "#shared/api";
 import { trackQuizEvents, trackResultEvents } from "#shared/lib/analytics";
-import { updateQuizHistoryRecord } from "#shared/lib/quizHistoryStorage";
 
 export const useQuizResult = ({
   t,
@@ -24,28 +23,6 @@ export const useQuizResult = ({
       : 0;
   }, [quizzes.length, correctCount]);
 
-  const updateQuizHistoryResult = (
-    nextProblemSetId,
-    nextCorrectCount,
-    totalQuestions,
-    nextTotalTime,
-    score
-  ) => {
-    try {
-      updateQuizHistoryRecord(nextProblemSetId, {
-        status: "completed",
-        score,
-        correctCount: nextCorrectCount,
-        totalQuestions,
-        totalTime: nextTotalTime,
-        completedAt: new Date().toISOString(),
-        quizData: quizzes,
-      });
-    } catch (error) {
-      console.error(t("퀴즈 결과 기록 업데이트 실패:"), error);
-    }
-  };
-
   useEffect(() => {
     if (problemSetId && quizzes.length > 0) {
       trackResultEvents.viewResult(
@@ -61,13 +38,6 @@ export const useQuizResult = ({
         totalTime
       );
 
-      updateQuizHistoryResult(
-        problemSetId,
-        correctCount,
-        quizzes.length,
-        totalTime,
-        scorePercent
-      );
     }
   }, [problemSetId, correctCount, quizzes.length, totalTime, scorePercent]);
 

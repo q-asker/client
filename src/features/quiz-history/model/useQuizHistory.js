@@ -3,11 +3,6 @@ import axiosInstance from "#shared/api";
 import CustomToast from "#shared/toast";
 import { trackQuizHistoryEvents } from "#shared/lib/analytics";
 import { useClickOutside } from "#shared/lib/useClickOutside";
-import {
-  clearQuizHistory,
-  readQuizHistory,
-  removeQuizHistoryRecord,
-} from "#shared/lib/quizHistoryStorage";
 
 export const useQuizHistory = ({ t, navigate }) => {
   const [quizHistory, setQuizHistory] = useState([]);
@@ -17,17 +12,9 @@ export const useQuizHistory = ({ t, navigate }) => {
   const startTimeRef = useRef(Date.now());
 
   const loadQuizHistory = () => {
-    try {
-      const history = readQuizHistory();
-      setQuizHistory(history);
-      return history;
-    } catch (error) {
-      console.error(t("퀴즈 기록 불러오기 실패:"), error);
-      CustomToast.error(t("기록을 불러오는데 실패했습니다."));
-      return [];
-    } finally {
-      setLoading(false);
-    }
+    setQuizHistory([]);
+    setLoading(false);
+    return [];
   };
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -146,8 +133,9 @@ export const useQuizHistory = ({ t, navigate }) => {
           record?.quizLevel || "unknown",
         );
 
-        const updatedHistory = removeQuizHistoryRecord(problemSetId);
-        setQuizHistory(updatedHistory);
+        setQuizHistory((prev) =>
+          prev.filter((item) => item.problemSetId !== problemSetId),
+        );
         CustomToast.success(t("기록이 삭제되었습니다."));
       } catch (error) {
         console.error(t("기록 삭제 실패:"), error);
@@ -172,7 +160,6 @@ export const useQuizHistory = ({ t, navigate }) => {
           completed.length,
         );
 
-        clearQuizHistory();
         setQuizHistory([]);
         CustomToast.success(t("모든 기록이 삭제되었습니다."));
       } catch (error) {
