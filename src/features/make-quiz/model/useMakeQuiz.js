@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { pdfjs } from "react-pdf";
-import { trackMakeQuizEvents } from "#shared/lib/analytics";
-import { useMakeQuizGeneration } from "./useMakeQuizGeneration";
-import { useMakeQuizOptions } from "./useMakeQuizOptions";
-import { useMakeQuizPages } from "./useMakeQuizPages";
-import { useMakeQuizUi } from "./useMakeQuizUi";
-import { useMakeQuizUpload } from "./useMakeQuizUpload";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { pdfjs } from 'react-pdf';
+import { trackMakeQuizEvents } from '#shared/lib/analytics';
+import { useMakeQuizGeneration } from './useMakeQuizGeneration';
+import { useMakeQuizOptions } from './useMakeQuizOptions';
+import { useMakeQuizPages } from './useMakeQuizPages';
+import { useMakeQuizUi } from './useMakeQuizUi';
+import { useMakeQuizUpload } from './useMakeQuizUpload';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
+  'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url,
 ).toString();
 

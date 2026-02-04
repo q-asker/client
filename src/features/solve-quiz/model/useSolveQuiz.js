@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import axiosInstance from "#shared/api";
-import CustomToast from "#shared/toast";
-import { trackQuizEvents } from "#shared/lib/analytics";
-import { useQuizGenerationStore } from "#features/quiz-generation";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import axiosInstance from '#shared/api';
+import CustomToast from '#shared/toast';
+import { trackQuizEvents } from '#shared/lib/analytics';
+import { useQuizGenerationStore } from '#features/quiz-generation';
 
 const buildTimerLabel = (hours, minutes, seconds) =>
-  `${String(hours).padStart(2, "0")}:` +
-  `${String(minutes).padStart(2, "0")}:` +
-  `${String(seconds).padStart(2, "0")}`;
+  `${String(hours).padStart(2, '0')}:` +
+  `${String(minutes).padStart(2, '0')}:` +
+  `${String(seconds).padStart(2, '0')}`;
 
 export const useSolveQuiz = ({
   t,
@@ -19,7 +19,7 @@ export const useSolveQuiz = ({
 }) => {
   const [quizzes, setQuizzes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentTime, setCurrentTime] = useState("00:00:00");
+  const [currentTime, setCurrentTime] = useState('00:00:00');
   const [selectedOption, setSelectedOption] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
@@ -28,13 +28,11 @@ export const useSolveQuiz = ({
 
   useEffect(() => {
     if (!problemSetId) {
-      navigate("/");
+      navigate('/');
     }
   }, [problemSetId, navigate]);
 
-  const resumeGeneration = useQuizGenerationStore(
-    (state) => state.resumeGeneration,
-  );
+  const resumeGeneration = useQuizGenerationStore((state) => state.resumeGeneration);
 
   // ... (기타 상태들)
 
@@ -44,7 +42,7 @@ export const useSolveQuiz = ({
         const res = await axiosInstance.get(`/problem-set/${problemSetId}`);
         const data = res.data;
 
-        if (data.generationStatus === "GENERATING") {
+        if (data.generationStatus === 'GENERATING') {
           // 생성 중인 경우 sessionId를 사용하여 스트림 재연결 (이어받기)
           const sessionId = data.sessionId || problemSetId; // sessionId가 없다면 problemSetId 사용 시도
 
@@ -55,7 +53,7 @@ export const useSolveQuiz = ({
               // 예: 완료 토스트 메시지 등
             },
             onError: (err) => {
-              console.error("재연결 스트림 에러:", err);
+              console.error('재연결 스트림 에러:', err);
             },
           });
         }
@@ -66,7 +64,7 @@ export const useSolveQuiz = ({
           hasStartedRef.current = true;
         }
       } catch (err) {
-        navigate("/");
+        navigate('/');
       } finally {
         setIsLoading(false);
       }
@@ -137,18 +135,11 @@ export const useSolveQuiz = ({
     const selected = currentQuiz?.selections?.find((s) => s.id === id);
 
     if (selected) {
-      trackQuizEvents.selectAnswer(
-        problemSetId,
-        currentQuestion,
-        id,
-        selected.correct || false,
-      );
+      trackQuizEvents.selectAnswer(problemSetId, currentQuestion, id, selected.correct || false);
     }
 
     setQuizzes((prev) =>
-      prev.map((q, idx) =>
-        idx === currentQuestion - 1 ? { ...q, userAnswer: id } : q,
-      ),
+      prev.map((q, idx) => (idx === currentQuestion - 1 ? { ...q, userAnswer: id } : q)),
     );
     setSelectedOption(id);
   };
@@ -156,11 +147,7 @@ export const useSolveQuiz = ({
   const handlePrev = () => {
     if (currentQuestion > 1) {
       const prevQuestion = currentQuestion - 1;
-      trackQuizEvents.navigateQuestion(
-        problemSetId,
-        currentQuestion,
-        prevQuestion,
-      );
+      trackQuizEvents.navigateQuestion(problemSetId, currentQuestion, prevQuestion);
       setCurrentQuestion(prevQuestion);
     }
   };
@@ -168,11 +155,7 @@ export const useSolveQuiz = ({
   const handleNext = () => {
     if (currentQuestion < totalQuestions) {
       const nextQuestion = currentQuestion + 1;
-      trackQuizEvents.navigateQuestion(
-        problemSetId,
-        currentQuestion,
-        nextQuestion,
-      );
+      trackQuizEvents.navigateQuestion(problemSetId, currentQuestion, nextQuestion);
       setCurrentQuestion(nextQuestion);
     }
   };
@@ -181,16 +164,12 @@ export const useSolveQuiz = ({
     trackQuizEvents.confirmAnswer(problemSetId, currentQuestion);
 
     if (currentQuestion === totalQuestions) {
-      CustomToast.info(t("마지막 문제입니다."));
+      CustomToast.info(t('마지막 문제입니다.'));
       return;
     }
 
     const nextQuestion = currentQuestion + 1;
-    trackQuizEvents.navigateQuestion(
-      problemSetId,
-      currentQuestion,
-      nextQuestion,
-    );
+    trackQuizEvents.navigateQuestion(problemSetId, currentQuestion, nextQuestion);
     setCurrentQuestion(nextQuestion);
   };
 
@@ -201,9 +180,7 @@ export const useSolveQuiz = ({
     trackQuizEvents.toggleReview(problemSetId, currentQuestion, newCheckState);
 
     setQuizzes((prev) =>
-      prev.map((q, idx) =>
-        idx === currentQuestion - 1 ? { ...q, check: newCheckState } : q,
-      ),
+      prev.map((q, idx) => (idx === currentQuestion - 1 ? { ...q, check: newCheckState } : q)),
     );
   };
 
@@ -216,12 +193,7 @@ export const useSolveQuiz = ({
     const reviewCount = quizzes.filter((q) => q.check).length;
     const answeredCount = quizzes.length - unansweredCount;
 
-    trackQuizEvents.submitQuiz(
-      problemSetId,
-      answeredCount,
-      quizzes.length,
-      reviewCount,
-    );
+    trackQuizEvents.submitQuiz(problemSetId, answeredCount, quizzes.length, reviewCount);
 
     navigate(`/result/${problemSetId}`, {
       state: { quizzes, totalTime: currentTime, uploadedUrl },
@@ -243,10 +215,7 @@ export const useSolveQuiz = ({
     () => quizzes.filter((q) => q.userAnswer === 0).length,
     [quizzes],
   );
-  const reviewCount = useMemo(
-    () => quizzes.filter((q) => q.check).length,
-    [quizzes],
-  );
+  const reviewCount = useMemo(() => quizzes.filter((q) => q.check).length, [quizzes]);
   const answeredCount = quizzes.length - unansweredCount;
 
   const handleOverlayClick = useCallback((e) => {

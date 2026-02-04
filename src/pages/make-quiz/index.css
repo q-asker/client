@@ -71,7 +71,7 @@
   background-color: #8b5cf6;
   transform: scale(1.02);
 }
-.upload-button input[type="file"] {
+.upload-button input[type='file'] {
   position: absolute;
   opacity: 0;
   top: 0;
@@ -231,7 +231,7 @@
   font-weight: 700;
   font-size: 14px;
 }
-.slider-control input[type="range"] {
+.slider-control input[type='range'] {
   width: 100%;
   height: 4px;
   accent-color: #6366f1;
@@ -759,7 +759,7 @@
   flex: 1 1 320px;
 }
 
-.page-decide input[type="number"] {
+.page-decide input[type='number'] {
   width: 80px;
   padding: 8px 12px;
   font-size: 1rem;
@@ -770,12 +770,12 @@
     border-color 0.2s,
     box-shadow 0.2s;
 }
-.page-decide input[type="number"]:focus {
+.page-decide input[type='number']:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
 }
-.page-decide input[type="number"]:disabled {
+.page-decide input[type='number']:disabled {
   background: #f3f4f6;
   cursor: not-allowed;
   color: #9ca3af;
@@ -1131,7 +1131,7 @@
 }
 
 .pdf-page-item p::before {
-  content: "";
+  content: '';
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -1366,10 +1366,10 @@
     gap: 12px;
   }
 
-  .slider-control input[type="range"] {
+  .slider-control input[type='range'] {
     height: 3px;
   }
-  .slider-control input[type="range"]::-webkit-slider-thumb {
+  .slider-control input[type='range']::-webkit-slider-thumb {
     width: 14px;
     height: 14px;
   }
@@ -1428,7 +1428,7 @@
     justify-content: center;
   }
 
-  .page-decide input[type="number"] {
+  .page-decide input[type='number'] {
     width: 60px;
     max-width: none;
     font-size: 0.9rem;

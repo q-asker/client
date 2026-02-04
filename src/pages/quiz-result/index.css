@@ -6,7 +6,7 @@
   background-color: #f4f6f8;
   min-height: 100vh;
   box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
 }
 
@@ -126,7 +126,7 @@
 }
 
 .result-user-answer::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;

@@ -1,13 +1,13 @@
-import ReactGA from "react-ga4";
+import ReactGA from 'react-ga4';
 
 // Google Analytics 초기화
 export const initGA = (measurementId) => {
   if (import.meta.env.DEV) {
-    console.group("🚀 Google Analytics 초기화");
+    console.group('🚀 Google Analytics 초기화');
     console.groupEnd();
   }
 
-  if (measurementId && measurementId !== "G-XXXXXXXXXX") {
+  if (measurementId && measurementId !== 'G-XXXXXXXXXX') {
     ReactGA.initialize(measurementId, {
       // 개발 환경에서는 디버그 모드 활성화
       debug: import.meta.env.DEV,
@@ -18,7 +18,7 @@ export const initGA = (measurementId) => {
   } else {
     if (import.meta.env.DEV) {
       console.warn(
-        "⚠️ Google Analytics 측정 ID가 설정되지 않았습니다. 이벤트는 콘솔에서만 확인됩니다.",
+        '⚠️ Google Analytics 측정 ID가 설정되지 않았습니다. 이벤트는 콘솔에서만 확인됩니다.',
       );
     }
   }
@@ -33,7 +33,7 @@ export const logPageView = (path, title) => {
   }
 
   ReactGA.send({
-    hitType: "pageview",
+    hitType: 'pageview',
     page: path,
     title: title,
   });
@@ -54,14 +54,14 @@ export const logEvent = (eventName, parameters = {}) => {
 export const trackQuizEvents = {
   // 퀴즈 시작
   startQuiz: (problemSetId) => {
-    logEvent("quiz_start", {
+    logEvent('quiz_start', {
       problem_set_id: problemSetId,
     });
   },
 
   // 퀴즈 완료
   completeQuiz: (problemSetId, score, totalQuestions, totalTime) => {
-    logEvent("quiz_complete", {
+    logEvent('quiz_complete', {
       problem_set_id: problemSetId,
       score: score,
       total_questions: totalQuestions,
@@ -72,7 +72,7 @@ export const trackQuizEvents = {
 
   // 해설 페이지 방문
   viewExplanation: (problemSetId, questionNumber) => {
-    logEvent("view_explanation", {
+    logEvent('view_explanation', {
       problem_set_id: problemSetId,
       question_number: questionNumber,
     });
@@ -80,15 +80,15 @@ export const trackQuizEvents = {
 
   // PDF 슬라이드 토글
   togglePdfSlide: (problemSetId, isShown) => {
-    logEvent("toggle_pdf_slide", {
+    logEvent('toggle_pdf_slide', {
       problem_set_id: problemSetId,
-      action: isShown ? "show" : "hide",
+      action: isShown ? 'show' : 'hide',
     });
   },
 
   // 문제 네비게이션
   navigateQuestion: (problemSetId, fromQuestion, toQuestion) => {
-    logEvent("navigate_question", {
+    logEvent('navigate_question', {
       problem_set_id: problemSetId,
       from_question: fromQuestion,
       to_question: toQuestion,
@@ -97,7 +97,7 @@ export const trackQuizEvents = {
 
   // 답안 선택
   selectAnswer: (problemSetId, questionNumber, optionId, isCorrect) => {
-    logEvent("answer_selected", {
+    logEvent('answer_selected', {
       problem_set_id: problemSetId,
       question_number: questionNumber,
       option_id: optionId,
@@ -107,16 +107,16 @@ export const trackQuizEvents = {
 
   // 검토 체크박스 토글
   toggleReview: (problemSetId, questionNumber, isChecked) => {
-    logEvent("toggle_review", {
+    logEvent('toggle_review', {
       problem_set_id: problemSetId,
       question_number: questionNumber,
-      action: isChecked ? "check" : "uncheck",
+      action: isChecked ? 'check' : 'uncheck',
     });
   },
 
   // 문제 확인 버튼 클릭
   confirmAnswer: (problemSetId, questionNumber) => {
-    logEvent("confirm_answer", {
+    logEvent('confirm_answer', {
       problem_set_id: problemSetId,
       question_number: questionNumber,
     });
@@ -124,7 +124,7 @@ export const trackQuizEvents = {
 
   // 퀴즈 제출
   submitQuiz: (problemSetId, answeredCount, totalQuestions, reviewCount) => {
-    logEvent("submit_quiz", {
+    logEvent('submit_quiz', {
       problem_set_id: problemSetId,
       answered_count: answeredCount,
       total_questions: totalQuestions,
@@ -137,35 +137,35 @@ export const trackQuizEvents = {
 // MakeQuiz 페이지 이벤트들
 export const trackMakeQuizEvents = {
   // 페이지 진입
-  viewMakeQuiz: (source = "direct") => {
-    logEvent("view_make_quiz", {
+  viewMakeQuiz: (source = 'direct') => {
+    logEvent('view_make_quiz', {
       source: source, // 'direct', 'header', 'help', 'history' 등
     });
   },
 
   // 파일 업로드 시작
   startFileUpload: (fileName, fileSize, fileType) => {
-    logEvent("file_upload_start", {
+    logEvent('file_upload_start', {
       file_name: fileName,
       file_size: fileSize,
       file_type: fileType,
-      upload_method: "click", // click 또는 drag_drop
+      upload_method: 'click', // click 또는 drag_drop
     });
   },
 
   // 파일 드래그앤드롭 업로드
   dragDropFileUpload: (fileName, fileSize, fileType) => {
-    logEvent("file_upload_start", {
+    logEvent('file_upload_start', {
       file_name: fileName,
       file_size: fileSize,
       file_type: fileType,
-      upload_method: "drag_drop",
+      upload_method: 'drag_drop',
     });
   },
 
   // 파일 업로드 완료
   completeFileUpload: (fileName, uploadTime) => {
-    logEvent("file_upload_complete", {
+    logEvent('file_upload_complete', {
       file_name: fileName,
       upload_time: uploadTime,
     });
@@ -173,29 +173,22 @@ export const trackMakeQuizEvents = {
 
   // 파일 삭제
   deleteFile: (fileName) => {
-    logEvent("file_delete", {
+    logEvent('file_delete', {
       file_name: fileName,
     });
   },
 
   // 퀴즈 옵션 변경
   changeQuizOption: (optionType, optionValue) => {
-    logEvent("quiz_option_change", {
+    logEvent('quiz_option_change', {
       option_type: optionType, // question_type, question_count, page_mode, quiz_level
       option_value: optionValue,
     });
   },
 
   // 문제 생성 시작
-  startQuizGeneration: (
-    questionCount,
-    questionType,
-    quizLevel,
-    pageMode,
-    startPage,
-    endPage,
-  ) => {
-    logEvent("quiz_generation_start", {
+  startQuizGeneration: (questionCount, questionType, quizLevel, pageMode, startPage, endPage) => {
+    logEvent('quiz_generation_start', {
       question_count: questionCount,
       question_type: questionType,
       quiz_level: quizLevel,
@@ -207,7 +200,7 @@ export const trackMakeQuizEvents = {
 
   // 문제 생성 완료
   completeQuizGeneration: (problemSetId, generationTime) => {
-    logEvent("quiz_generation_complete", {
+    logEvent('quiz_generation_complete', {
       problem_set_id: problemSetId,
       generation_time: generationTime,
     });
@@ -215,7 +208,7 @@ export const trackMakeQuizEvents = {
 
   // 문제로 이동
   navigateToQuiz: (problemSetId) => {
-    logEvent("navigate_to_quiz", {
+    logEvent('navigate_to_quiz', {
       problem_set_id: problemSetId,
     });
   },
@@ -225,7 +218,7 @@ export const trackMakeQuizEvents = {
 export const trackResultEvents = {
   // 결과 페이지 진입
   viewResult: (problemSetId, score, totalQuestions, totalTime) => {
-    logEvent("view_result", {
+    logEvent('view_result', {
       problem_set_id: problemSetId,
       score: score,
       total_questions: totalQuestions,
@@ -236,7 +229,7 @@ export const trackResultEvents = {
 
   // 해설 보기 버튼 클릭
   clickExplanation: (problemSetId) => {
-    logEvent("click_explanation", {
+    logEvent('click_explanation', {
       problem_set_id: problemSetId,
     });
   },
@@ -246,38 +239,38 @@ export const trackResultEvents = {
 export const trackHelpEvents = {
   // 도움말 페이지 진입
   viewHelp: (source) => {
-    logEvent("view_help", {
+    logEvent('view_help', {
       source: source, // 'header', 'makeQuiz', 'direct' 등
     });
   },
 
   // 뒤로가기 버튼 클릭
   clickBack: () => {
-    logEvent("help_back_click");
+    logEvent('help_back_click');
   },
 
   // 퀴즈 만들러 가기 버튼 클릭
   clickStartQuiz: () => {
-    logEvent("help_start_quiz_click");
+    logEvent('help_start_quiz_click');
   },
 
   // 도움말 섹션 참여도 (스크롤 깊이)
   trackScrollDepth: (percentage) => {
-    logEvent("help_scroll_depth", {
+    logEvent('help_scroll_depth', {
       scroll_percentage: percentage,
     });
   },
 
   // 특정 섹션에 관심 표시 (호버나 클릭)
   interactWithSection: (sectionName) => {
-    logEvent("help_section_interact", {
+    logEvent('help_section_interact', {
       section_name: sectionName,
     });
   },
 
   // 도움말 페이지 체류 시간
   trackTimeSpent: (timeSpent) => {
-    logEvent("help_time_spent", {
+    logEvent('help_time_spent', {
       time_seconds: timeSpent,
     });
   },
@@ -287,20 +280,17 @@ export const trackHelpEvents = {
 export const trackQuizHistoryEvents = {
   // 히스토리 페이지 진입
   viewHistory: (totalQuizzes, completedQuizzes, averageScore) => {
-    logEvent("view_quiz_history", {
+    logEvent('view_quiz_history', {
       total_quizzes: totalQuizzes,
       completed_quizzes: completedQuizzes,
       average_score: averageScore,
-      completion_rate:
-        totalQuizzes > 0
-          ? Math.round((completedQuizzes / totalQuizzes) * 100)
-          : 0,
+      completion_rate: totalQuizzes > 0 ? Math.round((completedQuizzes / totalQuizzes) * 100) : 0,
     });
   },
 
   // 해설 보기 버튼 클릭
   clickViewExplanation: (problemSetId, quizLevel, score) => {
-    logEvent("history_view_explanation", {
+    logEvent('history_view_explanation', {
       problem_set_id: problemSetId,
       quiz_level: quizLevel,
       score: score,
@@ -309,7 +299,7 @@ export const trackQuizHistoryEvents = {
 
   // 다시풀기 버튼 클릭 (완료된 퀴즈)
   clickRetryQuiz: (problemSetId, quizLevel, previousScore) => {
-    logEvent("history_retry_quiz", {
+    logEvent('history_retry_quiz', {
       problem_set_id: problemSetId,
       quiz_level: quizLevel,
       previous_score: previousScore,
@@ -318,7 +308,7 @@ export const trackQuizHistoryEvents = {
 
   // 퀴즈 풀기 버튼 클릭 (미완료 퀴즈)
   clickResumeQuiz: (problemSetId, quizLevel, questionCount) => {
-    logEvent("history_resume_quiz", {
+    logEvent('history_resume_quiz', {
       problem_set_id: problemSetId,
       quiz_level: quizLevel,
       question_count: questionCount,
@@ -327,7 +317,7 @@ export const trackQuizHistoryEvents = {
 
   // 개별 기록 삭제
   deleteQuizRecord: (problemSetId, quizStatus, quizLevel) => {
-    logEvent("history_delete_record", {
+    logEvent('history_delete_record', {
       problem_set_id: problemSetId,
       quiz_status: quizStatus, // 'completed' or 'created'
       quiz_level: quizLevel,
@@ -336,7 +326,7 @@ export const trackQuizHistoryEvents = {
 
   // 전체 기록 삭제
   clearAllHistory: (totalRecords, completedRecords) => {
-    logEvent("history_clear_all", {
+    logEvent('history_clear_all', {
       total_records: totalRecords,
       completed_records: completedRecords,
     });
@@ -344,7 +334,7 @@ export const trackQuizHistoryEvents = {
 
   // 통계 카드 상호작용
   interactWithStats: (statType, statValue) => {
-    logEvent("history_stats_interact", {
+    logEvent('history_stats_interact', {
       stat_type: statType, // 'total', 'completed', 'completion_rate', 'average_score'
       stat_value: statValue,
     });
@@ -352,7 +342,7 @@ export const trackQuizHistoryEvents = {
 
   // 히스토리 페이지 체류 시간
   trackTimeSpent: (timeSpent, totalQuizzes) => {
-    logEvent("history_time_spent", {
+    logEvent('history_time_spent', {
       time_seconds: timeSpent,
       total_quizzes: totalQuizzes,
     });
@@ -360,6 +350,6 @@ export const trackQuizHistoryEvents = {
 
   // 빈 히스토리에서 퀴즈 만들기 버튼 클릭
   clickCreateFromEmpty: () => {
-    logEvent("history_create_from_empty");
+    logEvent('history_create_from_empty');
   },
 };

@@ -209,7 +209,7 @@ body {
   color: #6a33f8;
 }
 
-.solve-review-area label input[type="checkbox"] {
+.solve-review-area label input[type='checkbox'] {
   margin-right: 0.5rem;
   width: 1.25rem;
   height: 1.25rem;
@@ -391,7 +391,7 @@ body {
     font-size: 0.9rem;
   }
 
-  .solve-question-area label input[type="checkbox"] {
+  .solve-question-area label input[type='checkbox'] {
     width: 1.1rem;
     height: 1.1rem;
   }

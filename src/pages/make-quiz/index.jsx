@@ -1,29 +1,26 @@
-import { useTranslation } from "i18nexus";
-import Header from "#widgets/header";
-import Help from "#widgets/help";
+import { useTranslation } from 'i18nexus';
+import Header from '#widgets/header';
+import Help from '#widgets/help';
 import {
   useMakeQuiz,
   levelDescriptions,
   MAX_FILE_SIZE,
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
-} from "#features/make-quiz";
-import { Document, Page } from "react-pdf";
-import "react-pdf/dist/Page/AnnotationLayer.css";
-import "react-pdf/dist/Page/TextLayer.css";
-import { Link, useNavigate } from "react-router-dom";
-import "./index.css";
-import RecentChanges from "#widgets/recent-changes";
+} from '#features/make-quiz';
+import { Document, Page } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+import { Link, useNavigate } from 'react-router-dom';
+import './index.css';
+import RecentChanges from '#widgets/recent-changes';
 
 const MakeQuiz = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const acceptExtensions = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(
-    ", ",
-  );
+  const acceptExtensions = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
   const { state, actions } = useMakeQuiz({ t, navigate });
-  const { upload, options, pages, generation, ui, isProcessing, pdfOptions } =
-    state;
+  const { upload, options, pages, generation, ui, isProcessing, pdfOptions } = state;
   const {
     upload: uploadActions,
     options: optionActions,
@@ -44,7 +41,7 @@ const MakeQuiz = () => {
 
       <div className="main">
         <div
-          className={`upload-section ${upload.isDragging ? "dragging" : ""}`}
+          className={`upload-section ${upload.isDragging ? 'dragging' : ''}`}
           onDragOver={uploadActions.handleDragOver}
           onDragEnter={uploadActions.handleDragEnter}
           onDragLeave={uploadActions.handleDragLeave}
@@ -56,19 +53,19 @@ const MakeQuiz = () => {
               <div className="spinner" />
               <div className="upload-status">
                 <div className="upload-title-animated">
-                  {t("파일 업로드 중...")}
+                  {t('파일 업로드 중...')}
                   {Math.floor(upload.uploadElapsedTime / 1000)}
-                  {t("초")}
+                  {t('초')}
                 </div>
               </div>
-              {upload.fileExtension && upload.fileExtension !== "pdf" && (
+              {upload.fileExtension && upload.fileExtension !== 'pdf' && (
                 <div className="conversion-message">
                   <div className="conversion-text">
                     <strong>{upload.fileExtension.toUpperCase()}</strong>
-                    {t("파일을 PDF로 변환하고 있어요")}
+                    {t('파일을 PDF로 변환하고 있어요')}
                     <br />
                     <span className="conversion-subtext">
-                      {t("파일 크기에 따라 시간이 소요될 수 있습니다")}
+                      {t('파일 크기에 따라 시간이 소요될 수 있습니다')}
                     </span>
                   </div>
                 </div>
@@ -77,12 +74,10 @@ const MakeQuiz = () => {
           ) : !upload.uploadedUrl ? (
             <>
               <div className="upload-icon">☁️</div>
-              <div className="upload-title">
-                {t("파일을 여기에 드래그하세요")}
-              </div>
-              <p>{t("또는")}</p>
+              <div className="upload-title">{t('파일을 여기에 드래그하세요')}</div>
+              <p>{t('또는')}</p>
               <div className="upload-button">
-                {t("파일 선택하기")}
+                {t('파일 선택하기')}
 
                 <input
                   type="file"
@@ -102,11 +97,8 @@ const MakeQuiz = () => {
                   </span>
                 )}
               </div>
-              <button
-                className="remove-button"
-                onClick={commonActions.handleRemoveFile}
-              >
-                {t("✕ 파일 삭제")}
+              <button className="remove-button" onClick={commonActions.handleRemoveFile}>
+                {t('✕ 파일 삭제')}
               </button>
             </>
           )}
@@ -114,26 +106,20 @@ const MakeQuiz = () => {
             <>
               <div className="hint">
                 <ul className="hint-list">
-                  <br></br>{" "}
+                  <br></br>{' '}
                   <li>
-                    <span className="hint-label">{t("크기 제한")}</span>
-                    <span className="hint-value">
-                      📦 {MAX_FILE_SIZE / 1024 / 1024}MB
-                    </span>
+                    <span className="hint-label">{t('크기 제한')}</span>
+                    <span className="hint-value">📦 {MAX_FILE_SIZE / 1024 / 1024}MB</span>
                   </li>
                   <li>
-                    <span className="hint-label">{t("지원하는 파일")}</span>
-                    <span className="hint-value">
-                      ✅ {SUPPORTED_EXTENSIONS.join(", ")}
-                    </span>
+                    <span className="hint-label">{t('지원하는 파일')}</span>
+                    <span className="hint-value">✅ {SUPPORTED_EXTENSIONS.join(', ')}</span>
                   </li>
                 </ul>
               </div>
               <div className="hint-subtext">
-                <br></br>{" "}
-                {t("파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.")}
-                <br></br>{" "}
-                {t("24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.")}
+                <br></br> {t('파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.')}
+                <br></br> {t('24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.')}
               </div>
             </>
           )}
@@ -144,26 +130,19 @@ const MakeQuiz = () => {
             <>
               <div className="option-section">
                 {/* 문제 유형 세그먼티드 */}
-                <div className="section-title">
-                  {t("1. 퀴즈 타입을 선택하세요!")}
-                </div>
+                <div className="section-title">{t('1. 퀴즈 타입을 선택하세요!')}</div>
                 <div className="segmented-control question-type">
                   {[
-                    { key: "MULTIPLE", label: t("객관식") },
-                    { key: "BLANK", label: t("빈칸 넣기") },
-                    { key: "OX", label: t("OX 퀴즈") },
+                    { key: 'MULTIPLE', label: t('객관식') },
+                    { key: 'BLANK', label: t('빈칸 넣기') },
+                    { key: 'OX', label: t('OX 퀴즈') },
                   ].map((type) => {
                     return (
                       <button
                         key={type.key}
-                        className={
-                          options.questionType === type.key ? "active" : ""
-                        }
+                        className={options.questionType === type.key ? 'active' : ''}
                         onClick={() => {
-                          optionActions.handleQuestionTypeChange(
-                            type.key,
-                            type.label,
-                          );
+                          optionActions.handleQuestionTypeChange(type.key, type.label);
                         }}
                       >
                         {type.label}
@@ -183,24 +162,14 @@ const MakeQuiz = () => {
                           {levelDescriptions[options.quizLevel]?.question}
                         </p>
                       </div>
-                      {levelDescriptions[options.quizLevel]?.options?.length >
-                        0 && (
+                      {levelDescriptions[options.quizLevel]?.options?.length > 0 && (
                         <div className="quiz-example-options">
-                          {levelDescriptions[options.quizLevel].options.map(
-                            (option, index) => (
-                              <div
-                                key={`${option}-${index}`}
-                                className="quiz-example-option"
-                              >
-                                <span className="quiz-example-option-index">
-                                  {index + 1}
-                                </span>
-                                <span className="quiz-example-option-text">
-                                  {option}
-                                </span>
-                              </div>
-                            ),
-                          )}
+                          {levelDescriptions[options.quizLevel].options.map((option, index) => (
+                            <div key={`${option}-${index}`} className="quiz-example-option">
+                              <span className="quiz-example-option-index">{index + 1}</span>
+                              <span className="quiz-example-option-text">{option}</span>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -209,15 +178,13 @@ const MakeQuiz = () => {
               </div>
               {/* 문제 개수 슬라이더 */}
               <div className="option-section">
-                <div className="section-title">
-                  {t("2. 문제 개수를 지정하세요!")}
-                </div>
+                <div className="section-title">{t('2. 문제 개수를 지정하세요!')}</div>
                 <div className="slider-control">
                   <label>
-                    <strong>{t("문제 개수: ")}</strong>
+                    <strong>{t('문제 개수: ')}</strong>
                     <span className="count-badge">
                       {options.questionCount}
-                      {t("문제")}
+                      {t('문제')}
                     </span>
                   </label>
                   <input
@@ -237,36 +204,30 @@ const MakeQuiz = () => {
               <div className="option-section">
                 <div className="page-decide page-decide-custom">
                   <div className="page-title-group">
-                    <div className="section-title">
-                      {t("3. 특정 페이지를 지정하세요!")}
-                    </div>
+                    <div className="section-title">{t('3. 특정 페이지를 지정하세요!')}</div>
                     <div className="preview-subtitle">
                       <span className="preview-badge">
-                        {t("최대 ")}
+                        {t('최대 ')}
                         {MAX_SELECT_PAGES}
-                        {t(" 페이지")}
+                        {t(' 페이지')}
                       </span>
                       <span className="preview-subtitle-text">
-                        <strong>{t("선택할 수 있어요")}</strong>
+                        <strong>{t('선택할 수 있어요')}</strong>
                       </span>
                     </div>
                   </div>
                   <div className="page-range-panel">
                     <div className="page-input-row">
-                      <span className="page-input-label">
-                        {t("원하는 페이지 입력:")}
-                      </span>
+                      <span className="page-input-label">{t('원하는 페이지 입력:')}</span>
                       <div className="page-input-controls">
                         <input
                           type="number"
                           min="1"
                           max={pages.numPages ?? 1}
                           value={pages.pageRangeStart}
-                          onChange={(e) =>
-                            pageActions.setPageRangeStart(e.target.value)
-                          }
+                          onChange={(e) => pageActions.setPageRangeStart(e.target.value)}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") {
+                            if (e.key === 'Enter') {
                               pageActions.handleApplyPageRange();
                             }
                           }}
@@ -278,11 +239,9 @@ const MakeQuiz = () => {
                           min="1"
                           max={pages.numPages ?? 1}
                           value={pages.pageRangeEnd}
-                          onChange={(e) =>
-                            pageActions.setPageRangeEnd(e.target.value)
-                          }
+                          onChange={(e) => pageActions.setPageRangeEnd(e.target.value)}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") {
+                            if (e.key === 'Enter') {
                               pageActions.handleApplyPageRange();
                             }
                           }}
@@ -294,7 +253,7 @@ const MakeQuiz = () => {
                           onClick={pageActions.handleApplyPageRange}
                           disabled={!pages.numPages}
                         >
-                          {t("적용")}
+                          {t('적용')}
                         </button>
                       </div>
                     </div>
@@ -304,38 +263,31 @@ const MakeQuiz = () => {
                         onClick={pageActions.handleSelectAllPages}
                       >
                         {pages.selectedPages.length === pages.numPages
-                          ? t("전체 선택")
-                          : t("전체 선택")}
+                          ? t('전체 선택')
+                          : t('전체 선택')}
                       </button>
                       <button
                         className="clear-all-button"
                         onClick={pageActions.handleClearAllPages}
                       >
-                        {t("전체 해제")}
+                        {t('전체 해제')}
                       </button>
                       <button
                         className={`preview-toggle-button ${
-                          pages.isPreviewVisible ? "is-active" : ""
+                          pages.isPreviewVisible ? 'is-active' : ''
                         }`}
                         type="button"
-                        onClick={() =>
-                          pageActions.setIsPreviewVisible((prev) => !prev)
-                        }
+                        onClick={() => pageActions.setIsPreviewVisible((prev) => !prev)}
                       >
-                        {pages.isPreviewVisible
-                          ? t("미리보기 끄기")
-                          : t("미리보기 켜기")}
+                        {pages.isPreviewVisible ? t('미리보기 끄기') : t('미리보기 켜기')}
                       </button>
                     </div>
                   </div>
                 </div>
                 {upload.uploadedUrl && (
-                  <div
-                    className="pdf-preview-container"
-                    ref={pages.pdfPreviewRef}
-                  >
+                  <div className="pdf-preview-container" ref={pages.pdfPreviewRef}>
                     <div className="selected-count preview-subtitle">
-                      <strong>{t("선택된 페이지 수: ")}</strong>
+                      <strong>{t('선택된 페이지 수: ')}</strong>
                       <span className="preview-badge">
                         {pages.selectedPages.length}/{pages.numPages ?? 0}
                       </span>
@@ -352,9 +304,7 @@ const MakeQuiz = () => {
                           onMouseLeave={pageActions.handlePageMouseLeave}
                         >
                           {Array.from(
-                            new Array(
-                              Math.min(pages.visiblePageCount, pages.numPages),
-                            ),
+                            new Array(Math.min(pages.visiblePageCount, pages.numPages)),
                             (el, index) => {
                               const pageNumber = index + 1;
                               const isDisabled = false;
@@ -363,27 +313,19 @@ const MakeQuiz = () => {
                                 <div
                                   key={`page_${pageNumber}`}
                                   className={`pdf-page-item ${
-                                    pages.selectedPages.includes(pageNumber)
-                                      ? "selected"
-                                      : ""
-                                  } ${isDisabled ? "disabled" : ""} ${
-                                    pages.hoveredPage &&
-                                    pages.hoveredPage.pageNumber === pageNumber
-                                      ? "hover-active"
-                                      : ""
+                                    pages.selectedPages.includes(pageNumber) ? 'selected' : ''
+                                  } ${isDisabled ? 'disabled' : ''} ${
+                                    pages.hoveredPage && pages.hoveredPage.pageNumber === pageNumber
+                                      ? 'hover-active'
+                                      : ''
                                   }`}
                                   onClick={() => {
                                     if (!isDisabled) {
-                                      pageActions.handlePageSelection(
-                                        pageNumber,
-                                      );
+                                      pageActions.handlePageSelection(pageNumber);
                                     }
                                   }}
                                   onMouseEnter={(e) => {
-                                    pageActions.handlePageMouseEnter(
-                                      e,
-                                      pageNumber,
-                                    );
+                                    pageActions.handlePageMouseEnter(e, pageNumber);
                                   }}
                                 >
                                   <Page
@@ -394,7 +336,7 @@ const MakeQuiz = () => {
                                   />
 
                                   <p>
-                                    {t("페이지")}
+                                    {t('페이지')}
                                     {pageNumber}
                                   </p>
                                 </div>
@@ -405,7 +347,7 @@ const MakeQuiz = () => {
                             <div className="loading-more-pages">
                               <div className="spinner" />
                               <p>
-                                {t("더 많은 페이지 로딩 중... (")}
+                                {t('더 많은 페이지 로딩 중... (')}
                                 {pages.visiblePageCount}/{pages.numPages})
                               </p>
                             </div>
@@ -413,10 +355,7 @@ const MakeQuiz = () => {
                         </div>
 
                         {pages.isPreviewVisible && pages.hoveredPage && (
-                          <div
-                            className="pdf-side-preview"
-                            style={pages.hoveredPage.style}
-                          >
+                          <div className="pdf-side-preview" style={pages.hoveredPage.style}>
                             <Page
                               pageNumber={pages.hoveredPage.pageNumber}
                               width={640}
@@ -433,49 +372,39 @@ const MakeQuiz = () => {
             </>
             {/* ④ 문서 미리보기 */}
             <div className="option-section document-preview">
-              <div className="section-title">{t("4. 문제를 생성하세요!")}</div>
+              <div className="section-title">{t('4. 문제를 생성하세요!')}</div>
               <div className="preview-content">
                 {isProcessing ? (
                   <div className="processing">
                     <div className="spinner" />
                     <p>
-                      {t("문제 생성 중...")}
+                      {t('문제 생성 중...')}
                       {Math.floor(generation.generationElapsedTime / 1000)}
-                      {t("초")}
-                      <br></br>{" "}
-                      {t(
-                        "생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.",
-                      )}
+                      {t('초')}
+                      <br></br>{' '}
+                      {t('생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.')}
                     </p>
                     {generation.showWaitMessage && (
                       <p className="wait-message">
-                        {t("현재 생성중입니다 조금만 더 기다려주세요!")}
+                        {t('현재 생성중입니다 조금만 더 기다려주세요!')}
                       </p>
                     )}
                   </div>
                 ) : (
-                  <p>
-                    {t(
-                      "문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.",
-                    )}
-                  </p>
+                  <p>{t('문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.')}</p>
                 )}
               </div>
               <div className="action-buttons">
                 <button
                   className="primary-button large"
                   onClick={generationActions.generateQuestions}
-                  disabled={
-                    !upload.uploadedUrl ||
-                    isProcessing ||
-                    !pages.selectedPages.length
-                  }
+                  disabled={!upload.uploadedUrl || isProcessing || !pages.selectedPages.length}
                 >
-                  {isProcessing ? t("생성 중...") : t("문제 생성하기")}
+                  {isProcessing ? t('생성 중...') : t('문제 생성하기')}
                 </button>
                 {!isProcessing && !pages.selectedPages.length && (
                   <p className="action-guide">
-                    {t("페이지 정보를 불러오는 중입니다. 잠시만 기다려주세요.")}
+                    {t('페이지 정보를 불러오는 중입니다. 잠시만 기다려주세요.')}
                   </p>
                 )}
               </div>
@@ -484,7 +413,7 @@ const MakeQuiz = () => {
         )}
         {upload.uploadedUrl && generation.problemSetId && (
           <div className="option-section document-preview">
-            <div className="section-title">{t("생성된 문제")}</div>
+            <div className="section-title">{t('생성된 문제')}</div>
             <div className="problem-card">
               <div className="problem-icon">📝</div>
               <div className="problem-details">
@@ -494,23 +423,14 @@ const MakeQuiz = () => {
                 </div>
               </div>
               <div className="problem-actions">
-                <button
-                  className="btn cancle"
-                  onClick={commonActions.handleRemoveFile}
-                >
-                  {t("다른 파일 넣기")}
+                <button className="btn cancle" onClick={commonActions.handleRemoveFile}>
+                  {t('다른 파일 넣기')}
                 </button>
-                <button
-                  className="btn manage"
-                  onClick={commonActions.handleReCreate}
-                >
-                  {t("다른 문제 생성")}
+                <button className="btn manage" onClick={commonActions.handleReCreate}>
+                  {t('다른 문제 생성')}
                 </button>
-                <button
-                  className="btn mapping"
-                  onClick={generationActions.handleNavigateToQuiz}
-                >
-                  {t("문제 풀기")}
+                <button className="btn mapping" onClick={generationActions.handleNavigateToQuiz}>
+                  {t('문제 풀기')}
                 </button>
               </div>
             </div>
@@ -522,24 +442,21 @@ const MakeQuiz = () => {
 
       {/* Footer */}
       <div className="footer">
-        © 2025 Q-Asker{" | "}
+        © 2025 Q-Asker{' | '}
         <Link to="/privacy-policy" className="policy-link">
-          {t("개인정보 처리방침")}
+          {t('개인정보 처리방침')}
         </Link>
         <br></br>
-        {t("문의 및 피드백")}
+        {t('문의 및 피드백')}
         <span>: </span>
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
           target="_blank"
         >
-          {t("구글 폼 링크")}
+          {t('구글 폼 링크')}
         </a>
         <span>, </span>
-        <a
-          href="mailto:inhapj01@gmail.com"
-          aria-label={t("Q-Asker 이메일 문의")}
-        >
+        <a href="mailto:inhapj01@gmail.com" aria-label={t('Q-Asker 이메일 문의')}>
           inhapj01@gmail.com
         </a>
       </div>

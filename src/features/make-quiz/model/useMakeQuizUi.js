@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { useClickOutside } from "#shared/lib/useClickOutside";
+import { useCallback, useState } from 'react';
+import { useClickOutside } from '#shared/lib/useClickOutside';
 
 export const useMakeQuizUi = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -10,8 +10,8 @@ export const useMakeQuizUi = () => {
   }, []);
 
   useClickOutside({
-    containerId: "sidebar",
-    triggerId: "menuButton",
+    containerId: 'sidebar',
+    triggerId: 'menuButton',
     onOutsideClick: () => setIsSidebarOpen(false),
   });
 

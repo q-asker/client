@@ -1,11 +1,8 @@
-import { useTranslation } from "i18nexus";
-import { useEffect } from "react";
-import { authService } from "#entities/auth";
-import CustomToast from "#shared/toast";
-import {
-  normalizeLastEndpoint,
-  readLastEndpoint,
-} from "#shared/lib/lastEndpointStorage";
+import { useTranslation } from 'i18nexus';
+import { useEffect } from 'react';
+import { authService } from '#entities/auth';
+import CustomToast from '#shared/toast';
+import { normalizeLastEndpoint, readLastEndpoint } from '#shared/lib/lastEndpointStorage';
 
 let refreshPromise;
 
@@ -31,13 +28,13 @@ export const useLoginRedirect = ({ navigate }) => {
         await refreshOnce();
       } catch (error) {
         refreshSucceeded = false;
-        console.error(t("로그인 리다이렉트 실패:"), error);
+        console.error(t('로그인 리다이렉트 실패:'), error);
       }
 
       if (!refreshSucceeded) {
         if (isMounted) {
-          CustomToast.error(t("로그인에 실패했습니다. 다시 로그인해주세요."));
-          navigate("/login", { replace: true });
+          CustomToast.error(t('로그인에 실패했습니다. 다시 로그인해주세요.'));
+          navigate('/login', { replace: true });
         }
         return;
       }

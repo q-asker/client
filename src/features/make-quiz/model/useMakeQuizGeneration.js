@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { authService } from "#entities/auth";
-import CustomToast from "#shared/toast";
-import { trackMakeQuizEvents } from "#shared/lib/analytics";
-import Timer from "#shared/lib/timer";
-import { useQuizGenerationStore } from "#features/quiz-generation";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { authService } from '#entities/auth';
+import CustomToast from '#shared/toast';
+import { trackMakeQuizEvents } from '#shared/lib/analytics';
+import Timer from '#shared/lib/timer';
+import { useQuizGenerationStore } from '#features/quiz-generation';
 
 export const useMakeQuizGeneration = ({
   t,
@@ -21,17 +21,15 @@ export const useMakeQuizGeneration = ({
   const [showWaitMessage, setShowWaitMessage] = useState(false);
   const [generationElapsedTime, setGenerationElapsedTime] = useState(0);
   const generationTimerRef = useRef(null);
-  const startGeneration = useQuizGenerationStore(
-    (state) => state.startGeneration,
-  );
+  const startGeneration = useQuizGenerationStore((state) => state.startGeneration);
 
   const generateQuestions = useCallback(async () => {
     if (!uploadedUrl) {
-      CustomToast.error(t("파일을 먼저 업로드해주세요."));
+      CustomToast.error(t('파일을 먼저 업로드해주세요.'));
       return;
     }
     if (!selectedPages.length) {
-      CustomToast.error(t("페이지를 선택해주세요."));
+      CustomToast.error(t('페이지를 선택해주세요.'));
       return;
     }
 
@@ -62,10 +60,7 @@ export const useMakeQuizGeneration = ({
           setVersion((prev) => prev + 1);
           if (generationTimerRef.current) {
             const generationTime = generationTimerRef.current.stop();
-            trackMakeQuizEvents.completeQuizGeneration(
-              nextProblemSetId,
-              generationTime,
-            );
+            trackMakeQuizEvents.completeQuizGeneration(nextProblemSetId, generationTime);
           }
           setIsProcessing(false);
         },
@@ -73,8 +68,7 @@ export const useMakeQuizGeneration = ({
           if (generationTimerRef.current) {
             generationTimerRef.current.stop();
           }
-          const message =
-            error?.message || t("문제 생성 중 오류가 발생했습니다.");
+          const message = error?.message || t('문제 생성 중 오류가 발생했습니다.');
           CustomToast.error(message);
           setIsProcessing(false);
           setGenerationElapsedTime(0);

@@ -1,9 +1,9 @@
-import { useCallback, useRef, useState } from "react";
-import CustomToast from "#shared/toast";
-import { trackMakeQuizEvents } from "#shared/lib/analytics";
-import Timer from "#shared/lib/timer";
-import { uploadFileToServer } from "../file-uploader";
-import { MAX_FILE_SIZE, SUPPORTED_EXTENSIONS } from "./constants";
+import { useCallback, useRef, useState } from 'react';
+import CustomToast from '#shared/toast';
+import { trackMakeQuizEvents } from '#shared/lib/analytics';
+import Timer from '#shared/lib/timer';
+import { uploadFileToServer } from '../file-uploader';
+import { MAX_FILE_SIZE, SUPPORTED_EXTENSIONS } from './constants';
 
 export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
   const [file, setFile] = useState(null);
@@ -14,27 +14,21 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
   const uploadTimerRef = useRef(null);
 
   const selectFile = useCallback(
-    async (nextFile, method = "click") => {
-      const ext = nextFile.name.split(".").pop().toLowerCase();
+    async (nextFile, method = 'click') => {
+      const ext = nextFile.name.split('.').pop().toLowerCase();
 
       if (!SUPPORTED_EXTENSIONS.includes(ext)) {
-        CustomToast.error(t("지원하지 않는 파일 형식입니다"));
+        CustomToast.error(t('지원하지 않는 파일 형식입니다'));
         return;
       }
 
       if (nextFile.size > MAX_FILE_SIZE) {
-        CustomToast.error(
-          `파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`,
-        );
+        CustomToast.error(`파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`);
         return;
       }
 
-      if (method === "drag_drop") {
-        trackMakeQuizEvents.dragDropFileUpload(
-          nextFile.name,
-          nextFile.size,
-          ext,
-        );
+      if (method === 'drag_drop') {
+        trackMakeQuizEvents.dragDropFileUpload(nextFile.name, nextFile.size, ext);
       } else {
         trackMakeQuizEvents.startFileUpload(nextFile.name, nextFile.size, ext);
       }
@@ -59,14 +53,14 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
         }
 
         const message =
-          error?.message === t("변환 시간 초과")
-            ? t("파일 변환이 지연되고 있어요. 잠시 후 다시 시도해주세요.")
+          error?.message === t('변환 시간 초과')
+            ? t('파일 변환이 지연되고 있어요. 잠시 후 다시 시도해주세요.')
             : error?.response?.data?.message ||
               error?.message ||
-              t("파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.");
+              t('파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.');
 
         CustomToast.error(message);
-        console.error(t("파일 업로드 실패:"), error);
+        console.error(t('파일 업로드 실패:'), error);
         return;
       } finally {
         setFileExtension(null);
@@ -97,7 +91,7 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
       e.preventDefault();
       setIsDragging(false);
       if (e.dataTransfer.files.length > 0) {
-        selectFile(e.dataTransfer.files[0], "drag_drop");
+        selectFile(e.dataTransfer.files[0], 'drag_drop');
       }
     },
     [selectFile],
@@ -106,7 +100,7 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
   const handleFileInput = useCallback(
     (e) => {
       if (e.target.files.length > 0) {
-        selectFile(e.target.files[0], "click");
+        selectFile(e.target.files[0], 'click');
       }
     },
     [selectFile],

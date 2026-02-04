@@ -1,5 +1,5 @@
-import React from "react";
-import { usePageViewTracker } from "../model/usePageViewTracker";
+import React from 'react';
+import { usePageViewTracker } from '../model/usePageViewTracker';
 
 const PageViewTracker = () => {
   usePageViewTracker();

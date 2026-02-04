@@ -26,8 +26,8 @@ jobs:
       - name: Node.js 설정 (v24)
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
-          cache: "npm"
+          node-version: '24'
+          cache: 'npm'
 
       - name: 의존성 설치 및 빌드
         run: |
