@@ -5,7 +5,10 @@ const apiBaseURL = import.meta.env.VITE_BASE_URL;
 let getAccessToken = () => null;
 let clearAuth = () => {};
 
-export const configureAuth = ({ getAccessToken: getToken, clearAuth: clear }) => {
+export const configureAuth = ({
+  getAccessToken: getToken,
+  clearAuth: clear,
+}) => {
   if (typeof getToken === "function") {
     getAccessToken = getToken;
   }
@@ -39,7 +42,7 @@ axiosInstance.interceptors.request.use(
   (error) => {
     CustomToast.error(error.message);
     return Promise.reject(error);
-  }
+  },
 );
 
 axiosInstance.interceptors.response.use(
@@ -70,7 +73,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(errorToHandle);
-  }
+  },
 );
 
 export default axiosInstance;

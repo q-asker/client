@@ -35,7 +35,9 @@ async function pollForFile(url, timeout = 60000) {
 
   const encodedUrl = encodeURIComponent(url);
   while (Date.now() - startTime < timeout) {
-    const res = await axiosInstance.get(`/s3/check-file-exist?url=${encodedUrl}`);
+    const res = await axiosInstance.get(
+      `/s3/check-file-exist?url=${encodedUrl}`,
+    );
     if (res.data.status === "EXIST") {
       return true;
     }

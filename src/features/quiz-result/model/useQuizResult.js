@@ -29,15 +29,14 @@ export const useQuizResult = ({
         problemSetId,
         correctCount,
         quizzes.length,
-        totalTime
+        totalTime,
       );
       trackQuizEvents.completeQuiz(
         problemSetId,
         correctCount,
         quizzes.length,
-        totalTime
+        totalTime,
       );
-
     }
   }, [problemSetId, correctCount, quizzes.length, totalTime, scorePercent]);
 

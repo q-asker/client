@@ -19,7 +19,7 @@ const MakeQuiz = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const acceptExtensions = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(
-    ", "
+    ", ",
   );
   const { state, actions } = useMakeQuiz({ t, navigate });
   const { upload, options, pages, generation, ui, isProcessing, pdfOptions } =
@@ -162,7 +162,7 @@ const MakeQuiz = () => {
                         onClick={() => {
                           optionActions.handleQuestionTypeChange(
                             type.key,
-                            type.label
+                            type.label,
                           );
                         }}
                       >
@@ -199,7 +199,7 @@ const MakeQuiz = () => {
                                   {option}
                                 </span>
                               </div>
-                            )
+                            ),
                           )}
                         </div>
                       )}
@@ -353,7 +353,7 @@ const MakeQuiz = () => {
                         >
                           {Array.from(
                             new Array(
-                              Math.min(pages.visiblePageCount, pages.numPages)
+                              Math.min(pages.visiblePageCount, pages.numPages),
                             ),
                             (el, index) => {
                               const pageNumber = index + 1;
@@ -375,14 +375,14 @@ const MakeQuiz = () => {
                                   onClick={() => {
                                     if (!isDisabled) {
                                       pageActions.handlePageSelection(
-                                        pageNumber
+                                        pageNumber,
                                       );
                                     }
                                   }}
                                   onMouseEnter={(e) => {
                                     pageActions.handlePageMouseEnter(
                                       e,
-                                      pageNumber
+                                      pageNumber,
                                     );
                                   }}
                                 >
@@ -399,7 +399,7 @@ const MakeQuiz = () => {
                                   </p>
                                 </div>
                               );
-                            }
+                            },
                           )}
                           {pages.visiblePageCount < pages.numPages && (
                             <div className="loading-more-pages">
@@ -444,7 +444,7 @@ const MakeQuiz = () => {
                       {t("초")}
                       <br></br>{" "}
                       {t(
-                        "생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다."
+                        "생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.",
                       )}
                     </p>
                     {generation.showWaitMessage && (
@@ -456,7 +456,7 @@ const MakeQuiz = () => {
                 ) : (
                   <p>
                     {t(
-                      "문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요."
+                      "문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.",
                     )}
                   </p>
                 )}

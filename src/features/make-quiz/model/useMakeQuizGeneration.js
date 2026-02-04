@@ -14,14 +14,16 @@ export const useMakeQuizGeneration = ({
   questionType,
   questionCount,
   quizLevel,
-  selectedPages
+  selectedPages,
 }) => {
   const [problemSetId, setProblemSetId] = useState(null);
   const [version, setVersion] = useState(0);
   const [showWaitMessage, setShowWaitMessage] = useState(false);
   const [generationElapsedTime, setGenerationElapsedTime] = useState(0);
   const generationTimerRef = useRef(null);
-  const startGeneration = useQuizGenerationStore((state) => state.startGeneration);
+  const startGeneration = useQuizGenerationStore(
+    (state) => state.startGeneration,
+  );
 
   const generateQuestions = useCallback(async () => {
     if (!uploadedUrl) {
@@ -53,7 +55,7 @@ export const useMakeQuizGeneration = ({
           quizCount: questionCount,
           quizType: apiQuizType,
           difficultyType: quizLevel,
-          pageNumbers: selectedPages
+          pageNumbers: selectedPages,
         },
         onSuccess: (nextProblemSetId) => {
           setProblemSetId(nextProblemSetId);
@@ -62,7 +64,7 @@ export const useMakeQuizGeneration = ({
             const generationTime = generationTimerRef.current.stop();
             trackMakeQuizEvents.completeQuizGeneration(
               nextProblemSetId,
-              generationTime
+              generationTime,
             );
           }
           setIsProcessing(false);
@@ -71,11 +73,12 @@ export const useMakeQuizGeneration = ({
           if (generationTimerRef.current) {
             generationTimerRef.current.stop();
           }
-          const message = error?.message || t("문제 생성 중 오류가 발생했습니다.");
+          const message =
+            error?.message || t("문제 생성 중 오류가 발생했습니다.");
           CustomToast.error(message);
           setIsProcessing(false);
           setGenerationElapsedTime(0);
-        }
+        },
       });
     } catch (error) {
       if (generationTimerRef.current) {
@@ -92,7 +95,7 @@ export const useMakeQuizGeneration = ({
     setIsProcessing,
     startGeneration,
     t,
-    uploadedUrl
+    uploadedUrl,
   ]);
 
   useEffect(() => {
@@ -113,7 +116,7 @@ export const useMakeQuizGeneration = ({
   const handleNavigateToQuiz = useCallback(() => {
     trackMakeQuizEvents.navigateToQuiz(problemSetId);
     navigate(`/quiz/${problemSetId}`, {
-      state: { uploadedUrl }
+      state: { uploadedUrl },
     });
   }, [navigate, problemSetId, uploadedUrl]);
 
@@ -140,13 +143,13 @@ export const useMakeQuizGeneration = ({
       problemSetId,
       version,
       showWaitMessage,
-      generationElapsedTime
+      generationElapsedTime,
     },
     actions: {
       generateQuestions,
       handleNavigateToQuiz,
       resetGenerationState,
-      resetGenerationForRecreate
-    }
+      resetGenerationForRecreate,
+    },
   };
 };

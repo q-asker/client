@@ -161,36 +161,31 @@ const SEO_CONFIG = {
           {
             "@type": "HowToStep",
             name: "Step 2: Configure quiz options",
-            text:
-              "Choose the number of questions, page range, and quiz types (fill-in-the-blank, true/false, multiple choice).",
+            text: "Choose the number of questions, page range, and quiz types (fill-in-the-blank, true/false, multiple choice).",
             url: "https://www.q-asker.com#how-to-use",
           },
           {
             "@type": "HowToStep",
             name: "Step 3: Generate quizzes",
-            text:
-              "Once set, the AI analyzes the document and generates quizzes automatically.",
+            text: "Once set, the AI analyzes the document and generates quizzes automatically.",
             url: "https://www.q-asker.com#how-to-use",
           },
           {
             "@type": "HowToStep",
             name: "Step 4: Solve the quizzes",
-            text:
-              "Practice with AI-generated quizzes and check your understanding. Mark questions to review later.",
+            text: "Practice with AI-generated quizzes and check your understanding. Mark questions to review later.",
             url: "https://www.q-asker.com#how-to-use",
           },
           {
             "@type": "HowToStep",
             name: "Step 5: Review results and explanations",
-            text:
-              "See scores and detailed explanations for every question. Preview the referenced pages to study in depth.",
+            text: "See scores and detailed explanations for every question. Preview the referenced pages to study in depth.",
             url: "https://www.q-asker.com#how-to-use",
           },
           {
             "@type": "HowToStep",
             name: "Step 6: Manage quiz history",
-            text:
-              "All generated quizzes are saved automatically. Revisit anytime to review or continue solving.",
+            text: "All generated quizzes are saved automatically. Revisit anytime to review or continue solving.",
             url: "https://www.q-asker.com#how-to-use",
           },
         ],
@@ -218,8 +213,7 @@ const SEO_CONFIG = {
             name: "Is Q-Asker really free?",
             acceptedAnswer: {
               "@type": "Answer",
-              text:
-                "Yes. AI quiz generation for PDF, PPT, and Word files is currently free with no signup required.",
+              text: "Yes. AI quiz generation for PDF, PPT, and Word files is currently free with no signup required.",
             },
           },
           {
@@ -227,8 +221,7 @@ const SEO_CONFIG = {
             name: "Are my uploaded files secure?",
             acceptedAnswer: {
               "@type": "Answer",
-              text:
-                "Yes. Files are used only to generate quizzes and are deleted within 24 hours.",
+              text: "Yes. Files are used only to generate quizzes and are deleted within 24 hours.",
             },
           },
           {
@@ -236,8 +229,7 @@ const SEO_CONFIG = {
             name: "How accurate are the AI-generated quizzes?",
             acceptedAnswer: {
               "@type": "Answer",
-              text:
-                "The AI is highly accurate, but not perfect. Use the questions as study aids and verify critical details with the original.",
+              text: "The AI is highly accurate, but not perfect. Use the questions as study aids and verify critical details with the original.",
             },
           },
           {
@@ -245,8 +237,7 @@ const SEO_CONFIG = {
             name: "Can I create quizzes from image files?",
             acceptedAnswer: {
               "@type": "Answer",
-              text:
-                "Yes. OCR is supported, so scans and photo-based documents can be analyzed too.",
+              text: "Yes. OCR is supported, so scans and photo-based documents can be analyzed too.",
             },
           },
         ],

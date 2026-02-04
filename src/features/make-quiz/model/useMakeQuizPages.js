@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { pdfjs } from "react-pdf";
 import CustomToast from "#shared/toast";
 import { trackMakeQuizEvents } from "#shared/lib/analytics";
 import { loadInterval, MAX_SELECT_PAGES, pageCountToLoad } from "./constants";
@@ -17,7 +16,7 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
 
   const getSelectablePageCount = useCallback(
     (totalPages) => Math.min(totalPages, MAX_SELECT_PAGES),
-    []
+    [],
   );
 
   const applyAllPagesSelection = useCallback(
@@ -25,41 +24,11 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
       const selectablePages = getSelectablePageCount(totalPages);
       setNumPages(totalPages);
       setSelectedPages(
-        Array.from({ length: selectablePages }, (_, i) => i + 1)
+        Array.from({ length: selectablePages }, (_, i) => i + 1),
       );
     },
-    [getSelectablePageCount]
+    [getSelectablePageCount],
   );
-
-  useEffect(() => {
-    if (!uploadedUrl) return;
-
-    let cancelled = false;
-    const loadPdfMetadata = async () => {
-      try {
-        const loadingTask = pdfjs.getDocument(uploadedUrl);
-        const pdf = await loadingTask.promise;
-        if (cancelled) {
-          if (loadingTask?.destroy) {
-            loadingTask.destroy();
-          }
-          return;
-        }
-        applyAllPagesSelection(pdf.numPages);
-        if (pdf?.destroy) {
-          pdf.destroy();
-        }
-      } catch (error) {
-        console.error(t("PDF 메타데이터 로드 실패:"), error);
-      }
-    };
-
-    loadPdfMetadata();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [uploadedUrl, applyAllPagesSelection, t]);
 
   useEffect(() => {
     if (!numPages) return;
@@ -90,7 +59,7 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
     ({ numPages: nextNumPages }) => {
       applyAllPagesSelection(nextNumPages);
     },
-    [applyAllPagesSelection]
+    [applyAllPagesSelection],
   );
 
   const handlePageSelection = useCallback((pageNumber) => {
@@ -114,7 +83,7 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
       setSelectedPages([]);
     } else {
       setSelectedPages(
-        Array.from({ length: selectablePages }, (_, i) => i + 1)
+        Array.from({ length: selectablePages }, (_, i) => i + 1),
       );
     }
   }, [getSelectablePageCount, numPages, selectedPages.length]);
@@ -155,7 +124,7 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
     setPageRangeStart(String(start));
     setPageRangeEnd(String(end));
     setSelectedPages(
-      Array.from({ length: end - start + 1 }, (_, i) => start + i)
+      Array.from({ length: end - start + 1 }, (_, i) => start + i),
     );
   }, [numPages, pageMode, pageRangeEnd, pageRangeStart, t]);
 
@@ -179,7 +148,7 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
 
     const style = {
       top: `${top}px`,
-      width: `${PREVIEW_WIDTH}px`
+      width: `${PREVIEW_WIDTH}px`,
     };
 
     if (itemRect.left < midpoint) {
@@ -203,14 +172,14 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
       if (mode === "ALL") {
         const selectablePages = getSelectablePageCount(numPages ?? 0);
         setSelectedPages(
-          Array.from({ length: selectablePages }, (_, i) => i + 1)
+          Array.from({ length: selectablePages }, (_, i) => i + 1),
         );
       } else {
         setSelectedPages([]);
       }
       trackMakeQuizEvents.changeQuizOption("page_mode", mode);
     },
-    [getSelectablePageCount, numPages]
+    [getSelectablePageCount, numPages],
   );
 
   const resetPagesState = useCallback(() => {
@@ -245,7 +214,7 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
       pageRangeStart,
       pageRangeEnd,
       isPreviewVisible,
-      pdfPreviewRef
+      pdfPreviewRef,
     },
     actions: {
       onDocumentLoadSuccess,
@@ -260,7 +229,7 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
       handlePageMouseLeave,
       handlePageModeChange,
       resetPagesState,
-      resetPagesForRecreate
-    }
+      resetPagesForRecreate,
+    },
   };
 };

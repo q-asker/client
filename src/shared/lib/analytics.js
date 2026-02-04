@@ -18,7 +18,7 @@ export const initGA = (measurementId) => {
   } else {
     if (import.meta.env.DEV) {
       console.warn(
-        "⚠️ Google Analytics 측정 ID가 설정되지 않았습니다. 이벤트는 콘솔에서만 확인됩니다."
+        "⚠️ Google Analytics 측정 ID가 설정되지 않았습니다. 이벤트는 콘솔에서만 확인됩니다.",
       );
     }
   }
@@ -193,7 +193,7 @@ export const trackMakeQuizEvents = {
     quizLevel,
     pageMode,
     startPage,
-    endPage
+    endPage,
   ) => {
     logEvent("quiz_generation_start", {
       question_count: questionCount,

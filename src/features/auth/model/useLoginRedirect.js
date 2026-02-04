@@ -1,10 +1,11 @@
-import { useTranslation } from "i18nexus";import { useEffect } from "react";
+import { useTranslation } from "i18nexus";
+import { useEffect } from "react";
 import { authService } from "#entities/auth";
 import CustomToast from "#shared/toast";
 import {
   normalizeLastEndpoint,
-  readLastEndpoint } from
-"#shared/lib/lastEndpointStorage";
+  readLastEndpoint,
+} from "#shared/lib/lastEndpointStorage";
 
 let refreshPromise;
 
@@ -19,7 +20,8 @@ const refreshOnce = async () => {
   return refreshPromise;
 };
 
-export const useLoginRedirect = ({ navigate }) => {const { t } = useTranslation();
+export const useLoginRedirect = ({ navigate }) => {
+  const { t } = useTranslation();
   useEffect(() => {
     let isMounted = true;
 
@@ -56,6 +58,6 @@ export const useLoginRedirect = ({ navigate }) => {const { t } = useTranslation(
 
   return {
     actions: {},
-    state: {}
+    state: {},
   };
 };

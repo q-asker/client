@@ -13,7 +13,7 @@ const SolveQuiz = () => {
   const location = useLocation();
   const { uploadedUrl } = location.state || {};
   const storeProblemSetId = useQuizGenerationStore(
-    (state) => state.problemSetId
+    (state) => state.problemSetId,
   );
   const streamQuizzes = useQuizGenerationStore((state) => state.quizzes);
   const streamIsLoading = useQuizGenerationStore((state) => state.isLoading);
@@ -101,7 +101,7 @@ const SolveQuiz = () => {
                       quizItem.userAnswer === 0
                         ? t("미선택")
                         : quizItem.selections?.find(
-                            (sel) => sel.id === quizItem.userAnswer
+                            (sel) => sel.id === quizItem.userAnswer,
                           )?.content || `${quizItem.userAnswer}번`;
 
                     return (

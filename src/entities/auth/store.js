@@ -20,8 +20,8 @@ export const useAuthStore = create(
         accessToken: state.accessToken,
         user: state.user,
       }),
-    }
-  )
+    },
+  ),
 );
 
 export const getAccessToken = () => useAuthStore.getState().accessToken;

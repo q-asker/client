@@ -92,9 +92,7 @@ const QuizResult = () => {
                 )}
 
                 <div
-                  className={`result-status ${
-                    isCorrect ? "correct" : "wrong"
-                  }`}
+                  className={`result-status ${isCorrect ? "correct" : "wrong"}`}
                 >
                   {isCorrect ? t("정답") : t("오답")}
                 </div>

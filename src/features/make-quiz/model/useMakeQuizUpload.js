@@ -24,7 +24,7 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
 
       if (nextFile.size > MAX_FILE_SIZE) {
         CustomToast.error(
-          `파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`
+          `파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`,
         );
         return;
       }
@@ -33,7 +33,7 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
         trackMakeQuizEvents.dragDropFileUpload(
           nextFile.name,
           nextFile.size,
-          ext
+          ext,
         );
       } else {
         trackMakeQuizEvents.startFileUpload(nextFile.name, nextFile.size, ext);
@@ -74,7 +74,7 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
         setUploadElapsedTime(0);
       }
     },
-    [setIsProcessing, t]
+    [setIsProcessing, t],
   );
 
   const handleDragOver = useCallback((e) => {
@@ -100,7 +100,7 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
         selectFile(e.dataTransfer.files[0], "drag_drop");
       }
     },
-    [selectFile]
+    [selectFile],
   );
 
   const handleFileInput = useCallback(
@@ -109,7 +109,7 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
         selectFile(e.target.files[0], "click");
       }
     },
-    [selectFile]
+    [selectFile],
   );
 
   const resetUploadState = useCallback(() => {
@@ -131,7 +131,7 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
       uploadedUrl,
       isDragging,
       uploadElapsedTime,
-      fileExtension
+      fileExtension,
     },
     actions: {
       handleDragOver,
@@ -139,7 +139,7 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
       handleDragLeave,
       handleDrop,
       handleFileInput,
-      resetUploadState
-    }
+      resetUploadState,
+    },
   };
 };

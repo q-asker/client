@@ -6,7 +6,7 @@ import { trackQuizEvents } from "#shared/lib/analytics";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
+  import.meta.url,
 ).toString();
 
 export const useQuizExplanation = ({
@@ -34,7 +34,7 @@ export const useQuizExplanation = ({
       cMapPacked: true,
       standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
     }),
-    []
+    [],
   );
 
   const totalQuestions = initialQuizzes.length;
@@ -138,7 +138,7 @@ export const useQuizExplanation = ({
       trackQuizEvents.navigateQuestion(
         problemSetId,
         currentQuestion,
-        prevQuestion
+        prevQuestion,
       );
       setCurrentQuestion(prevQuestion);
     }
@@ -153,7 +153,7 @@ export const useQuizExplanation = ({
       trackQuizEvents.navigateQuestion(
         problemSetId,
         currentQuestion,
-        nextQuestion
+        nextQuestion,
       );
       setCurrentQuestion(nextQuestion);
     }
@@ -163,7 +163,7 @@ export const useQuizExplanation = ({
     setIsSpecificExplanationLoading(true);
     try {
       const response = await axiosInstance.get(
-        `/specific-explanation/${problemSetId}?number=${currentQuiz.number}`
+        `/specific-explanation/${problemSetId}?number=${currentQuiz.number}`,
       );
       setSpecificExplanation(response.data.specificExplanation);
     } catch (error) {
@@ -179,7 +179,7 @@ export const useQuizExplanation = ({
       trackQuizEvents.navigateQuestion(
         problemSetId,
         currentQuestion,
-        questionNumber
+        questionNumber,
       );
       setCurrentQuestion(questionNumber);
     }

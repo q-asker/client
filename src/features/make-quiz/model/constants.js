@@ -19,7 +19,7 @@ export const levelDescriptions = {
 
 export const MAX_FILE_SIZE = 30 * 1024 * 1024;
 export const MAX_SELECT_PAGES = 150;
-export const SUPPORTED_EXTENSIONS = ["pdf","ppt", "pptx", "doc", "docx"];
+export const SUPPORTED_EXTENSIONS = ["pdf", "ppt", "pptx", "doc", "docx"];
 
 export const levelMapping = {
   BLANK: "RECALL",

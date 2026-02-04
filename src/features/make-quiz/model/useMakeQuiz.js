@@ -9,7 +9,7 @@ import { useMakeQuizUpload } from "./useMakeQuizUpload";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
+  import.meta.url,
 ).toString();
 
 export const useMakeQuiz = ({ t, navigate }) => {
@@ -19,7 +19,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
   const options = useMakeQuizOptions();
   const pages = useMakeQuizPages({
     t,
-    uploadedUrl: upload.state.uploadedUrl
+    uploadedUrl: upload.state.uploadedUrl,
   });
   const generation = useMakeQuizGeneration({
     t,
@@ -30,16 +30,16 @@ export const useMakeQuiz = ({ t, navigate }) => {
     questionType: options.state.questionType,
     questionCount: options.state.questionCount,
     quizLevel: options.state.quizLevel,
-    selectedPages: pages.state.selectedPages
+    selectedPages: pages.state.selectedPages,
   });
 
   const pdfOptions = useMemo(
     () => ({
       cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
       cMapPacked: true,
-      standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`
+      standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
     }),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export const useMakeQuiz = ({ t, navigate }) => {
       generation: generation.state,
       ui: ui.state,
       isProcessing,
-      pdfOptions
+      pdfOptions,
     },
     actions: {
       upload: upload.actions,
@@ -84,8 +84,8 @@ export const useMakeQuiz = ({ t, navigate }) => {
       ui: ui.actions,
       common: {
         handleRemoveFile,
-        handleReCreate
-      }
-    }
+        handleReCreate,
+      },
+    },
   };
 };

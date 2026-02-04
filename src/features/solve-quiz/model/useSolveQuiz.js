@@ -33,7 +33,7 @@ export const useSolveQuiz = ({
   }, [problemSetId, navigate]);
 
   const resumeGeneration = useQuizGenerationStore(
-    (state) => state.resumeGeneration
+    (state) => state.resumeGeneration,
   );
 
   // ... (기타 상태들)
@@ -88,9 +88,7 @@ export const useSolveQuiz = ({
     }
 
     setQuizzes((prev) => {
-      const prevByNumber = new Map(
-        prev.map((quiz) => [quiz.number, quiz])
-      );
+      const prevByNumber = new Map(prev.map((quiz) => [quiz.number, quiz]));
       const merged = streamedQuizzes.map((quiz) => {
         const prevQuiz = prevByNumber.get(quiz.number);
         if (!prevQuiz) return quiz;
@@ -143,14 +141,14 @@ export const useSolveQuiz = ({
         problemSetId,
         currentQuestion,
         id,
-        selected.correct || false
+        selected.correct || false,
       );
     }
 
     setQuizzes((prev) =>
       prev.map((q, idx) =>
-        idx === currentQuestion - 1 ? { ...q, userAnswer: id } : q
-      )
+        idx === currentQuestion - 1 ? { ...q, userAnswer: id } : q,
+      ),
     );
     setSelectedOption(id);
   };
@@ -161,7 +159,7 @@ export const useSolveQuiz = ({
       trackQuizEvents.navigateQuestion(
         problemSetId,
         currentQuestion,
-        prevQuestion
+        prevQuestion,
       );
       setCurrentQuestion(prevQuestion);
     }
@@ -173,7 +171,7 @@ export const useSolveQuiz = ({
       trackQuizEvents.navigateQuestion(
         problemSetId,
         currentQuestion,
-        nextQuestion
+        nextQuestion,
       );
       setCurrentQuestion(nextQuestion);
     }
@@ -191,7 +189,7 @@ export const useSolveQuiz = ({
     trackQuizEvents.navigateQuestion(
       problemSetId,
       currentQuestion,
-      nextQuestion
+      nextQuestion,
     );
     setCurrentQuestion(nextQuestion);
   };
@@ -204,8 +202,8 @@ export const useSolveQuiz = ({
 
     setQuizzes((prev) =>
       prev.map((q, idx) =>
-        idx === currentQuestion - 1 ? { ...q, check: newCheckState } : q
-      )
+        idx === currentQuestion - 1 ? { ...q, check: newCheckState } : q,
+      ),
     );
   };
 
@@ -222,7 +220,7 @@ export const useSolveQuiz = ({
       problemSetId,
       answeredCount,
       quizzes.length,
-      reviewCount
+      reviewCount,
     );
 
     navigate(`/result/${problemSetId}`, {
@@ -243,11 +241,11 @@ export const useSolveQuiz = ({
 
   const unansweredCount = useMemo(
     () => quizzes.filter((q) => q.userAnswer === 0).length,
-    [quizzes]
+    [quizzes],
   );
   const reviewCount = useMemo(
     () => quizzes.filter((q) => q.check).length,
-    [quizzes]
+    [quizzes],
   );
   const answeredCount = quizzes.length - unansweredCount;
 
@@ -272,8 +270,8 @@ export const useSolveQuiz = ({
         unansweredCount,
         reviewCount,
         answeredCount,
-        currentQuiz
-      }
+        currentQuiz,
+      },
     },
     actions: {
       quiz: {
@@ -286,8 +284,8 @@ export const useSolveQuiz = ({
         handleConfirmSubmit,
         handleCancelSubmit,
         handleJumpTo,
-        handleOverlayClick
-      }
-    }
+        handleOverlayClick,
+      },
+    },
   };
 };

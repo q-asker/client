@@ -108,7 +108,9 @@ body {
   border-radius: 0.25rem;
   background: #fff;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -278,7 +280,9 @@ body {
   font-size: 1rem;
   cursor: pointer;
   align-self: flex;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 .submit-button:hover {
   background-color: #8b5cf6;
@@ -292,7 +296,9 @@ body {
   font-size: 1rem;
   cursor: pointer;
   align-self: flex;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 .go-home-button:hover {
   background-color: #8b5cf6;

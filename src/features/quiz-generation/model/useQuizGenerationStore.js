@@ -33,8 +33,9 @@ export const useQuizGenerationStore = create((set) => ({
       error: null,
     });
 
-    const sessionId = uuidv4();
-    const eventSource = new EventSource(`${baseUrl}/${sessionId}/stream`);
+    const eventSource = new EventSource(
+      `${baseUrl}/generation/${uuidv4()}/stream`
+    );
 
     eventSource.addEventListener("created", (event) => {
       const data = JSON.parse(event.data);
@@ -44,6 +45,5 @@ export const useQuizGenerationStore = create((set) => ({
 
   loadProblemSet: async (problemSetId) => {
     set({ isLoading: true, error: null, problemSetId });
-    
   },
 }));

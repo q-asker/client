@@ -12,18 +12,18 @@ export const useMakeQuizUi = () => {
   useClickOutside({
     containerId: "sidebar",
     triggerId: "menuButton",
-    onOutsideClick: () => setIsSidebarOpen(false)
+    onOutsideClick: () => setIsSidebarOpen(false),
   });
 
   return {
     state: {
       isSidebarOpen,
-      showHelp
+      showHelp,
     },
     actions: {
       toggleSidebar,
       setIsSidebarOpen,
-      setShowHelp
-    }
+      setShowHelp,
+    },
   };
 };

@@ -95,7 +95,7 @@ const QuizExplanation = () => {
                   if (q.userAnswer !== undefined && q.userAnswer !== null) {
                     // userAnswer가 존재하는 경우 (0 포함)
                     const correctOption = q.selections.find(
-                      (opt) => opt.correct === true
+                      (opt) => opt.correct === true,
                     );
 
                     if (correctOption) {
@@ -117,8 +117,8 @@ const QuizExplanation = () => {
                             ? " current"
                             : ""
                           : q.number === quiz.currentQuestion
-                          ? " current"
-                          : ""
+                            ? " current"
+                            : ""
                       }`}
                       onClick={() =>
                         quiz.showWrongOnly
@@ -147,8 +147,8 @@ const QuizExplanation = () => {
                   const borderClass = isCorrectOption
                     ? "correct-option"
                     : isWrongSelected
-                    ? "wrong-option"
-                    : "";
+                      ? "wrong-option"
+                      : "";
                   return (
                     <div key={opt.id} className={`option ${borderClass}`}>
                       <span className="option-icon">{idx + 1}</span>
@@ -214,7 +214,7 @@ const QuizExplanation = () => {
                   </h4>
                   <p className="explanation-text">
                     {explanationActions.renderTextWithLinks(
-                      explanation.specificExplanation
+                      explanation.specificExplanation,
                     )}
                   </p>
                 </div>
@@ -234,7 +234,7 @@ const QuizExplanation = () => {
                       >
                         {page}
                       </span>
-                    )
+                    ),
                   )}
                 </div>
               </div>

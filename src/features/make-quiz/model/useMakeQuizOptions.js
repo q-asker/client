@@ -18,13 +18,16 @@ export const useMakeQuizOptions = () => {
     localStorage.setItem("questionType", questionType);
   }, [questionType]);
 
-  const handleQuestionTypeChange = useCallback((nextType, label) => {
-    if (questionType !== nextType) {
-      trackMakeQuizEvents.changeQuizOption("question_type", label);
-      setQuestionType(nextType);
-      setQuizLevel(levelMapping[nextType]);
-    }
-  }, [questionType]);
+  const handleQuestionTypeChange = useCallback(
+    (nextType, label) => {
+      if (questionType !== nextType) {
+        trackMakeQuizEvents.changeQuizOption("question_type", label);
+        setQuestionType(nextType);
+        setQuizLevel(levelMapping[nextType]);
+      }
+    },
+    [questionType],
+  );
 
   const handleQuestionCountChange = useCallback(
     (nextCount) => {
@@ -33,7 +36,7 @@ export const useMakeQuizOptions = () => {
         setQuestionCount(nextCount);
       }
     },
-    [questionCount]
+    [questionCount],
   );
 
   const resetOptions = useCallback(() => {
@@ -46,12 +49,12 @@ export const useMakeQuizOptions = () => {
     state: {
       questionType,
       questionCount,
-      quizLevel
+      quizLevel,
     },
     actions: {
       handleQuestionTypeChange,
       handleQuestionCountChange,
-      resetOptions
-    }
+      resetOptions,
+    },
   };
 };
