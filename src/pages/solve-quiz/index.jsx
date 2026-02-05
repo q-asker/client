@@ -1,6 +1,6 @@
 import { useTranslation } from 'i18nexus'; // SolveQuiz.jsx
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
 import { useQuizGenerationStore } from '#features/quiz-generation';
@@ -16,6 +16,7 @@ const SolveQuiz = () => {
   const streamQuizzes = useQuizGenerationStore((state) => state.quizzes);
   const streamIsStreaming = useQuizGenerationStore((state) => state.isStreaming);
   const streamTotalCount = useQuizGenerationStore((state) => state.totalCount);
+  const resetQuizGeneration = useQuizGenerationStore((state) => state.resetStreamingState);
 
   const quizzes = storeProblemSetId === problemSetId ? streamQuizzes : [];
   const isStreaming = storeProblemSetId === problemSetId ? streamIsStreaming : false;
@@ -34,6 +35,12 @@ const SolveQuiz = () => {
 
   const remainingCount =
     isStreaming && totalCount > 0 ? Math.max(0, totalCount - quiz.totalQuestions) : 0;
+
+  useEffect(() => {
+    return () => {
+      resetQuizGeneration();
+    };
+  }, [resetQuizGeneration]);
 
   return (
     <div className="solve-app-container">

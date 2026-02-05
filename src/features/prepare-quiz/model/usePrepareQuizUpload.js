@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomToast from '#shared/toast';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import Timer from '#shared/lib/timer';
@@ -10,12 +10,28 @@ export const usePrepareQuizUpload = ({ t }) => {
   const setIsWaitingForFirstQuiz = (isWaitingForFirstQuiz) => {
     useQuizGenerationStore.setState({ isWaitingForFirstQuiz });
   };
+  const storeUploadedUrl = useQuizGenerationStore((state) => state.uploadedUrl);
+  const storeFileInfo = useQuizGenerationStore((state) => state.fileInfo);
+  const setUploadedUrlInStore = useQuizGenerationStore((state) => state.setUploadedUrl);
+  const setUploadedFileInfo = useQuizGenerationStore((state) => state.setUploadedFileInfo);
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadElapsedTime, setUploadElapsedTime] = useState(0);
   const [fileExtension, setFileExtension] = useState(null);
   const uploadTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (!uploadedUrl && storeUploadedUrl) {
+      setUploadedUrl(storeUploadedUrl);
+    }
+    if (!file && storeFileInfo) {
+      setFile({ name: storeFileInfo.name, size: storeFileInfo.size });
+    }
+    if (!fileExtension && storeFileInfo?.extension) {
+      setFileExtension(storeFileInfo.extension);
+    }
+  }, [file, fileExtension, storeFileInfo, storeUploadedUrl, uploadedUrl]);
 
   const selectFile = useCallback(
     async (nextFile, method = 'click') => {
@@ -43,11 +59,17 @@ export const usePrepareQuizUpload = ({ t }) => {
       uploadTimerRef.current.start();
 
       setFileExtension(ext);
+      setUploadedFileInfo({
+        name: nextFile.name,
+        size: nextFile.size,
+        extension: ext,
+      });
       setIsWaitingForFirstQuiz(true);
       try {
         const uploaded = await uploadFileToServer(nextFile);
         setUploadedUrl(uploaded);
         setFile(nextFile);
+        setUploadedUrlInStore(uploaded);
 
         const uploadTime = uploadTimerRef.current.stop();
         trackPrepareQuizEvents.completeFileUpload(nextFile.name, uploadTime);
@@ -65,6 +87,8 @@ export const usePrepareQuizUpload = ({ t }) => {
 
         CustomToast.error(message);
         console.error(t('파일 업로드 실패:'), error);
+        setUploadedUrlInStore(null);
+        setUploadedFileInfo(null);
         return;
       } finally {
         setFileExtension(null);
@@ -72,13 +96,13 @@ export const usePrepareQuizUpload = ({ t }) => {
         setUploadElapsedTime(0);
       }
     },
-    [setIsWaitingForFirstQuiz, t],
+    [setIsWaitingForFirstQuiz, setUploadedFileInfo, setUploadedUrlInStore, t],
   );
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
     setIsDragging(true);
-  }, []);
+  }, [setUploadedFileInfo, setUploadedUrlInStore]);
 
   const handleDragEnter = useCallback((e) => {
     e.preventDefault();
@@ -121,6 +145,8 @@ export const usePrepareQuizUpload = ({ t }) => {
     setIsDragging(false);
     setUploadElapsedTime(0);
     setFileExtension(null);
+    setUploadedUrlInStore(null);
+    setUploadedFileInfo(null);
   }, []);
 
   return {

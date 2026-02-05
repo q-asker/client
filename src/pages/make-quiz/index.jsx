@@ -9,6 +9,7 @@ import {
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
 } from '#features/prepare-quiz';
+import { useQuizGenerationStore } from '#features/quiz-generation';
 import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -22,6 +23,9 @@ const MakeQuiz = () => {
   const acceptExtensions = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
   const { state, actions } = usePrepareQuiz({ t, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
+  const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
+  const safeFileName = upload.file?.name || storedFileInfo?.name || t('업로드된 파일');
+  const safeFileSize = upload.file?.size ?? storedFileInfo?.size;
   const {
     upload: uploadActions,
     options: optionActions,
@@ -91,10 +95,10 @@ const MakeQuiz = () => {
             <>
               <div className="file-icon">📄</div>
               <div className="file-meta">
-                <div className="file-name">{upload.file.name}</div>
-                {upload.file.size && (
+                <div className="file-name">{safeFileName}</div>
+                {safeFileSize && (
                   <span className="file-size">
-                    ({(upload.file.size / 1024 / 1024).toFixed(2)} MB)
+                    ({(safeFileSize / 1024 / 1024).toFixed(2)} MB)
                   </span>
                 )}
               </div>
@@ -422,7 +426,7 @@ const MakeQuiz = () => {
             <div className="problem-card">
               <div className="problem-icon">📝</div>
               <div className="problem-details">
-                <div className="problem-title">{upload.file.name}</div>
+                <div className="problem-title">{safeFileName}</div>
               </div>
               <div className="problem-actions">
                 <button className="btn cancle" onClick={commonActions.handleRemoveFile}>

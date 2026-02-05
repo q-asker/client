@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
@@ -7,6 +8,37 @@ import { trackMakeQuizEvents } from '#shared/lib/analytics';
 import { authService } from '#entities/auth';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
+const EXPIRATION_MS = 24 * 60 * 60 * 1000;
+
+const expiringStorage = {
+  getItem: (name) => {
+    const raw = localStorage.getItem(name);
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      const savedAt = Number(parsed?.savedAt);
+      if (!savedAt || Date.now() - savedAt > EXPIRATION_MS) {
+        localStorage.removeItem(name);
+        return null;
+      }
+      return parsed?.value ?? null;
+    } catch (error) {
+      return null;
+    }
+  },
+  setItem: (name, value) => {
+    localStorage.setItem(
+      name,
+      JSON.stringify({
+        value,
+        savedAt: Date.now(),
+      }),
+    );
+  },
+  removeItem: (name) => {
+    localStorage.removeItem(name);
+  },
+};
 let generationTimer = null;
 let waitMessageTimer = null;
 
@@ -47,18 +79,14 @@ const startGenerationTimers = (set) => {
   }, 5000);
 };
 
-const finalizeGeneration = (set, { error } = {}) => {
-  const nextState = {
-    isStreaming: false,
-  };
-  if (error) {
-    nextState.error = error;
-  }
-  resetWaitingForFirstQuizState(set, nextState);
+const finalizeGeneration = (set) => {
+  resetWaitingForFirstQuizState(set, { isStreaming: false });
 };
 
-const attachGenerationStreamHandlers = (eventSource, set) => {
+const attachGenerationStreamHandlers = (eventSource, set, { onError } = {}) => {
+  let reconnectAttempts = 0;
   eventSource.addEventListener('created', (event) => {
+    reconnectAttempts = 0;
     const data = JSON.parse(event.data);
     const problemSetId = data.problemSetId;
     set((state) => ({
@@ -69,41 +97,29 @@ const attachGenerationStreamHandlers = (eventSource, set) => {
   eventSource.addEventListener('complete', () => {
     console.info('이벤트 스트림 완료');
     eventSource.close();
-    set({ isStreaming: false });
+    finalizeGeneration(set);
+  });
+  eventSource.addEventListener('error-finish', (event) => {
+    console.error('이벤트 스트림 중 에러 발생, 강제 종료:', event);
+    eventSource.close();
+    onError?.(event.data);
+    finalizeGeneration(set);
   });
   eventSource.addEventListener('error', (event) => {
     console.error('이벤트 스트림 중 에러 발생, 재연결 시도 중:', event);
+    reconnectAttempts += 1;
+    if (reconnectAttempts >= 5) {
+      console.error('재연결 시도 횟수 초과, 스트림 종료');
+      eventSource.close();
+      onError('서버와의 통신에 실패했어요');
+      finalizeGeneration(set);
+    }
   });
 };
 
-export const useQuizGenerationStore = create((set) => ({
-  quizzes: [],
-  totalCount: 0,
-  isStreaming: false,
-  isWaitingForFirstQuiz: false,
-  problemSetId: null,
-  showWaitMessage: false,
-  generationElapsedTime: 0,
-  uploadedUrl: null,
-  error: null,
-  setProblemSetInfo: ({ problemSetId, totalCount, isStreaming }) => {
-    set((state) => ({
-      problemSetId: problemSetId,
-      totalCount: typeof totalCount === 'number' ? totalCount : state.totalCount,
-      isStreaming: typeof isStreaming === 'boolean' ? isStreaming : state.isStreaming,
-    }));
-  },
-
-  reset: () => {
-    if (generationTimer) {
-      generationTimer.reset();
-      generationTimer = null;
-    }
-    if (waitMessageTimer) {
-      clearTimeout(waitMessageTimer);
-      waitMessageTimer = null;
-    }
-    set({
+export const useQuizGenerationStore = create(
+  persist(
+    (set) => ({
       quizzes: [],
       totalCount: 0,
       isStreaming: false,
@@ -112,109 +128,164 @@ export const useQuizGenerationStore = create((set) => ({
       showWaitMessage: false,
       generationElapsedTime: 0,
       uploadedUrl: null,
-      error: null,
-    });
-  },
+      fileInfo: null,
+      setUploadedUrl: (uploadedUrl) => {
+        set({ uploadedUrl });
+      },
+      setUploadedFileInfo: (fileInfo) => {
+        set({ fileInfo });
+      },
+      setProblemSetInfo: ({ problemSetId, totalCount, isStreaming }) => {
+        set((state) => ({
+          problemSetId: problemSetId,
+          totalCount: typeof totalCount === 'number' ? totalCount : state.totalCount,
+          isStreaming: typeof isStreaming === 'boolean' ? isStreaming : state.isStreaming,
+        }));
+      },
 
-  reconnectStream: async (sessionId) => {
-    set({ isStreaming: true, error: null });
-    const eventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
-    attachGenerationStreamHandlers(eventSource, set);
-  },
-
-  startGeneration: async ({ requestData, onSuccess, onError }) => {
-    set({
-      quizzes: [],
-      totalCount: requestData.quizCount,
-      isStreaming: true,
-      problemSetId: null,
-      uploadedUrl: requestData.uploadedUrl,
-      error: null,
-    });
-
-    const sessionId = uuidv4();
-    const eventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
-
-    eventSource.onopen = () => {
-      axiosInstance
-        .post(`/generation`, { ...requestData, sessionId })
-        .then(() => {})
-        .catch((error) => {
-          eventSource.close();
-          onError(error);
+      reset: () => {
+        if (generationTimer) {
+          generationTimer.reset();
+          generationTimer = null;
+        }
+        if (waitMessageTimer) {
+          clearTimeout(waitMessageTimer);
+          waitMessageTimer = null;
+        }
+        set({
+          quizzes: [],
+          totalCount: 0,
+          isStreaming: false,
+          isWaitingForFirstQuiz: false,
+          problemSetId: null,
+          showWaitMessage: false,
+          generationElapsedTime: 0,
+          uploadedUrl: null,
+          fileInfo: null,
         });
-    };
+      },
 
-    attachGenerationStreamHandlers(eventSource, set);
-  },
+      resetStreamingState: () => {
+        resetWaitingForFirstQuizState(set);
+        set({
+          quizzes: [],
+          isStreaming: false,
+        });
+      },
 
-  loadProblemSet: async (problemSetId) => {
-    set({ isStreaming: true, error: null, problemSetId });
-  },
+      reconnectStream: async (sessionId) => {
+        set({ isStreaming: true });
+        const eventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
+        attachGenerationStreamHandlers(eventSource, set);
+      },
 
-  generateQuestions: async ({
-    t,
-    uploadedUrl,
-    questionType,
-    questionCount,
-    quizLevel,
-    selectedPages,
-  }) => {
-    if (!uploadedUrl) {
-      CustomToast.error(t('파일을 먼저 업로드해주세요.'));
-      return;
-    }
-    if (!selectedPages.length) {
-      CustomToast.error(t('페이지를 선택해주세요.'));
-      return;
-    }
+      startGeneration: async ({ requestData, onSuccess, onError }) => {
+        set({
+          quizzes: [],
+          totalCount: requestData.quizCount,
+          isStreaming: true,
+          problemSetId: null,
+          uploadedUrl: requestData.uploadedUrl,
+        });
 
-    set({ isWaitingForFirstQuiz: true });
-    try {
-      try {
-        await authService.refresh();
-      } catch (ignored) {
-        // ignore refresh error
-      }
+        const sessionId = uuidv4();
+        const eventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
 
-      startGenerationTimers(set);
+        eventSource.onopen = () => {
+          axiosInstance
+            .post(`/generation`, { ...requestData, sessionId })
+            .then(() => {})
+            .catch((error) => {
+              eventSource.close();
+              onError(error);
+            });
+        };
 
-      useQuizGenerationStore.getState().startGeneration({
-        requestData: {
-          uploadedUrl,
-          quizCount: questionCount,
-          quizType: questionType,
-          difficultyType: quizLevel,
-          pageNumbers: selectedPages,
-        },
-        onSuccess: () => {
+        attachGenerationStreamHandlers(eventSource, set, { onError });
+      },
+
+      loadProblemSet: async (problemSetId) => {
+        set({ isStreaming: true, problemSetId });
+      },
+
+      generateQuestions: async ({
+        t,
+        uploadedUrl,
+        questionType,
+        questionCount,
+        quizLevel,
+        selectedPages,
+      }) => {
+        if (!uploadedUrl) {
+          CustomToast.error(t('파일을 먼저 업로드해주세요.'));
+          return;
+        }
+        if (!selectedPages.length) {
+          CustomToast.error(t('페이지를 선택해주세요.'));
+          return;
+        }
+
+        set({ isWaitingForFirstQuiz: true });
+        try {
+          try {
+            await authService.refresh();
+          } catch (ignored) {
+            // ignore refresh error
+          }
+
+          startGenerationTimers(set);
+
+          useQuizGenerationStore.getState().startGeneration({
+            requestData: {
+              uploadedUrl,
+              quizCount: questionCount,
+              quizType: questionType,
+              difficultyType: quizLevel,
+              pageNumbers: selectedPages,
+            },
+            onSuccess: () => {
+              finalizeGeneration(set);
+            },
+            onError: (errorMessage) => {
+              CustomToast.error(errorMessage);
+              finalizeGeneration(set);
+            },
+          });
+        } catch (error) {
+          const message = error?.message || t('퀴즈 생성에 실패했습니다.');
+          CustomToast.error(message);
           finalizeGeneration(set);
-        },
-        onError: (error) => {
-          finalizeGeneration(set, { error });
-        },
-      });
-    } catch (error) {
-      finalizeGeneration(set, { error });
-    }
-  },
+        }
+      },
 
-  handleNavigateToQuiz: ({ navigate, uploadedUrl }) => {
-    const { problemSetId } = useQuizGenerationStore.getState();
-    if (!problemSetId) {
-      return;
-    }
-    trackMakeQuizEvents.navigateToQuiz(problemSetId);
-    navigate(`/quiz/${problemSetId}`, {
-      state: { uploadedUrl },
-    });
-  },
+      handleNavigateToQuiz: ({ navigate, uploadedUrl }) => {
+        const { problemSetId } = useQuizGenerationStore.getState();
+        if (!problemSetId) {
+          return;
+        }
+        trackMakeQuizEvents.navigateToQuiz(problemSetId);
+        navigate(`/quiz/${problemSetId}`, {
+          state: { uploadedUrl },
+        });
+      },
 
-  resetGenerationState: () => {
-    resetWaitingForFirstQuizState(set, { problemSetId: null });
-  },
+      resetGenerationState: () => {
+        resetWaitingForFirstQuizState(set, { problemSetId: null });
+      },
 
-  resetGenerationForRecreate: () => {
-    resetWaitingForFirstQuizState(set, { problemSetId: null });
-  },
-}));
+      resetGenerationForRecreate: () => {
+        resetWaitingForFirstQuizState(set, { problemSetId: null });
+      },
+    }),
+    {
+      name: 'make-quiz-storage',
+      storage: expiringStorage,
+      partialize: (state) => ({
+        totalCount: state.totalCount,
+        problemSetId: state.problemSetId,
+        uploadedUrl: state.uploadedUrl,
+        fileInfo: state.fileInfo,
+      }),
+    },
+  ),
+);

@@ -2,21 +2,51 @@ import { useCallback, useEffect, useState } from 'react';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import { defaultType, levelMapping } from './constants';
 
+const OPTIONS_STORAGE_KEY = 'makeQuizOptions';
+const EXPIRATION_MS = 24 * 60 * 60 * 1000;
+
+const readSavedOptions = () => {
+  try {
+    const saved = localStorage.getItem(OPTIONS_STORAGE_KEY);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    const savedAt = Number(parsed?.savedAt);
+    if (!savedAt || Date.now() - savedAt > EXPIRATION_MS) {
+      localStorage.removeItem(OPTIONS_STORAGE_KEY);
+      return null;
+    }
+    return parsed;
+  } catch (error) {
+    return null;
+  }
+};
+
 export const usePrepareQuizOptions = () => {
+  const savedOptions = readSavedOptions();
   const [questionType, setQuestionType] = useState(() => {
-    const savedType = localStorage.getItem('questionType');
-    return savedType || defaultType;
+    return savedOptions?.questionType || defaultType;
   });
-  const [questionCount, setQuestionCount] = useState(10);
+  const [questionCount, setQuestionCount] = useState(() => {
+    return typeof savedOptions?.questionCount === 'number' ? savedOptions.questionCount : 10;
+  });
   const [quizLevel, setQuizLevel] = useState(() => {
-    const savedType = localStorage.getItem('questionType');
-    return levelMapping[savedType || defaultType];
+    return levelMapping[savedOptions?.questionType || defaultType];
   });
 
   useEffect(() => {
     setQuizLevel(levelMapping[questionType]);
-    localStorage.setItem('questionType', questionType);
   }, [questionType]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      OPTIONS_STORAGE_KEY,
+      JSON.stringify({
+        questionType,
+        questionCount,
+        savedAt: Date.now(),
+      }),
+    );
+  }, [questionCount, questionType]);
 
   const handleQuestionTypeChange = useCallback(
     (nextType, label) => {
