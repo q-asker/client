@@ -1,17 +1,18 @@
 import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
 import Help from '#widgets/help';
+import Footer from '#widgets/footer';
 import {
-  useMakeQuiz,
+  usePrepareQuiz,
   levelDescriptions,
   MAX_FILE_SIZE,
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
-} from '#features/make-quiz';
+} from '#features/prepare-quiz';
 import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './index.css';
 import RecentChanges from '#widgets/recent-changes';
 
@@ -19,8 +20,8 @@ const MakeQuiz = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const acceptExtensions = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
-  const { state, actions } = useMakeQuiz({ t, navigate });
-  const { upload, options, pages, generation, ui, isProcessing, pdfOptions } = state;
+  const { state, actions } = usePrepareQuiz({ t, navigate });
+  const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
   const {
     upload: uploadActions,
     options: optionActions,
@@ -48,7 +49,7 @@ const MakeQuiz = () => {
           onDrop={uploadActions.handleDrop}
         >
           {/* 파일 업로드 중일 때 */}
-          {isProcessing && !upload.uploadedUrl ? (
+          {isWaitingForFirstQuiz && !upload.uploadedUrl ? (
             <div className="processing">
               <div className="spinner" />
               <div className="upload-status">
@@ -374,7 +375,7 @@ const MakeQuiz = () => {
             <div className="option-section document-preview">
               <div className="section-title">{t('4. 문제를 생성하세요!')}</div>
               <div className="preview-content">
-                {isProcessing ? (
+                {isWaitingForFirstQuiz ? (
                   <div className="processing">
                     <div className="spinner" />
                     <p>
@@ -382,7 +383,9 @@ const MakeQuiz = () => {
                       {Math.floor(generation.generationElapsedTime / 1000)}
                       {t('초')}
                       <br></br>{' '}
-                      {t('생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.')}
+                      <span className="wait-message-note">
+                        {t('생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.')}
+                      </span>
                     </p>
                     {generation.showWaitMessage && (
                       <p className="wait-message">
@@ -398,11 +401,13 @@ const MakeQuiz = () => {
                 <button
                   className="primary-button large"
                   onClick={generationActions.generateQuestions}
-                  disabled={!upload.uploadedUrl || isProcessing || !pages.selectedPages.length}
+                  disabled={
+                    !upload.uploadedUrl || isWaitingForFirstQuiz || !pages.selectedPages.length
+                  }
                 >
-                  {isProcessing ? t('생성 중...') : t('문제 생성하기')}
+                  {isWaitingForFirstQuiz ? t('생성 중...') : t('문제 생성하기')}
                 </button>
-                {!isProcessing && !pages.selectedPages.length && (
+                {!isWaitingForFirstQuiz && !pages.selectedPages.length && (
                   <p className="action-guide">
                     {t('페이지 정보를 불러오는 중입니다. 잠시만 기다려주세요.')}
                   </p>
@@ -411,16 +416,13 @@ const MakeQuiz = () => {
             </div>
           </div>
         )}
-        {upload.uploadedUrl && generation.problemSetId && (
+        {generation.problemSetId && (
           <div className="option-section document-preview">
             <div className="section-title">{t('생성된 문제')}</div>
             <div className="problem-card">
               <div className="problem-icon">📝</div>
               <div className="problem-details">
-                <div className="problem-title">
-                  {upload.file.name}
-                  {generation.version > 0 && `.ver${generation.version}`}
-                </div>
+                <div className="problem-title">{upload.file.name}</div>
               </div>
               <div className="problem-actions">
                 <button className="btn cancle" onClick={commonActions.handleRemoveFile}>
@@ -440,26 +442,7 @@ const MakeQuiz = () => {
         {ui.showHelp && <Help />}
       </div>
 
-      {/* Footer */}
-      <div className="footer">
-        © 2025 Q-Asker{' | '}
-        <Link to="/privacy-policy" className="policy-link">
-          {t('개인정보 처리방침')}
-        </Link>
-        <br></br>
-        {t('문의 및 피드백')}
-        <span>: </span>
-        <a
-          href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
-          target="_blank"
-        >
-          {t('구글 폼 링크')}
-        </a>
-        <span>, </span>
-        <a href="mailto:inhapj01@gmail.com" aria-label={t('Q-Asker 이메일 문의')}>
-          inhapj01@gmail.com
-        </a>
-      </div>
+      <Footer />
     </div>
   );
 };

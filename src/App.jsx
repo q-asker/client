@@ -3,11 +3,11 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import './App.css';
-import MakeQuiz from './pages/MakeQuiz';
-import QuizExplanation from './pages/QuizExplanation';
-import QuizHistory from './pages/QuizHistory';
-import QuizResult from './pages/QuizResult';
-import SolveQuiz from './pages/SolveQuiz';
+import MakeQuiz from './pages/make-quiz';
+import QuizExplanation from './pages/quiz-explanation';
+import QuizHistory from './pages/quiz-history';
+import QuizResult from './pages/quiz-result';
+import SolveQuiz from './pages/solve-quiz';
 import { I18nProvider } from 'i18nexus';
 import { translations } from '../locales';
 

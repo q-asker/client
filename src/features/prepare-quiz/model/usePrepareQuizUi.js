@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useClickOutside } from '#shared/lib/useClickOutside';
 
-export const useMakeQuizUi = () => {
+export const usePrepareQuizUi = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 

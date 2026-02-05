@@ -1,5 +1,5 @@
 export { uploadFileToServer } from './file-uploader';
-export { useMakeQuiz } from './model/useMakeQuiz';
+export { usePrepareQuiz } from './model/usePrepareQuiz';
 export {
   levelDescriptions,
   MAX_FILE_SIZE,

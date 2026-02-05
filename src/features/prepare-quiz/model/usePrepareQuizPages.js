@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomToast from '#shared/toast';
-import { trackMakeQuizEvents } from '#shared/lib/analytics';
+import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import { loadInterval, MAX_SELECT_PAGES, pageCountToLoad } from './constants';
 
-export const useMakeQuizPages = ({ t, uploadedUrl }) => {
+export const usePrepareQuizPages = ({ t, uploadedUrl }) => {
   const [pageMode, setPageMode] = useState('CUSTOM');
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
@@ -167,7 +167,7 @@ export const useMakeQuizPages = ({ t, uploadedUrl }) => {
       } else {
         setSelectedPages([]);
       }
-      trackMakeQuizEvents.changeQuizOption('page_mode', mode);
+      trackPrepareQuizEvents.changeQuizOption('page_mode', mode);
     },
     [getSelectablePageCount, numPages],
   );

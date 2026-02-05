@@ -9,6 +9,12 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
+const PDF_OPTIONS = {
+  cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+  cMapPacked: true,
+  standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
+};
+
 export const useQuizExplanation = ({
   t,
   navigate,
@@ -27,14 +33,7 @@ export const useQuizExplanation = ({
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  const pdfOptions = useMemo(
-    () => ({
-      cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
-      cMapPacked: true,
-      standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
-    }),
-    [],
-  );
+  const pdfOptions = PDF_OPTIONS;
 
   const totalQuestions = initialQuizzes.length;
   const allExplanation = Array.isArray(rawExplanation.results) ? rawExplanation.results : [];

@@ -8,24 +8,25 @@ import './index.css';
 
 const SolveQuiz = () => {
   const { t } = useTranslation();
-  const { problemSetId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { problemSetId } = useParams();
   const { uploadedUrl } = location.state || {};
   const storeProblemSetId = useQuizGenerationStore((state) => state.problemSetId);
   const streamQuizzes = useQuizGenerationStore((state) => state.quizzes);
-  const streamIsLoading = useQuizGenerationStore((state) => state.isLoading);
+  const streamIsStreaming = useQuizGenerationStore((state) => state.isStreaming);
   const streamTotalCount = useQuizGenerationStore((state) => state.totalCount);
 
-  const streamedQuizzes = storeProblemSetId === problemSetId ? streamQuizzes : [];
-  const isStreaming = storeProblemSetId === problemSetId ? streamIsLoading : false;
+  const quizzes = storeProblemSetId === problemSetId ? streamQuizzes : [];
+  const isStreaming = storeProblemSetId === problemSetId ? streamIsStreaming : false;
   const totalCount = storeProblemSetId === problemSetId ? streamTotalCount : 0;
+
   const { state, actions } = useSolveQuiz({
     t,
     navigate,
     problemSetId,
     uploadedUrl,
-    streamedQuizzes,
+    quizzes,
     isStreaming,
   });
   const { quiz } = state;
@@ -123,7 +124,6 @@ const SolveQuiz = () => {
           </div>
         </div>
       )}
-
       <header className="solve-navbar">
         {/* 헤더는 항상 보여주고 */}
         <button className="solve-close-button" onClick={() => navigate('/')}>
@@ -131,7 +131,6 @@ const SolveQuiz = () => {
         </button>
         <div className="solve-time-display">{quiz.currentTime}</div>
       </header>
-
       <main className="solve-quiz-wrapper">
         {/* 가운데 패널 */}
         <section className="solve-center-panel">
@@ -210,7 +209,6 @@ const SolveQuiz = () => {
             </div>
           )}
           {/* ─── 여기까지 문제 영역 ─── */}
-
           <button className="solve-submit-button" onClick={quizActions.handleSubmit}>
             {t('확인')}
           </button>

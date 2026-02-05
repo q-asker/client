@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { trackMakeQuizEvents } from '#shared/lib/analytics';
+import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import { defaultType, levelMapping } from './constants';
 
-export const useMakeQuizOptions = () => {
+export const usePrepareQuizOptions = () => {
   const [questionType, setQuestionType] = useState(() => {
     const savedType = localStorage.getItem('questionType');
     return savedType || defaultType;
@@ -21,7 +21,7 @@ export const useMakeQuizOptions = () => {
   const handleQuestionTypeChange = useCallback(
     (nextType, label) => {
       if (questionType !== nextType) {
-        trackMakeQuizEvents.changeQuizOption('question_type', label);
+        trackPrepareQuizEvents.changeQuizOption('question_type', label);
         setQuestionType(nextType);
         setQuizLevel(levelMapping[nextType]);
       }
@@ -32,7 +32,7 @@ export const useMakeQuizOptions = () => {
   const handleQuestionCountChange = useCallback(
     (nextCount) => {
       if (questionCount !== nextCount) {
-        trackMakeQuizEvents.changeQuizOption('question_count', nextCount);
+        trackPrepareQuizEvents.changeQuizOption('question_count', nextCount);
         setQuestionCount(nextCount);
       }
     },
@@ -41,7 +41,7 @@ export const useMakeQuizOptions = () => {
 
   const resetOptions = useCallback(() => {
     setQuestionType(defaultType);
-    setQuestionCount(15);
+    setQuestionCount(10);
     setQuizLevel(levelMapping[defaultType]);
   }, []);
 

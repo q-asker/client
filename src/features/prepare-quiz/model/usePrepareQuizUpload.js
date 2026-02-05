@@ -1,11 +1,15 @@
 import { useCallback, useRef, useState } from 'react';
 import CustomToast from '#shared/toast';
-import { trackMakeQuizEvents } from '#shared/lib/analytics';
+import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import Timer from '#shared/lib/timer';
+import { useQuizGenerationStore } from '#features/quiz-generation';
 import { uploadFileToServer } from '../file-uploader';
 import { MAX_FILE_SIZE, SUPPORTED_EXTENSIONS } from './constants';
 
-export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
+export const usePrepareQuizUpload = ({ t }) => {
+  const setIsWaitingForFirstQuiz = (isWaitingForFirstQuiz) => {
+    useQuizGenerationStore.setState({ isWaitingForFirstQuiz });
+  };
   const [file, setFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -28,9 +32,9 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
       }
 
       if (method === 'drag_drop') {
-        trackMakeQuizEvents.dragDropFileUpload(nextFile.name, nextFile.size, ext);
+        trackPrepareQuizEvents.dragDropFileUpload(nextFile.name, nextFile.size, ext);
       } else {
-        trackMakeQuizEvents.startFileUpload(nextFile.name, nextFile.size, ext);
+        trackPrepareQuizEvents.startFileUpload(nextFile.name, nextFile.size, ext);
       }
 
       uploadTimerRef.current = new Timer((elapsed) => {
@@ -39,14 +43,14 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
       uploadTimerRef.current.start();
 
       setFileExtension(ext);
-      setIsProcessing(true);
+      setIsWaitingForFirstQuiz(true);
       try {
         const uploaded = await uploadFileToServer(nextFile);
         setUploadedUrl(uploaded);
         setFile(nextFile);
 
         const uploadTime = uploadTimerRef.current.stop();
-        trackMakeQuizEvents.completeFileUpload(nextFile.name, uploadTime);
+        trackPrepareQuizEvents.completeFileUpload(nextFile.name, uploadTime);
       } catch (error) {
         if (uploadTimerRef.current) {
           uploadTimerRef.current.stop();
@@ -64,11 +68,11 @@ export const useMakeQuizUpload = ({ t, setIsProcessing }) => {
         return;
       } finally {
         setFileExtension(null);
-        setIsProcessing(false);
+        setIsWaitingForFirstQuiz(false);
         setUploadElapsedTime(0);
       }
     },
-    [setIsProcessing, t],
+    [setIsWaitingForFirstQuiz, t],
   );
 
   const handleDragOver = useCallback((e) => {
