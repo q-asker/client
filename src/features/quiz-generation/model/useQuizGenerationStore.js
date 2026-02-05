@@ -41,6 +41,16 @@ const expiringStorage = {
 };
 let generationTimer = null;
 let waitMessageTimer = null;
+let generationEventSource = null;
+
+const closeGenerationStream = (eventSource = generationEventSource) => {
+  if (eventSource) {
+    eventSource.close();
+  }
+  if (!eventSource || eventSource === generationEventSource) {
+    generationEventSource = null;
+  }
+};
 
 const resetWaitingForFirstQuizState = (set, extraState = {}) => {
   if (waitMessageTimer) {
@@ -79,7 +89,8 @@ const startGenerationTimers = (set) => {
   }, 5000);
 };
 
-const finalizeGeneration = (set) => {
+const finalizeGeneration = (set, eventSource) => {
+  closeGenerationStream(eventSource);
   resetWaitingForFirstQuizState(set, { isStreaming: false });
 };
 
@@ -96,23 +107,20 @@ const attachGenerationStreamHandlers = (eventSource, set, { onError } = {}) => {
   });
   eventSource.addEventListener('complete', () => {
     console.info('이벤트 스트림 완료');
-    eventSource.close();
-    finalizeGeneration(set);
+    finalizeGeneration(set, eventSource);
   });
   eventSource.addEventListener('error-finish', (event) => {
     console.error('이벤트 스트림 중 에러 발생, 강제 종료:', event);
-    eventSource.close();
     onError?.(event.data);
-    finalizeGeneration(set);
+    finalizeGeneration(set, eventSource);
   });
   eventSource.addEventListener('error', (event) => {
     console.error('이벤트 스트림 중 에러 발생, 재연결 시도 중:', event);
     reconnectAttempts += 1;
     if (reconnectAttempts >= 5) {
       console.error('재연결 시도 횟수 초과, 스트림 종료');
-      eventSource.close();
       onError('서버와의 통신에 실패했어요');
-      finalizeGeneration(set);
+      finalizeGeneration(set, eventSource);
     }
   });
 };
@@ -144,6 +152,7 @@ export const useQuizGenerationStore = create(
       },
 
       reset: () => {
+        closeGenerationStream();
         if (generationTimer) {
           generationTimer.reset();
           generationTimer = null;
@@ -166,6 +175,7 @@ export const useQuizGenerationStore = create(
       },
 
       resetStreamingState: () => {
+        closeGenerationStream();
         resetWaitingForFirstQuizState(set);
         set({
           quizzes: [],
@@ -174,12 +184,14 @@ export const useQuizGenerationStore = create(
       },
 
       reconnectStream: async (sessionId) => {
+        closeGenerationStream();
         set({ isStreaming: true });
-        const eventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
-        attachGenerationStreamHandlers(eventSource, set);
+        generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
+        attachGenerationStreamHandlers(generationEventSource, set);
       },
 
       startGeneration: async ({ requestData, onSuccess, onError }) => {
+        closeGenerationStream();
         set({
           quizzes: [],
           totalCount: requestData.quizCount,
@@ -189,19 +201,19 @@ export const useQuizGenerationStore = create(
         });
 
         const sessionId = uuidv4();
-        const eventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
+        generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
 
-        eventSource.onopen = () => {
+        generationEventSource.onopen = () => {
           axiosInstance
             .post(`/generation`, { ...requestData, sessionId })
             .then(() => {})
             .catch((error) => {
-              eventSource.close();
+              closeGenerationStream();
               onError(error);
             });
         };
 
-        attachGenerationStreamHandlers(eventSource, set, { onError });
+        attachGenerationStreamHandlers(generationEventSource, set, { onError });
       },
 
       loadProblemSet: async (problemSetId) => {
@@ -270,10 +282,12 @@ export const useQuizGenerationStore = create(
       },
 
       resetGenerationState: () => {
+        closeGenerationStream();
         resetWaitingForFirstQuizState(set, { problemSetId: null });
       },
 
       resetGenerationForRecreate: () => {
+        closeGenerationStream();
         resetWaitingForFirstQuizState(set, { problemSetId: null });
       },
     }),
