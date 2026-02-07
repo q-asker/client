@@ -38,6 +38,8 @@ const SolveQuiz = () => {
   const remainingCount =
     isStreaming && totalCount > 0 ? Math.max(0, totalCount - quiz.totalQuestions) : 0;
 
+  const isUnanswered = (answer) => !answer;
+
   useEffect(() => {
     return () => {
       resetQuizGeneration();
@@ -95,8 +97,9 @@ const SolveQuiz = () => {
                 <h3>{t('선택한 답안')}</h3>
                 <div className="answers-list">
                   {quiz.quizzes.map((quizItem) => {
+                    const unanswered = isUnanswered(quizItem.userAnswer);
                     const selectedAnswer =
-                      quizItem.userAnswer === 0
+                      unanswered
                         ? t('미선택')
                         : quizItem.selections?.find((sel) => sel.id === quizItem.userAnswer)
                             ?.content || `${quizItem.userAnswer}번`;
@@ -109,7 +112,7 @@ const SolveQuiz = () => {
                         </span>
                         <span
                           className={`answer-text ${
-                            quizItem.userAnswer === 0 ? 'unanswered' : ''
+                            unanswered ? 'unanswered' : ''
                           } ${quizItem.check ? 'review' : ''}`}
                         >
                           {selectedAnswer}
@@ -163,19 +166,22 @@ const SolveQuiz = () => {
           ) : (
             <div className="solve-question-and-review-container">
               <aside className="solve-left-panel">
-                {quiz.quizzes.map((q) => (
-                  <button
-                    key={q.number}
-                    className={`solve-skipped-button${
-                      q.userAnswer !== 0 ? ' solve-answered' : ''
-                    }${q.check ? ' solve-checked' : ''}${
-                      q.number === quiz.currentQuestion ? ' solve-current' : ''
-                    }`}
-                    onClick={() => quizActions.handleJumpTo(q.number)}
-                  >
-                    {q.number}
-                  </button>
-                ))}
+                {quiz.quizzes.map((q) => {
+                  const unanswered = isUnanswered(q.userAnswer);
+                  return (
+                    <button
+                      key={q.number}
+                      className={`solve-skipped-button${
+                        unanswered ? '' : ' solve-answered'
+                      }${q.check ? ' solve-checked' : ''}${
+                        q.number === quiz.currentQuestion ? ' solve-current' : ''
+                      }`}
+                      onClick={() => quizActions.handleJumpTo(q.number)}
+                    >
+                      {q.number}
+                    </button>
+                  );
+                })}
                 {Array.from({ length: remainingCount }).map((_, index) => (
                   <button
                     key={`pending-${index}`}
@@ -229,19 +235,20 @@ const SolveQuiz = () => {
           </button>
         </section>
         <aside className="solve-bottom-panel">
-          {quiz.quizzes.map((q) => (
-            <button
-              key={q.number}
-              className={`solve-skipped-button${
-                q.userAnswer !== 0 ? ' solve-answered' : ''
-              }${q.check ? ' solve-checked' : ''}${
-                q.number === quiz.currentQuestion ? ' solve-current' : ''
-              }`}
-              onClick={() => quizActions.handleJumpTo(q.number)}
-            >
-              {q.number}
-            </button>
-          ))}
+          {quiz.quizzes.map((q) => {
+            const unanswered = isUnanswered(q.userAnswer);
+            return (
+              <button
+                key={q.number}
+                className={`solve-skipped-button${unanswered ? '' : ' solve-answered'}${
+                  q.check ? ' solve-checked' : ''
+                }${q.number === quiz.currentQuestion ? ' solve-current' : ''}`}
+                onClick={() => quizActions.handleJumpTo(q.number)}
+              >
+                {q.number}
+              </button>
+            );
+          })}
           {Array.from({ length: remainingCount }).map((_, index) => (
             <button
               key={`pending-bottom-${index}`}

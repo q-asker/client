@@ -7,9 +7,9 @@ import { FileConversionTimeoutError, uploadFileToServer } from '../file-uploader
 import { MAX_FILE_SIZE, SUPPORTED_EXTENSIONS } from './constants';
 
 export const usePrepareQuizUpload = ({ t }) => {
-  const setIsWaitingForFirstQuiz = (isWaitingForFirstQuiz) => {
+  const setIsWaitingForFirstQuiz = useCallback((isWaitingForFirstQuiz) => {
     useQuizGenerationStore.setState({ isWaitingForFirstQuiz });
-  };
+  }, []);
   const storeUploadedUrl = useQuizGenerationStore((state) => state.uploadedUrl);
   const storeFileInfo = useQuizGenerationStore((state) => state.fileInfo);
   const setUploadedUrlInStore = useQuizGenerationStore((state) => state.setUploadedUrl);
@@ -51,6 +51,12 @@ export const usePrepareQuizUpload = ({ t }) => {
         trackPrepareQuizEvents.dragDropFileUpload(nextFile.name, nextFile.size, ext);
       } else {
         trackPrepareQuizEvents.startFileUpload(nextFile.name, nextFile.size, ext);
+      }
+
+      if (uploadTimerRef.current) {
+        uploadTimerRef.current.stop();
+        uploadTimerRef.current.reset();
+        uploadTimerRef.current = null;
       }
 
       uploadTimerRef.current = new Timer((elapsed) => {
@@ -147,7 +153,7 @@ export const usePrepareQuizUpload = ({ t }) => {
     setFileExtension(null);
     setUploadedUrlInStore(null);
     setUploadedFileInfo(null);
-  }, []);
+  }, [setUploadedFileInfo, setUploadedUrlInStore]);
 
   return {
     state: {
