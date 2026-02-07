@@ -59,6 +59,7 @@ export const useSolveQuizQuestion = ({ t, problemSetId, quizzes, setQuizzes, tot
 
   const handleCheckToggle = useCallback(() => {
     const currentQuiz = quizzes[currentQuestion - 1];
+    if (!currentQuiz) return;
     const newCheckState = !currentQuiz.check;
 
     trackQuizEvents.toggleReview(problemSetId, currentQuestion, newCheckState);

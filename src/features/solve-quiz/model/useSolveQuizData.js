@@ -16,11 +16,11 @@ export const useSolveQuizData = ({ problemSetId, quizzes, isStreaming, navigate 
         const res = await axiosInstance.get(`/problem-set/${problemSetId}`);
         const status = res.data.generationStatus;
 
-        if (status == 'COMPLETED') {
+        if (status === 'COMPLETED') {
           setLocalQuizzes(res.data.quiz);
           setIsLoading(false);
         }
-        if (status == 'GENERATING') {
+        if (status === 'GENERATING') {
           setProblemSetInfo({
             problemSetId,
             totalCount: res.data.totalCount,

@@ -46,7 +46,7 @@ export const useSolveQuiz = ({
   }, [problemSetId, navigate]);
 
   const unansweredCount = useMemo(
-    () => solveQuizzes.filter((q) => q.userAnswer === 0).length,
+    () => solveQuizzes.filter((q) => !q.userAnswer).length,
     [solveQuizzes],
   );
   const reviewCount = useMemo(() => solveQuizzes.filter((q) => q.check).length, [solveQuizzes]);

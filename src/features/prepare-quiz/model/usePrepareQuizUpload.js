@@ -102,7 +102,7 @@ export const usePrepareQuizUpload = ({ t }) => {
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
     setIsDragging(true);
-  }, [setUploadedFileInfo, setUploadedUrlInStore]);
+  }, []);
 
   const handleDragEnter = useCallback((e) => {
     e.preventDefault();

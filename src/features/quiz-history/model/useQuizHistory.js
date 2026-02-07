@@ -4,6 +4,26 @@ import CustomToast from '#shared/toast';
 import { trackQuizHistoryEvents } from '#shared/lib/analytics';
 import { useClickOutside } from '#shared/lib/useClickOutside';
 
+const QUIZ_HISTORY_KEY = 'quiz-history-storage';
+
+const readQuizHistory = () => {
+  try {
+    const raw = localStorage.getItem(QUIZ_HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    console.error('Failed to read quiz history:', error);
+    return [];
+  }
+};
+
+const saveQuizHistory = (history) => {
+  try {
+    localStorage.setItem(QUIZ_HISTORY_KEY, JSON.stringify(history));
+  } catch (error) {
+    console.error('Failed to save quiz history:', error);
+  }
+};
+
 export const useQuizHistory = ({ t, navigate }) => {
   const [quizHistory, setQuizHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,9 +32,17 @@ export const useQuizHistory = ({ t, navigate }) => {
   const startTimeRef = useRef(Date.now());
 
   const loadQuizHistory = () => {
-    setQuizHistory([]);
-    setLoading(false);
-    return [];
+    try {
+      const history = readQuizHistory();
+      setQuizHistory(history);
+      setLoading(false);
+      return history;
+    } catch (error) {
+      console.error(t('퀴즈 기록 불러오기 실패:'), error);
+      CustomToast.error(t('기록을 불러오는데 실패했습니다.'));
+      setLoading(false);
+      return [];
+    }
   };
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -119,7 +147,9 @@ export const useQuizHistory = ({ t, navigate }) => {
           record?.quizLevel || 'unknown',
         );
 
-        setQuizHistory((prev) => prev.filter((item) => item.problemSetId !== problemSetId));
+        const newHistory = quizHistory.filter((item) => item.problemSetId !== problemSetId);
+        setQuizHistory(newHistory);
+        saveQuizHistory(newHistory);
         CustomToast.success(t('기록이 삭제되었습니다.'));
       } catch (error) {
         console.error(t('기록 삭제 실패:'), error);
@@ -136,6 +166,7 @@ export const useQuizHistory = ({ t, navigate }) => {
         trackQuizHistoryEvents.clearAllHistory(quizHistory.length, completed.length);
 
         setQuizHistory([]);
+        saveQuizHistory([]);
         CustomToast.success(t('모든 기록이 삭제되었습니다.'));
       } catch (error) {
         console.error(t('전체 기록 삭제 실패:'), error);

@@ -15,14 +15,15 @@ export const useSolveQuizSubmit = ({
   }, []);
 
   const handleConfirmSubmit = useCallback(() => {
-    const unansweredCount = quizzes.filter((q) => q.userAnswer === 0).length;
-    const reviewCount = quizzes.filter((q) => q.check).length;
-    const answeredCount = quizzes.length - unansweredCount;
+    const safeQuizzes = quizzes || [];
+    const unansweredCount = safeQuizzes.filter((q) => !q.userAnswer).length;
+    const reviewCount = safeQuizzes.filter((q) => q.check).length;
+    const answeredCount = safeQuizzes.length - unansweredCount;
 
-    trackQuizEvents.submitQuiz(problemSetId, answeredCount, quizzes.length, reviewCount);
+    trackQuizEvents.submitQuiz(problemSetId, answeredCount, safeQuizzes.length, reviewCount);
 
     navigate(`/result/${problemSetId}`, {
-      state: { quizzes, totalTime: currentTime, uploadedUrl },
+      state: { quizzes: safeQuizzes, totalTime: currentTime, uploadedUrl },
     });
   }, [quizzes, problemSetId, currentTime, uploadedUrl, navigate]);
 

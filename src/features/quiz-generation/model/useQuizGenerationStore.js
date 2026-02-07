@@ -247,7 +247,7 @@ export const useQuizGenerationStore = create(
 
           startGenerationTimers(set);
 
-          useQuizGenerationStore.getState().startGeneration({
+          await useQuizGenerationStore.getState().startGeneration({
             requestData: {
               uploadedUrl,
               quizCount: questionCount,
