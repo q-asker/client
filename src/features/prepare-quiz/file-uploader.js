@@ -1,6 +1,13 @@
 import axios from 'axios';
 import axiosInstance from '#shared/api';
 
+export class FileConversionTimeoutError extends Error {
+  constructor() {
+    super('FILE_CONVERSION_TIMEOUT');
+    this.name = 'FileConversionTimeoutError';
+  }
+}
+
 export async function uploadFileToServer(file) {
   const initResponse = await axiosInstance.post('/s3/request-presign', {
     originalFileName: file.name,
@@ -41,5 +48,5 @@ async function pollForFile(url, timeout = 60000) {
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
-  throw new Error('변환 시간 초과');
+  throw new FileConversionTimeoutError();
 }

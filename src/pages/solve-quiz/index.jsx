@@ -18,9 +18,11 @@ const SolveQuiz = () => {
   const streamTotalCount = useQuizGenerationStore((state) => state.totalCount);
   const resetQuizGeneration = useQuizGenerationStore((state) => state.resetStreamingState);
 
-  const quizzes = storeProblemSetId === problemSetId ? streamQuizzes : [];
-  const isStreaming = storeProblemSetId === problemSetId ? streamIsStreaming : false;
-  const totalCount = storeProblemSetId === problemSetId ? streamTotalCount : 0;
+  const isSameProblemSet =
+    String(storeProblemSetId ?? '') === String(problemSetId ?? '');
+  const quizzes = isSameProblemSet ? streamQuizzes : [];
+  const isStreaming = isSameProblemSet ? streamIsStreaming : false;
+  const totalCount = isSameProblemSet ? streamTotalCount : 0;
 
   const { state, actions } = useSolveQuiz({
     t,

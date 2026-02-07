@@ -210,7 +210,8 @@ export const useQuizGenerationStore = create(
             .then(() => {})
             .catch((error) => {
               closeGenerationStream();
-              onError(error);
+              finalizeGeneration(set);
+              onError?.(error);
             });
         };
 
@@ -256,12 +257,13 @@ export const useQuizGenerationStore = create(
               difficultyType: quizLevel,
               pageNumbers: selectedPages,
             },
-            onSuccess: () => {
-              finalizeGeneration(set);
-            },
+            onSuccess: () => {},
             onError: (errorMessage) => {
-              CustomToast.error(errorMessage);
-              finalizeGeneration(set);
+              const message =
+                errorMessage?.message ||
+                errorMessage ||
+                t('퀴즈 생성에 실패했습니다.');
+              CustomToast.error(message);
             },
           });
         } catch (error) {

@@ -1,4 +1,5 @@
 import { initGA, logPageView } from '#utils/analytics';
+import { getPageTitle } from '#app/model/pageTitles';
 import React, { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -25,26 +26,6 @@ const PageViewTracker = () => {
   }, [location]);
 
   return null;
-};
-
-// 페이지별 제목 생성 함수
-const getPageTitle = (pathname) => {
-  const pathMap = {
-    '/': '퀴즈 생성',
-    '/quiz': '퀴즈 풀기',
-    '/result': '퀴즈 결과',
-    '/explanation': '퀴즈 해설',
-    '/history': '퀴즈 기록',
-  };
-
-  // 동적 라우트 처리
-  for (const [key, title] of Object.entries(pathMap)) {
-    if (pathname.startsWith(key)) {
-      return title;
-    }
-  }
-
-  return '알 수 없는 페이지';
 };
 
 const App = () => {

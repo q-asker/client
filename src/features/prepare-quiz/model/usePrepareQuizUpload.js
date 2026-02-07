@@ -3,7 +3,7 @@ import CustomToast from '#shared/toast';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import Timer from '#shared/lib/timer';
 import { useQuizGenerationStore } from '#features/quiz-generation';
-import { uploadFileToServer } from '../file-uploader';
+import { FileConversionTimeoutError, uploadFileToServer } from '../file-uploader';
 import { MAX_FILE_SIZE, SUPPORTED_EXTENSIONS } from './constants';
 
 export const usePrepareQuizUpload = ({ t }) => {
@@ -79,7 +79,7 @@ export const usePrepareQuizUpload = ({ t }) => {
         }
 
         const message =
-          error?.message === t('변환 시간 초과')
+          error instanceof FileConversionTimeoutError
             ? t('파일 변환이 지연되고 있어요. 잠시 후 다시 시도해주세요.')
             : error?.response?.data?.message ||
               error?.message ||
