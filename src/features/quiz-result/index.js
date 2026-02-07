@@ -1,1 +1,1 @@
-export { useQuizResult } from "./model/useQuizResult";
+export { useQuizResult } from './model/useQuizResult';

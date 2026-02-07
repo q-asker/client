@@ -1,15 +1,15 @@
-import CustomToast from "#shared/toast";
-import axios from "axios";
+import CustomToast from '#shared/toast';
+import axios from 'axios';
 const apiBaseURL = import.meta.env.VITE_BASE_URL;
 
 let getAccessToken = () => null;
 let clearAuth = () => {};
 
 export const configureAuth = ({ getAccessToken: getToken, clearAuth: clear }) => {
-  if (typeof getToken === "function") {
+  if (typeof getToken === 'function') {
     getAccessToken = getToken;
   }
-  if (typeof clear === "function") {
+  if (typeof clear === 'function') {
     clearAuth = clear;
   }
 };
@@ -18,7 +18,7 @@ const axiosInstance = axios.create({
   baseURL: apiBaseURL,
   withCredentials: true,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
@@ -32,14 +32,14 @@ axiosInstance.interceptors.request.use(
       }
     }
     if (config.isMultipart) {
-      delete config.headers["Content-Type"];
+      delete config.headers['Content-Type'];
     }
     return config;
   },
   (error) => {
     CustomToast.error(error.message);
     return Promise.reject(error);
-  }
+  },
 );
 
 axiosInstance.interceptors.response.use(
@@ -54,23 +54,22 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(errorToHandle);
       }
       clearAuth();
-      window.location.assign("/login");
-      CustomToast.error("로그인이 필요합니다.");
+      window.location.assign('/login');
+      CustomToast.error('로그인이 필요합니다.');
       return Promise.reject(errorToHandle);
     }
 
     if (!skipErrorToast) {
-      const message =
-        errorToHandle?.response?.data?.message || errorToHandle?.message;
+      const message = errorToHandle?.response?.data?.message || errorToHandle?.message;
       if (message) {
         CustomToast.error(message);
       } else {
-        CustomToast.error("알 수 없는 오류가 발생했습니다.");
+        CustomToast.error('알 수 없는 오류가 발생했습니다.');
       }
     }
 
     return Promise.reject(errorToHandle);
-  }
+  },
 );
 
 export default axiosInstance;

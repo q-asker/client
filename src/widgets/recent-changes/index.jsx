@@ -1,6 +1,6 @@
-import { useTranslation } from "i18nexus";
-import { useRecentChanges } from "./model/useRecentChanges";
-import "./index.css";
+import { useTranslation } from 'i18nexus';
+import { useRecentChanges } from './model/useRecentChanges';
+import './index.css';
 
 const RecentChanges = () => {
   const { t } = useTranslation();
@@ -11,7 +11,7 @@ const RecentChanges = () => {
 
   return (
     <div className="recent-changes-section">
-      <h3>{t("최근 변경사항")}</h3>
+      <h3>{t('최근 변경사항')}</h3>
       <ul className="changes-list">
         {changes.map((log, index) => (
           <li key={log.id || index}>

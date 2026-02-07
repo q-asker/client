@@ -1,1 +1,1 @@
-export { useQuizGenerationStore } from "./model/useQuizGenerationStore";
+export { useQuizGenerationStore } from './model/useQuizGenerationStore';

@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { trackHelpEvents } from "#shared/lib/analytics";
+import { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+import { trackHelpEvents } from '#shared/lib/analytics';
 
 export const useHelp = () => {
   const location = useLocation();
@@ -15,31 +15,26 @@ export const useHelp = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const source =
-      urlParams.get("source") ||
-      (document.referrer.includes("/") ? "header" : "direct");
+      urlParams.get('source') || (document.referrer.includes('/') ? 'header' : 'direct');
     trackHelpEvents.viewHelp(source);
   }, [location]);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.pageYOffset;
-      const docHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (docHeight <= 0) return;
       const scrollPercent = Math.round((scrollTop / docHeight) * 100);
 
       Object.keys(scrollTrackingRef.current).forEach((threshold) => {
-        if (
-          scrollPercent >= parseInt(threshold) &&
-          !scrollTrackingRef.current[threshold]
-        ) {
+        if (scrollPercent >= parseInt(threshold) && !scrollTrackingRef.current[threshold]) {
           scrollTrackingRef.current[threshold] = true;
           trackHelpEvents.trackScrollDepth(parseInt(threshold));
         }
       });
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
