@@ -1,7 +1,7 @@
 export { uploadFileToServer } from './file-uploader';
 export { usePrepareQuiz } from './model/usePrepareQuiz';
 export {
-  levelDescriptions,
+  getLevelDescriptions,
   MAX_FILE_SIZE,
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,

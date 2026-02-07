@@ -1,10 +1,11 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
 import Help from '#widgets/help';
 import Footer from '#widgets/footer';
 import {
   usePrepareQuiz,
-  levelDescriptions,
+  getLevelDescriptions,
   MAX_FILE_SIZE,
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
@@ -20,6 +21,7 @@ import RecentChanges from '#widgets/recent-changes';
 const MakeQuiz = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
   const acceptExtensions = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
   const { state, actions } = usePrepareQuiz({ t, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;

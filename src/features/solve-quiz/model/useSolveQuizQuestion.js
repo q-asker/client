@@ -71,15 +71,27 @@ export const useSolveQuizQuestion = ({ t, problemSetId, quizzes, setQuizzes, tot
 
   const handleJumpTo = useCallback(
     (num) => {
+      if (num < 1 || num > totalQuestions) {
+        return;
+      }
       if (num !== currentQuestion) {
         trackQuizEvents.navigateQuestion(problemSetId, currentQuestion, num);
       }
       setCurrentQuestion(num);
     },
-    [currentQuestion, problemSetId],
+    [currentQuestion, problemSetId, totalQuestions],
   );
 
-  const currentQuiz = useMemo(() => quizzes[currentQuestion - 1] || {}, [quizzes, currentQuestion]);
+  const currentQuiz = useMemo(
+    () =>
+      quizzes[currentQuestion - 1] || {
+        selections: [],
+        userAnswer: 0,
+        check: false,
+        title: '',
+      },
+    [quizzes, currentQuestion],
+  );
 
   return {
     state: {

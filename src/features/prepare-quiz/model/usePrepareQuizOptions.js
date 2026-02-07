@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import { defaultType, levelMapping } from './constants';
 
@@ -22,7 +22,7 @@ const readSavedOptions = () => {
 };
 
 export const usePrepareQuizOptions = () => {
-  const savedOptions = readSavedOptions();
+  const savedOptions = useMemo(() => readSavedOptions(), []);
   const [questionType, setQuestionType] = useState(() => {
     return savedOptions?.questionType || defaultType;
   });

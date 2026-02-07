@@ -94,7 +94,7 @@ const finalizeGeneration = (set, eventSource) => {
   resetWaitingForFirstQuizState(set, { isStreaming: false });
 };
 
-const attachGenerationStreamHandlers = (eventSource, set, { onError } = {}) => {
+const attachGenerationStreamHandlers = (eventSource, set, { onError, onSuccess } = {}) => {
   let reconnectAttempts = 0;
   eventSource.addEventListener('created', (event) => {
     reconnectAttempts = 0;
@@ -107,6 +107,7 @@ const attachGenerationStreamHandlers = (eventSource, set, { onError } = {}) => {
   });
   eventSource.addEventListener('complete', () => {
     console.info('이벤트 스트림 완료');
+    onSuccess?.();
     finalizeGeneration(set, eventSource);
   });
   eventSource.addEventListener('error-finish', (event) => {
@@ -213,7 +214,7 @@ export const useQuizGenerationStore = create(
             });
         };
 
-        attachGenerationStreamHandlers(generationEventSource, set, { onError });
+        attachGenerationStreamHandlers(generationEventSource, set, { onError, onSuccess });
       },
 
       loadProblemSet: async (problemSetId) => {

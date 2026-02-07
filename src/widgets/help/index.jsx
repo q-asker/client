@@ -342,6 +342,7 @@ const Help = () => {
                 <a
                   href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   {t('구글 폼 링크')}
                 </a>
