@@ -6,7 +6,7 @@ import { useQuizHistory } from '#features/quiz-history';
 import './index.css';
 
 const QuizHistory = () => {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const navigate = useNavigate();
   const {
     state: { quizHistory, loading, explanationLoading, isSidebarOpen, stats },
@@ -20,7 +20,7 @@ const QuizHistory = () => {
       formatDate,
       handleCreateFromEmpty,
     },
-  } = useQuizHistory({ t, navigate });
+  } = useQuizHistory({ t, navigate, currentLanguage });
 
   if (loading) {
     return (

@@ -125,7 +125,11 @@ const QuizExplanation = () => {
                 })}
               </aside>
               <div
-                className={`question-area${quiz.currentQuiz.userAnswer === 0 ? ' unanswered' : ''}`}
+                className={`question-area${
+                  quiz.currentQuiz.userAnswer === undefined || quiz.currentQuiz.userAnswer === null
+                    ? ' unanswered'
+                    : ''
+                }`}
               >
                 <p className="question-text">{quiz.currentQuiz.title}</p>
               </div>

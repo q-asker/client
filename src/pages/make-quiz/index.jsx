@@ -99,9 +99,7 @@ const MakeQuiz = () => {
               <div className="file-meta">
                 <div className="file-name">{safeFileName}</div>
                 {safeFileSize && (
-                  <span className="file-size">
-                    ({(safeFileSize / 1024 / 1024).toFixed(2)} MB)
-                  </span>
+                  <span className="file-size">({(safeFileSize / 1024 / 1024).toFixed(2)} MB)</span>
                 )}
               </div>
               <button className="remove-button" onClick={commonActions.handleRemoveFile}>
@@ -413,11 +411,13 @@ const MakeQuiz = () => {
                 >
                   {isWaitingForFirstQuiz ? t('생성 중...') : t('문제 생성하기')}
                 </button>
-                {!isWaitingForFirstQuiz && !pages.selectedPages.length && (
-                  <p className="action-guide">
-                    {t('페이지 정보를 불러오는 중입니다. 잠시만 기다려주세요.')}
-                  </p>
-                )}
+                {!isWaitingForFirstQuiz &&
+                  !pages.selectedPages.length &&
+                  pages.numPages === null && (
+                    <p className="action-guide">
+                      {t('페이지 정보를 불러오는 중입니다. 잠시만 기다려주세요.')}
+                    </p>
+                  )}
               </div>
             </div>
           </div>

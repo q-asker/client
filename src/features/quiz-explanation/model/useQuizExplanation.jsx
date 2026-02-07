@@ -57,11 +57,11 @@ export const useQuizExplanation = ({
     return showWrongOnly
       ? filteredQuizzes[currentQuestion - 1] || {
           selections: [],
-          userAnswer: 0,
+          userAnswer: null,
         }
       : initialQuizzes[currentQuestion - 1] || {
           selections: [],
-          userAnswer: 0,
+          userAnswer: null,
         };
   }, [showWrongOnly, filteredQuizzes, initialQuizzes, currentQuestion]);
 

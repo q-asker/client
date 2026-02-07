@@ -24,7 +24,7 @@ const saveQuizHistory = (history) => {
   }
 };
 
-export const useQuizHistory = ({ t, navigate }) => {
+export const useQuizHistory = ({ t, navigate, currentLanguage }) => {
   const [quizHistory, setQuizHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [explanationLoading, setExplanationLoading] = useState(false);
@@ -110,7 +110,7 @@ export const useQuizHistory = ({ t, navigate }) => {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        config: error.config,
+        url: error.config?.url,
       });
       CustomToast.error(t('해설을 불러오는데 실패했습니다. 문제가 삭제되었을 수 있습니다.'));
     } finally {
@@ -177,7 +177,12 @@ export const useQuizHistory = ({ t, navigate }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
+    const locale = currentLanguage?.startsWith('en')
+      ? 'en-US'
+      : currentLanguage?.startsWith('ko')
+        ? 'ko-KR'
+        : 'ko-KR';
+    return date.toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
