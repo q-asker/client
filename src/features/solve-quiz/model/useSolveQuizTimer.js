@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const buildTimerLabel = (hours, minutes, seconds) =>
   `${String(hours).padStart(2, '0')}:` +
@@ -7,24 +7,25 @@ const buildTimerLabel = (hours, minutes, seconds) =>
 
 export const useSolveQuizTimer = () => {
   const [currentTime, setCurrentTime] = useState('00:00:00');
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
-    let seconds = 0;
-    let minutes = 0;
-    let hours = 0;
-    const timer = setInterval(() => {
-      seconds += 1;
-      if (seconds === 60) {
-        seconds = 0;
-        minutes += 1;
-      }
-      if (minutes === 60) {
-        minutes = 0;
-        hours += 1;
-      }
+    const startTime = Date.now();
+
+    const tick = () => {
+      const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+      const hours = Math.floor(elapsedSeconds / 3600);
+      const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+      const seconds = elapsedSeconds % 60;
       setCurrentTime(buildTimerLabel(hours, minutes, seconds));
-    }, 1000);
-    return () => clearInterval(timer);
+
+      const nextDelay = 1000 - ((Date.now() - startTime) % 1000);
+      timeoutRef.current = setTimeout(tick, nextDelay);
+    };
+
+    tick();
+
+    return () => clearTimeout(timeoutRef.current);
   }, []);
 
   return currentTime;

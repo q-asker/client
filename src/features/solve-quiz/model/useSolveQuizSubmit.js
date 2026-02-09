@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { trackQuizEvents } from '#shared/lib/analytics';
+import { isUnanswered } from '../lib/isUnanswered';
 
 export const useSolveQuizSubmit = ({
   quizzes,
@@ -16,8 +17,8 @@ export const useSolveQuizSubmit = ({
 
   const handleConfirmSubmit = useCallback(() => {
     const safeQuizzes = quizzes || [];
-    const unansweredCount = safeQuizzes.filter(
-      (q) => q.userAnswer === undefined || q.userAnswer === null,
+    const unansweredCount = safeQuizzes.filter((q) =>
+      isUnanswered(q.userAnswer, q.selections),
     ).length;
     const reviewCount = safeQuizzes.filter((q) => q.check).length;
     const answeredCount = safeQuizzes.length - unansweredCount;
