@@ -29,6 +29,7 @@ export const usePrepareQuizPages = ({ t, uploadedUrl }) => {
   const [selectedPages, setSelectedPages] = useState([]);
   const [hoveredPage, setHoveredPage] = useState(null);
   const [visiblePageCount, setVisiblePageCount] = useState(pageCountToLoad);
+  const visiblePageCountRef = useRef(pageCountToLoad);
   const [pageRangeStart, setPageRangeStart] = useState('');
   const [pageRangeEnd, setPageRangeEnd] = useState('');
   const [isPreviewVisible, setIsPreviewVisible] = useState(() => {
@@ -60,22 +61,36 @@ export const usePrepareQuizPages = ({ t, uploadedUrl }) => {
   useEffect(() => {
     if (!numPages) return;
 
-    setVisiblePageCount(Math.min(numPages, pageCountToLoad));
+    const initialCount = Math.min(numPages, pageCountToLoad);
+    visiblePageCountRef.current = initialCount;
+    setVisiblePageCount(initialCount);
 
     if (numPages <= pageCountToLoad) return;
 
-    const interval = setInterval(() => {
-      setVisiblePageCount((prev) => {
-        const nextCount = prev + pageCountToLoad;
-        if (nextCount >= numPages) {
-          clearInterval(interval);
-          return numPages;
-        }
-        return nextCount;
-      });
-    }, loadInterval);
+    let timeoutId = null;
+    let cancelled = false;
 
-    return () => clearInterval(interval);
+    const scheduleNext = () => {
+      timeoutId = setTimeout(() => {
+        if (cancelled) return;
+        const nextCount = Math.min(
+          visiblePageCountRef.current + pageCountToLoad,
+          numPages,
+        );
+        visiblePageCountRef.current = nextCount;
+        setVisiblePageCount(nextCount);
+        if (nextCount < numPages) {
+          scheduleNext();
+        }
+      }, loadInterval);
+    };
+
+    scheduleNext();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, [numPages]);
 
   const onDocumentLoadSuccess = useCallback(

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useSolveQuizData } from './useSolveQuizData';
 import { useSolveQuizQuestion } from './useSolveQuizQuestion';
+import { isUnanswered } from '../lib/isUnanswered';
 import { useSolveQuizSubmit } from './useSolveQuizSubmit';
 import { useSolveQuizTimer } from './useSolveQuizTimer';
 
@@ -44,8 +45,7 @@ export const useSolveQuiz = ({
   }, [problemSetId, navigate]);
 
   const unansweredCount = useMemo(
-    () =>
-      solveQuizzes.filter((q) => q.userAnswer === undefined || q.userAnswer === null).length,
+    () => solveQuizzes.filter((q) => isUnanswered(q.userAnswer, q.selections)).length,
     [solveQuizzes],
   );
   const reviewCount = useMemo(() => solveQuizzes.filter((q) => q.check).length, [solveQuizzes]);

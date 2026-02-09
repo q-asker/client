@@ -3,6 +3,7 @@ import { useTranslation } from 'i18nexus'; // SolveQuiz.jsx
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
+import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import './index.css';
 
@@ -37,8 +38,6 @@ const SolveQuiz = () => {
 
   const remainingCount =
     isStreaming && totalCount > 0 ? Math.max(0, totalCount - quiz.totalQuestions) : 0;
-
-  const isUnanswered = (answer) => answer === undefined || answer === null;
 
   useEffect(() => {
     return () => {
@@ -97,7 +96,7 @@ const SolveQuiz = () => {
                 <h3>{t('선택한 답안')}</h3>
                 <div className="answers-list">
                   {quiz.quizzes.map((quizItem) => {
-                    const unanswered = isUnanswered(quizItem.userAnswer);
+                    const unanswered = isUnanswered(quizItem.userAnswer, quizItem.selections);
                     const selectedAnswer =
                       unanswered
                         ? t('미선택')
@@ -167,7 +166,7 @@ const SolveQuiz = () => {
             <div className="solve-question-and-review-container">
               <aside className="solve-left-panel">
                 {quiz.quizzes.map((q) => {
-                  const unanswered = isUnanswered(q.userAnswer);
+                  const unanswered = isUnanswered(q.userAnswer, q.selections);
                   return (
                     <button
                       key={q.number}
@@ -236,7 +235,7 @@ const SolveQuiz = () => {
         </section>
         <aside className="solve-bottom-panel">
           {quiz.quizzes.map((q) => {
-            const unanswered = isUnanswered(q.userAnswer);
+            const unanswered = isUnanswered(q.userAnswer, q.selections);
             return (
               <button
                 key={q.number}
