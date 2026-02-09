@@ -209,8 +209,7 @@ export const useQuizGenerationStore = create(
             .post(`/generation`, { ...requestData, sessionId })
             .then(() => {})
             .catch((error) => {
-              closeGenerationStream();
-              finalizeGeneration(set);
+              finalizeGeneration(set, generationEventSource);
               onError?.(error);
             });
         };
@@ -260,6 +259,7 @@ export const useQuizGenerationStore = create(
             onSuccess: () => {},
             onError: (errorMessage) => {
               const message =
+                errorMessage?.response?.data?.message ||
                 errorMessage?.message ||
                 errorMessage ||
                 t('퀴즈 생성에 실패했습니다.');

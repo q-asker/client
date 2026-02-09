@@ -16,7 +16,9 @@ export const useSolveQuizSubmit = ({
 
   const handleConfirmSubmit = useCallback(() => {
     const safeQuizzes = quizzes || [];
-    const unansweredCount = safeQuizzes.filter((q) => !q.userAnswer).length;
+    const unansweredCount = safeQuizzes.filter(
+      (q) => q.userAnswer === undefined || q.userAnswer === null,
+    ).length;
     const reviewCount = safeQuizzes.filter((q) => q.check).length;
     const answeredCount = safeQuizzes.length - unansweredCount;
 

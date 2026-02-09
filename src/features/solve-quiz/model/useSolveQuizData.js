@@ -34,6 +34,7 @@ export const useSolveQuizData = ({ problemSetId, quizzes, navigate }) => {
           setIsLoading(false);
         }
       } catch (err) {
+        setIsLoading(false);
         navigate('/');
       }
     };

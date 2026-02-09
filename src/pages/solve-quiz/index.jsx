@@ -38,7 +38,7 @@ const SolveQuiz = () => {
   const remainingCount =
     isStreaming && totalCount > 0 ? Math.max(0, totalCount - quiz.totalQuestions) : 0;
 
-  const isUnanswered = (answer) => !answer;
+  const isUnanswered = (answer) => answer === undefined || answer === null;
 
   useEffect(() => {
     return () => {
