@@ -7,7 +7,7 @@ const Footer = () => {
 
   return (
     <div className="footer">
-      © 2025 Q-Asker{' | '}
+      © {new Date().getFullYear()} Q-Asker{' | '}
       <Link to="/privacy-policy" className="policy-link">
         {t('개인정보 처리방침')}
       </Link>

@@ -10,7 +10,6 @@ export const useSolveQuiz = ({
   problemSetId,
   uploadedUrl,
   quizzes = [],
-  isStreaming = false,
 }) => {
   const {
     quizzes: solveQuizzes,
@@ -19,7 +18,6 @@ export const useSolveQuiz = ({
   } = useSolveQuizData({
     problemSetId,
     quizzes,
-    isStreaming,
     navigate,
   });
   const currentTime = useSolveQuizTimer();
@@ -46,7 +44,8 @@ export const useSolveQuiz = ({
   }, [problemSetId, navigate]);
 
   const unansweredCount = useMemo(
-    () => solveQuizzes.filter((q) => !q.userAnswer).length,
+    () =>
+      solveQuizzes.filter((q) => q.userAnswer === undefined || q.userAnswer === null).length,
     [solveQuizzes],
   );
   const reviewCount = useMemo(() => solveQuizzes.filter((q) => q.check).length, [solveQuizzes]);

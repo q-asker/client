@@ -8,7 +8,7 @@ export const useSolveQuizQuestion = ({ t, problemSetId, quizzes, setQuizzes, tot
 
   useEffect(() => {
     const saved = quizzes[currentQuestion - 1]?.userAnswer;
-    setSelectedOption(saved && saved !== 0 ? saved : null);
+    setSelectedOption(saved !== undefined && saved !== null ? saved : null);
   }, [currentQuestion, quizzes]);
 
   const handleOptionSelect = useCallback(
@@ -16,9 +16,9 @@ export const useSolveQuizQuestion = ({ t, problemSetId, quizzes, setQuizzes, tot
       const currentQuiz = quizzes[currentQuestion - 1];
       const selected = currentQuiz?.selections?.find((s) => s.id === id);
 
-      if (selected) {
-        trackQuizEvents.selectAnswer(problemSetId, currentQuestion, id, selected.correct || false);
-      }
+      if (!selected) return;
+
+      trackQuizEvents.selectAnswer(problemSetId, currentQuestion, id, selected.correct || false);
 
       setQuizzes((prev) =>
         prev.map((q, idx) => (idx === currentQuestion - 1 ? { ...q, userAnswer: id } : q)),

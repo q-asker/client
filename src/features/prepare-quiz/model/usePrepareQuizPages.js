@@ -28,7 +28,7 @@ export const usePrepareQuizPages = ({ t, uploadedUrl }) => {
   const [numPages, setNumPages] = useState(null);
   const [selectedPages, setSelectedPages] = useState([]);
   const [hoveredPage, setHoveredPage] = useState(null);
-  const [visiblePageCount, setVisiblePageCount] = useState(50);
+  const [visiblePageCount, setVisiblePageCount] = useState(pageCountToLoad);
   const [pageRangeStart, setPageRangeStart] = useState('');
   const [pageRangeEnd, setPageRangeEnd] = useState('');
   const [isPreviewVisible, setIsPreviewVisible] = useState(() => {
@@ -58,9 +58,11 @@ export const usePrepareQuizPages = ({ t, uploadedUrl }) => {
   }, [numPages]);
 
   useEffect(() => {
-    if (!numPages || numPages <= pageCountToLoad) return;
+    if (!numPages) return;
 
-    setVisiblePageCount(pageCountToLoad);
+    setVisiblePageCount(Math.min(numPages, pageCountToLoad));
+
+    if (numPages <= pageCountToLoad) return;
 
     const interval = setInterval(() => {
       setVisiblePageCount((prev) => {
@@ -213,7 +215,7 @@ export const usePrepareQuizPages = ({ t, uploadedUrl }) => {
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
-    setVisiblePageCount(100);
+    setVisiblePageCount(pageCountToLoad);
     setPageRangeStart('');
     setPageRangeEnd('');
     setIsPreviewVisible(true);
@@ -225,7 +227,7 @@ export const usePrepareQuizPages = ({ t, uploadedUrl }) => {
     setNumPages(null);
     setSelectedPages([]);
     setHoveredPage(null);
-    setVisiblePageCount(100);
+    setVisiblePageCount(pageCountToLoad);
     setPageRangeStart('1');
     setPageRangeEnd(String(Math.min(numPages ?? 1, MAX_SELECT_PAGES)));
     setIsPreviewVisible(true);

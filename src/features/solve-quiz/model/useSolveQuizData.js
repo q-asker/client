@@ -3,7 +3,7 @@ import axiosInstance from '#shared/api';
 import { trackQuizEvents } from '#shared/lib/analytics';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 
-export const useSolveQuizData = ({ problemSetId, quizzes, isStreaming, navigate }) => {
+export const useSolveQuizData = ({ problemSetId, quizzes, navigate }) => {
   const [localQuizzes, setLocalQuizzes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const reconnectStream = useQuizGenerationStore((state) => state.reconnectStream);

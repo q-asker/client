@@ -136,8 +136,14 @@ const QuizExplanation = () => {
 
               <div className="options-container">
                 {quiz.currentQuiz.selections.map((opt, idx) => {
+                  const hasUserAnswer =
+                    quiz.currentQuiz.userAnswer !== undefined &&
+                    quiz.currentQuiz.userAnswer !== null;
                   const isCorrectOption = opt.correct === true;
-                  const isWrongSelected = quiz.currentQuiz.userAnswer === opt.id && !opt.correct;
+                  const isWrongSelected =
+                    hasUserAnswer &&
+                    Number(quiz.currentQuiz.userAnswer) === Number(opt.id) &&
+                    !opt.correct;
                   const borderClass = isCorrectOption
                     ? 'correct-option'
                     : isWrongSelected

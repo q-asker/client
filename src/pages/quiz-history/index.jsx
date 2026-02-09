@@ -163,9 +163,12 @@ const QuizHistory = () => {
                         {record.status === 'completed' && (
                           <>
                             <span className="detail-item score">
-                              🏆 {record.score}
-                              {t('점 (')}
-                              {record.correctCount}/{record.totalQuestions})
+                              🏆{' '}
+                              {t('{{score}}점 ({{correct}}/{{total}})', {
+                                score: record.score,
+                                correct: record.correctCount,
+                                total: record.totalQuestions,
+                              })}
                             </span>
                             <span className="detail-item">⏱️ {record.totalTime}</span>
                           </>
