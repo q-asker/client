@@ -1,6 +1,6 @@
-const STORAGE_KEY = "lastEndpoint";
+const STORAGE_KEY = 'lastEndpoint';
 
-export const readLastEndpoint = () => localStorage.getItem(STORAGE_KEY) || "/";
+export const readLastEndpoint = () => localStorage.getItem(STORAGE_KEY) || '/';
 
 export const writeLastEndpoint = (value) => {
   localStorage.setItem(STORAGE_KEY, value);
@@ -8,8 +8,8 @@ export const writeLastEndpoint = (value) => {
 };
 
 export const normalizeLastEndpoint = (value) => {
-  if (!value || value === "/login/redirect" || value.startsWith("/login")) {
-    return "/";
+  if (!value || value === '/login/redirect' || value.startsWith('/login')) {
+    return '/';
   }
   return value;
 };

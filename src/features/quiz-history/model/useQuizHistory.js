@@ -1,15 +1,30 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import axiosInstance from "#shared/api";
-import CustomToast from "#shared/toast";
-import { trackQuizHistoryEvents } from "#shared/lib/analytics";
-import { useClickOutside } from "#shared/lib/useClickOutside";
-import {
-  clearQuizHistory,
-  readQuizHistory,
-  removeQuizHistoryRecord,
-} from "#shared/lib/quizHistoryStorage";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import axiosInstance from '#shared/api';
+import CustomToast from '#shared/toast';
+import { trackQuizHistoryEvents } from '#shared/lib/analytics';
+import { useClickOutside } from '#shared/lib/useClickOutside';
 
-export const useQuizHistory = ({ t, navigate }) => {
+const QUIZ_HISTORY_KEY = 'quiz-history-storage';
+
+const readQuizHistory = () => {
+  try {
+    const raw = localStorage.getItem(QUIZ_HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    console.error('Failed to read quiz history:', error);
+    return [];
+  }
+};
+
+const saveQuizHistory = (history) => {
+  try {
+    localStorage.setItem(QUIZ_HISTORY_KEY, JSON.stringify(history));
+  } catch (error) {
+    console.error('Failed to save quiz history:', error);
+  }
+};
+
+export const useQuizHistory = ({ t, navigate, currentLanguage }) => {
   const [quizHistory, setQuizHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [explanationLoading, setExplanationLoading] = useState(false);
@@ -20,13 +35,13 @@ export const useQuizHistory = ({ t, navigate }) => {
     try {
       const history = readQuizHistory();
       setQuizHistory(history);
+      setLoading(false);
       return history;
     } catch (error) {
-      console.error(t("퀴즈 기록 불러오기 실패:"), error);
-      CustomToast.error(t("기록을 불러오는데 실패했습니다."));
-      return [];
-    } finally {
+      console.error(t('퀴즈 기록 불러오기 실패:'), error);
+      CustomToast.error(t('기록을 불러오는데 실패했습니다.'));
       setLoading(false);
+      return [];
     }
   };
 
@@ -37,14 +52,14 @@ export const useQuizHistory = ({ t, navigate }) => {
   }, []);
 
   useClickOutside({
-    containerId: "sidebar",
-    triggerId: "menuButton",
+    containerId: 'sidebar',
+    triggerId: 'menuButton',
     onOutsideClick: () => setIsSidebarOpen(false),
   });
 
   const navigateToExplanation = async (record) => {
-    if (record.status !== "completed") {
-      CustomToast.info(t("완료된 퀴즈만 해설을 볼 수 있습니다."));
+    if (record.status !== 'completed') {
+      CustomToast.info(t('완료된 퀴즈만 해설을 볼 수 있습니다.'));
       return;
     }
 
@@ -58,9 +73,7 @@ export const useQuizHistory = ({ t, navigate }) => {
 
     try {
       if (record.quizData && record.quizData.length > 0) {
-        const explanationResponse = await axiosInstance.get(
-          `/explanation/${record.problemSetId}`,
-        );
+        const explanationResponse = await axiosInstance.get(`/explanation/${record.problemSetId}`);
         const explanationData = explanationResponse.data;
 
         const stateData = {
@@ -73,14 +86,10 @@ export const useQuizHistory = ({ t, navigate }) => {
           state: stateData,
         });
       } else {
-        const quizResponse = await axiosInstance.get(
-          `/problem-set/${record.problemSetId}`,
-        );
+        const quizResponse = await axiosInstance.get(`/problem-set/${record.problemSetId}`);
         const quizData = quizResponse.data;
 
-        const explanationResponse = await axiosInstance.get(
-          `/explanation/${record.problemSetId}`,
-        );
+        const explanationResponse = await axiosInstance.get(`/explanation/${record.problemSetId}`);
         const explanationData = explanationResponse.data;
 
         const finalQuizzes = quizData.problems || quizData.quizzes || [];
@@ -96,28 +105,22 @@ export const useQuizHistory = ({ t, navigate }) => {
         });
       }
     } catch (error) {
-      console.error(t("해설 데이터 로딩 실패:"), error);
-      console.error(t("에러 상세 정보:"), {
+      console.error(t('해설 데이터 로딩 실패:'), error);
+      console.error(t('에러 상세 정보:'), {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        config: error.config,
+        url: error.config?.url,
       });
-      CustomToast.error(
-        t("해설을 불러오는데 실패했습니다. 문제가 삭제되었을 수 있습니다."),
-      );
+      CustomToast.error(t('해설을 불러오는데 실패했습니다. 문제가 삭제되었을 수 있습니다.'));
     } finally {
       setExplanationLoading(false);
     }
   };
 
   const navigateToQuiz = (record) => {
-    if (record.status === "completed") {
-      trackQuizHistoryEvents.clickRetryQuiz(
-        record.problemSetId,
-        record.quizLevel,
-        record.score,
-      );
+    if (record.status === 'completed') {
+      trackQuizHistoryEvents.clickRetryQuiz(record.problemSetId, record.quizLevel, record.score);
     } else {
       trackQuizHistoryEvents.clickResumeQuiz(
         record.problemSetId,
@@ -134,85 +137,74 @@ export const useQuizHistory = ({ t, navigate }) => {
   };
 
   const deleteQuizRecord = (problemSetId) => {
-    if (window.confirm(t("이 기록을 삭제하시겠습니까?"))) {
+    if (window.confirm(t('이 기록을 삭제하시겠습니까?'))) {
       try {
-        const record = quizHistory.find(
-          (item) => item.problemSetId === problemSetId,
-        );
+        const record = quizHistory.find((item) => item.problemSetId === problemSetId);
 
         trackQuizHistoryEvents.deleteQuizRecord(
           problemSetId,
-          record?.status || "unknown",
-          record?.quizLevel || "unknown",
+          record?.status || 'unknown',
+          record?.quizLevel || 'unknown',
         );
 
-        const updatedHistory = removeQuizHistoryRecord(problemSetId);
-        setQuizHistory(updatedHistory);
-        CustomToast.success(t("기록이 삭제되었습니다."));
+        const newHistory = quizHistory.filter((item) => item.problemSetId !== problemSetId);
+        setQuizHistory(newHistory);
+        saveQuizHistory(newHistory);
+        CustomToast.success(t('기록이 삭제되었습니다.'));
       } catch (error) {
-        console.error(t("기록 삭제 실패:"), error);
-        CustomToast.error(t("기록 삭제에 실패했습니다."));
+        console.error(t('기록 삭제 실패:'), error);
+        CustomToast.error(t('기록 삭제에 실패했습니다.'));
       }
     }
   };
 
   const clearAllHistory = () => {
-    if (
-      window.confirm(
-        t("모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."),
-      )
-    ) {
+    if (window.confirm(t('모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.'))) {
       try {
-        const completed = quizHistory.filter(
-          (item) => item.status === "completed",
-        );
+        const completed = quizHistory.filter((item) => item.status === 'completed');
 
-        trackQuizHistoryEvents.clearAllHistory(
-          quizHistory.length,
-          completed.length,
-        );
+        trackQuizHistoryEvents.clearAllHistory(quizHistory.length, completed.length);
 
-        clearQuizHistory();
         setQuizHistory([]);
-        CustomToast.success(t("모든 기록이 삭제되었습니다."));
+        saveQuizHistory([]);
+        CustomToast.success(t('모든 기록이 삭제되었습니다.'));
       } catch (error) {
-        console.error(t("전체 기록 삭제 실패:"), error);
-        CustomToast.error(t("기록 삭제에 실패했습니다."));
+        console.error(t('전체 기록 삭제 실패:'), error);
+        CustomToast.error(t('기록 삭제에 실패했습니다.'));
       }
     }
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    const locale = currentLanguage?.startsWith('en')
+      ? 'en-US'
+      : currentLanguage?.startsWith('ko')
+        ? 'ko-KR'
+        : 'ko-KR';
+    return date.toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
   const stats = useMemo(() => {
-    const completed = quizHistory.filter((item) => item.status === "completed");
+    const completed = quizHistory.filter((item) => item.status === 'completed');
     const totalQuizzes = quizHistory.length;
     const completedQuizzes = completed.length;
     const averageScore =
       completed.length > 0
-        ? Math.round(
-            completed.reduce((sum, item) => sum + item.score, 0) /
-              completed.length,
-          )
+        ? Math.round(completed.reduce((sum, item) => sum + item.score, 0) / completed.length)
         : 0;
 
     return {
       totalQuizzes,
       completedQuizzes,
       averageScore,
-      completionRate:
-        totalQuizzes > 0
-          ? Math.round((completedQuizzes / totalQuizzes) * 100)
-          : 0,
+      completionRate: totalQuizzes > 0 ? Math.round((completedQuizzes / totalQuizzes) * 100) : 0,
     };
   }, [quizHistory]);
 
@@ -237,7 +229,7 @@ export const useQuizHistory = ({ t, navigate }) => {
 
   const handleCreateFromEmpty = () => {
     trackQuizHistoryEvents.clickCreateFromEmpty();
-    navigate("/");
+    navigate('/');
   };
 
   return {

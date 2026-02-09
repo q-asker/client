@@ -1,8 +1,8 @@
-import React from "react";
-import "./index.css";
+import React from 'react';
+import './index.css';
 
-const Logo = ({ className = "" }) => {
-  const logoClassName = ["logo", className].filter(Boolean).join(" ");
+const Logo = ({ className = '' }) => {
+  const logoClassName = ['logo', className].filter(Boolean).join(' ');
 
   return (
     <span className={logoClassName}>

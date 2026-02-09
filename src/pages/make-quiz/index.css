@@ -25,6 +25,15 @@
   color: #666;
 }
 
+.wait-message-note {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #4b5563;
+  letter-spacing: -0.01em;
+  opacity: 0.9;
+}
+
 @keyframes fadeInSlideDown {
   0% {
     opacity: 0;
@@ -43,7 +52,9 @@
   border-radius: 8px;
   padding: 40px;
   text-align: center;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 }
 .upload-section.dragging {
   background: #eef2ff;
@@ -61,13 +72,15 @@
   border-radius: 8px;
   cursor: pointer;
   position: relative;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 .upload-button:hover {
   background-color: #8b5cf6;
   transform: scale(1.02);
 }
-.upload-button input[type="file"] {
+.upload-button input[type='file'] {
   position: absolute;
   opacity: 0;
   top: 0;
@@ -190,7 +203,9 @@
   cursor: pointer;
   font-weight: 500;
   color: #6b7280;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 .segmented-control button.active {
   background: #6366f1;
@@ -225,7 +240,7 @@
   font-weight: 700;
   font-size: 14px;
 }
-.slider-control input[type="range"] {
+.slider-control input[type='range'] {
   width: 100%;
   height: 4px;
   accent-color: #6366f1;
@@ -256,39 +271,6 @@
   border-radius: 8px;
   cursor: pointer;
   margin: 24px 0 0 16px; /* 상단 여백 추가, 왼쪽 간격 유지 */
-}
-
-/* ──────────────────────────────────── */
-/* 푸터 */
-.footer {
-  background: #1f2937;
-  color: #9ca9af;
-  text-align: center;
-  padding: 24px 0;
-  margin-top: 32px;
-}
-
-.footer a {
-  color: #60a5fa;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s ease;
-}
-
-.footer a:hover {
-  color: #93c5fd;
-  text-decoration: underline;
-}
-
-.footer .policy-link {
-  color: inherit;
-  font-size: 0.9em;
-  font-weight: 500;
-}
-
-.footer .policy-link:hover {
-  color: inherit;
-  text-decoration: none;
 }
 
 .upload-section:hover {
@@ -356,30 +338,29 @@
   border: 1px solid #e5e7eb;
 }
 /* 새로 추가된 클래스들을 위한 스타일 */
-  .upload-title,
-  .file-name {
-    font-size: 1.17em;
-    font-weight: bold;
-    color: #111827;
-    margin: 8px 0;
-  }
+.upload-title,
+.file-name {
+  font-size: 1.17em;
+  font-weight: bold;
+  color: #111827;
+  margin: 8px 0;
+}
 
-  .file-meta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    flex-wrap: wrap;
-  }
+.file-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
 
-
-  .file-size {
-    font-size: 0.85rem;
-    color: #9ca3af;
-    margin: 0;
-    font-weight: 500;
-  }
+.file-size {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin: 0;
+  font-weight: 500;
+}
 
 .section-title,
 .level-title {
@@ -587,7 +568,10 @@
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .btn.cancle {
@@ -751,21 +735,23 @@
   flex: 1 1 320px;
 }
 
-.page-decide input[type="number"] {
+.page-decide input[type='number'] {
   width: 80px;
   padding: 8px 12px;
   font-size: 1rem;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   text-align: center;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
-.page-decide input[type="number"]:focus {
+.page-decide input[type='number']:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
 }
-.page-decide input[type="number"]:disabled {
+.page-decide input[type='number']:disabled {
   background: #f3f4f6;
   cursor: not-allowed;
   color: #9ca3af;
@@ -778,7 +764,9 @@
   border-radius: 8px;
   background-color: white;
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 .page-decide select:hover {
   border-color: #a5b4fc;
@@ -795,7 +783,9 @@
   background: #f3f4f6;
   color: #374151;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease,
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
     color 0.2s ease;
 }
 
@@ -1074,7 +1064,10 @@
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
   position: relative;
   text-align: center;
   overflow: hidden;
@@ -1114,7 +1107,7 @@
 }
 
 .pdf-page-item p::before {
-  content: "";
+  content: '';
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -1168,7 +1161,9 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   z-index: 30;
   pointer-events: none; /* Prevent preview from capturing mouse events */
-  transition: opacity 0.2s ease-in-out, top 0.1s;
+  transition:
+    opacity 0.2s ease-in-out,
+    top 0.1s;
   opacity: 1;
 }
 
@@ -1347,10 +1342,10 @@
     gap: 12px;
   }
 
-  .slider-control input[type="range"] {
+  .slider-control input[type='range'] {
     height: 3px;
   }
-  .slider-control input[type="range"]::-webkit-slider-thumb {
+  .slider-control input[type='range']::-webkit-slider-thumb {
     width: 14px;
     height: 14px;
   }
@@ -1375,10 +1370,6 @@
 
   .preview-content p {
     font-size: 0.9rem;
-  }
-
-  .footer {
-    font-size: 0.85rem;
   }
 
   .page-decide {
@@ -1409,7 +1400,7 @@
     justify-content: center;
   }
 
-  .page-decide input[type="number"] {
+  .page-decide input[type='number'] {
     width: 60px;
     max-width: none;
     font-size: 0.9rem;

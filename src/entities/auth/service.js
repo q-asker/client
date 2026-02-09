@@ -1,11 +1,11 @@
-import axiosInstance from "#shared/api";
-import { useAuthStore } from "./store";
+import axiosInstance from '#shared/api';
+import { useAuthStore } from './store';
 
 const decodeBase64Token = (token) => {
-  if (typeof token !== "string" || !token) return null;
-  const normalized = token.replace(/-/g, "+").replace(/_/g, "/");
+  if (typeof token !== 'string' || !token) return null;
+  const normalized = token.replace(/-/g, '+').replace(/_/g, '/');
   const padding = normalized.length % 4;
-  const padded = padding ? normalized.padEnd(normalized.length + (4 - padding), "=") : normalized;
+  const padded = padding ? normalized.padEnd(normalized.length + (4 - padding), '=') : normalized;
   try {
     return atob(padded);
   } catch (error) {
@@ -26,18 +26,18 @@ const applyAuthFromResponse = (response) => {
 };
 
 const refresh = async () => {
-  const response = await axiosInstance.post(
-    "/auth/refresh",
-    null,
-    { withCredentials: true, skipAuthRefresh: true, skipErrorToast: true }
-  );
+  const response = await axiosInstance.post('/auth/refresh', null, {
+    withCredentials: true,
+    skipAuthRefresh: true,
+    skipErrorToast: true,
+  });
   applyAuthFromResponse(response);
   return response;
 };
 
 const logout = async () => {
   try {
-    await axiosInstance.post("/auth/logout", null, { withCredentials: true });
+    await axiosInstance.post('/auth/logout', null, { withCredentials: true });
   } finally {
     useAuthStore.getState().clearAuth();
   }
