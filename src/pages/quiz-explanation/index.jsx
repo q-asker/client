@@ -27,7 +27,6 @@ const QuizExplanation = () => {
   const {
     quiz: quizActions,
     pdf: pdfActions,
-    explanation: explanationActions,
     common: commonActions,
   } = actions;
 
@@ -186,28 +185,8 @@ const QuizExplanation = () => {
             <div className="explanation-box">
               <div className="explanation-header">
                 <h3 className="explanation-title">{t('해설')}</h3>
-                <button
-                  className="detailed-explanation-button"
-                  onClick={explanationActions.handleFetchSpecificExplanation}
-                  disabled={explanation.isSpecificExplanationLoading}
-                >
-                  {explanation.isSpecificExplanationLoading ? (
-                    <div className="spinner-in-button" />
-                  ) : (
-                    t('AI 상세 해설 보기')
-                  )}
-                </button>
               </div>
               <p className="explanation-text">{explanation.thisExplanationText}</p>
-
-              {explanation.specificExplanation && (
-                <div className="specific-explanation-section">
-                  <h4 className="specific-explanation-title">{t('상세 해설')}</h4>
-                  <p className="explanation-text">
-                    {explanationActions.renderTextWithLinks(explanation.specificExplanation)}
-                  </p>
-                </div>
-              )}
 
               <div className="all-referenced-pages">
                 <h4 className="all-pages-title">{t('📚 참조 페이지')}</h4>

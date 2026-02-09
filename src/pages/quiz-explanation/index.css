@@ -63,12 +63,6 @@ body {
   font-size: 0.9rem;
 }
 
-.explanation-link {
-  color: #0066cc;
-  text-decoration: underline;
-  word-break: break-all;
-}
-
 .switch-with-margin {
   margin-left: 0.75rem;
 }
@@ -330,42 +324,12 @@ body {
   color: #333;
 }
 
-.detailed-explanation-button {
-  background-color: #6a33f8;
-  border: 1px solid #6a33f8;
-  color: #fff;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: bold;
-  transition: all 0.2s ease;
-}
-
-.detailed-explanation-button:hover {
-  background-color: #8b5cf6;
-  color: #fff;
-}
-
 .explanation-text {
   font-size: 1rem;
   line-height: 1.8;
   color: #333;
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-.specific-explanation-section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e0e0e0;
-}
-
-.specific-explanation-title {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 0.75rem;
 }
 
 /* 우측 패널 (비워두었음) */
@@ -883,12 +847,3 @@ input:checked + .slider::before {
   color: white;
 }
 
-.spinner-in-button {
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto;
-}

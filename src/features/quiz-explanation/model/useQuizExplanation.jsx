@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { pdfjs } from 'react-pdf';
-import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { trackQuizEvents } from '#shared/lib/analytics';
 
@@ -28,8 +27,6 @@ export const useQuizExplanation = ({
   const pdfContainerRef = useRef(null);
   const [currentPdfPage, setCurrentPdfPage] = useState(0);
   const [showWrongOnly, setShowWrongOnly] = useState(false);
-  const [specificExplanation, setSpecificExplanation] = useState('');
-  const [isSpecificExplanationLoading, setIsSpecificExplanationLoading] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -110,7 +107,6 @@ export const useQuizExplanation = ({
 
   useEffect(() => {
     setCurrentPdfPage(0);
-    setSpecificExplanation('');
   }, [currentQuestion]);
 
   useEffect(() => {
@@ -141,21 +137,6 @@ export const useQuizExplanation = ({
       const nextQuestion = currentQuestion + 1;
       trackQuizEvents.navigateQuestion(problemSetId, currentQuestion, nextQuestion);
       setCurrentQuestion(nextQuestion);
-    }
-  };
-
-  const handleFetchSpecificExplanation = async () => {
-    setIsSpecificExplanationLoading(true);
-    try {
-      const response = await axiosInstance.get(
-        `/specific-explanation/${problemSetId}?number=${currentQuiz.number}`,
-      );
-      setSpecificExplanation(response.data.specificExplanation);
-    } catch (error) {
-      console.error(t('상세 해설을 불러오는데 실패했습니다.'), error);
-      CustomToast.error(t('상세 해설을 불러오는데 실패했습니다.'));
-    } finally {
-      setIsSpecificExplanationLoading(false);
     }
   };
 
@@ -191,30 +172,6 @@ export const useQuizExplanation = ({
     }
   };
 
-  const renderTextWithLinks = (text) => {
-    if (!text) return text;
-
-    const urlRegex = /(https?:\/\/[^\s)]+)/g;
-    const parts = text.split(urlRegex);
-
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
-          <a
-            key={index}
-            href={part}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="explanation-link"
-          >
-            {part}
-          </a>
-        );
-      }
-      return part;
-    });
-  };
-
   return {
     state: {
       quiz: {
@@ -233,8 +190,6 @@ export const useQuizExplanation = ({
         pdfOptions,
       },
       explanation: {
-        specificExplanation,
-        isSpecificExplanationLoading,
         thisExplanationText,
         thisExplanationObj,
       },
@@ -255,10 +210,6 @@ export const useQuizExplanation = ({
         handlePrevPdfPage,
         handleNextPdfPage,
         setCurrentPdfPage,
-      },
-      explanation: {
-        handleFetchSpecificExplanation,
-        renderTextWithLinks,
       },
       common: {
         handleExit,
