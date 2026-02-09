@@ -144,9 +144,9 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp })
               </button>
             </div>
           </div>
-          <div className="nav-link" onClick={handleHelp}>
+          <button className="nav-link" type="button" onClick={handleHelp}>
             {t('도움말 보기')}
-          </div>
+          </button>
         </nav>
       </aside>
     </div>

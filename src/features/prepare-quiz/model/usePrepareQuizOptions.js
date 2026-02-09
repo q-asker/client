@@ -38,14 +38,18 @@ export const usePrepareQuizOptions = () => {
   }, [questionType]);
 
   useEffect(() => {
-    localStorage.setItem(
-      OPTIONS_STORAGE_KEY,
-      JSON.stringify({
-        questionType,
-        questionCount,
-        savedAt: Date.now(),
-      }),
-    );
+    try {
+      localStorage.setItem(
+        OPTIONS_STORAGE_KEY,
+        JSON.stringify({
+          questionType,
+          questionCount,
+          savedAt: Date.now(),
+        }),
+      );
+    } catch (error) {
+      // ignore storage errors
+    }
   }, [questionCount, questionType]);
 
   const handleQuestionTypeChange = useCallback(

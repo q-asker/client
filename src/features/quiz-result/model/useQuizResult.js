@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import axiosInstance from '#shared/api';
 import { trackQuizEvents, trackResultEvents } from '#shared/lib/analytics';
 
-export const useQuizResult = ({ t, navigate, problemSetId, quizzes, totalTime, uploadedUrl }) => {
+export const useQuizResult = ({ navigate, problemSetId, quizzes, totalTime, uploadedUrl }) => {
   const correctCount = useMemo(() => {
     return quizzes.reduce((count, q) => {
       const selected = q.selections.find((s) => s.id === q.userAnswer);

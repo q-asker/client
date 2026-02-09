@@ -14,7 +14,6 @@ const QuizResult = () => {
     state: { correctCount, scorePercent },
     actions: { getQuizExplanation },
   } = useQuizResult({
-    t,
     navigate,
     problemSetId,
     quizzes,

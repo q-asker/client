@@ -187,7 +187,9 @@ export const useQuizGenerationStore = create(
       reconnectStream: async (sessionId) => {
         closeGenerationStream();
         set({ isStreaming: true });
-        generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
+        generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`, {
+          withCredentials: true,
+        });
         attachGenerationStreamHandlers(generationEventSource, set);
       },
 
@@ -202,7 +204,9 @@ export const useQuizGenerationStore = create(
         });
 
         const sessionId = uuidv4();
-        generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`);
+        generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`, {
+          withCredentials: true,
+        });
 
         generationEventSource.onopen = () => {
           axiosInstance

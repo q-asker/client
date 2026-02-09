@@ -86,7 +86,7 @@ export const useSolveQuizQuestion = ({ t, problemSetId, quizzes, setQuizzes, tot
     () =>
       quizzes[currentQuestion - 1] || {
         selections: [],
-        userAnswer: 0,
+        userAnswer: null,
         check: false,
         title: '',
       },
