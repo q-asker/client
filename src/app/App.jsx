@@ -5,6 +5,9 @@ import './App.css';
 import LoginSelect from '#pages/login-select';
 import LoginRedirect from '#pages/login-redirect';
 import MakeQuiz from '#pages/make-quiz';
+import Board from '#pages/board';
+import BoardDetail from '#pages/board-detail';
+import BoardWrite from '#pages/board-write';
 import PrivacyPolicy from '#pages/privacy-policy';
 import QuizExplanation from '#pages/quiz-explanation';
 import QuizHistory from '#pages/quiz-history';
@@ -474,6 +477,9 @@ const App = () => {
           <Route path="/result/:problemSetId" element={<QuizResult />} />
           <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
           <Route path="/history" element={<QuizHistory />} />
+          <Route path="/board" element={<Board />} />
+          <Route path="/board/:boardId" element={<BoardDetail />} />
+          <Route path="/board/write" element={<BoardWrite />} />
           <Route path="/help" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

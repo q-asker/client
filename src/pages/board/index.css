@@ -1,0 +1,286 @@
+:root {
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-color: #ffffff;
+  --bg-gray: #f8f9fa;
+  --text-main: #1f2937;
+  --text-sub: #6b7280;
+  --border-color: #e5e7eb;
+  --status-done: #059669;
+  --status-done-bg: #d1fae5;
+  --status-pending: #d97706;
+  --status-pending-bg: #fef3c7;
+}
+
+/* 전체 페이지 래퍼 */
+.board-page-wrapper {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 메인 카드 */
+.board-main-card {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 40px;
+  margin-bottom: 24px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.board-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.board-title {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.board-subtitle {
+  color: var(--text-sub);
+  font-size: 1rem;
+}
+
+/* 리스트 스타일 */
+.list-header {
+  display: flex;
+  padding: 15px 0;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--text-sub);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.inquiry-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.inquiry-item {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.inquiry-item:hover {
+  background-color: #f9fafb;
+}
+
+/* 컬럼 너비 조정 (작성일, 조회수 추가) */
+.col-id { width: 8%; text-align: center; color: var(--text-sub); }
+.col-title { 
+  width: 45%; /* 제목 영역 확보 */
+  padding-left: 20px; 
+  font-weight: 500;
+  text-align: left;
+}
+.col-title a {
+  text-decoration: none;
+  color: var(--text-main);
+  transition: color 0.2s;
+}
+.col-title a:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+.col-author { width: 15%; text-align: center; color: var(--text-sub); }
+.col-date { width: 12%; text-align: center; color: var(--text-sub); font-size: 0.9rem; } /* 추가 */
+.col-view { width: 8%; text-align: center; color: var(--text-sub); font-size: 0.9rem; } /* 추가 */
+.col-status { width: 12%; text-align: center; }
+
+/* 상태 뱃지 */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.done {
+  background-color: var(--status-done-bg);
+  color: var(--status-done);
+}
+
+.status-badge.pending {
+  background-color: var(--status-pending-bg);
+  color: var(--status-pending);
+}
+
+/* 데이터 없음 / 로딩 / 에러 상태 */
+.empty-state, .loading-state, .error-state {
+  margin-top: 40px;
+  padding: 60px;
+  text-align: center;
+  color: var(--text-sub);
+}
+
+.empty-state {
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  background-color: #fafafa;
+}
+
+.empty-state .emoji {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 16px;
+}
+
+/* 하단 푸터 카드 */
+.board-footer-card {
+  background-color: var(--bg-gray);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.footer-text strong {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.footer-text p {
+  margin: 0;
+  color: var(--text-sub);
+  font-size: 0.9rem;
+}
+
+/* 버튼 스타일 */
+.custom-button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.custom-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.custom-button:active {
+  transform: translateY(0);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .list-header { display: none; }
+  .inquiry-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .col-id, .col-title, .col-author, .col-date, .col-view, .col-status {
+    width: 100%;
+    text-align: left;
+    padding: 0;
+  }
+  .col-id, .col-view { display: none; } /* 모바일에서 덜 중요한 정보 숨김 */
+  
+  .col-title { font-size: 1.1rem; margin-bottom: 4px; }
+  .col-author::before { content: '작성자: '; }
+  .col-date::before { content: '작성일: '; }
+  
+  .footer-content {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+}
+/* 컬럼 너비 재조정 (작성일 추가됨) */
+.col-id { width: 8%; text-align: center; color: var(--text-sub); }
+.col-title { width: 45%; padding-left: 20px; font-weight: 500; }
+.col-author { width: 15%; text-align: center; color: var(--text-sub); }
+.col-date { width: 17%; text-align: center; color: var(--text-sub); font-size: 0.9rem; } /* 새로 추가 */
+.col-status { width: 15%; text-align: center; }
+
+/* 조회수 표시 스타일 */
+.view-count {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-left: 5px;
+}
+
+/* 로딩 및 에러 상태 */
+.loading-state, .error-state {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-sub);
+}
+.error-state {
+  color: #ef4444; /* 붉은색 */
+}
+
+/* 페이지네이션 스타일 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+}
+
+.pagination button {
+  background: white;
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: var(--bg-gray);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* 모바일 대응 수정 */
+@media (max-width: 768px) {
+  .col-date { display: none; } /* 모바일에서는 날짜 숨김 */
+  /* 기존 모바일 스타일 유지 */
+}
