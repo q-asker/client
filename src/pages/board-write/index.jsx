@@ -1,27 +1,40 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './index.css';
-import { useAuthStore } from '#entities/auth';
+import { useAuthStore, authService } from '#entities/auth'; // authService 추가
 
 const BoardWrite = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { accessToken } = useAuthStore();
+
+  const { accessToken, clearAuth } = useAuthStore();
 
   const getBaseUrl = () => {
     const baseUrl = import.meta.env.VITE_BASE_URL || '';
     return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   };
 
+  // API 호출 로직을 재사용하기 위해 분리합니다.
+  const postBoardRequest = async (tokenToUse) => {
+    return await fetch(`${getBaseUrl()}/board/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${tokenToUse}`,
+      },
+      body: JSON.stringify({ title, content }),
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = accessToken;
+    let currentToken = accessToken;
 
-    console.log('Current Access Token:', token);
-    if (!token) {
+    if (!currentToken) {
       alert('로그인이 필요합니다.');
+      navigate('/login');
       return;
     }
     if (!title.trim() || !content.trim()) {
@@ -32,19 +45,31 @@ const BoardWrite = () => {
     setIsSubmitting(true);
 
     try {
-      // PostRequest DTO: { title: string, content: string }
-      const response = await fetch(`${getBaseUrl()}/board/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // 토큰 필요시 주석 해제
-        },
-        body: JSON.stringify({
-          title: title,
-          content: content,
-        }),
-      });
+      // 1. 현재 토큰으로 최초 요청 시도
+      let response = await postBoardRequest(currentToken);
 
+      // 2. 401 에러 발생 시 (Access Token 만료 의심)
+      if (response.status === 401) {
+        try {
+          // 백그라운드에서 Refresh API 호출하여 토큰 갱신 시도
+          await authService.refresh();
+
+          // 갱신 성공 시, 스토어에서 새로 발급받은 토큰을 꺼내옴
+          currentToken = useAuthStore.getState().accessToken;
+
+          // 3. 새로운 토큰으로 원래 하려던 글쓰기 요청 재시도
+          response = await postBoardRequest(currentToken);
+        } catch (refreshError) {
+          // 4. Refresh API마저 에러가 났다면 (Refresh Token 만료)
+          console.error('토큰 갱신 실패:', refreshError);
+          alert('인증이 완전히 만료되었습니다. 다시 로그인해주세요.');
+          clearAuth();
+          navigate('/login', { replace: true });
+          return; // 함수 즉시 종료
+        }
+      }
+
+      // 재시도까지 거쳤는데도 200번대 응답이 아니면 일반 에러 처리
       if (!response.ok) {
         throw new Error('게시글 등록에 실패했습니다.');
       }
