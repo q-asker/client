@@ -91,3 +91,66 @@
   background-color: #6366f1;
   color: white;
 }
+
+.replies-section {
+  margin-top: 32px;
+  margin-bottom: 40px;
+  padding: 0 10px;
+}
+
+.replies-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.replies-count {
+  color: #6366f1; /* Primary Color로 강조 */
+  font-size: 1.1rem;
+}
+
+.replies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reply-item {
+  background: #f9fafb; /* 본문 카드보다 살짝 어두운 배경으로 구분감 부여 */
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+}
+
+/* 말풍선 꼬리 느낌의 시각적 요소 (선택사항) */
+.reply-item::before {
+  content: "↳";
+  position: absolute;
+  left: -24px;
+  top: 18px;
+  color: #d1d5db;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.reply-content {
+  color: #4b5563;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+}
+
+.empty-reply {
+  text-align: center;
+  padding: 30px 0;
+  color: #9ca3af;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px dashed #d1d5db;
+  font-size: 0.95rem;
+}

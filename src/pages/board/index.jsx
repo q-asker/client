@@ -1,30 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '#entities/auth'; // [수정] 인증 스토어 import
+import { useAuthStore } from '#entities/auth';
+import Header from '#widgets/header';
 import './index.css';
 
 const Board = () => {
   const navigate = useNavigate();
-
-  // [수정] 전역 상태(Store)에서 accessToken 가져오기
-  // 이제 localStorage를 직접 뒤지지 않고, 앱이 알고 있는 로그인 상태를 확인합니다.
   const accessToken = useAuthStore((state) => state.accessToken);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  // 1. URL 생성 유틸리티
   const getBaseUrl = () => {
     const baseUrl = import.meta.env.VITE_BASE_URL || '';
     return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   };
 
-  // 2. 날짜 포맷팅 함수
   const formatDate = (isoString) => {
     if (!isoString) return '-';
     const date = new Date(isoString);
@@ -35,7 +31,6 @@ const Board = () => {
     });
   };
 
-  // 3. 데이터 가져오기
   const fetchPosts = useCallback(async (page) => {
     setLoading(true);
     setError(null);
@@ -44,15 +39,11 @@ const Board = () => {
         `${getBaseUrl()}/board?page=${page}&size=10&sort=createdAt,desc`,
         {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         },
       );
 
-      if (!response.ok) {
-        throw new Error('데이터를 불러오는데 실패했습니다.');
-      }
+      if (!response.ok) throw new Error('데이터를 불러오는데 실패했습니다.');
 
       const data = await response.json();
       setPosts(data.posts);
@@ -69,77 +60,74 @@ const Board = () => {
     fetchPosts(currentPage);
   }, [fetchPosts, currentPage]);
 
-  // 4. 문의하기 버튼 핸들러 (수정됨)
   const handleWriteClick = () => {
-    // [수정] 스토어에 있는 accessToken 값으로 로그인 여부 판단
-    const isLoggedIn = !!accessToken;
-
-    if (!isLoggedIn) {
-      const confirmLogin = window.confirm(
-        '로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?',
-      );
-      if (confirmLogin) {
-        // 로그인 페이지로 이동
+    if (!accessToken) {
+      if (window.confirm('로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?')) {
         navigate('/login');
-        // 만약 제공해주신 useLogin 로직처럼 바로 외부 로그인 URL로 보내야 한다면
-        // 아래 코드를 사용하세요. (보통은 위 navigate('/login')을 씁니다)
-        // window.location.assign(buildLoginUrl());
       }
       return;
     }
-
-    // 로그인 상태라면 글쓰기 페이지로 이동
     navigate('/board/write');
   };
 
   return (
-    <div className="board-page-wrapper">
-      {/* 1. 메인 컨텐츠 영역 */}
-      <div className="board-main-card">
+    <div className="board-container-wrapper">
+      <Header
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
+
+      <div className="board-container">
         <div className="board-header">
-          <h1 className="board-title">📞 문의 게시판</h1>
-          <p className="board-subtitle">
-            서비스 이용 중 궁금한 점이나 건의사항을 자유롭게 남겨주세요.
-          </p>
+          <div className="header-content">
+            <h1>문의 게시판</h1>
+            <p>서비스 이용 중 궁금한 점이나 건의사항을 자유롭게 남겨주세요</p>
+          </div>
+          {/* 리스트가 있을 때만 우측 상단에 문의하기 버튼 표시 (선택사항) */}
+          {posts.length > 0 && (
+            <div className="header-actions">
+              <button className="create-board-btn" onClick={handleWriteClick}>
+                문의하기
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="board-content">
-          <div className="list-header">
-            <span className="col-id">번호</span>
-            <span className="col-title">제목</span>
-            <span className="col-author">작성자</span>
-            <span className="col-date">작성일</span>
-            <span className="col-status">상태</span>
-          </div>
-
+        <div className="board-content-wrapper">
           {loading ? (
-            <div className="loading-state">데이터를 불러오는 중...</div>
+            <div className="loading-container">
+              <div className="spinner" />
+              <p>데이터를 불러오는 중...</p>
+            </div>
           ) : error ? (
-            <div className="error-state">{error}</div>
+            <div className="empty-history">
+              <p className="error-text">{error}</p>
+            </div>
           ) : posts.length > 0 ? (
-            <>
+            <div className="board-list-section">
+              <div className="list-header">
+                <span className="col-id">번호</span>
+                <span className="col-title">제목</span>
+                <span className="col-author">작성자</span>
+                <span className="col-date">작성일</span>
+                <span className="col-view">조회수</span>
+                <span className="col-status">상태</span>
+              </div>
+
               <ul className="inquiry-list">
                 {posts.map((post) => (
                   <li key={post.boardId} className="inquiry-item">
                     <span className="col-id">{post.boardId}</span>
-
                     <span className="col-title">
-                      <Link to={`/board/${post.boardId}`}>
-                        {post.title}
-                        {post.viewCount > 0 && (
-                          <span className="view-count"> ({post.viewCount})</span>
-                        )}
-                      </Link>
+                      <Link to={`/board/${post.boardId}`}>{post.title}</Link>
                     </span>
-
                     <span className="col-author">{post.userName}</span>
                     <span className="col-date">{formatDate(post.createdAt)}</span>
-
+                    <span className="col-view">{post.viewCount || 0}</span>
                     <span className="col-status">
                       <span
-                        className={`status-badge ${
-                          post.status === 'ANSWERED' ? 'done' : 'pending'
-                        }`}
+                        className={`status-badge ${post.status === 'ANSWERED' ? 'completed' : 'created'}`}
                       >
                         {post.status || '대기중'}
                       </span>
@@ -162,27 +150,18 @@ const Board = () => {
                   다음 &gt;
                 </button>
               </div>
-            </>
+            </div>
           ) : (
-            <div className="empty-state">
-              <span className="emoji">📭</span>
-              <p>아직 등록된 문의가 없습니다.</p>
+            /* 💡 퀴즈 기록과 동일한 디자인의 Empty State */
+            <div className="empty-history">
+              <div className="empty-icon">📋</div>
+              <h3>아직 등록된 문의가 없습니다</h3>
+              <p>궁금한 점이나 건의사항을 남겨주세요!</p>
+              <button className="create-board-btn" onClick={handleWriteClick}>
+                문의 작성하기
+              </button>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* 2. 하단 액션 영역 */}
-      <div className="board-footer-card">
-        <div className="footer-content">
-          <div className="footer-text">
-            <strong>문의 작성 가이드</strong>
-            <p>욕설이나 비방은 제재될 수 있으며, 답변에는 시간이 소요될 수 있습니다.</p>
-          </div>
-          {/* onClick 핸들러 연결 */}
-          <button type="button" className="custom-button primary" onClick={handleWriteClick}>
-            ✏️ 문의하기
-          </button>
         </div>
       </div>
     </div>
