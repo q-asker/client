@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Header from '#widgets/header';
+import CustomToast from '#shared/toast';
 import { useAuthStore, authService } from '#entities/auth';
 import axiosInstance from '#shared/api';
+import { useTranslation } from 'i18nexus';
+import Header, { extractRoleFromToken } from '#widgets/header';
 import './index.css';
 
 const BoardDetail = () => {
+  const { t } = useTranslation();
   const { boardId } = useParams();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -14,7 +17,13 @@ const BoardDetail = () => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const { clearAuth } = useAuthStore();
+  const [replyContent, setReplyContent] = useState('');
+  const { accessToken, clearAuth } = useAuthStore();
+
+  const isAdmin = useMemo(() => {
+    const role = extractRoleFromToken(accessToken);
+    return role === 'ROLE_ADMIN';
+  }, [accessToken]);
 
   const formatDate = (isoString) => {
     if (!isoString) return '-';
@@ -26,65 +35,86 @@ const BoardDetail = () => {
       minute: '2-digit',
     });
   };
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        await authService.refresh();
-      } catch (ignored) {}
+  const fetchPost = useCallback(async () => {
+    try {
+      await authService.refresh();
+    } catch (ignored) {}
 
-      try {
-        const response = await axiosInstance.get(`/board/${boardId}`);
-        setPost(response.data);
-      } catch (error) {
-        if (error.response?.status === 401) {
-          clearAuth();
+    try {
+      const response = await axiosInstance.get(`/board/${boardId}`);
+      setPost(response.data);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        clearAuth();
 
-          try {
-            const fallbackResponse = await axiosInstance.get(`/board/${boardId}`, {
-              skipAuthRefresh: true,
-            });
-            setPost(fallbackResponse.data);
-          } catch (fallbackError) {
-            alert('게시글을 불러올 권한이 없거나 삭제된 게시글입니다.');
-            navigate('/board');
-          }
-        } else {
-          alert('서버와 통신 중 문제가 발생했습니다.');
+        try {
+          const fallbackResponse = await axiosInstance.get(`/board/${boardId}`, {
+            skipAuthRefresh: true,
+          });
+          setPost(fallbackResponse.data);
+        } catch (fallbackError) {
+          CustomToast.error(t('게시글을 불러올 권한이 없거나 삭제된 게시글입니다.'));
           navigate('/board');
         }
-      } finally {
-        setLoading(false);
+      } else {
+        CustomToast.error(t('서버와 통신 중 문제가 발생했습니다.'));
+        navigate('/board');
       }
-    };
-
-    fetchPost();
+    } finally {
+      setLoading(false);
+    }
   }, [boardId, navigate, clearAuth]);
+  useEffect(() => {
+    fetchPost();
+  }, [fetchPost]);
 
   const handleDelete = async () => {
     if (!window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
 
     try {
-      // 백엔드 경로 @DeleteMapping("/delete/{boardId}")에 맞춰 수정
       await axiosInstance.delete(`/board/delete/${boardId}`);
-
-      alert('게시글이 삭제되었습니다.');
+      CustomToast.success(t('게시글이 삭제되었습니다.'));
       navigate('/board', { replace: true });
     } catch (error) {
       if (error.response?.status === 401) {
-        alert('인증이 만료되었습니다. 다시 로그인해주세요.');
+        CustomToast.error(t('다시 로그인해주세요.'));
         clearAuth();
         navigate('/login', { replace: true });
       } else if (error.response?.status === 403) {
-        alert('삭제 권한이 없습니다.');
+        const errorMessage =
+          error.response.data?.message ||
+          '삭제 권한이 없거나 이미 답변이 달린 글은 삭제할 수 없습니다.';
+        CustomToast.error(t(errorMessage));
       } else {
-        alert('게시글 삭제 중 오류가 발생했습니다.');
+        CustomToast.error(t('게시글 삭제 중 오류가 발생했습니다.'));
       }
-      console.error('Delete error:', error);
+      // console.error('Delete error:', error);
     }
   };
 
   const handleEdit = () => {
     navigate(`/board/edit/${boardId}`);
+  };
+  const handleReplySubmit = async () => {
+    if (!replyContent.trim()) {
+      CustomToast.error(t('글 내용을 입력해주세요.'));
+      return;
+    }
+
+    try {
+      // API 명세에 맞춰 RequestBody 객체로 전송
+      await axiosInstance.post(`/admin/${boardId}`, { content: replyContent });
+      CustomToast.success(t('댓글이 등록되었습니다.'));
+      setReplyContent(''); // 텍스트 에어리어 초기화
+      fetchPost(); // 최신 댓글 데이터 불러오기
+    } catch (error) {
+      // console.error(error);
+      if (error.response?.status === 403) {
+        CustomToast.error(t('댓글을 작성할 권한이 없습니다.'));
+      } else {
+        CustomToast.error(t('댓글 등록 중 오류가 발생했습니다.'));
+      }
+    }
   };
 
   if (loading) return <div className="loading-wrapper">로딩 중...</div>;
@@ -129,6 +159,23 @@ const BoardDetail = () => {
               <div className="empty-reply">아직 등록된 댓글이 없습니다.</div>
             )}
           </div>
+          {isAdmin && (
+            <div className="admin-reply-form">
+              <h4 className="admin-reply-title">관리자 답변 작성</h4>
+              <textarea
+                className="admin-reply-textarea"
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="사용자 문의에 대한 답변 내용을 입력하세요."
+                rows={4}
+              />
+              <div className="admin-reply-actions">
+                <button className="btn-reply-submit" onClick={handleReplySubmit}>
+                  답변 등록
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="detail-actions">

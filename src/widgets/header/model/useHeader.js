@@ -31,6 +31,14 @@ const decodeBase64Json = (value) => {
   }
 };
 
+export const extractRoleFromToken = (token) => {
+  if (typeof token !== 'string' || !token) return null;
+  const segments = token.split('.');
+  if (segments.length < 2) return null;
+  const payload = decodeBase64Json(segments[1]);
+  return payload?.role ?? null;
+};
+
 const extractNicknameFromToken = (token) => {
   if (typeof token !== 'string' || !token) return null;
   const segments = token.split('.');

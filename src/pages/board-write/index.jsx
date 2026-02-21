@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '#widgets/header';
+import CustomToast from '#shared/toast';
 import { useAuthStore, authService } from '#entities/auth';
+import { useTranslation } from 'i18nexus';
 import './index.css';
 
 const BoardWrite = () => {
+  const { t } = useTranslation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
@@ -33,7 +36,7 @@ const BoardWrite = () => {
     const fetchPostAndVerify = async () => {
       try {
         if (!accessToken) {
-          alert('로그인이 필요합니다.');
+          CustomToast.error(t('로그인이 필요합니다.'));
           navigate('/login', { replace: true });
           return;
         }
@@ -49,7 +52,7 @@ const BoardWrite = () => {
 
         // 백엔드가 권한이 없다고 판단하면 바로 쫓아냅니다.
         if (!data.isWriter) {
-          alert('수정 권한이 없습니다.');
+          CustomToast.error(t('수정 권한이 없습니다.'));
           navigate(`/board/${boardId}`, { replace: true });
           return;
         }
@@ -58,7 +61,7 @@ const BoardWrite = () => {
         setTitle(data.title);
         setContent(data.content);
       } catch (error) {
-        alert('게시글 정보를 확인할 수 없습니다.');
+        CustomToast.error(t('게시글 정보를 확인할 수 없습니다.'));
         navigate('/board', { replace: true });
       } finally {
         setIsCheckingAccess(false);
@@ -88,12 +91,12 @@ const BoardWrite = () => {
     let currentToken = accessToken;
 
     if (!currentToken) {
-      alert('로그인이 필요합니다.');
+      CustomToast.error(t('로그인이 필요합니다.'));
       navigate('/login');
       return;
     }
     if (!title.trim() || !content.trim()) {
-      alert('제목과 내용을 모두 입력해주세요.');
+      CustomToast.error(t('제목과 내용을 모두 입력해주세요.'));
       return;
     }
 
@@ -102,27 +105,41 @@ const BoardWrite = () => {
     try {
       let response = await postBoardRequest(currentToken);
 
+      // 401 에러: 토큰 만료 시 갱신 시도
       if (response.status === 401) {
         try {
           await authService.refresh();
           currentToken = useAuthStore.getState().accessToken;
           response = await postBoardRequest(currentToken);
         } catch (refreshError) {
-          console.error('토큰 갱신 실패:', refreshError);
-          alert('다시 로그인해주세요.');
+          CustomToast.error(t('다시 로그인해주세요.'));
           clearAuth();
           navigate('/login', { replace: true });
           return;
         }
       }
 
-      if (!response.ok) throw new Error(`게시글 ${isEditMode ? '수정' : '등록'}에 실패했습니다.`);
+      // 403 에러: 권한 부족 또는 답변 달린 게시글 수정 불가 처리
+      if (response.status === 403) {
+        // fetch API이므로 response.json()을 통해 백엔드의 에러 바디를 파싱합니다.
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage =
+          errorData?.message || '수정 권한이 없거나 이미 답변이 달린 글은 수정할 수 없습니다.';
 
-      alert(`게시글이 성공적으로 ${isEditMode ? '수정' : '등록'}되었습니다.`);
+        CustomToast.error(t(errorMessage));
+        return; // 에러 메시지를 띄우고 함수 실행을 중단합니다.
+      }
+
+      // 그 외의 모든 서버 에러 처리 (500 등)
+      if (!response.ok) {
+        throw new Error(`게시글 ${isEditMode ? '수정' : '등록'}에 실패했습니다.`);
+      }
+
+      // 성공 처리
+      CustomToast.success(t(`게시글이 성공적으로 ${isEditMode ? '수정' : '등록'}되었습니다.`));
       navigate(isEditMode ? `/board/${boardId}` : '/board', { replace: true });
     } catch (error) {
-      console.error(error);
-      alert('오류가 발생했습니다. 다시 시도해주세요.');
+      CustomToast.error(t('오류가 발생했습니다. 다시 시도해주세요.'));
     } finally {
       setIsSubmitting(false);
     }

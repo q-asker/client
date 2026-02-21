@@ -4,6 +4,9 @@ import { useAuthStore } from '#entities/auth';
 import Header from '#widgets/header';
 import './index.css';
 
+// 유지보수를 위해 페이지 사이즈를 상수로 분리
+const PAGE_SIZE = 10;
+
 const Board = () => {
   const navigate = useNavigate();
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -15,6 +18,7 @@ const Board = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0); // 전체 게시글 수 상태 추가
 
   const getBaseUrl = () => {
     const baseUrl = import.meta.env.VITE_BASE_URL || '';
@@ -35,8 +39,9 @@ const Board = () => {
     setLoading(true);
     setError(null);
     try {
+      // 상수로 분리한 PAGE_SIZE 적용
       const response = await fetch(
-        `${getBaseUrl()}/board?page=${page}&size=10&sort=createdAt,desc`,
+        `${getBaseUrl()}/board?page=${page}&size=${PAGE_SIZE}&sort=createdAt,desc`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -46,10 +51,11 @@ const Board = () => {
       if (!response.ok) throw new Error('데이터를 불러오는데 실패했습니다.');
 
       const data = await response.json();
-      setPosts(data.posts);
-      setTotalPages(data.totalPages);
+      setPosts(data.posts || []);
+      setTotalPages(data.totalPages || 0);
+      setTotalElements(data.totalElements || 0); // 백엔드 응답에서 전체 개수 저장
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       setError('게시글 목록을 불러올 수 없습니다.');
     } finally {
       setLoading(false);
@@ -115,24 +121,31 @@ const Board = () => {
               </div>
 
               <ul className="inquiry-list">
-                {posts.map((post) => (
-                  <li key={post.boardId} className="inquiry-item">
-                    <span className="col-id">{post.boardId}</span>
-                    <span className="col-title">
-                      <Link to={`/board/${post.boardId}`}>{post.title}</Link>
-                    </span>
-                    <span className="col-author">{post.userName}</span>
-                    <span className="col-date">{formatDate(post.createdAt)}</span>
-                    <span className="col-view">{post.viewCount || 0}</span>
-                    <span className="col-status">
-                      <span
-                        className={`status-badge ${post.status === 'ANSWERED' ? 'completed' : 'created'}`}
-                      >
-                        {post.status || '대기중'}
+                {posts.map((post, index) => {
+                  const virtualNumber =
+                    totalElements > 0
+                      ? totalElements - currentPage * PAGE_SIZE - index
+                      : currentPage * PAGE_SIZE + index + 1;
+
+                  return (
+                    <li key={post.boardId} className="inquiry-item">
+                      <span className="col-id">{virtualNumber}</span>
+                      <span className="col-title">
+                        <Link to={`/board/${post.boardId}`}>{post.title}</Link>
                       </span>
-                    </span>
-                  </li>
-                ))}
+                      <span className="col-author">{post.userName}</span>
+                      <span className="col-date">{formatDate(post.createdAt)}</span>
+                      <span className="col-view">{post.viewCount || 0}</span>
+                      <span className="col-status">
+                        <span
+                          className={`status-badge ${post.status === 'ANSWERED' ? 'completed' : 'created'}`}
+                        >
+                          {post.status || '대기중'}
+                        </span>
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
 
               <div className="pagination">
