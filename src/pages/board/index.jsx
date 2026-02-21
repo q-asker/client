@@ -84,7 +84,6 @@ const Board = () => {
             <h1>문의 게시판</h1>
             <p>서비스 이용 중 궁금한 점이나 건의사항을 자유롭게 남겨주세요</p>
           </div>
-          {/* 리스트가 있을 때만 우측 상단에 문의하기 버튼 표시 (선택사항) */}
           {posts.length > 0 && (
             <div className="header-actions">
               <button className="create-board-btn" onClick={handleWriteClick}>
@@ -152,7 +151,6 @@ const Board = () => {
               </div>
             </div>
           ) : (
-            /* 💡 퀴즈 기록과 동일한 디자인의 Empty State */
             <div className="empty-history">
               <div className="empty-icon">📋</div>
               <h3>아직 등록된 문의가 없습니다</h3>
