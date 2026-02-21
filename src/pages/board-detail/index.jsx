@@ -64,7 +64,9 @@ const BoardDetail = () => {
     if (!window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
 
     try {
-      await axiosInstance.delete(`/board/${boardId}`);
+      // 백엔드 경로 @DeleteMapping("/delete/{boardId}")에 맞춰 수정
+      await axiosInstance.delete(`/board/delete/${boardId}`);
+
       alert('게시글이 삭제되었습니다.');
       navigate('/board', { replace: true });
     } catch (error) {
@@ -72,9 +74,12 @@ const BoardDetail = () => {
         alert('인증이 만료되었습니다. 다시 로그인해주세요.');
         clearAuth();
         navigate('/login', { replace: true });
+      } else if (error.response?.status === 403) {
+        alert('삭제 권한이 없습니다.');
       } else {
-        alert('오류가 발생했습니다. 다시 시도해주세요.');
+        alert('게시글 삭제 중 오류가 발생했습니다.');
       }
+      console.error('Delete error:', error);
     }
   };
 
