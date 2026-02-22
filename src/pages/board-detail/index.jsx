@@ -135,7 +135,7 @@ const BoardDetail = () => {
             <div className="detail-meta">
               <span className="meta-author">{post.username}</span>
               <span className="meta-divider">|</span>
-              <span className="meta-date">{formatDate(post.createAt)}</span>
+              <span className="meta-date">{formatDate(post.createdAt)}</span>
               <span className="meta-divider">|</span>
               <span className="meta-views">조회수 {post.viewCount || 0}</span>
             </div>
