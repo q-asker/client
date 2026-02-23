@@ -6,6 +6,9 @@ import { useAuthStore, authService } from '#entities/auth';
 import { useTranslation } from 'i18nexus';
 import './index.css';
 
+const MAX_TITLE_LENGTH = 100;
+const MAX_CONTENT_LENGTH = 5000;
+
 const BoardWrite = () => {
   const { t } = useTranslation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -97,6 +100,14 @@ const BoardWrite = () => {
     }
     if (!title.trim() || !content.trim()) {
       CustomToast.error(t('제목과 내용을 모두 입력해주세요.'));
+      return;
+    }
+    if (title.length > MAX_TITLE_LENGTH) {
+      CustomToast.error(t(`제목은 최대 ${MAX_TITLE_LENGTH}자까지 입력 가능합니다.`));
+      return;
+    }
+    if (content.length > MAX_CONTENT_LENGTH) {
+      CustomToast.error(t(`내용은 최대 ${MAX_CONTENT_LENGTH}자까지 입력 가능합니다.`));
       return;
     }
 
