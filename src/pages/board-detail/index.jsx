@@ -103,7 +103,7 @@ const BoardDetail = () => {
 
     try {
       // API 명세에 맞춰 RequestBody 객체로 전송
-      await axiosInstance.post(`/admin/${boardId}`, { content: replyContent });
+      await axiosInstance.post(`/board/reply/${boardId}`, { content: replyContent });
       CustomToast.success(t('댓글이 등록되었습니다.'));
       setReplyContent(''); // 텍스트 에어리어 초기화
       fetchPost(); // 최신 댓글 데이터 불러오기

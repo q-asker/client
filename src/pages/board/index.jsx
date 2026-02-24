@@ -133,7 +133,7 @@ const Board = () => {
                       <span className="col-title">
                         <Link to={`/board/${post.boardId}`}>{post.title}</Link>
                       </span>
-                      <span className="col-author">{post.userName}</span>
+                      <span className="col-author">{post.nickname}</span>{' '}
                       <span className="col-date">{formatDate(post.createdAt)}</span>
                       <span className="col-view">{post.viewCount || 0}</span>
                       <span className="col-status">
