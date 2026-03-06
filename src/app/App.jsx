@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import './App.css';
+import Maintenance from '#pages/maintenance';
 import LoginSelect from '#pages/login-select';
 import LoginRedirect from '#pages/login-redirect';
 import MakeQuiz from '#pages/make-quiz';
@@ -464,6 +465,8 @@ const App = () => {
         <PageViewTracker />
         <ToastContainer />
         <Routes>
+          <Route path="*" element={<Maintenance />} />
+          {/* 점검 완료 후 아래 라우트로 복원
           <Route path="/" element={<MakeQuiz />} />
           <Route path="/ko" element={<MakeQuiz />} />
           <Route path="/en" element={<MakeQuiz />} />
@@ -475,6 +478,7 @@ const App = () => {
           <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
           <Route path="/history" element={<QuizHistory />} />
           <Route path="/help" element={<Navigate to="/" replace />} />
+          */}
         </Routes>
       </BrowserRouter>
     </I18nProvider>
