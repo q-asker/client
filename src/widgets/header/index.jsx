@@ -1,42 +1,30 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { useHeader } from "./model/useHeader";
-import { useClickOutside } from "#shared/lib/useClickOutside";
-import Logo from "#shared/ui/logo";
-import "./index.css";
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useHeader } from './model/useHeader';
+import { useClickOutside } from '#shared/lib/useClickOutside';
+import Logo from '#shared/ui/logo';
+import './index.css';
 
-const Header = ({
-  isSidebarOpen,
-  toggleSidebar,
-  setIsSidebarOpen,
-  setShowHelp,
-}) => {
+const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }) => {
   const {
     state: { t, isAuthenticated, user },
-    actions: {
-      handleQuizManagement,
-      handleHelp,
-      handleLogout,
-      handleLanguageChange,
-      closeSidebar,
-    },
+    actions: { handleQuizManagement, handleHelp, handleLogout, handleLanguageChange, closeSidebar },
   } = useHeader({ setIsSidebarOpen, setShowHelp });
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showNavTooltip, setShowNavTooltip] = useState(false);
 
   const displayName = useMemo(() => {
-    const name =
-      user?.nickname || user?.name || user?.username || user?.email || "";
-    return name.trim() || t("사용자");
+    const name = user?.nickname || user?.name || user?.username || user?.email || '';
+    return name.trim() || t('사용자');
   }, [t, user]);
   const profileInitial = useMemo(
-    () => displayName?.trim().slice(0, 1).toUpperCase() || "?",
+    () => displayName?.trim().slice(0, 1).toUpperCase() || '?',
     [displayName],
   );
 
   useClickOutside({
-    containerId: "profileDropdown",
-    triggerId: "profileButton",
+    containerId: 'profileDropdown',
+    triggerId: 'profileButton',
     onOutsideClick: () => setIsProfileOpen(false),
     isEnabled: isProfileOpen,
   });
@@ -45,9 +33,7 @@ const Header = ({
     if (!isAuthenticated) {
       try {
         const today = new Date().toISOString().slice(0, 10);
-        const dismissedDate = localStorage.getItem(
-          "headerNavTooltipDismissedDate",
-        );
+        const dismissedDate = localStorage.getItem('headerNavTooltipDismissedDate');
         setShowNavTooltip(dismissedDate !== today);
       } catch (error) {
         setShowNavTooltip(true);
@@ -61,7 +47,7 @@ const Header = ({
   const handleNavTooltipClose = () => {
     try {
       const today = new Date().toISOString().slice(0, 10);
-      localStorage.setItem("headerNavTooltipDismissedDate", today);
+      localStorage.setItem('headerNavTooltipDismissedDate', today);
     } catch (error) {
       // ignore storage errors
     }
@@ -72,11 +58,7 @@ const Header = ({
     <div className="header">
       <div className="header-inner">
         <div className="logo-area">
-          <button
-            id="menuButton"
-            className="icon-button"
-            onClick={toggleSidebar}
-          >
+          <button id="menuButton" className="icon-button" onClick={toggleSidebar}>
             ☰
           </button>
           <Link to="/" className="logo-link">
@@ -85,21 +67,17 @@ const Header = ({
         </div>
         <div className="nav-link-area">
           <div className="nav-link-wrapper">
-            <Link
-              to="/history"
-              className="nav-link"
-              onClick={handleQuizManagement}
-            >
+            <Link to="/history" className="nav-link" onClick={handleQuizManagement}>
               <span className="emoji-label">📋</span>
-              <strong>{t("퀴즈 기록")}</strong>
+              <strong>{t('퀴즈 기록')}</strong>
             </Link>
             {!isAuthenticated && showNavTooltip && (
               <span className="nav-tooltip" role="status">
-                {t("로그인하고, 퀴즈기록을 저장해보세요")}
+                {t('로그인하고, 퀴즈기록을 저장해보세요')}
                 <button
                   type="button"
                   className="nav-tooltip-close"
-                  aria-label={t("닫기")}
+                  aria-label={t('닫기')}
                   onClick={handleNavTooltipClose}
                 >
                   ✕
@@ -133,7 +111,7 @@ const Header = ({
                       }}
                     >
                       <span className="emoji-label">🚪</span>
-                      <strong>{t("로그아웃")}</strong>
+                      <strong>{t('로그아웃')}</strong>
                     </button>
                   </div>
                 )}
@@ -141,43 +119,34 @@ const Header = ({
             ) : (
               <Link className="text-button" to="/login">
                 <span className="emoji-label">🔐</span>
-                <strong>{t("로그인")}</strong>
+                <strong>{t('로그인')}</strong>
               </Link>
             )}
           </div>
         </div>
       </div>
-      <aside
-        id="sidebar"
-        className={isSidebarOpen ? "sidebar open" : "sidebar"}
-      >
+      <aside id="sidebar" className={isSidebarOpen ? 'sidebar open' : 'sidebar'}>
         <div className="sidebar-header">
-          <h2>{t("메뉴")}</h2>
+          <h2>{t('메뉴')}</h2>
           <button className="icon-button" onClick={closeSidebar}>
             ✕
           </button>
         </div>
         <nav>
           <div className="nav-link language-selector">
-            {t("언어")}
+            {t('언어')}
             <div>
-              <button
-                className="language-button"
-                onClick={() => handleLanguageChange("ko")}
-              >
+              <button className="language-button" onClick={() => handleLanguageChange('ko')}>
                 🇰🇷
               </button>
-              <button
-                className="language-button"
-                onClick={() => handleLanguageChange("en")}
-              >
+              <button className="language-button" onClick={() => handleLanguageChange('en')}>
                 🇬🇧
               </button>
             </div>
           </div>
-          <div className="nav-link" onClick={handleHelp}>
-            {t("도움말 보기")}
-          </div>
+          <button className="nav-link" type="button" onClick={handleHelp}>
+            {t('도움말 보기')}
+          </button>
         </nav>
       </aside>
     </div>

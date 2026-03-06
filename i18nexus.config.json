@@ -1,8 +1,5 @@
 {
-  "languages": [
-    "en",
-    "ko"
-  ],
+  "languages": ["en", "ko"],
   "defaultLanguage": "ko",
   "localesDir": "./src/shared/i18n",
   "sourcePattern": "src/**/*.{js,jsx,ts,tsx}",

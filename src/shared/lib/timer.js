@@ -13,19 +13,24 @@ class Timer {
     this.isRunning = true;
     this.startTime = Date.now() - this.elapsedTime;
 
-    this.intervalId = setInterval(() => {
+    const tick = () => {
+      if (!this.isRunning) return;
       this.elapsedTime = Date.now() - this.startTime;
       if (this.onUpdate) {
         this.onUpdate(this.elapsedTime);
       }
-    }, 1000); // 1초마다 업데이트
+      const nextDelay = 1000 - (this.elapsedTime % 1000);
+      this.intervalId = setTimeout(tick, nextDelay);
+    };
+
+    tick();
   }
 
   pause() {
     if (!this.isRunning) return;
 
     this.isRunning = false;
-    clearInterval(this.intervalId);
+    clearTimeout(this.intervalId);
     this.intervalId = null;
   }
 

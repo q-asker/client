@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+
+# merge, rebase, squash 커밋은 제외
+case "$COMMIT_SOURCE" in
+  merge|squash) exit 0 ;;
+esac
+
+# rebase 중인 경우 제외
+if [ -d "$(git rev-parse --git-dir)/rebase-merge" ] || [ -d "$(git rev-parse --git-dir)/rebase-apply" ]; then
+  exit 0
+fi
+
+# 브랜치명에서 티켓 번호 추출 (예: ICC-270)
+BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null)
+TICKET=$(echo "$BRANCH_NAME" | grep -oE '^[A-Z]+-[0-9]+')
+
+# 티켓 번호가 없으면 종료
+if [ -z "$TICKET" ]; then
+  exit 0
+fi
+
+# 이미 커밋 메시지에 티켓 번호가 포함되어 있으면 종료
+if grep -qE "\[$TICKET\]" "$COMMIT_MSG_FILE"; then
+  exit 0
+fi
+
+# 커밋 메시지 첫 줄 앞에 [티켓번호] 추가
+sed -i.bak "1s/^/[$TICKET] /" "$COMMIT_MSG_FILE"
+rm -f "$COMMIT_MSG_FILE.bak"

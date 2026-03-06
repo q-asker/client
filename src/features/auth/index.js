@@ -1,2 +1,2 @@
-export { useLogin } from "./model/useLogin";
-export { useLoginRedirect } from "./model/useLoginRedirect";
+export { useLogin } from './model/useLogin';
+export { useLoginRedirect } from './model/useLoginRedirect';
