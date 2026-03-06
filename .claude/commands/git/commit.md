@@ -1,12 +1,12 @@
 ---
-description: '이모지와 컨벤셔널 커밋 메시지로 잘 포맷된 커밋을 생성합니다'
+description: "이모지와 컨벤셔널 커밋 메시지로 잘 포맷된 커밋을 생성합니다"
 allowed-tools:
   [
-    'Bash(git add:*)',
-    'Bash(git status:*)',
-    'Bash(git commit:*)',
-    'Bash(git diff:*)',
-    'Bash(git log:*)',
+    "Bash(git add:*)",
+    "Bash(git status:*)",
+    "Bash(git commit:*)",
+    "Bash(git diff:*)",
+    "Bash(git log:*)",
   ]
 ---
 
@@ -26,7 +26,6 @@ allowed-tools:
 2. 여러 논리적 변경사항에 대한 diff 분석
 3. 필요시 분할 제안
 4. 이모지 컨벤셔널 포맷으로 커밋 생성
-5. 커밋 완료 후 `history-logger` 스킬을 실행하여 Notion에 커밋 히스토리 기록
 
 ## 커밋 포맷
 

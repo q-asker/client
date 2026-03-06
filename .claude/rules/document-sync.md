@@ -1,8 +1,3 @@
----
-description: 코드 변경 시 관련 문서를 함께 갱신하는 규칙
-globs: ["**/*"]
----
-
 # 문서 연동 규칙
 
 코드 변경 시 아래 테이블에 따라 관련 문서를 **반드시 함께 갱신**해야 합니다.
@@ -17,33 +12,15 @@ globs: ["**/*"]
 | `.claude/rules/coding-conventions.md` | 코딩 컨벤션, 구현 방식 선택                |
 | `.claude/rules/constraints.md`        | 금지 사항, 주의 사항                       |
 | `.claude/rules/task-workflow.md`      | 작업 실행 규칙, 우선순위                   |
-| `.claude/rules/agent-delegation.md`   | 전용 에이전트 사용 규칙                    |
+| `.claude/rules/agent-delegation.md`   | 에이전트 위임 규칙                         |
 | `.claude/rules/document-sync.md`      | 문서 연동/갱신 트리거 (이 파일)            |
 
 ### 필요 시 읽기 (명시적 Read 필요)
 
-| 문서                          | 진실의 원천                                          |
-| ----------------------------- | ---------------------------------------------------- |
-| `docs/PRD.md`                 | 기능 명세, 데이터 모델, 루브릭 기준, 등급 기준       |
-| `docs/roadmaps/ROADMAP_v*.md` | Phase/Task 계획, 진행 상태, 개발 워크플로우          |
-| `shrimp-rules.md`             | Shrimp Task Manager 전용 (`.claude/rules/`의 포인터) |
-
-### 의존 관계
-
-```
-CLAUDE.md (기술 스택, 아키텍처) ← 자동 로드
-  ↑ docs/PRD.md (기능 변경 → 아키텍처에 반영)
-  ↑ docs/roadmaps/ (작업 계획)
-
-.claude/rules/ (AI 행동 규칙) ← 자동 로드
-  → shrimp-rules.md (순수 포인터, 규칙 내용 없음)
-
-docs/PRD.md (기능 명세, 데이터 모델)
-  ↑ lib/types.ts, lib/rubrics.ts (코드가 진실 → 문서에 동기화)
-
-constraints.md (금지 사항) ← 유일한 원천
-  ← coding-conventions.md (참조만, 중복 기재 금지)
-```
+| 문서                          | 진실의 원천                                 |
+| ----------------------------- | ------------------------------------------- |
+| `docs/PRD.md`                 | 기능 명세, 데이터 모델                      |
+| `docs/roadmaps/ROADMAP_v*.md` | Phase/Task 계획, 진행 상태, 개발 워크플로우 |
 
 ## 변경 → 문서 갱신 트리거
 
@@ -51,9 +28,9 @@ constraints.md (금지 사항) ← 유일한 원천
 | ------------------------------- | ---------------------------------- | ---------------------- |
 | `package.json` 패키지 추가/삭제 | `CLAUDE.md` (기술 스택)            | —                      |
 | `package.json` scripts 변경     | `CLAUDE.md` (명령어)               | —                      |
-| `app/` 라우트 추가/삭제         | `CLAUDE.md` (라우팅 구조)          | —                      |
-| `lib/types.ts` 데이터 모델 변경 | `docs/PRD.md` (데이터 모델)        | —                      |
-| `lib/rubrics.ts` 루브릭 변경    | `docs/PRD.md` (루브릭 기준)        | —                      |
+| `src/app/` 라우트 추가/삭제     | `CLAUDE.md` (라우팅 구조)          | —                      |
+| `.env.*` 환경 변수 추가         | `CLAUDE.md` (환경 변수)            | —                      |
+| 디렉토리 구조 변경              | `CLAUDE.md` (아키텍처)             | —                      |
 | Task 완료                       | 활성 `docs/roadmaps/ROADMAP_v*.md` | `development-planner`  |
 | 새 Task 추가                    | 활성 `docs/roadmaps/ROADMAP_v*.md` | `development-planner`  |
 | UI 컴포넌트 생성/수정           | —                                  | `ui-markup-specialist` |
@@ -74,6 +51,6 @@ constraints.md (금지 사항) ← 유일한 원천
 
 ## 준수 원칙
 
-- 코드 변경과 문서 갱신은 **동일 작업 단위**로 수행한다.
-- CLAUDE.md 갱신을 누락한 채 커밋하지 않는다.
-- 의심스러운 경우, CLAUDE.md를 먼저 확인하고 최신 상태인지 검증한 뒤 작업을 진행한다.
+- 코드 변경과 문서 갱신은 **동일 작업 단위**로 수행한다
+- CLAUDE.md 갱신을 누락한 채 커밋하지 않는다
+- 의심스러운 경우, CLAUDE.md를 먼저 확인하고 최신 상태인지 검증한 뒤 작업을 진행한다

@@ -1,39 +1,46 @@
----
-description: 코드 작성 시 적용되는 네이밍, 컴포넌트, 스타일링, 폼 규칙
-globs: ["**/*.ts", "**/*.tsx", "**/*.css"]
----
-
 # 코딩 컨벤션
 
 ## 일반 규칙
 
 - 변수명/함수명: 영어 (camelCase)
 - 컴포넌트명: PascalCase
+- 상수: SCREAMING_SNAKE_CASE
 - 파일명: kebab-case (컴포넌트 파일 포함)
 - 코드 주석: 한국어
-- 경로 alias: `@/*` (프로젝트 루트 기준)
+- 경로 alias: `#` 접두사 (Node.js subpath imports, `package.json`의 `imports` 필드)
 
 ## 컴포넌트 규칙
 
-- 서버 컴포넌트 기본, 필요 시에만 `"use client"` 사용
+- 함수형 컴포넌트만 사용 (arrow function)
+- Props 타입은 interface로 정의, 파일 상단에 배치
+- default export 사용
+- 각 feature/page/widget은 `index.tsx`(UI) + `index.ts`(re-export) 패턴
 - shadcn/ui 컴포넌트는 `components/ui/`에 위치, 직접 수정 금지
-- 커스텀 컴포넌트는 `components/` 직하 또는 기능별 하위 디렉토리
-- 레이아웃 컴포넌트(Header, Footer)는 `components/layout/`
 
 ## 스타일링 규칙
 
-- Tailwind CSS v4 유틸리티 클래스 사용
-- `cn()` 함수로 조건부 클래스 병합 (`lib/utils.ts`)
-- CSS 변수 기반 테마 (`globals.css`), oklch 색상 체계
+- Tailwind CSS 유틸리티 클래스 사용
+- `cn()` 함수로 조건부 클래스 병합
+- 인라인 스타일(`style` 속성) 사용 금지
 
-## 폼 규칙
+## 상태 관리
 
-- React Hook Form + Zod 스키마 조합
-- `@hookform/resolvers`로 연결
+- Zustand store: feature 단위로 분리 (`model/` 디렉토리)
+- 커스텀 훅으로 비즈니스 로직 캡슐화 (`use*.ts`)
+
+## Import 순서
+
+1. React/외부 라이브러리
+2. 내부 모듈 (`#` alias)
+3. 상대경로
+4. 타입 import (`type` 키워드 사용)
 
 ## 구현 방식 선택
 
 - UI 컴포넌트: shadcn/ui에 해당 컴포넌트가 있으면 반드시 사용한다
-- 새 페이지: 서버 컴포넌트로 시작하고, 인터랙티브 부분만 클라이언트 컴포넌트로 분리한다
+- i18n: 모든 사용자 노출 텍스트는 `useTranslation` 훅의 `t()` 함수 사용
+- API 통신: `#shared/api`의 Axios 인스턴스 사용
+- 토스트: `#shared/toast`의 CustomToast 사용
+- 비동기: async/await 사용 (Promise chain 금지)
 
-> 금지 사항(외부 DB, 인증 등)은 `constraints.md` 참조.
+> 금지 사항은 `constraints.md` 참조.
