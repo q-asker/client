@@ -1,46 +1,58 @@
 # 코딩 컨벤션
 
-## 일반 규칙
+## 네이밍
 
-- 변수명/함수명: 영어 (camelCase)
-- 컴포넌트명: PascalCase
-- 상수: SCREAMING_SNAKE_CASE
-- 파일명: kebab-case (컴포넌트 파일 포함)
+- 컴포넌트: PascalCase (`MakeQuiz`, `QuizResult`)
+- 함수/변수: camelCase (`handleSubmit`, `quizData`)
+- 상수: SCREAMING_SNAKE_CASE (`MAX_RETRY_COUNT`, `SUPPORTED_LANGUAGES`)
+- 파일명: kebab-case (디렉토리/파일), PascalCase (컴포넌트 JSX 파일)
 - 코드 주석: 한국어
-- 경로 alias: `#` 접두사 (Node.js subpath imports, `package.json`의 `imports` 필드)
 
-## 컴포넌트 규칙
+## 컴포넌트
 
-- 함수형 컴포넌트만 사용 (arrow function)
-- Props 타입은 interface로 정의, 파일 상단에 배치
-- default export 사용
-- 각 feature/page/widget은 `index.tsx`(UI) + `index.ts`(re-export) 패턴
-- shadcn/ui 컴포넌트는 `components/ui/`에 위치, 직접 수정 금지
+- 함수형 컴포넌트만 사용 (클래스 컴포넌트 금지)
+- 화살표 함수로 정의, default export 사용
+- Props는 구조 분해 할당으로 받기
 
-## 스타일링 규칙
+## FSD(Feature-Sliced Design) 구조
 
-- Tailwind CSS 유틸리티 클래스 사용
-- `cn()` 함수로 조건부 클래스 병합
-- 인라인 스타일(`style` 속성) 사용 금지
-
-## 상태 관리
-
-- Zustand store: feature 단위로 분리 (`model/` 디렉토리)
-- 커스텀 훅으로 비즈니스 로직 캡슐화 (`use*.ts`)
+- `app/` — 앱 진입점, 전역 설정, 라우팅
+- `pages/` — 페이지 컴포넌트 (각 페이지는 `index.jsx`로 export)
+- `widgets/` — 조합형 UI (각 위젯은 `index.jsx`로 export)
+- `features/` — 기능 단위 모듈 (각 기능은 `index.js`로 export)
+- `entities/` — 도메인 엔티티 (각 엔티티는 `index.js`로 export)
+- `shared/` — 공유 유틸리티, API, UI 컴포넌트
 
 ## Import 순서
 
-1. React/외부 라이브러리
-2. 내부 모듈 (`#` alias)
-3. 상대경로
-4. 타입 import (`type` 키워드 사용)
+1. 외부 라이브러리 (`react`, `react-router-dom`, `axios` 등)
+2. 내부 모듈 — `#app/*`, `#pages/*`, `#features/*`, `#entities/*`, `#widgets/*`, `#shared/*` 별칭 사용
+3. 상대경로 (`./`, `../`)
 
-## 구현 방식 선택
+## Import 별칭
 
-- UI 컴포넌트: shadcn/ui에 해당 컴포넌트가 있으면 반드시 사용한다
-- i18n: 모든 사용자 노출 텍스트는 `useTranslation` 훅의 `t()` 함수 사용
-- API 통신: `#shared/api`의 Axios 인스턴스 사용
-- 토스트: `#shared/toast`의 CustomToast 사용
-- 비동기: async/await 사용 (Promise chain 금지)
+- `package.json`의 `imports` 필드로 정의된 별칭을 사용한다
+- 새 모듈 추가 시 해당 레이어의 `index.js` (또는 `index.jsx`)에서 re-export 한다
 
-> 금지 사항은 `constraints.md` 참조.
+## 상태 관리
+
+- 전역 상태: Zustand store 사용
+- 로컬 상태: `useState`, `useReducer`
+- store는 각 feature의 `model/` 디렉토리에 배치
+
+## 스타일링
+
+- CSS 파일로 스타일링 (`.css`)
+- 전역 스타일은 `app/` 레이어에 배치
+
+## 비동기 처리
+
+- API 호출: Axios 사용 (`shared/api/`)
+- SSE: `@microsoft/fetch-event-source` 사용
+- async/await 패턴 사용 (Promise chain 금지)
+
+## 기타
+
+- ES Module 사용 (`"type": "module"`)
+- Prettier 포맷 준수 (singleQuote, trailingComma: all, printWidth: 100)
+- ESLint 규칙 준수 (`eslint.config.js`)

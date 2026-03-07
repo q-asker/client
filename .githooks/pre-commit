@@ -1,0 +1,10 @@
+#!/bin/sh
+# 포맷 검증 (Prettier) — 위반 시 커밋 차단
+echo "포맷 검증 중 (npx prettier --check .)..."
+npx prettier --check . 2>/dev/null
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "포맷 위반이 발견되었습니다."
+  echo "npx prettier --write . 를 실행한 뒤 다시 커밋하세요."
+  exit 1
+fi
