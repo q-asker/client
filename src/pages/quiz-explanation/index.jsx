@@ -24,11 +24,7 @@ const QuizExplanation = () => {
     uploadedUrl,
   });
   const { quiz, pdf, explanation, ui } = state;
-  const {
-    quiz: quizActions,
-    pdf: pdfActions,
-    common: commonActions,
-  } = actions;
+  const { quiz: quizActions, pdf: pdfActions, common: commonActions } = actions;
 
   if (ui.isLoading) {
     return (

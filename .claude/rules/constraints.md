@@ -2,18 +2,20 @@
 
 ## 절대 금지
 
-- **`components/ui/` 내 파일 직접 수정** 금지 — shadcn CLI로만 관리
-- **`any` 타입** 사용 금지
-- **인라인 스타일** (`style` 속성) 사용 금지
+- **CLAUDE.md 수정 없이 기술 스택 변경** 금지
+- **환경 변수를 코드에 하드코딩** 금지 — `.env.*` 파일 + `import.meta.env`로 관리
+- **클래스 컴포넌트 사용** 금지 — 함수형 컴포넌트만 사용
+- **`any` 타입/무분별한 타입 무시** 금지
+- **FSD 레이어 역방향 의존** 금지 — `shared` → `features`, `entities` → `features` 등 상위 레이어 참조 불가
 - **로드맵 순서 무시** 금지 — Phase/Task 순서 엄수
-- **CSS 파일 직접 작성** 금지 — Tailwind 유틸리티 클래스만 사용 (`globals.css` 테마 변수 제외)
-- **환경 변수를 코드에 하드코딩** 금지 — `VITE_` 접두사로 `.env.*` 파일에 관리
 
 ## 주의 사항
 
-- `.env.*` 파일을 Git에 커밋하지 않는다
+- `.env.*` 파일을 Git에 커밋하지 않는다 (`.gitignore`에 포함됨)
 - 외부 라이브러리 추가 시 CLAUDE.md 기술 스택 섹션 갱신
-- `npm run build`가 항상 성공하는 상태를 유지한다
+- 새 페이지 추가 시 `App.jsx` 라우팅과 CLAUDE.md 라우팅 구조 동시 갱신
+- i18n 키 추가 시 `ko`, `en` 양쪽 번역 파일 모두 갱신
+- SEO 관련 변경 시 `index.html`과 `App.jsx`의 SEO_CONFIG 동기화
 
 ## 파일 수정 범위
 

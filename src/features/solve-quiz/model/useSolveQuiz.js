@@ -5,13 +5,7 @@ import { isUnanswered } from '../lib/isUnanswered';
 import { useSolveQuizSubmit } from './useSolveQuizSubmit';
 import { useSolveQuizTimer } from './useSolveQuizTimer';
 
-export const useSolveQuiz = ({
-  t,
-  navigate,
-  problemSetId,
-  uploadedUrl,
-  quizzes = [],
-}) => {
+export const useSolveQuiz = ({ t, navigate, problemSetId, uploadedUrl, quizzes = [] }) => {
   const {
     quizzes: solveQuizzes,
     setQuizzes: setSolveQuizzes,

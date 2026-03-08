@@ -28,3 +28,4 @@ gcp-credential.json
 *.njsproj
 *.sln
 *.sw?
+.mcp.json

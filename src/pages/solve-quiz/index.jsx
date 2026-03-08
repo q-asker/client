@@ -19,8 +19,7 @@ const SolveQuiz = () => {
   const streamTotalCount = useQuizGenerationStore((state) => state.totalCount);
   const resetQuizGeneration = useQuizGenerationStore((state) => state.resetStreamingState);
 
-  const isSameProblemSet =
-    String(storeProblemSetId ?? '') === String(problemSetId ?? '');
+  const isSameProblemSet = String(storeProblemSetId ?? '') === String(problemSetId ?? '');
   const quizzes = isSameProblemSet ? streamQuizzes : [];
   const isStreaming = isSameProblemSet ? streamIsStreaming : false;
   const totalCount = isSameProblemSet ? streamTotalCount : 0;
@@ -97,11 +96,10 @@ const SolveQuiz = () => {
                 <div className="answers-list">
                   {quiz.quizzes.map((quizItem) => {
                     const unanswered = isUnanswered(quizItem.userAnswer, quizItem.selections);
-                    const selectedAnswer =
-                      unanswered
-                        ? t('미선택')
-                        : quizItem.selections?.find((sel) => sel.id === quizItem.userAnswer)
-                            ?.content || `${quizItem.userAnswer}번`;
+                    const selectedAnswer = unanswered
+                      ? t('미선택')
+                      : quizItem.selections?.find((sel) => sel.id === quizItem.userAnswer)
+                          ?.content || `${quizItem.userAnswer}번`;
 
                     return (
                       <div key={quizItem.number} className="answer-item">

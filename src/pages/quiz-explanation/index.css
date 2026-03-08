@@ -846,4 +846,3 @@ input:checked + .slider::before {
   background-color: #007bff;
   color: white;
 }
-

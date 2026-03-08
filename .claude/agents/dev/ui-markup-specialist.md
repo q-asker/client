@@ -367,7 +367,7 @@ interface StatsCardProps {
   title: string;
   value: string;
   icon: React.ReactNode;
-  trend?: "up" | "down";
+  trend?: 'up' | 'down';
 }
 
 export function StatsCard({ title, value, icon, trend }: StatsCardProps) {
@@ -380,9 +380,7 @@ export function StatsCard({ title, value, icon, trend }: StatsCardProps) {
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
         {trend && (
-          <p className="text-muted-foreground text-xs">
-            {/* TODO: 트렌드 표시 로직 구현 */}
-          </p>
+          <p className="text-muted-foreground text-xs">{/* TODO: 트렌드 표시 로직 구현 */}</p>
         )}
       </CardContent>
     </Card>
