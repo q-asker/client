@@ -17,9 +17,16 @@ git branch --show-current
 git log develop..HEAD --oneline
 git diff develop...HEAD --stat
 git diff develop...HEAD
+gh pr list --head $(git branch --show-current) --state open --json number,title,body,url
 ```
 
 수집한 정보를 바탕으로 변경 내용을 파악한다.
+
+**기존 PR 감지:** `gh pr list` 결과가 있으면 기존 PR이 존재하는 것이다.
+
+- 사용자에게 알린다: `"이 브랜치에 이미 PR #N이 있습니다. 기존 내용을 참고해서 재작성할게요."`
+- 기존 PR의 본문(body)을 참고 자료로 활용한다 — 1~2단계 대화 시 기존 설명을 기반으로 질문한다
+- 5단계에서 `gh pr create` 대신 `gh pr edit`를 사용한다
 
 ### 1단계: 변경사항별 대화 (핵심)
 
@@ -68,12 +75,23 @@ git diff develop...HEAD
 - 수정 요청이 있으면 반영 → 다시 미리보기
 - 사용자가 **"확정"** 또는 동의할 때까지 반복한다
 
-### 5단계: PR 생성
+### 5단계: PR 생성/수정
 
 사용자가 확정하면:
 
+**새 PR인 경우:**
+
 ```bash
 gh pr create --base develop --title "PR 제목" --body "$(cat <<'EOF'
+PR 본문 내용
+EOF
+)"
+```
+
+**기존 PR이 있는 경우:**
+
+```bash
+gh pr edit <PR번호> --title "PR 제목" --body "$(cat <<'EOF'
 PR 본문 내용
 EOF
 )"
