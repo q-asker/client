@@ -6,6 +6,9 @@ import Maintenance from '#pages/maintenance';
 import LoginSelect from '#pages/login-select';
 import LoginRedirect from '#pages/login-redirect';
 import MakeQuiz from '#pages/make-quiz';
+import Board from '#pages/board';
+import BoardDetail from '#pages/board-detail';
+import BoardWrite from '#pages/board-write';
 import PrivacyPolicy from '#pages/privacy-policy';
 import QuizExplanation from '#pages/quiz-explanation';
 import QuizHistory from '#pages/quiz-history';
@@ -15,12 +18,13 @@ import { I18nProvider, useLanguageSwitcher, useTranslation } from 'i18nexus';
 import { translations } from '#shared/i18n';
 import PageViewTracker from '#app/ui/PageViewTracker';
 import { useInitGA } from '#app/model/useInitGA';
+import { configureAuth } from '#shared/api';
+import { useAuthStore, authService } from '#entities/auth';
 
 // Google Analytics 측정 ID (실제 GA4 측정 ID로 교체 필요)
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
 const SUPPORTED_LANGUAGES = new Set(['ko', 'en']);
-
 const SEO_CONFIG = {
   ko: {
     '/': {
@@ -365,6 +369,11 @@ const updateJsonLd = (id, data) => {
   }
   element.textContent = JSON.stringify(data);
 };
+configureAuth({
+  getAccessToken: () => useAuthStore.getState().accessToken,
+  clearAuth: () => useAuthStore.getState().clearAuth(),
+  refreshAuthToken: () => authService.refresh(),
+});
 
 const SeoMetaSync = () => {
   const { currentLanguage } = useTranslation();
@@ -477,6 +486,10 @@ const App = () => {
           <Route path="/result/:problemSetId" element={<QuizResult />} />
           <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
           <Route path="/history" element={<QuizHistory />} />
+          <Route path="/board" element={<Board />} />
+          <Route path="/board/:boardId" element={<BoardDetail />} />
+          <Route path="/board/write" element={<BoardWrite />} />
+          <Route path="/board/edit/:boardId" element={<BoardWrite />} />
           <Route path="/help" element={<Navigate to="/" replace />} />
           */}
         </Routes>
