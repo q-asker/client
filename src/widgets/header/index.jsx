@@ -156,5 +156,6 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp })
     </div>
   );
 };
+export { extractRoleFromToken } from './model/useHeader';
 
 export default Header;
