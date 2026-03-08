@@ -27,6 +27,7 @@ gh pr list --head $(git branch --show-current) --state open --json number,title,
 - 사용자에게 알린다: `"이 브랜치에 이미 PR #N이 있습니다. 기존 내용을 참고해서 재작성할게요."`
 - 기존 PR의 본문(body)을 참고 자료로 활용한다 — 1~2단계 대화 시 기존 설명을 기반으로 질문한다
 - 5단계에서 `gh pr create` 대신 `gh pr edit`를 사용한다
+- **미디어 자산 보존:** 기존 PR 본문에서 링크(`[text](url)`)와 이미지(`![alt](url)`, `<img>` 태그)를 모두 추출하여 별도로 보관한다
 
 ### 1단계: 변경사항별 대화 (핵심)
 
@@ -67,6 +68,10 @@ gh pr list --head $(git branch --show-current) --state open --json number,title,
 - trade-off가 있는 변경만 `#### 의사 선택과정 (trade-off)` 섹션 포함
 - trade-off가 없는 변경은 해당 섹션 생략
 - 체크리스트에 2단계에서 수집한 재현 확인 항목을 포함한다
+- **미디어 자산 재배치 (기존 PR 재작성 시):**
+  - 0단계에서 보존한 링크/이미지를 새 본문의 관련 변경사항 섹션에 원래 위치대로 재배치한다
+  - 새 본문에 대응하는 섹션이 없거나 더 이상 관련 없는 미디어 자산은 본문 하단에 `## Deprecated` 섹션을 만들어 몰아넣는다
+  - `## Deprecated` 섹션은 해당 자산이 있을 때만 생성한다
 - 마크다운으로 미리보기를 제시한다
 
 ### 4단계: 피드백 & 수정
