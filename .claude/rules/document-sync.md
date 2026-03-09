@@ -27,12 +27,12 @@
 | 코드 변경                       | 갱신할 문서                        | 전용 에이전트         |
 | ------------------------------- | ---------------------------------- | --------------------- |
 | `package.json` 의존성 추가/삭제 | `CLAUDE.md` (기술 스택)            | —                     |
-| `src/` 디렉토리 생성/삭제       | `CLAUDE.md` (아키텍처)             | —                     |
-| `.env*` 변수 추가/삭제          | `CLAUDE.md` (환경 변수)            | —                     |
+| `src/` 디렉토리 구조 변경       | `CLAUDE.md` (아키텍처)             | —                     |
 | `vite.config.js` 설정 변경      | `CLAUDE.md` (개발 도구)            | —                     |
-| `App.jsx` 라우트 추가/변경      | `CLAUDE.md` (라우팅 구조)          | —                     |
+| `.env*` 변수 추가/삭제          | `CLAUDE.md` (환경 변수)            | —                     |
+| `.github/workflows/*` 변경      | `CLAUDE.md` (개발 도구)            | —                     |
 | `eslint.config.js` 규칙 변경    | `CLAUDE.md` (개발 도구)            | —                     |
-| `package.json` scripts 변경     | `CLAUDE.md` (명령어)               | —                     |
+| `src/app/App.jsx` 라우트 변경   | `CLAUDE.md` (라우팅 구조)          | —                     |
 | Task 완료                       | 활성 `docs/roadmaps/ROADMAP_v*.md` | `development-planner` |
 | 새 Task 추가                    | 활성 `docs/roadmaps/ROADMAP_v*.md` | `development-planner` |
 | 코드 구현 완료                  | —                                  | `code-reviewer`       |
@@ -49,6 +49,12 @@
 | 환경 변수 추가/변경                  | `환경 변수`         |
 | 개발 도구 및 설정 변경               | `개발 도구 및 설정` |
 | 디렉토리 구조 변경                   | `아키텍처`          |
+
+## 선택 섹션 (해당 시에만)
+
+- **환경 변수** — .env 파일이 있으면 키 목록 (값은 제외). 없으면 생략
+- **라우팅 구조** — 웹 앱이면 라우트 테이블. 아니면 생략
+- **데이터 플로우** — 복잡한 데이터 흐름이 있을 때만
 
 ## 준수 원칙
 

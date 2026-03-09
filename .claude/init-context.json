@@ -5,10 +5,10 @@
   "formatter": "Prettier",
   "formatCommand": "npx prettier --write",
   "rulesExists": true,
-  "rulesStatus": "mismatch",
+  "rulesStatus": "ok",
   "prdExists": false,
   "roadmapExists": false,
-  "claudeMdExists": false,
+  "claudeMdExists": true,
   "settingsExists": true,
   "shrimpConnected": false
 }

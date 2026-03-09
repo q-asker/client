@@ -4,18 +4,16 @@
 
 - **CLAUDE.md 수정 없이 기술 스택 변경** 금지
 - **환경 변수를 코드에 하드코딩** 금지 — `.env.*` 파일 + `import.meta.env`로 관리
-- **클래스 컴포넌트 사용** 금지 — 함수형 컴포넌트만 사용
-- **`any` 타입/무분별한 타입 무시** 금지
-- **FSD 레이어 역방향 의존** 금지 — `shared` → `features`, `entities` → `features` 등 상위 레이어 참조 불가
-- **로드맵 순서 무시** 금지 — Phase/Task 순서 엄수
+- **FSD 레이어 역방향 import** 금지 — 하위 레이어가 상위 레이어를 import 불가
+- **상대 경로 import** 금지 — `#` prefix alias 사용
+- **모듈 내부 파일 직접 import** 금지 — 반드시 `index.js`/`index.jsx`를 통해 접근
 
 ## 주의 사항
 
-- `.env.*` 파일을 Git에 커밋하지 않는다 (`.gitignore`에 포함됨)
+- `.env` 파일을 Git에 커밋하지 않는다
 - 외부 라이브러리 추가 시 CLAUDE.md 기술 스택 섹션 갱신
-- 새 페이지 추가 시 `App.jsx` 라우팅과 CLAUDE.md 라우팅 구조 동시 갱신
-- i18n 키 추가 시 `ko`, `en` 양쪽 번역 파일 모두 갱신
-- SEO 관련 변경 시 `index.html`과 `App.jsx`의 SEO_CONFIG 동기화
+- `npm run build`가 항상 성공하는 상태를 유지한다
+- `npm run lint`에서 에러가 없는 상태를 유지한다
 
 ## 파일 수정 범위
 

@@ -37,16 +37,16 @@ allowed-tools:
 
 ### 감지 패턴
 
-| 패턴                  | 감지 조건                                             | 확인할 CLAUDE.md 섹션    |
-| --------------------- | ----------------------------------------------------- | ------------------------ |
-| `**/build.gradle`     | `implementation`, `api`, `compileOnly` 라인 추가/삭제 | 기술 스택                |
-| `settings.gradle`     | `include` 라인 변경                                   | 아키텍처 (모듈 목록)     |
-| `modules/*/`          | 새 디렉토리 생성 또는 삭제                            | 아키텍처 (디렉토리 트리) |
-| `**/application*.yml` | 새 속성 키 추가                                       | 환경 변수 또는 개발 도구 |
-| `.env*`               | 변수 추가/삭제                                        | 환경 변수                |
-| `docker-compose*.yml` | `services:` 하위 서비스 추가/삭제                     | 개발 도구                |
-| `.github/workflows/*` | 파일 추가/변경                                        | 개발 도구                |
-| `build.gradle` (루트) | `plugins`, `version` 변경                             | 기술 스택, 개발 도구     |
+| 패턴                  | 감지 조건                                   | 확인할 CLAUDE.md 섹션   |
+| --------------------- | ------------------------------------------- | ----------------------- |
+| `package.json`        | `dependencies`, `devDependencies` 추가/삭제 | 기술 스택               |
+| `package.json`        | `imports` 필드 변경                         | 아키텍처 (Import Alias) |
+| `vite.config.js`      | 플러그인, 프록시 등 설정 변경               | 개발 도구               |
+| `src/app/App.jsx`     | `<Route>` 추가/삭제/변경                    | 라우팅 구조             |
+| `src/` 디렉토리       | FSD 레이어 하위 폴더 생성/삭제              | 아키텍처                |
+| `.env*`               | 변수 추가/삭제                              | 환경 변수               |
+| `.github/workflows/*` | 파일 추가/변경                              | 개발 도구               |
+| `eslint.config.js`    | 규칙 변경                                   | 개발 도구               |
 
 ### 동작 규칙
 
@@ -56,7 +56,7 @@ allowed-tools:
   - 갱신 필요하면 → 사용자에게 알림:
     ```
     ⚠️ 문서 동기화 필요
-    - CLAUDE.md [기술 스택]: build.gradle에 새 의존성 추가 감지
+    - CLAUDE.md [기술 스택]: package.json에 새 의존성 추가 감지
     갱신 후 커밋할까요, 아니면 그대로 커밋할까요?
     ```
   - 사용자가 "갱신" 선택 → CLAUDE.md 수정 후 함께 커밋
