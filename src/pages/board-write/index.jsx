@@ -45,7 +45,7 @@ const BoardWrite = () => {
         }
 
         // 백엔드에 토큰을 보내 권한 검증 및 최신 데이터를 요청합니다.
-        const response = await fetch(`${getBaseUrl()}/board/${boardId}`, {
+        const response = await fetch(`${getBaseUrl()}/boards/${boardId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
@@ -56,7 +56,7 @@ const BoardWrite = () => {
         // 백엔드가 권한이 없다고 판단하면 바로 쫓아냅니다.
         if (!data.isWriter) {
           CustomToast.error(t('수정 권한이 없습니다.'));
-          navigate(`/board/${boardId}`, { replace: true });
+          navigate(`/boards/${boardId}`, { replace: true });
           return;
         }
 
@@ -65,7 +65,7 @@ const BoardWrite = () => {
         setContent(data.content);
       } catch (error) {
         CustomToast.error(t('게시글 정보를 확인할 수 없습니다.'));
-        navigate('/board', { replace: true });
+        navigate('/boards', { replace: true });
       } finally {
         setIsCheckingAccess(false);
       }
@@ -74,13 +74,22 @@ const BoardWrite = () => {
     fetchPostAndVerify();
   }, [boardId, isEditMode, navigate, accessToken]);
 
-  const postBoardRequest = async (tokenToUse) => {
-    const url = isEditMode
-      ? `${getBaseUrl()}/board/update/${boardId}`
-      : `${getBaseUrl()}/board/create`;
-
-    return await fetch(url, {
+  // 생성 전용 API 호출
+  const createBoardRequest = async (tokenToUse) => {
+    return await fetch(`${getBaseUrl()}/boards`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${tokenToUse}`,
+      },
+      body: JSON.stringify({ title, content }),
+    });
+  };
+
+  // 수정 전용 API 호출
+  const updateBoardRequest = async (tokenToUse) => {
+    return await fetch(`${getBaseUrl()}/boards/${boardId}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${tokenToUse}`,
@@ -114,14 +123,22 @@ const BoardWrite = () => {
     setIsSubmitting(true);
 
     try {
-      let response = await postBoardRequest(currentToken);
-
+      let response;
+      if (isEditMode) {
+        response = await updateBoardRequest(currentToken);
+      } else {
+        response = await createBoardRequest(currentToken);
+      }
       // 401 에러: 토큰 만료 시 갱신 시도
       if (response.status === 401) {
         try {
           await authService.refresh();
           currentToken = useAuthStore.getState().accessToken;
-          response = await postBoardRequest(currentToken);
+          if (isEditMode) {
+            response = await updateBoardRequest(currentToken);
+          } else {
+            response = await createBoardRequest(currentToken);
+          }
         } catch (refreshError) {
           CustomToast.error(t('다시 로그인해주세요.'));
           clearAuth();
@@ -148,7 +165,7 @@ const BoardWrite = () => {
 
       // 성공 처리
       CustomToast.success(t(`게시글이 성공적으로 ${isEditMode ? '수정' : '등록'}되었습니다.`));
-      navigate(isEditMode ? `/board/${boardId}` : '/board', { replace: true });
+      navigate(isEditMode ? `/boards/${boardId}` : '/boards', { replace: true });
     } catch (error) {
       CustomToast.error(t('오류가 발생했습니다. 다시 시도해주세요.'));
     } finally {
@@ -215,7 +232,7 @@ const BoardWrite = () => {
               <button
                 type="button"
                 className="btn-cancel"
-                onClick={() => navigate(isEditMode ? `/board/${boardId}` : '/board')}
+                onClick={() => navigate(isEditMode ? `/boards/${boardId}` : '/boards')}
               >
                 취소
               </button>

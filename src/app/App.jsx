@@ -483,10 +483,10 @@ const App = () => {
           <Route path="/result/:problemSetId" element={<QuizResult />} />
           <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
           <Route path="/history" element={<QuizHistory />} />
-          <Route path="/board" element={<Board />} />
-          <Route path="/board/:boardId" element={<BoardDetail />} />
-          <Route path="/board/write" element={<BoardWrite />} />
-          <Route path="/board/edit/:boardId" element={<BoardWrite />} />
+          <Route path="/boards" element={<Board />} />
+          <Route path="/boards/:boardId" element={<BoardDetail />} />
+          <Route path="/boards/write" element={<BoardWrite />} />
+          <Route path="/boards/edit/:boardId" element={<BoardWrite />} />
           <Route path="/help" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

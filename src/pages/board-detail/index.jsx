@@ -41,24 +41,24 @@ const BoardDetail = () => {
     } catch (ignored) {}
 
     try {
-      const response = await axiosInstance.get(`/board/${boardId}`);
+      const response = await axiosInstance.get(`/boards/${boardId}`);
       setPost(response.data);
     } catch (error) {
       if (error.response?.status === 401) {
         clearAuth();
 
         try {
-          const fallbackResponse = await axiosInstance.get(`/board/${boardId}`, {
+          const fallbackResponse = await axiosInstance.get(`/boards/${boardId}`, {
             skipAuthRefresh: true,
           });
           setPost(fallbackResponse.data);
         } catch (fallbackError) {
           CustomToast.error(t('게시글을 불러올 권한이 없거나 삭제된 게시글입니다.'));
-          navigate('/board');
+          navigate('/boards');
         }
       } else {
         CustomToast.error(t('서버와 통신 중 문제가 발생했습니다.'));
-        navigate('/board');
+        navigate('/boards');
       }
     } finally {
       setLoading(false);
@@ -72,9 +72,9 @@ const BoardDetail = () => {
     if (!window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
 
     try {
-      await axiosInstance.delete(`/board/delete/${boardId}`);
+      await axiosInstance.delete(`/boards/${boardId}`);
       CustomToast.success(t('게시글이 삭제되었습니다.'));
-      navigate('/board', { replace: true });
+      navigate('/boards', { replace: true });
     } catch (error) {
       if (error.response?.status === 401) {
         CustomToast.error(t('다시 로그인해주세요.'));
@@ -93,7 +93,7 @@ const BoardDetail = () => {
   };
 
   const handleEdit = () => {
-    navigate(`/board/edit/${boardId}`);
+    navigate(`/boards/edit/${boardId}`);
   };
   const handleReplySubmit = async () => {
     if (!replyContent.trim()) {
@@ -103,7 +103,7 @@ const BoardDetail = () => {
 
     try {
       // API 명세에 맞춰 RequestBody 객체로 전송
-      await axiosInstance.post(`/board/reply/${boardId}`, { content: replyContent });
+      await axiosInstance.post(`/boards/${boardId}/replies`, { content: replyContent });
       CustomToast.success(t('댓글이 등록되었습니다.'));
       setReplyContent(''); // 텍스트 에어리어 초기화
       fetchPost(); // 최신 댓글 데이터 불러오기
@@ -180,10 +180,10 @@ const BoardDetail = () => {
 
         <div className="detail-actions">
           <div className="left-actions">
-            <button className="btn-back" onClick={() => navigate('/board')}>
+            <button className="btn-back" onClick={() => navigate('/boards')}>
               목록으로
             </button>
-            <button className="btn-write-new" onClick={() => navigate('/board/write')}>
+            <button className="btn-write-new" onClick={() => navigate('/boards/write')}>
               새 문의하기
             </button>
           </div>

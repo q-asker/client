@@ -66,7 +66,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp })
           </Link>
         </div>
         <div className="nav-link-area">
-          <Link to="/board" className="nav-link">
+          <Link to="/boards" className="nav-link">
             <span className="emoji-label">💬</span>
             <strong>{t('문의하기')}</strong>
           </Link>

@@ -41,7 +41,7 @@ const Board = () => {
     try {
       // 상수로 분리한 PAGE_SIZE 적용
       const response = await fetch(
-        `${getBaseUrl()}/board?page=${page}&size=${PAGE_SIZE}&sort=createdAt,desc`,
+        `${getBaseUrl()}/boards?page=${page}&size=${PAGE_SIZE}&sort=createdAt,desc`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -73,7 +73,7 @@ const Board = () => {
       }
       return;
     }
-    navigate('/board/write');
+    navigate('/boards/write');
   };
 
   return (
@@ -131,7 +131,7 @@ const Board = () => {
                     <li key={post.boardId} className="inquiry-item">
                       <span className="col-id">{virtualNumber}</span>
                       <span className="col-title">
-                        <Link to={`/board/${post.boardId}`}>{post.title}</Link>
+                        <Link to={`/boards/${post.boardId}`}>{post.title}</Link>
                       </span>
                       <span className="col-author">{post.nickname}</span>{' '}
                       <span className="col-date">{formatDate(post.createdAt)}</span>
