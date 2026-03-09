@@ -1,3 +1,8 @@
+---
+description: '코드 변경 시 CLAUDE.md·PRD·ROADMAP 갱신 트리거 테이블, 섹션별 갱신 대상 매핑, 전용 에이전트 위임 규칙'
+globs: '*'
+---
+
 # 문서 연동 규칙
 
 코드 변경 시 아래 테이블에 따라 관련 문서를 **반드시 함께 갱신**해야 합니다.
@@ -6,14 +11,12 @@
 
 ### 자동 로드 (매 세션 보장)
 
-| 문서                                  | 진실의 원천                                |
-| ------------------------------------- | ------------------------------------------ |
-| `CLAUDE.md`                           | 기술 스택, 명령어, 아키텍처, 디렉토리 구조 |
-| `.claude/rules/coding-conventions.md` | 코딩 컨벤션, FSD 구조 규칙                 |
-| `.claude/rules/constraints.md`        | 금지 사항, 주의 사항                       |
-| `.claude/rules/task-workflow.md`      | 작업 실행 규칙, 우선순위                   |
-| `.claude/rules/agent-delegation.md`   | 에이전트 위임 규칙                         |
-| `.claude/rules/document-sync.md`      | 문서 연동/갱신 트리거 (이 파일)            |
+| 문서                             | 진실의 원천                                         |
+| -------------------------------- | --------------------------------------------------- |
+| `CLAUDE.md`                      | 기술 스택, 명령어, 아키텍처, 디렉토리 구조          |
+| `.claude/rules/code-rules.md`    | 코딩 컨벤션, FSD 구조, import 규칙, 제약 사항       |
+| `.claude/rules/workflow.md`      | 세션 가드, 작업 모드, 에이전트/스킬 위임, 작업 원칙 |
+| `.claude/rules/document-sync.md` | 문서 연동/갱신 트리거 (이 파일)                     |
 
 ### 필요 시 읽기 (명시적 Read 필요)
 
