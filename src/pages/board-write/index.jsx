@@ -28,7 +28,7 @@ const BoardWrite = () => {
 
   const { accessToken, clearAuth } = useAuthStore();
 
-  // 수정 모드일 때 백엔드에 데이터와 권한을 직접 요청
+  // 수정 모드일 때 백엔드에 데이터와 권한을 직접 요청 (마운트 시 1회만 실행)
   useEffect(() => {
     if (!isEditMode) return;
 
@@ -59,7 +59,8 @@ const BoardWrite = () => {
     };
 
     fetchPostAndVerify();
-  }, [boardId, isEditMode, navigate, accessToken, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
