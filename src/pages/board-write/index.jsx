@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '#widgets/header';
 import CustomToast from '#shared/toast';
-import { useAuthStore, authService } from '#entities/auth';
+import axiosInstance from '#shared/api';
+import { useAuthStore } from '#entities/auth';
 import { useTranslation } from 'i18nexus';
 import './index.css';
 
@@ -27,12 +28,7 @@ const BoardWrite = () => {
 
   const { accessToken, clearAuth } = useAuthStore();
 
-  const getBaseUrl = () => {
-    const baseUrl = import.meta.env.VITE_BASE_URL || '';
-    return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-  };
-
-  // 💡 수정 모드일 때 백엔드에 데이터와 권한을 직접 요청합니다.
+  // 수정 모드일 때 백엔드에 데이터와 권한을 직접 요청
   useEffect(() => {
     if (!isEditMode) return;
 
@@ -44,23 +40,14 @@ const BoardWrite = () => {
           return;
         }
 
-        // 백엔드에 토큰을 보내 권한 검증 및 최신 데이터를 요청합니다.
-        const response = await fetch(`${getBaseUrl()}/boards/${boardId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const { data } = await axiosInstance.get(`/boards/${boardId}`);
 
-        if (!response.ok) throw new Error('데이터 로드 실패');
-
-        const data = await response.json();
-
-        // 백엔드가 권한이 없다고 판단하면 바로 쫓아냅니다.
         if (!data.isWriter) {
           CustomToast.error(t('수정 권한이 없습니다.'));
           navigate(`/boards/${boardId}`, { replace: true });
           return;
         }
 
-        // 권한이 확인되면 폼에 데이터를 채웁니다.
         setTitle(data.title);
         setContent(data.content);
       } catch (error) {
@@ -72,37 +59,12 @@ const BoardWrite = () => {
     };
 
     fetchPostAndVerify();
-  }, [boardId, isEditMode, navigate, accessToken]);
-
-  // 생성 전용 API 호출
-  const createBoardRequest = async (tokenToUse) => {
-    return await fetch(`${getBaseUrl()}/boards`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${tokenToUse}`,
-      },
-      body: JSON.stringify({ title, content }),
-    });
-  };
-
-  // 수정 전용 API 호출
-  const updateBoardRequest = async (tokenToUse) => {
-    return await fetch(`${getBaseUrl()}/boards/${boardId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${tokenToUse}`,
-      },
-      body: JSON.stringify({ title, content }),
-    });
-  };
+  }, [boardId, isEditMode, navigate, accessToken, t]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let currentToken = accessToken;
 
-    if (!currentToken) {
+    if (!accessToken) {
       CustomToast.error(t('로그인이 필요합니다.'));
       navigate('/login');
       return;
@@ -123,51 +85,28 @@ const BoardWrite = () => {
     setIsSubmitting(true);
 
     try {
-      let response;
       if (isEditMode) {
-        response = await updateBoardRequest(currentToken);
+        await axiosInstance.put(`/boards/${boardId}`, { title, content });
       } else {
-        response = await createBoardRequest(currentToken);
-      }
-      // 401 에러: 토큰 만료 시 갱신 시도
-      if (response.status === 401) {
-        try {
-          await authService.refresh();
-          currentToken = useAuthStore.getState().accessToken;
-          if (isEditMode) {
-            response = await updateBoardRequest(currentToken);
-          } else {
-            response = await createBoardRequest(currentToken);
-          }
-        } catch (refreshError) {
-          CustomToast.error(t('다시 로그인해주세요.'));
-          clearAuth();
-          navigate('/login', { replace: true });
-          return;
-        }
+        await axiosInstance.post('/boards', { title, content });
       }
 
-      // 403 에러: 권한 부족 또는 답변 달린 게시글 수정 불가 처리
-      if (response.status === 403) {
-        // fetch API이므로 response.json()을 통해 백엔드의 에러 바디를 파싱합니다.
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage =
-          errorData?.message || '수정 권한이 없거나 이미 답변이 달린 글은 수정할 수 없습니다.';
-
-        CustomToast.error(t(errorMessage));
-        return; // 에러 메시지를 띄우고 함수 실행을 중단합니다.
-      }
-
-      // 그 외의 모든 서버 에러 처리 (500 등)
-      if (!response.ok) {
-        throw new Error(`게시글 ${isEditMode ? '수정' : '등록'}에 실패했습니다.`);
-      }
-
-      // 성공 처리
       CustomToast.success(t(`게시글이 성공적으로 ${isEditMode ? '수정' : '등록'}되었습니다.`));
       navigate(isEditMode ? `/boards/${boardId}` : '/boards', { replace: true });
     } catch (error) {
-      CustomToast.error(t('오류가 발생했습니다. 다시 시도해주세요.'));
+      const status = error?.response?.status;
+      if (status === 401) {
+        CustomToast.error(t('다시 로그인해주세요.'));
+        clearAuth();
+        navigate('/login', { replace: true });
+      } else if (status === 403) {
+        const errorMessage =
+          error?.response?.data?.message ||
+          '수정 권한이 없거나 이미 답변이 달린 글은 수정할 수 없습니다.';
+        CustomToast.error(t(errorMessage));
+      } else {
+        CustomToast.error(t('오류가 발생했습니다. 다시 시도해주세요.'));
+      }
     } finally {
       setIsSubmitting(false);
     }
