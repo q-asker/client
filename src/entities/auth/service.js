@@ -25,14 +25,29 @@ const applyAuthFromResponse = (response) => {
   return accessToken;
 };
 
-const refresh = async () => {
-  const response = await axiosInstance.post('/auth/refresh', null, {
-    withCredentials: true,
-    skipAuthRefresh: true,
-    skipErrorToast: true,
-  });
-  applyAuthFromResponse(response);
-  return response;
+// 동시 호출 방지: React Strict Mode 등으로 인한 중복 요청을 싱글톤 Promise로 방어
+let refreshPromise = null;
+
+const refresh = () => {
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  refreshPromise = axiosInstance
+    .post('/auth/refresh', null, {
+      withCredentials: true,
+      skipAuthRefresh: true,
+      skipErrorToast: true,
+    })
+    .then((response) => {
+      applyAuthFromResponse(response);
+      return response;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
 };
 
 const logout = async () => {

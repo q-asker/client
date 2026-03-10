@@ -66,6 +66,10 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp })
           </Link>
         </div>
         <div className="nav-link-area">
+          <Link to="/boards" className="nav-link">
+            <span className="emoji-label">💬</span>
+            <strong>{t('문의하기')}</strong>
+          </Link>
           <div className="nav-link-wrapper">
             <Link to="/history" className="nav-link" onClick={handleQuizManagement}>
               <span className="emoji-label">📋</span>
@@ -152,5 +156,6 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp })
     </div>
   );
 };
+export { extractRoleFromToken } from './model/useHeader';
 
 export default Header;
