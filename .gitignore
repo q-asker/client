@@ -29,4 +29,8 @@ gcp-credential.json
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code
+CLAUDE.md
 .mcp.json
+.claude
