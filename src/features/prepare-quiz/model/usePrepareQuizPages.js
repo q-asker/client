@@ -73,10 +73,7 @@ export const usePrepareQuizPages = ({ t, uploadedUrl }) => {
     const scheduleNext = () => {
       timeoutId = setTimeout(() => {
         if (cancelled) return;
-        const nextCount = Math.min(
-          visiblePageCountRef.current + pageCountToLoad,
-          numPages,
-        );
+        const nextCount = Math.min(visiblePageCountRef.current + pageCountToLoad, numPages);
         visiblePageCountRef.current = nextCount;
         setVisiblePageCount(nextCount);
         if (nextCount < numPages) {

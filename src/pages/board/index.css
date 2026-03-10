@@ -11,7 +11,8 @@
   width: 90%; /* 기존 70%에서 90%로 가용 영역 확대 */
   max-width: 1200px; /* 초고해상도 모니터 대비 최대 너비 고정 */
   margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* 💡 Step 2: 헤더 섹션 (퀴즈 기록과 정렬 및 여백 통일) */
@@ -127,10 +128,14 @@
 }
 
 /* 컬럼 너비 조정 */
-.col-id { width: 8%; text-align: center; color: #6b7280; }
-.col-title { 
-  width: 45%; 
-  padding-left: 20px; 
+.col-id {
+  width: 8%;
+  text-align: center;
+  color: #6b7280;
+}
+.col-title {
+  width: 45%;
+  padding-left: 20px;
   font-weight: 500;
   text-align: left;
 }
@@ -143,10 +148,28 @@
 .col-title a:hover {
   color: #667eea;
 }
-.col-author { width: 12%; text-align: center; color: #6b7280; font-weight: 500; }
-.col-date { width: 15%; text-align: center; color: #9ca3af; font-size: 0.95rem; }
-.col-view { width: 8%; text-align: center; color: #9ca3af; font-size: 0.95rem; }
-.col-status { width: 12%; text-align: center; }
+.col-author {
+  width: 12%;
+  text-align: center;
+  color: #6b7280;
+  font-weight: 500;
+}
+.col-date {
+  width: 15%;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+.col-view {
+  width: 8%;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+.col-status {
+  width: 12%;
+  text-align: center;
+}
 
 /* 상태 뱃지 (퀴즈 기록 규격과 완벽히 일치) */
 .status-badge {
@@ -229,7 +252,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* 반응형 모바일 (퀴즈 기록과 분기점 및 패딩 통일) */
@@ -239,7 +264,7 @@
     padding-left: 0;
     padding-right: 0;
     width: 100%;
-    max-width: 90%; 
+    max-width: 90%;
     margin: 0 auto;
   }
 
@@ -254,22 +279,39 @@
     font-size: 2rem;
   }
 
-  .list-header { display: none; }
-  
+  .list-header {
+    display: none;
+  }
+
   .inquiry-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
     padding: 1.5rem;
   }
-  
-  .col-id, .col-title, .col-author, .col-date, .col-view, .col-status {
+
+  .col-id,
+  .col-title,
+  .col-author,
+  .col-date,
+  .col-view,
+  .col-status {
     width: 100%;
     text-align: left;
     padding: 0;
   }
-  
-  .col-id, .col-view, .col-date { display: none; } 
-  .col-title { font-size: 1.15rem; margin-bottom: 4px; }
-  .col-author::before { content: '작성자: '; color: #9ca3af; }
+
+  .col-id,
+  .col-view,
+  .col-date {
+    display: none;
+  }
+  .col-title {
+    font-size: 1.15rem;
+    margin-bottom: 4px;
+  }
+  .col-author::before {
+    content: '작성자: ';
+    color: #9ca3af;
+  }
 }

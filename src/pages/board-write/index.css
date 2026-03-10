@@ -1,4 +1,3 @@
-
 .board-container-wrapper {
   width: 100%;
   background-color: #f9fafb;
@@ -12,8 +11,9 @@
   max-width: 800px;
   margin: 40px auto;
   padding: 0 20px;
-  box-sizing: border-box; 
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  box-sizing: border-box;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 .write-card {
@@ -28,7 +28,7 @@
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 20px;
   margin-bottom: 30px;
-  text-align: center; 
+  text-align: center;
 }
 
 .write-header-title {
@@ -60,22 +60,26 @@
   font-weight: 600;
   color: #374151;
   font-size: 1.05rem;
-  text-align: left; 
+  text-align: left;
 }
 
-.form-input, .form-textarea {
+.form-input,
+.form-textarea {
   width: 100%;
   padding: 16px;
   border: 1px solid #d1d5db;
   border-radius: 0.75rem;
   font-size: 1rem;
   font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   background-color: #f9fafb;
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
-.form-input:focus, .form-textarea:focus {
+.form-input:focus,
+.form-textarea:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
@@ -87,7 +91,8 @@
   resize: vertical;
 }
 
-.form-input:disabled, .form-textarea:disabled {
+.form-input:disabled,
+.form-textarea:disabled {
   background-color: #e5e7eb;
   cursor: not-allowed;
 }
@@ -95,12 +100,13 @@
 /* 하단 버튼 컨테이너 중앙 정렬 */
 .form-actions {
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   gap: 16px;
   margin-top: 20px;
 }
 
-.btn-cancel, .btn-submit {
+.btn-cancel,
+.btn-submit {
   padding: 14px 28px;
   border-radius: 0.75rem;
   font-weight: 600;
@@ -138,11 +144,10 @@
   cursor: not-allowed;
 }
 
-
 @media screen and (max-width: 768px) {
   .board-write-container {
-    margin: 20px auto; 
-    padding: 0 16px; 
+    margin: 20px auto;
+    padding: 0 16px;
   }
 
   .write-card {
@@ -150,7 +155,7 @@
   }
 
   .write-header-title {
-    font-size: 1.5rem; 
+    font-size: 1.5rem;
   }
 
   .write-header-subtitle {
@@ -162,8 +167,9 @@
     gap: 12px;
   }
 
-  .btn-cancel, .btn-submit {
-    flex: 1; 
+  .btn-cancel,
+  .btn-submit {
+    flex: 1;
     padding: 14px 0;
     min-width: auto;
     text-align: center;
