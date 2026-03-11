@@ -1,0 +1,39 @@
+import { useTranslation } from 'i18nexus';
+import { Link } from 'react-router-dom';
+
+const Footer = () => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="mt-8 bg-gray-800 py-6 text-center text-gray-400 max-md:text-[0.85rem]">
+      © {new Date().getFullYear()} Q-Asker{' | '}
+      <Link
+        to="/privacy-policy"
+        className="text-[0.9em] font-medium text-inherit no-underline transition-colors duration-200"
+      >
+        {t('개인정보 처리방침')}
+      </Link>
+      <br />
+      {t('문의 및 피드백')}
+      <span>: </span>
+      <a
+        href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-semibold text-blue-400 no-underline transition-colors duration-200 hover:text-blue-300 hover:underline"
+      >
+        {t('구글 폼 링크')}
+      </a>
+      <span>, </span>
+      <a
+        href="mailto:inhapj01@gmail.com"
+        aria-label={t('Q-Asker 이메일 문의')}
+        className="font-semibold text-blue-400 no-underline transition-colors duration-200 hover:text-blue-300 hover:underline"
+      >
+        inhapj01@gmail.com
+      </a>
+    </div>
+  );
+};
+
+export default Footer;

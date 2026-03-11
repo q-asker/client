@@ -52,12 +52,12 @@
   },
   "imports": {
     "#app/*": "./src/app/*",
-    "#pages/*": "./src/pages/*/index.jsx",
-    "#features/*": "./src/features/*/index.js",
-    "#entities/*": "./src/entities/*/index.js",
-    "#widgets/*": "./src/widgets/*/index.jsx",
-    "#shared/*": "./src/shared/*/index.js",
-    "#shared/lib/*": "./src/shared/lib/*.js",
-    "#shared/i18n": "./src/shared/i18n/index.js"
+    "#pages/*": "./src/pages/*/index.tsx",
+    "#features/*": "./src/features/*/index.ts",
+    "#entities/*": "./src/entities/*/index.ts",
+    "#widgets/*": "./src/widgets/*/index.tsx",
+    "#shared/*": "./src/shared/*/index.ts",
+    "#shared/lib/*": "./src/shared/lib/*.ts",
+    "#shared/i18n": "./src/shared/i18n/index.ts"
   }
 }
