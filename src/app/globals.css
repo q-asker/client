@@ -4,12 +4,80 @@
 
 /* === 커스텀 테마 === */
 @theme {
+  /* 브랜드 색상 (indigo-600 기반) */
+  --color-brand: #4f46e5;
+  --color-brand-hover: #4338ca;
+  --color-brand-light: #eef2ff;
+  --color-brand-muted: #818cf8;
+
+  /* 브랜드 그라데이션 */
+  --color-brand-gradient-from: #667eea;
+  --color-brand-gradient-to: #764ba2;
+  --color-brand-gradient-from-hover: #5a67d8;
+  --color-brand-gradient-to-hover: #6b46c1;
+
+  /* 브랜드 그림자 (brand-gradient-from 기반 투명도) */
+  --color-brand-shadow-light: #667eea33;
+  --color-brand-shadow: #667eea4d;
+  --color-brand-shadow-strong: #667eea66;
+
+  /* === Shadcn UI 시맨틱 토큰 === */
+
+  /* 기본 배경/전경 */
+  --color-background: #ffffff;
+  --color-foreground: #111827;
+
+  /* Primary (브랜드) */
   --color-primary: #4f46e5;
   --color-primary-foreground: #ffffff;
+
+  /* Secondary (gray 계열 통일) */
+  --color-secondary: #f3f4f6;
+  --color-secondary-foreground: #111827;
+
+  /* Accent (호버/포커스 배경) */
+  --color-accent: #f3f4f6;
+  --color-accent-foreground: #111827;
+
+  /* Muted (보조 텍스트/배경) */
+  --color-muted: #f3f4f6;
+  --color-muted-foreground: #6b7280;
+
+  /* Destructive (에러/삭제) */
+  --color-destructive: #ef4444;
+
+  /* Card */
+  --color-card: #ffffff;
+  --color-card-foreground: #111827;
+
+  /* Popover */
+  --color-popover: #ffffff;
+  --color-popover-foreground: #111827;
+
+  /* Border / Input / Ring */
+  --color-border: #e5e7eb;
+  --color-input: #e5e7eb;
+  --color-ring: #4f46e5;
+
+  /* 포커스 링 (brand + 투명도) */
+  --color-focus-ring: #4f46e533;
 
   --font-pretendard:
     'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
+  /* === 공통 그림자 패턴 === */
+
+  /* 카드 그림자 */
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  /* 브랜드 그림자 (gradient 버튼용) */
+  --shadow-brand-sm: 0 4px 12px #667eea4d;
+  --shadow-brand-md: 0 6px 16px #667eea66;
+
+  /* 포커스 링 그림자 */
+  --shadow-focus-ring: 0 0 0 3px #4f46e533;
+  --shadow-focus-ring-sm: 0 0 0 2px #4f46e533;
 
   /* 커스텀 키프레임 애니메이션 */
   --animate-fade-in-slide-down: fadeInSlideDown 0.6s ease-out forwards;

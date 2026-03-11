@@ -135,7 +135,7 @@ const BoardWrite = () => {
         setIsSidebarOpen={setIsSidebarOpen}
       />
       <div className="w-full max-w-[800px] mx-auto mt-10 px-5 box-border max-md:mt-5 max-md:px-4">
-        <div className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-10 box-border max-md:px-5 max-md:py-6">
+        <div className="bg-white rounded-2xl shadow-card p-10 box-border max-md:px-5 max-md:py-6">
           {/* 헤더 */}
           <div className="border-b-2 border-gray-200 pb-5 mb-8 text-center">
             <h1 className="text-[2rem] text-gray-900 font-extrabold mb-2.5 max-md:text-2xl">
@@ -155,7 +155,7 @@ const BoardWrite = () => {
               <input
                 type="text"
                 id="title"
-                className="w-full p-4 border border-gray-300 rounded-xl text-base font-[inherit] transition-[border-color,box-shadow] duration-200 bg-gray-50 box-border focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.2)] focus:bg-white disabled:bg-gray-200 disabled:cursor-not-allowed"
+                className="w-full p-4 border border-gray-300 rounded-xl text-base font-[inherit] transition-[border-color,box-shadow] duration-200 bg-gray-50 box-border focus:outline-none focus:border-brand focus:shadow-focus-ring focus:bg-white disabled:bg-gray-200 disabled:cursor-not-allowed"
                 placeholder="제목을 입력해주세요"
                 value={title}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
@@ -169,7 +169,7 @@ const BoardWrite = () => {
               </label>
               <textarea
                 id="content"
-                className="w-full p-4 border border-gray-300 rounded-xl text-base font-[inherit] transition-[border-color,box-shadow] duration-200 bg-gray-50 box-border min-h-[250px] resize-y focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.2)] focus:bg-white disabled:bg-gray-200 disabled:cursor-not-allowed"
+                className="w-full p-4 border border-gray-300 rounded-xl text-base font-[inherit] transition-[border-color,box-shadow] duration-200 bg-gray-50 box-border min-h-[250px] resize-y focus:outline-none focus:border-brand focus:shadow-focus-ring focus:bg-white disabled:bg-gray-200 disabled:cursor-not-allowed"
                 placeholder="문의 내용을 상세히 적어주세요."
                 value={content}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
@@ -188,7 +188,7 @@ const BoardWrite = () => {
               </button>
               <button
                 type="submit"
-                className="px-7 py-3.5 rounded-xl font-semibold text-[1.05rem] cursor-pointer transition-all duration-200 border-none bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white shadow-[0_4px_12px_rgba(102,126,234,0.3)] min-w-[120px] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_6px_16px_rgba(102,126,234,0.4)] disabled:bg-gray-400 disabled:bg-none disabled:shadow-none disabled:cursor-not-allowed max-md:flex-1 max-md:px-0 max-md:min-w-0 max-md:text-center"
+                className="px-7 py-3.5 rounded-xl font-semibold text-[1.05rem] cursor-pointer transition-all duration-200 border-none bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to text-white shadow-brand-sm min-w-[120px] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-brand-md disabled:bg-gray-400 disabled:bg-none disabled:shadow-none disabled:cursor-not-allowed max-md:flex-1 max-md:px-0 max-md:min-w-0 max-md:text-center"
                 disabled={isSubmitting}
               >
                 {isSubmitting

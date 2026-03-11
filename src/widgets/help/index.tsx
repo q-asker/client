@@ -10,7 +10,7 @@ const Help = () => {
 
   return (
     <div id="help-section" className="px-4 pt-[100px] pb-5 md:px-4 md:pt-[50px]">
-      <article className="mx-auto mt-5 max-w-[1000px] overflow-hidden rounded-xl border border-slate-200 bg-white pt-8 transition-all duration-300 ease-in-out md:rounded-lg">
+      <article className="mx-auto mt-5 max-w-5xl overflow-hidden rounded-2xl border border-slate-200 bg-white pt-8 shadow-sm transition-all duration-300 ease-in-out">
         <header className="flex max-w-[1000px] flex-col items-center gap-5">
           <h1 className="m-0 flex-1 text-[2.5rem] font-bold text-slate-800 md:text-center md:text-[1.8rem]">
             {t('Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성')}
@@ -30,14 +30,14 @@ const Help = () => {
           >
             <h2
               id="how-to-use"
-              className="mb-5 inline-block border-b-[3px] border-blue-500 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
+              className="mb-5 inline-block border-b-[3px] border-indigo-600 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
             >
               {t('📝 AI 퀴즈 만들기 6단계 가이드')}
             </h2>
 
             {/* 1단계 */}
             <article
-              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-100 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-blue-500 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
+              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-indigo-600 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
               itemProp="step"
               itemScope
               itemType="https://schema.org/HowToStep"
@@ -63,7 +63,7 @@ const Help = () => {
 
             {/* 2단계 */}
             <article
-              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-100 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-blue-500 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
+              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-indigo-600 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
               itemProp="step"
               itemScope
               itemType="https://schema.org/HowToStep"
@@ -89,7 +89,7 @@ const Help = () => {
 
             {/* 3단계 */}
             <article
-              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-100 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-blue-500 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
+              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-indigo-600 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
               itemProp="step"
               itemScope
               itemType="https://schema.org/HowToStep"
@@ -116,7 +116,7 @@ const Help = () => {
 
             {/* 4단계 */}
             <article
-              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-100 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-blue-500 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
+              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-indigo-600 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
               itemProp="step"
               itemScope
               itemType="https://schema.org/HowToStep"
@@ -142,7 +142,7 @@ const Help = () => {
 
             {/* 5단계 */}
             <article
-              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-100 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-blue-500 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
+              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-indigo-600 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
               itemProp="step"
               itemScope
               itemType="https://schema.org/HowToStep"
@@ -164,7 +164,7 @@ const Help = () => {
 
             {/* 6단계 */}
             <article
-              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-100 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-blue-500 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
+              className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-indigo-600 [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-800 [&_ul]:m-0 [&_ul]:pl-5"
               itemProp="step"
               itemScope
               itemType="https://schema.org/HowToStep"
@@ -196,12 +196,12 @@ const Help = () => {
           >
             <h2
               id="usage-tips"
-              className="mb-5 inline-block border-b-[3px] border-blue-500 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
+              className="mb-5 inline-block border-b-[3px] border-indigo-600 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
             >
               {t('💡 AI 퀴즈 활용 200% 팁')}
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-              <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_li]:mb-2 [&_li]:text-[0.95rem] [&_li]:leading-relaxed [&_li]:text-slate-600 [&_strong]:font-semibold [&_strong]:text-gray-800">
+              <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_li]:mb-2 [&_li]:text-[0.95rem] [&_li]:leading-relaxed [&_li]:text-slate-600 [&_strong]:font-semibold [&_strong]:text-gray-800">
                 <h4>{t('🔄 복습 퀴즈')}</h4>
                 <p>
                   {t(
@@ -209,7 +209,7 @@ const Help = () => {
                   )}
                 </p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_li]:mb-2 [&_li]:text-[0.95rem] [&_li]:leading-relaxed [&_li]:text-slate-600 [&_strong]:font-semibold [&_strong]:text-gray-800">
+              <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_li]:mb-2 [&_li]:text-[0.95rem] [&_li]:leading-relaxed [&_li]:text-slate-600 [&_strong]:font-semibold [&_strong]:text-gray-800">
                 <h4>{t('📈 유형별 풀어보기')}</h4>
                 <p>
                   {t(
@@ -234,16 +234,16 @@ const Help = () => {
           >
             <h2
               id="why-trust-us"
-              className="mb-5 inline-block border-b-[3px] border-blue-500 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
+              className="mb-5 inline-block border-b-[3px] border-indigo-600 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
             >
               {t('🌟 Q-Asker를 신뢰할 수 있는 이유')}
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-              <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_li]:mb-2 [&_li]:text-[0.95rem] [&_li]:leading-relaxed [&_li]:text-slate-600 [&_strong]:font-semibold [&_strong]:text-gray-800">
+              <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_li]:mb-2 [&_li]:text-[0.95rem] [&_li]:leading-relaxed [&_li]:text-slate-600 [&_strong]:font-semibold [&_strong]:text-gray-800">
                 <h4>{t('⏰ 자료 보호')}</h4>
                 <p>{t('모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다')}</p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_li]:mb-2 [&_li]:text-[0.95rem] [&_li]:leading-relaxed [&_li]:text-slate-600 [&_strong]:font-semibold [&_strong]:text-gray-800">
+              <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_li]:mb-2 [&_li]:text-[0.95rem] [&_li]:leading-relaxed [&_li]:text-slate-600 [&_strong]:font-semibold [&_strong]:text-gray-800">
                 <h4>{t('📋 명확한 문제 생성 기준')}</h4>
                 <p>
                   {t('문제 유형별 기준에 맞춰 퀴즈를 생성합니다.')}
@@ -254,7 +254,7 @@ const Help = () => {
                   <li>{t('객관식: 개념을 비교·분석하고 적용하는 문제')}</li>
                 </p>
               </div>
-              {/* <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-50 md:p-5">
+              {/* <div className="rounded-lg border border-slate-200 bg-white p-6 text-gray-700 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5">
                 <h4>{t("🛡️ 개인정보 보호")}</h4>
                 <p>
                   {t(
@@ -274,13 +274,13 @@ const Help = () => {
           >
             <h2
               id="faq"
-              className="mb-5 inline-block border-b-[3px] border-blue-500 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
+              className="mb-5 inline-block border-b-[3px] border-indigo-600 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
             >
               {t('🙋‍♀️ 자주 묻는 질문 (FAQ)')}
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
               <div
-                className="rounded-lg border border-slate-200 bg-white p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_p]:leading-relaxed [&_p]:text-slate-600"
+                className="rounded-lg border border-slate-200 bg-white p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_p]:leading-relaxed [&_p]:text-slate-600"
                 itemProp="mainEntity"
                 itemScope
                 itemType="https://schema.org/Question"
@@ -295,7 +295,7 @@ const Help = () => {
                 </div>
               </div>
               <div
-                className="rounded-lg border border-slate-200 bg-white p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_p]:leading-relaxed [&_p]:text-slate-600"
+                className="rounded-lg border border-slate-200 bg-white p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_p]:leading-relaxed [&_p]:text-slate-600"
                 itemProp="mainEntity"
                 itemScope
                 itemType="https://schema.org/Question"
@@ -310,7 +310,7 @@ const Help = () => {
                 </div>
               </div>
               <div
-                className="rounded-lg border border-slate-200 bg-white p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_p]:leading-relaxed [&_p]:text-slate-600"
+                className="rounded-lg border border-slate-200 bg-white p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_p]:leading-relaxed [&_p]:text-slate-600"
                 itemProp="mainEntity"
                 itemScope
                 itemType="https://schema.org/Question"
@@ -325,7 +325,7 @@ const Help = () => {
                 </div>
               </div>
               <div
-                className="rounded-lg border border-slate-200 bg-white p-6 transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-slate-50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_p]:leading-relaxed [&_p]:text-slate-600"
+                className="rounded-lg border border-slate-200 bg-white p-6 transition-all duration-300 ease-in-out hover:border-indigo-600 hover:bg-indigo-50/50 md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-slate-800 [&_p]:leading-relaxed [&_p]:text-slate-600"
                 itemProp="mainEntity"
                 itemScope
                 itemType="https://schema.org/Question"
@@ -347,11 +347,11 @@ const Help = () => {
           >
             <h2
               id="precautions"
-              className="mb-5 inline-block border-b-[3px] border-blue-500 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
+              className="mb-5 inline-block border-b-[3px] border-indigo-600 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
             >
               {t('🚨 꼭 읽어주세요: 주의사항')}
             </h2>
-            <div className="mt-5 rounded-lg border border-yellow-400 bg-[#fef9e7] p-6 [&_li]:mb-2.5 [&_li]:text-base [&_li]:font-medium [&_li]:leading-relaxed [&_li]:text-yellow-800 [&_strong]:font-bold [&_strong]:text-yellow-900 [&_ul]:m-0 [&_ul]:pl-5">
+            <div className="mt-5 rounded-lg border border-yellow-400 bg-yellow-50 p-6 [&_li]:mb-2.5 [&_li]:text-base [&_li]:font-medium [&_li]:leading-relaxed [&_li]:text-yellow-800 [&_strong]:font-bold [&_strong]:text-yellow-900 [&_ul]:m-0 [&_ul]:pl-5">
               <ul>
                 <li>
                   <strong>{t('AI 한계점:')}</strong>
@@ -374,7 +374,7 @@ const Help = () => {
           >
             <h2
               id="contact-support"
-              className="mb-5 inline-block border-b-[3px] border-blue-500 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
+              className="mb-5 inline-block border-b-[3px] border-indigo-600 pb-2.5 text-[1.8rem] font-bold text-slate-800 md:text-2xl"
             >
               {t('📞 문의 및 피드백')}
             </h2>
@@ -386,7 +386,7 @@ const Help = () => {
               <strong>{t('AI 퀴즈 생성')}</strong>
               {t('서비스를 만드는데 큰 도움이 됩니다.')}
             </p>
-            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-100 p-5 [&_a:hover]:text-blue-700 [&_a:hover]:underline [&_a]:text-blue-500 [&_a]:no-underline">
+            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-100 p-5 [&_a:hover]:text-indigo-700 [&_a:hover]:underline [&_a]:text-indigo-600 [&_a]:no-underline">
               <p>
                 📞 <strong>{t('구글 폼:')}</strong>{' '}
                 <a

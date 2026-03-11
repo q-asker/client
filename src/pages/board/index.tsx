@@ -113,7 +113,7 @@ const Board = () => {
           {posts.length > 0 && (
             <div>
               <button
-                className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white border-none px-8 py-4 rounded-xl text-lg font-semibold cursor-pointer shadow-[0_4px_12px_rgba(102,126,234,0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(102,126,234,0.4)]"
+                className="bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to text-white border-none px-8 py-4 rounded-xl text-lg font-semibold cursor-pointer shadow-brand-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-brand-md"
                 onClick={handleWriteClick}
               >
                 문의하기
@@ -123,10 +123,10 @@ const Board = () => {
         </div>
 
         {/* 컨텐츠 래퍼 */}
-        <div className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-card overflow-hidden">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 px-8">
-              <div className="w-12 h-12 border-4 border-gray-200 border-t-[#667eea] rounded-full animate-spin mb-4" />
+              <div className="w-12 h-12 border-4 border-gray-200 border-t-brand-gradient-from rounded-full animate-spin mb-4" />
               <p>데이터를 불러오는 중...</p>
             </div>
           ) : error ? (
@@ -164,7 +164,7 @@ const Board = () => {
                       <span className="w-[45%] pl-5 font-medium text-left max-md:w-full max-md:p-0 max-md:text-[1.15rem] max-md:mb-1">
                         <Link
                           to={`/boards/${post.boardId}`}
-                          className="no-underline text-gray-900 text-[1.05rem] transition-colors duration-200 hover:text-[#667eea]"
+                          className="no-underline text-gray-900 text-[1.05rem] transition-colors duration-200 hover:text-brand-gradient-from"
                         >
                           {post.title}
                         </Link>
@@ -224,7 +224,7 @@ const Board = () => {
               </h3>
               <p className="text-lg mb-8">궁금한 점이나 건의사항을 남겨주세요!</p>
               <button
-                className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white border-none px-8 py-4 rounded-xl text-lg font-semibold cursor-pointer shadow-[0_4px_12px_rgba(102,126,234,0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(102,126,234,0.4)]"
+                className="bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to text-white border-none px-8 py-4 rounded-xl text-lg font-semibold cursor-pointer shadow-brand-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-brand-md"
                 onClick={handleWriteClick}
               >
                 문의 작성하기

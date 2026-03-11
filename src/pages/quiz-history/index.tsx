@@ -31,8 +31,8 @@ const QuizHistory = () => {
         />
 
         <div className="min-h-screen p-8 max-w-[70%] mx-auto max-md:px-0 max-md:max-w-[90%]">
-          <div className="flex flex-col items-center justify-center py-16 px-8 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
-            <div className="w-12 h-12 border-4 border-gray-200 border-t-[#667eea] rounded-full animate-spin mb-4" />
+          <div className="flex flex-col items-center justify-center py-16 px-8 bg-white rounded-2xl shadow-card">
+            <div className="w-12 h-12 border-4 border-gray-200 border-t-brand-gradient-from rounded-full animate-spin mb-4" />
             <p className="text-gray-500 text-lg m-0">{t('기록을 불러오는 중...')}</p>
           </div>
         </div>
@@ -89,7 +89,7 @@ const QuizHistory = () => {
                 ].map((stat) => (
                   <div
                     key={stat.label}
-                    className="bg-gradient-to-br from-[#667eea] to-[#764ba2] rounded-2xl p-6 text-white flex items-center gap-4 shadow-[0_4px_20px_rgba(102,126,234,0.2)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(102,126,234,0.3)] max-md:p-4"
+                    className="bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to rounded-2xl p-6 text-white flex items-center gap-4 shadow-brand-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-brand-md max-md:p-4"
                   >
                     <div className="text-[2rem] opacity-90">{stat.icon}</div>
                     <div className="flex-1">
@@ -106,12 +106,12 @@ const QuizHistory = () => {
 
           {/* 퀴즈 보관 안내 */}
           {quizHistory.length > 0 && (
-            <div className="bg-[#fff3cd] border border-[#ffeaa7] rounded-xl px-5 py-4 mb-8 shadow-[0_2px_8px_rgba(255,234,167,0.3)]">
+            <div className="bg-amber-100 border border-amber-200 rounded-xl px-5 py-4 mb-8 shadow-sm">
               <div className="flex items-center mb-2.5">
                 <span className="mr-2.5 text-xl">📋</span>
-                <h3 className="m-0 text-[#856404] text-lg font-semibold">{t('퀴즈 보관 정책')}</h3>
+                <h3 className="m-0 text-yellow-800 text-lg font-semibold">{t('퀴즈 보관 정책')}</h3>
               </div>
-              <div className="pl-8 text-[#856404] leading-relaxed text-[0.95rem]">
+              <div className="pl-8 text-yellow-800 leading-relaxed text-[0.95rem]">
                 {t('• 퀴즈 기록은 최대')}
                 <strong>{t('20개')}</strong>
                 {t('까지 자동으로 저장됩니다')}
@@ -127,7 +127,7 @@ const QuizHistory = () => {
           )}
 
           {/* 기록 목록 */}
-          <div className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+          <div className="bg-white rounded-2xl shadow-card">
             {quizHistory.length === 0 ? (
               <div className="text-center py-16 px-8 text-gray-500">
                 <div className="text-[4rem] mb-4 opacity-70">📋</div>
@@ -136,7 +136,7 @@ const QuizHistory = () => {
                 </h3>
                 <p className="text-lg mb-8">{t('퀴즈를 만들어서 문제를 풀어보세요!')}</p>
                 <button
-                  className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white border-none px-8 py-4 rounded-xl text-lg font-semibold cursor-pointer transition-all duration-200 shadow-[0_4px_12px_rgba(102,126,234,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(102,126,234,0.4)]"
+                  className="bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to text-white border-none px-8 py-4 rounded-xl text-lg font-semibold cursor-pointer transition-all duration-200 shadow-brand-sm hover:-translate-y-0.5 hover:shadow-brand-md"
                   onClick={handleCreateFromEmpty}
                 >
                   {t('퀴즈 만들기')}

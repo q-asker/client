@@ -147,7 +147,7 @@ const BoardDetail = () => {
       />
       <div className="w-full max-w-[800px] mx-auto mt-10 px-5 box-border max-md:mt-5 max-md:px-4">
         {/* 게시글 카드 */}
-        <div className="bg-white rounded-2xl p-10 shadow-[0_4px_20px_rgba(0,0,0,0.08)] mb-6 box-border max-md:px-5 max-md:py-6">
+        <div className="bg-white rounded-2xl p-10 shadow-card mb-6 box-border max-md:px-5 max-md:py-6">
           <div className="border-b border-gray-200 pb-5 mb-8">
             <div className="text-indigo-500 font-semibold text-sm mb-2">문의 게시판</div>
             <h1 className="text-[1.75rem] text-gray-900 font-extrabold leading-tight mb-4 max-md:text-[1.4rem]">
@@ -198,7 +198,7 @@ const BoardDetail = () => {
                 관리자 답변 작성
               </h4>
               <textarea
-                className="w-full p-4 rounded-xl border border-gray-300 text-[0.95rem] font-[inherit] leading-relaxed text-gray-800 resize-y box-border transition-[border-color,box-shadow] duration-200 bg-white focus:outline-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
+                className="w-full p-4 rounded-xl border border-gray-300 text-[0.95rem] font-[inherit] leading-relaxed text-gray-800 resize-y box-border transition-[border-color,box-shadow] duration-200 bg-white focus:outline-none focus:border-brand focus:shadow-focus-ring"
                 value={replyContent}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   setReplyContent(e.target.value)
@@ -208,7 +208,7 @@ const BoardDetail = () => {
               />
               <div className="flex justify-end mt-4">
                 <button
-                  className="px-7 py-3 bg-indigo-500 text-white border-none rounded-xl font-semibold text-[0.95rem] cursor-pointer transition-all duration-200 hover:bg-indigo-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] active:translate-y-0"
+                  className="px-7 py-3 bg-indigo-500 text-white border-none rounded-xl font-semibold text-[0.95rem] cursor-pointer transition-all duration-200 hover:bg-indigo-600 hover:-translate-y-0.5 hover:shadow-brand-sm active:translate-y-0"
                   onClick={handleReplySubmit}
                 >
                   답변 등록

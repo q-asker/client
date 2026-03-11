@@ -115,7 +115,7 @@ const QuizResult = () => {
 
       {/* 해설 보기 버튼 */}
       <button
-        className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white text-lg font-semibold px-8 py-3.5 border-none rounded-xl cursor-pointer transition-all duration-200 shadow-[0_4px_12px_rgba(102,126,234,0.3)] hover:bg-gradient-to-br hover:from-[#5a67d8] hover:to-[#6b46c1] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(102,126,234,0.4)] active:translate-y-0 active:shadow-[0_2px_8px_rgba(102,126,234,0.3)] max-md:w-full max-md:text-base max-md:py-3 max-md:text-center"
+        className="bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to text-white text-lg font-semibold px-8 py-3.5 border-none rounded-xl cursor-pointer transition-all duration-200 shadow-brand-sm hover:bg-gradient-to-br hover:from-brand-gradient-from-hover hover:to-brand-gradient-to-hover hover:-translate-y-0.5 hover:shadow-brand-md active:translate-y-0 active:shadow-brand-sm max-md:w-full max-md:text-base max-md:py-3 max-md:text-center"
         onClick={getQuizExplanation}
       >
         {t('해설 보기')}

@@ -289,7 +289,7 @@ const MakeQuiz: React.FC = () => {
                           }
                         }}
                         disabled={!pages.numPages}
-                        className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-center text-base transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_2px_rgba(99,102,241,0.25)] focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 md:w-15 md:px-2 md:py-1.5 md:text-sm"
+                        className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-center text-base transition-all duration-200 focus:border-brand focus:shadow-focus-ring-sm focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 md:w-15 md:px-2 md:py-1.5 md:text-sm"
                       />
                       <span className="text-center text-gray-500 md:inline-flex md:items-center md:px-0.5 md:text-sm">
                         ~
@@ -308,7 +308,7 @@ const MakeQuiz: React.FC = () => {
                           }
                         }}
                         disabled={!pages.numPages}
-                        className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-center text-base transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_2px_rgba(99,102,241,0.25)] focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 md:w-15 md:px-2 md:py-1.5 md:text-sm"
+                        className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-center text-base transition-all duration-200 focus:border-brand focus:shadow-focus-ring-sm focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 md:w-15 md:px-2 md:py-1.5 md:text-sm"
                       />
                       <button
                         type="button"
@@ -383,7 +383,7 @@ const MakeQuiz: React.FC = () => {
                                 className={cn(
                                   'relative cursor-pointer overflow-hidden rounded-md border border-gray-200 text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
                                   isSelected && 'border-indigo-500',
-                                  isHovered && 'border-indigo-300 shadow-[0_0_0_2px_#a5b4fc]',
+                                  isHovered && 'border-indigo-300 shadow-focus-ring-sm',
                                 )}
                                 onClick={() => {
                                   pageActions.handlePageSelection(pageNumber);
