@@ -18,6 +18,7 @@
     "framer-motion": "^12.35.2",
     "i18nexus": "^2.5.1",
     "lucide-react": "^0.577.0",
+    "motion": "^12.35.2",
     "pdfjs-dist": "^4.8.69",
     "radix-ui": "^1.4.3",
     "react": "^19.1.0",
