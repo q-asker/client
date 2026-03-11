@@ -123,6 +123,7 @@ app → pages → widgets → features → entities → shared
 
 - **코드 변경과 문서 갱신은 동일 작업 단위**로 수행
 - CLAUDE.md 갱신 누락 채 커밋 금지
+- **ROADMAP Task 상태 갱신**: Task 실행 완료 시 `docs/roadmaps/ROADMAP_v*.md`의 해당 Task 상태를 `완료`로 표시할 것
 
 ## 빌드/검증 명령어
 
