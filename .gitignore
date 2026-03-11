@@ -31,6 +31,7 @@ gcp-credential.json
 
 # Claude Code
 CLAUDE.md
+shrimp-rules.md
 .mcp.json
 .claude
 shrimp_data
