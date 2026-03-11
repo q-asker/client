@@ -9,7 +9,7 @@ const RecentChanges = () => {
   } = useRecentChanges();
 
   return (
-    <div className="mt-7 rounded-lg border border-gray-200 bg-gray-50 p-5">
+    <div className="mt-7 rounded-2xl border border-gray-200 bg-gray-50 p-5">
       <h3 className="mb-4 text-lg font-semibold text-gray-800">{t('최근 변경사항')}</h3>
       <ul className="m-0 list-none p-0">
         {changes.map((log, index) => (

@@ -69,12 +69,12 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
 
   return (
     <div className="relative bg-white shadow-sm">
-      <div className="mx-auto flex w-[70%] items-center justify-between p-4 max-md:w-auto max-md:p-2.5 max-sm:gap-2 max-sm:px-2.5 max-sm:py-2">
+      <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3 md:px-6">
         {/* 로고 영역 */}
         <div className="flex items-center">
           <button
             id="menuButton"
-            className="mr-3 cursor-pointer border-none bg-none text-2xl max-sm:mr-2 max-sm:text-xl"
+            className="mr-3 cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-xl text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
             onClick={toggleSidebar}
           >
             ☰
@@ -85,10 +85,10 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
         </div>
 
         {/* 네비게이션 링크 */}
-        <div className="flex items-center gap-3 max-sm:gap-1.5">
+        <div className="flex items-center gap-1 md:gap-3">
           <Link
             to="/boards"
-            className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-500 max-sm:px-2 max-sm:py-1.5 max-sm:text-sm"
+            className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 text-sm md:text-base"
           >
             <span className="mr-1.5 inline-flex items-center">💬</span>
             <strong>{t('문의하기')}</strong>
@@ -97,7 +97,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
           <div className="relative inline-flex items-center">
             <Link
               to="/history"
-              className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-500 max-sm:px-2 max-sm:py-1.5 max-sm:text-sm"
+              className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 text-sm md:text-base"
               onClick={handleQuizManagement}
             >
               <span className="mr-1.5 inline-flex items-center">📋</span>
@@ -127,7 +127,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               <div className="relative">
                 <button
                   id="profileButton"
-                  className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-indigo-100 bg-indigo-50 p-0 font-bold text-indigo-600 hover:bg-indigo-100 max-sm:size-8 max-sm:text-sm"
+                  className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-indigo-100 bg-indigo-50 p-0 text-sm font-bold text-indigo-600 transition-colors duration-200 hover:bg-indigo-100 md:size-9 md:text-base"
                   onClick={() => setIsProfileOpen((prev) => !prev)}
                   aria-expanded={isProfileOpen}
                   aria-haspopup="true"
@@ -143,7 +143,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   >
                     <span className="mb-2.5 block font-semibold text-gray-900">{displayName}</span>
                     <button
-                      className="w-full cursor-pointer border-none bg-transparent px-1 py-1.5 text-left text-indigo-500 hover:text-indigo-600"
+                      className="w-full cursor-pointer border-none bg-transparent px-1 py-1.5 text-left text-indigo-600 hover:text-indigo-600"
                       type="button"
                       onClick={() => {
                         setIsProfileOpen(false);
@@ -158,7 +158,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               </div>
             ) : (
               <Link
-                className="block whitespace-nowrap text-indigo-500 no-underline max-sm:text-sm"
+                className="block whitespace-nowrap text-sm text-indigo-600 no-underline md:text-base"
                 to="/login"
               >
                 <span className="mr-1.5 inline-flex items-center">🔐</span>
@@ -180,14 +180,14 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
         <div className="flex items-center justify-between p-4">
           <h2>{t('메뉴')}</h2>
           <button
-            className="mr-3 cursor-pointer border-none bg-none text-2xl"
+            className="cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-xl text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
             onClick={closeSidebar}
           >
             ✕
           </button>
         </div>
         <nav className="w-full">
-          <div className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-base text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-500">
+          <div className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-base text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600">
             {t('언어')}
             <div>
               <button
@@ -205,7 +205,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
             </div>
           </div>
           <button
-            className="block w-full cursor-pointer border-none bg-transparent px-4 py-3 text-left text-base text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-500"
+            className="block w-full cursor-pointer border-none bg-transparent px-4 py-3 text-left text-base text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600"
             type="button"
             onClick={handleHelp}
           >

@@ -30,6 +30,7 @@ gcp-credential.json
 *.sw?
 
 # Claude Code
+.playwright-mcp
 CLAUDE.md
 shrimp-rules.md
 .mcp.json

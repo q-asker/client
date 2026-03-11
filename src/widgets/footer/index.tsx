@@ -5,7 +5,7 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="mt-8 bg-gray-800 py-6 text-center text-gray-400 max-md:text-[0.85rem]">
+    <div className="mt-8 bg-gray-800 py-6 text-center text-sm text-gray-400 md:text-base">
       © {new Date().getFullYear()} Q-Asker{' | '}
       <Link
         to="/privacy-policy"
@@ -20,7 +20,7 @@ const Footer = () => {
         href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
         target="_blank"
         rel="noopener noreferrer"
-        className="font-semibold text-blue-400 no-underline transition-colors duration-200 hover:text-blue-300 hover:underline"
+        className="font-semibold text-indigo-400 no-underline transition-colors duration-200 hover:text-indigo-300 hover:underline"
       >
         {t('구글 폼 링크')}
       </a>
@@ -28,7 +28,7 @@ const Footer = () => {
       <a
         href="mailto:inhapj01@gmail.com"
         aria-label={t('Q-Asker 이메일 문의')}
-        className="font-semibold text-blue-400 no-underline transition-colors duration-200 hover:text-blue-300 hover:underline"
+        className="font-semibold text-indigo-400 no-underline transition-colors duration-200 hover:text-indigo-300 hover:underline"
       >
         inhapj01@gmail.com
       </a>
