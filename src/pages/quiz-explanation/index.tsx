@@ -77,7 +77,9 @@ const QuizExplanation: React.FC = () => {
                     className={cn(
                       'absolute inset-0 cursor-pointer rounded-[14px] transition-colors duration-300',
                       'before:absolute before:bottom-[3px] before:left-[3px] before:h-[22px] before:w-[22px] before:rounded-full before:bg-white before:transition-transform before:duration-300',
-                      quiz.showWrongOnly ? 'bg-emerald-500 before:translate-x-[22px]' : 'bg-gray-300',
+                      quiz.showWrongOnly
+                        ? 'bg-emerald-500 before:translate-x-[22px]'
+                        : 'bg-gray-300',
                     )}
                   />
                 </label>
@@ -102,7 +104,9 @@ const QuizExplanation: React.FC = () => {
                     className={cn(
                       'absolute inset-0 cursor-pointer rounded-[14px] transition-colors duration-300',
                       'before:absolute before:bottom-[3px] before:left-[3px] before:h-[22px] before:w-[22px] before:rounded-full before:bg-white before:transition-transform before:duration-300',
-                      quiz.showWrongOnly ? 'bg-emerald-500 before:translate-x-[22px]' : 'bg-gray-300',
+                      quiz.showWrongOnly
+                        ? 'bg-emerald-500 before:translate-x-[22px]'
+                        : 'bg-gray-300',
                     )}
                   />
                 </label>
@@ -141,7 +145,8 @@ const QuizExplanation: React.FC = () => {
                         'hover:scale-110 hover:bg-gray-200',
                         isCorrect && 'border-emerald-300 bg-emerald-50',
                         isIncorrect && 'border-red-300 bg-red-50',
-                        isCurrent && 'bg-primary text-primary-foreground hover:scale-100 hover:bg-primary',
+                        isCurrent &&
+                          'bg-primary text-primary-foreground hover:scale-100 hover:bg-primary',
                       )}
                       onClick={() =>
                         quiz.showWrongOnly
