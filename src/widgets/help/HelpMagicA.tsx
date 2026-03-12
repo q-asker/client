@@ -1,0 +1,500 @@
+import { useTranslation } from 'i18nexus';
+import {
+  BarChart3,
+  CheckCircle,
+  CircleHelp,
+  ClipboardList,
+  FileText,
+  Lightbulb,
+  Search,
+  Target,
+  Timer,
+  TrendingUp,
+  Upload,
+} from 'lucide-react';
+import { BlurFade } from '@/shared/ui/components/blur-fade';
+import { TextAnimate } from '@/shared/ui/components/text-animate';
+import { useHelp } from './model/useHelp';
+
+const HelpMagicA = () => {
+  const { t } = useTranslation();
+  const {
+    actions: { handleSectionHover },
+  } = useHelp();
+
+  // 공통 카드 스타일
+  const stepCardClass =
+    'rounded-2xl border border-border bg-background p-6 transition-all duration-300 ease-in-out hover:shadow-md md:p-5 [&_h3]:mb-4 [&_h3]:flex [&_h3]:items-center [&_h3]:gap-2.5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-primary [&_li]:mb-2 [&_li]:text-base [&_li]:leading-relaxed [&_li]:text-muted-foreground [&_strong]:font-semibold [&_strong]:text-foreground [&_ul]:m-0 [&_ul]:pl-5';
+
+  const gridCardClass =
+    'rounded-2xl border border-border bg-background p-6 transition-all duration-300 ease-in-out hover:shadow-md md:p-5 [&_h4]:mb-4 [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-foreground [&_p]:leading-relaxed [&_p]:text-muted-foreground';
+
+  return (
+    <div id="help-section" className="bg-muted px-4 pt-[100px] pb-5 md:px-4 md:pt-[50px]">
+      <article className="mx-auto mt-5 max-w-5xl overflow-hidden rounded-2xl pt-8">
+        {/* === 헤더 === */}
+        <BlurFade delay={0.1} inView>
+          <header className="flex max-w-[1000px] flex-col items-center gap-5">
+            <TextAnimate
+              as="h1"
+              animation="blurInUp"
+              by="word"
+              className="m-0 flex-1 text-[2.5rem] font-bold text-foreground md:text-center md:text-[1.8rem]"
+            >
+              {t('Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성')}
+            </TextAnimate>
+            <p className="mb-5 text-lg leading-relaxed text-muted-foreground">
+              {t('가지고 계신 학습 자료로 AI 퀴즈를 만드는 가장 쉬운 방법을 알려드립니다.')}
+            </p>
+          </header>
+        </BlurFade>
+
+        <main>
+          {/* === 단계별 가이드 섹션 === */}
+          <section
+            className="px-10 pt-10 pb-8 md:px-6 md:pt-8 md:pb-5"
+            onMouseEnter={() => handleSectionHover('usage_guide')}
+            itemScope
+            itemType="https://schema.org/HowTo"
+          >
+            <BlurFade delay={0.15} inView>
+              <h2 className="mb-5 inline-block text-[1.8rem] font-bold text-foreground md:text-2xl">
+                <FileText className="inline size-5" />{' '}
+                <TextAnimate animation="blurInUp" by="word" as="span">
+                  {t('AI 퀴즈 만들기 6단계 가이드')}
+                </TextAnimate>
+              </h2>
+              <span id="how-to-use" />
+            </BlurFade>
+
+            {/* 1단계 */}
+            <BlurFade delay={0.05 * 0} inView>
+              <article
+                className={stepCardClass}
+                itemProp="step"
+                itemScope
+                itemType="https://schema.org/HowToStep"
+              >
+                <h3 itemProp="name">{t('1단계: 파일 업로드')}</h3>
+                <div itemProp="text">
+                  <ul>
+                    <li>
+                      <FileText className="inline size-4" /> <strong>{t('지원 형식: ')}</strong>
+                      {t('학습 자료 파일')}
+                    </li>
+                    <li>
+                      <Upload className="inline size-4" /> <strong>{t('업로드 ')}</strong>
+                      {t('파일을 드래그하거나 버튼 클릭')}
+                    </li>
+                    <li>
+                      <Lightbulb className="inline size-4" /> <strong>{t('팁: ')}</strong>
+                      {t(
+                        '원하는 페이지를 지정하면 AI 퀴즈 생성시 더 좋은 퀴즈를 만들 수 있습니다.',
+                      )}
+                    </li>
+                  </ul>
+                </div>
+              </article>
+            </BlurFade>
+
+            {/* 2단계 */}
+            <BlurFade delay={0.05 * 1} inView>
+              <article
+                className={stepCardClass}
+                itemProp="step"
+                itemScope
+                itemType="https://schema.org/HowToStep"
+              >
+                <h3 itemProp="name">{t('2단계: 퀴즈 옵션 설정')}</h3>
+                <div itemProp="text">
+                  <ul>
+                    <li>
+                      <FileText className="inline size-4" /> <strong>{t('문제 수량: ')}</strong>
+                      {t('5 ~ 25개 (5개 단위)')}
+                    </li>
+                    <li>
+                      <FileText className="inline size-4" /> <strong>{t('페이지 범위: ')}</strong>
+                      {t('전체 또는 특정 페이지 지정')}
+                    </li>
+                    <li>
+                      <Target className="inline size-4" /> <strong>{t('문제 유형: ')}</strong>
+                      {t('빈칸 채우기, OX, 객관식 중 선택')}
+                    </li>
+                  </ul>
+                </div>
+              </article>
+            </BlurFade>
+
+            {/* 3단계 */}
+            <BlurFade delay={0.05 * 2} inView>
+              <article
+                className={stepCardClass}
+                itemProp="step"
+                itemScope
+                itemType="https://schema.org/HowToStep"
+              >
+                <h3 itemProp="name">{t('3단계: AI 문제 생성')}</h3>
+                <div itemProp="text">
+                  <ul>
+                    <li>
+                      <FileText className="inline size-4" /> <strong>{t('AI 분석: ')}</strong>
+                      {t('업로드된 문서를 AI가 분석하여 문제 생성')}
+                    </li>
+                    <li>
+                      <Timer className="inline size-4" /> <strong>{t('소요 시간: ')}</strong>
+                      {t('보통 10초 ~ 30초 (문서 길이에 따라 다름)')}
+                    </li>
+                    <li>
+                      <CheckCircle className="inline size-4" /> <strong>{t('완료: ')}</strong>
+                      {t('"문제 풀기" 버튼으로')} <strong>{t('AI 퀴즈 생성')}</strong>
+                      {t('완료!')}
+                    </li>
+                  </ul>
+                </div>
+              </article>
+            </BlurFade>
+
+            {/* 4단계 */}
+            <BlurFade delay={0.05 * 3} inView>
+              <article
+                className={stepCardClass}
+                itemProp="step"
+                itemScope
+                itemType="https://schema.org/HowToStep"
+              >
+                <h3 itemProp="name">{t('4단계: 퀴즈 풀기')}</h3>
+                <div itemProp="text">
+                  <ul>
+                    <li>
+                      <FileText className="inline size-4" /> <strong>{t('문제 풀이: ')}</strong>
+                      {t('생성된 객관식 문제를 순서대로 풀이')}
+                    </li>
+                    <li>
+                      <Search className="inline size-4" /> <strong>{t('검토 기능: ')}</strong>
+                      {t('나중에 다시 볼 문제에 체크 표시')}
+                    </li>
+                    <li>
+                      <BarChart3 className="inline size-4" /> <strong>{t('네비게이션: ')}</strong>
+                      {t('좌측 번호판으로 빠른 이동')}
+                    </li>
+                  </ul>
+                </div>
+              </article>
+            </BlurFade>
+
+            {/* 5단계 */}
+            <BlurFade delay={0.05 * 4} inView>
+              <article
+                className={stepCardClass}
+                itemProp="step"
+                itemScope
+                itemType="https://schema.org/HowToStep"
+              >
+                <h3 itemProp="name">{t('5단계: 결과 및 해설 확인')}</h3>
+                <div itemProp="text">
+                  <ul>
+                    <li>
+                      <TrendingUp className="inline size-4" /> <strong>{t('성과 확인: ')}</strong>
+                      {t('점수, 소요시간 등 결과 확인')}
+                    </li>
+                    <li>
+                      <FileText className="inline size-4" /> <strong>{t('반복 학습: ')}</strong>
+                      {t('틀린 문제 중심 재학습 가능')}
+                    </li>
+                  </ul>
+                </div>
+              </article>
+            </BlurFade>
+
+            {/* 6단계 */}
+            <BlurFade delay={0.05 * 5} inView>
+              <article
+                className={stepCardClass}
+                itemProp="step"
+                itemScope
+                itemType="https://schema.org/HowToStep"
+              >
+                <h3 itemProp="name">{t('6단계: 퀴즈 기록 관리')}</h3>
+                <div itemProp="text">
+                  <ul>
+                    <li>
+                      <ClipboardList className="inline size-4" />{' '}
+                      <strong>{t('자동 저장: ')}</strong>
+                      {t('만든 퀴즈가 퀴즈 기록에 자동 저장')}
+                    </li>
+                    <li>
+                      <BarChart3 className="inline size-4" /> <strong>{t('결과 확인: ')}</strong>
+                      {t('총 퀴즈 수, 평균 점수 등 확인')}
+                    </li>
+                    <li>
+                      <Target className="inline size-4" /> <strong>{t('복습: ')}</strong>
+                      {t('언제든 이어서 풀거나 해설 다시 보기')}
+                    </li>
+                  </ul>
+                </div>
+              </article>
+            </BlurFade>
+          </section>
+
+          {/* === 타겟 사용자별 활용 팁 섹션 === */}
+          <section
+            className="px-10 pt-10 pb-8 md:px-6 md:pt-8 md:pb-5"
+            onMouseEnter={() => handleSectionHover('tips')}
+          >
+            <BlurFade delay={0.2} inView>
+              <h2 className="mb-5 inline-block text-[1.8rem] font-bold text-foreground md:text-2xl">
+                <Lightbulb className="inline size-5" />{' '}
+                <TextAnimate animation="blurInUp" by="word" as="span">
+                  {t('AI 퀴즈 활용 200% 팁')}
+                </TextAnimate>
+              </h2>
+              <span id="usage-tips" />
+            </BlurFade>
+            <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+              <BlurFade delay={0.05 * 0} inView>
+                <div className={gridCardClass}>
+                  <h4>{t('복습 퀴즈')}</h4>
+                  <p>
+                    {t(
+                      'PDF, PPT, Word 공부 자료로 퀴즈를 만들어 보세요. 핵심 개념을 빠르게 암기하고 시험 대비에 효과적입니다.',
+                    )}
+                  </p>
+                </div>
+              </BlurFade>
+              <BlurFade delay={0.05 * 1} inView>
+                <div className={gridCardClass}>
+                  <h4>
+                    <TrendingUp className="inline size-4" /> {t('유형별 풀어보기')}
+                  </h4>
+                  <p>
+                    {t(
+                      '빈칸, OX, 객관식 유형을 번갈아 풀어보며 개념 이해와 기억을 균형 있게 강화하세요.',
+                    )}
+
+                    <br></br>
+                    {t('1. 빈칸 채우기로 핵심 개념을 정리하세요.')}
+                    <br></br>
+                    {t('2. OX로 빠르게 개념을 점검하세요.')}
+                    <br></br>
+                    {t('3. 객관식으로 개념을 응용해 보세요.')}
+                  </p>
+                </div>
+              </BlurFade>
+            </div>
+          </section>
+
+          {/* === 신뢰도 섹션 === */}
+          <section
+            className="px-10 pt-10 pb-8 md:px-6 md:pt-8 md:pb-5"
+            onMouseEnter={() => handleSectionHover('trust')}
+          >
+            <BlurFade delay={0.25} inView>
+              <TextAnimate
+                as="h2"
+                animation="blurInUp"
+                by="word"
+                className="mb-5 inline-block text-[1.8rem] font-bold text-foreground md:text-2xl"
+              >
+                {t('Q-Asker를 신뢰할 수 있는 이유')}
+              </TextAnimate>
+              <span id="why-trust-us" />
+            </BlurFade>
+            <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+              <BlurFade delay={0.05 * 0} inView>
+                <div className={gridCardClass}>
+                  <h4>{t('자료 보호')}</h4>
+                  <p>{t('모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다')}</p>
+                </div>
+              </BlurFade>
+              <BlurFade delay={0.05 * 1} inView>
+                <div className={gridCardClass}>
+                  <h4>
+                    <ClipboardList className="inline size-4" /> {t('명확한 문제 생성 기준')}
+                  </h4>
+                  <p>
+                    {t('문제 유형별 기준에 맞춰 퀴즈를 생성합니다.')}
+
+                    <br></br>
+                    <li>{t('빈칸: 핵심 개념을 정확히 기억하는지 확인')}</li>
+                    <li>{t('OX: 핵심 개념의 옳고 그름을 빠르게 점검하는 문제')}</li>
+                    <li>{t('객관식: 개념을 비교·분석하고 적용하는 문제')}</li>
+                  </p>
+                </div>
+              </BlurFade>
+            </div>
+          </section>
+
+          {/* === FAQ 섹션 === */}
+          <section
+            className="px-10 pt-10 pb-8 md:px-6 md:pt-8 md:pb-5"
+            onMouseEnter={() => handleSectionHover('faq')}
+            itemScope
+            itemType="https://schema.org/FAQPage"
+          >
+            <BlurFade delay={0.3} inView>
+              <h2 className="mb-5 inline-block text-[1.8rem] font-bold text-foreground md:text-2xl">
+                <CircleHelp className="inline size-5" />{' '}
+                <TextAnimate animation="blurInUp" by="word" as="span">
+                  {t('자주 묻는 질문 (FAQ)')}
+                </TextAnimate>
+              </h2>
+              <span id="faq" />
+            </BlurFade>
+            <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+              <BlurFade delay={0.05 * 0} inView>
+                <div
+                  className={gridCardClass}
+                  itemProp="mainEntity"
+                  itemScope
+                  itemType="https://schema.org/Question"
+                >
+                  <h4 itemProp="name">{t('Q. Q-Asker는 정말 무료인가요?')}</h4>
+                  <div itemProp="acceptedAnswer" itemScope itemType="https://schema.org/Answer">
+                    <p itemProp="text">
+                      {t(
+                        '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.',
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </BlurFade>
+              <BlurFade delay={0.05 * 1} inView>
+                <div
+                  className={gridCardClass}
+                  itemProp="mainEntity"
+                  itemScope
+                  itemType="https://schema.org/Question"
+                >
+                  <h4 itemProp="name">{t('Q. 업로드한 제 파일은 안전하게 관리되나요?')}</h4>
+                  <div itemProp="acceptedAnswer" itemScope itemType="https://schema.org/Answer">
+                    <p itemProp="text">
+                      {t(
+                        '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.',
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </BlurFade>
+              <BlurFade delay={0.05 * 2} inView>
+                <div
+                  className={gridCardClass}
+                  itemProp="mainEntity"
+                  itemScope
+                  itemType="https://schema.org/Question"
+                >
+                  <h4 itemProp="name">{t('Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?')}</h4>
+                  <div itemProp="acceptedAnswer" itemScope itemType="https://schema.org/Answer">
+                    <p itemProp="text">
+                      {t(
+                        'AI는 높은 정확도로 문서를 분석하지만, 100% 완벽하지 않을 수 있습니다. 생성된 문제는 학습 참고용이며, 중요한 정보는 반드시 원본과 교차 확인해주세요.',
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </BlurFade>
+              <BlurFade delay={0.05 * 3} inView>
+                <div
+                  className={gridCardClass}
+                  itemProp="mainEntity"
+                  itemScope
+                  itemType="https://schema.org/Question"
+                >
+                  <h4 itemProp="name">{t('Q. 이미지로 된 파일도 퀴즈로 만들 수 있나요?')}</h4>
+                  <div itemProp="acceptedAnswer" itemScope itemType="https://schema.org/Answer">
+                    <p itemProp="text">
+                      {t('네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.')}
+                    </p>
+                  </div>
+                </div>
+              </BlurFade>
+            </div>
+          </section>
+
+          {/* === 주의사항 섹션 === */}
+          <section
+            className="px-10 pt-10 pb-8 md:px-6 md:pt-8 md:pb-5"
+            onMouseEnter={() => handleSectionHover('warnings')}
+          >
+            <BlurFade delay={0.35} inView>
+              <TextAnimate
+                as="h2"
+                animation="blurInUp"
+                by="word"
+                className="mb-5 inline-block text-[1.8rem] font-bold text-foreground md:text-2xl"
+              >
+                {t('꼭 읽어주세요: 주의사항')}
+              </TextAnimate>
+              <span id="precautions" />
+            </BlurFade>
+            <BlurFade delay={0.4} inView>
+              <div className="mt-5 rounded-2xl border border-yellow-400 bg-yellow-50 p-6 [&_li]:mb-2.5 [&_li]:text-base [&_li]:font-medium [&_li]:leading-relaxed [&_li]:text-yellow-800 [&_strong]:font-bold [&_strong]:text-yellow-900 [&_ul]:m-0 [&_ul]:pl-5">
+                <ul>
+                  <li>
+                    <strong>{t('AI 한계점:')}</strong>
+                    {t(
+                      '생성된 문제는 학습 참고용이며, 사실관계가 100% 정확하지 않을 수 있습니다. 중요한 정보는 반드시 원본과 교차 확인하세요.',
+                    )}
+                  </li>
+                  <li>
+                    <strong>{t('기록 삭제:')}</strong>
+                    {t('삭제된 퀴즈 기록은 복구할 수 없으니 신중하게 결정해주세요.')}
+                  </li>
+                </ul>
+              </div>
+            </BlurFade>
+          </section>
+
+          {/* === 문의 및 피드백 섹션 === */}
+          <section
+            className="px-10 pt-10 pb-8 md:px-6 md:pt-8 md:pb-5"
+            onMouseEnter={() => handleSectionHover('contact')}
+          >
+            <BlurFade delay={0.4} inView>
+              <TextAnimate
+                as="h2"
+                animation="blurInUp"
+                by="word"
+                className="mb-5 inline-block text-[1.8rem] font-bold text-foreground md:text-2xl"
+              >
+                {t('문의 및 피드백')}
+              </TextAnimate>
+              <span id="contact-support" />
+            </BlurFade>
+            <BlurFade delay={0.45} inView>
+              <p className="mb-5 text-[1.1rem] leading-relaxed text-muted-foreground">
+                {t(
+                  'Q-Asker 사용 중 궁금한 점이나 개선 아이디어가 있으시면 언제든지 알려주세요! 더 좋은',
+                )}
+
+                <strong>{t('AI 퀴즈 생성')}</strong>
+                {t('서비스를 만드는데 큰 도움이 됩니다.')}
+              </p>
+            </BlurFade>
+            <BlurFade delay={0.5} inView>
+              <div className="mt-4 rounded-2xl border border-border bg-muted p-5 [&_a:hover]:text-primary [&_a:hover]:underline [&_a]:text-primary [&_a]:no-underline">
+                <p>
+                  <strong>{t('구글 폼:')}</strong>{' '}
+                  <a
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t('구글 폼 링크')}
+                  </a>
+                </p>
+                <p>
+                  <strong>{t('이메일:')}</strong>{' '}
+                  <a href="mailto:inhapj01@gmail.com" aria-label={t('Q-Asker 이메일 문의')}>
+                    inhapj01@gmail.com
+                  </a>
+                </p>
+              </div>
+            </BlurFade>
+          </section>
+        </main>
+      </article>
+    </div>
+  );
+};
+
+export default HelpMagicA;
