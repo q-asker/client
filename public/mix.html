@@ -82,11 +82,6 @@
       .actions button:hover {
         background: #f0f0f0;
       }
-      .actions button.copied {
-        background: #333;
-        color: #fff;
-        border-color: #333;
-      }
       .actions a.compare-link {
         padding: 5px 12px;
         border-radius: 8px;
@@ -196,17 +191,6 @@
 
           group.appendChild(select);
 
-          /* 각자보기 링크 (compare 페이지가 있는 경우) */
-          if (comp.compare) {
-            var link = document.createElement('a');
-            link.className = 'compare-link';
-            link.href = '/' + comp.compare;
-            link.target = '_blank';
-            link.title = comp.label + ' 개별 비교';
-            link.innerHTML = '각자<span class="arrow">\u2197</span>';
-            group.appendChild(link);
-          }
-
           controls.appendChild(group);
         });
 
@@ -215,8 +199,8 @@
         actions.className = 'actions';
         actions.innerHTML =
           '<a class="compare-link" href="/solve-quiz-compare.html" target="_blank">SolveQuiz<span class="arrow">\u2197</span></a>' +
-          '<button onclick="resetAll()">초기화</button>' +
-          '<button id="copyBtn" onclick="copyUrl()">URL 복사</button>';
+          '<a class="compare-link" href="/quiz-result-compare.html" target="_blank">QuizResult<span class="arrow">\u2197</span></a>' +
+          '<button onclick="resetAll()">초기화</button>';
         controls.appendChild(actions);
       }
 
@@ -249,20 +233,6 @@
           sel.value = '';
         });
         updatePreview();
-      }
-
-      function copyUrl() {
-        var query = buildQuery();
-        var url = location.origin + '/' + query;
-        navigator.clipboard.writeText(url).then(function () {
-          var btn = document.getElementById('copyBtn');
-          btn.textContent = '복사됨!';
-          btn.classList.add('copied');
-          setTimeout(function () {
-            btn.textContent = 'URL 복사';
-            btn.classList.remove('copied');
-          }, 1500);
-        });
       }
     </script>
   </body>
