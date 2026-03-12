@@ -427,7 +427,7 @@ const HelpMagicA = () => {
               <span id="precautions" />
             </BlurFade>
             <BlurFade delay={0.4} inView>
-              <div className="mt-5 rounded-2xl border border-yellow-400 bg-yellow-50 p-6 [&_li]:mb-2.5 [&_li]:text-base [&_li]:font-medium [&_li]:leading-relaxed [&_li]:text-yellow-800 [&_strong]:font-bold [&_strong]:text-yellow-900 [&_ul]:m-0 [&_ul]:pl-5">
+              <div className="mt-5 rounded-2xl border border-warning bg-warning/10 p-6 [&_li]:mb-2.5 [&_li]:text-base [&_li]:font-medium [&_li]:leading-relaxed [&_li]:text-warning [&_strong]:font-bold [&_strong]:text-warning [&_ul]:m-0 [&_ul]:pl-5">
                 <ul>
                   <li>
                     <strong>{t('AI 한계점:')}</strong>

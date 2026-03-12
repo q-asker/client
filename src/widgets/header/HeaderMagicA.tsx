@@ -255,7 +255,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[999] bg-black/20 backdrop-blur-sm"
+              className="fixed inset-0 z-[999] bg-foreground/20 backdrop-blur-sm"
               onClick={closeSidebar}
             />
             <motion.aside

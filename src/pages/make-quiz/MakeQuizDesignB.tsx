@@ -230,7 +230,7 @@ const MakeQuizDesignB: React.FC = () => {
                       key={type.key}
                       className={cn(
                         'flex-1 cursor-pointer border-none bg-background py-3 font-medium text-muted-foreground transition-colors duration-200 md:py-2 md:text-sm',
-                        options.questionType === type.key && 'bg-primary text-white',
+                        options.questionType === type.key && 'bg-primary text-primary-foreground',
                       )}
                       onClick={() => {
                         optionActions.handleQuestionTypeChange(type.key, type.label);
@@ -371,7 +371,7 @@ const MakeQuizDesignB: React.FC = () => {
                       />
                       <button
                         type="button"
-                        className="cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-2 text-[0.95rem] text-white transition-colors duration-200 hover:border-primary/80 hover:bg-primary/90 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:h-8 md:min-w-11 md:whitespace-nowrap md:px-2.5 md:py-0 md:text-sm md:leading-none"
+                        className="cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-2 text-[0.95rem] text-primary-foreground transition-colors duration-200 hover:border-primary/80 hover:bg-primary/90 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:h-8 md:min-w-11 md:whitespace-nowrap md:px-2.5 md:py-0 md:text-sm md:leading-none"
                         onClick={pageActions.handleApplyPageRange}
                         disabled={!pages.numPages}
                       >
@@ -446,7 +446,7 @@ const MakeQuizDesignB: React.FC = () => {
                 </div>
                 <div className="mt-5 flex flex-col items-center justify-center gap-4 md:gap-3">
                   <button
-                    className="w-full cursor-pointer rounded-lg border-none bg-primary px-8 py-4 text-base text-white transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:px-0 md:py-3 md:text-sm"
+                    className="w-full cursor-pointer rounded-lg border-none bg-primary px-8 py-4 text-base text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:px-0 md:py-3 md:text-sm"
                     onClick={generationActions.generateQuestions}
                     disabled={
                       !upload.uploadedUrl || isWaitingForFirstQuiz || !pages.selectedPages.length
@@ -512,7 +512,7 @@ const MakeQuizDesignB: React.FC = () => {
                   {t('파일을 여기에 드래그하세요')}
                 </div>
                 <p className="text-muted-foreground">{t('또는')}</p>
-                <div className="relative inline-block cursor-pointer rounded-lg bg-primary px-4 py-2 text-white transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90 md:px-3 md:py-1.5 md:text-sm">
+                <div className="relative inline-block cursor-pointer rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90 md:px-3 md:py-1.5 md:text-sm">
                   {t('파일 선택하기')}
                   <input
                     type="file"
@@ -584,7 +584,7 @@ const MakeQuizDesignB: React.FC = () => {
                   {t('다른 문제 생성')}
                 </button>
                 <button
-                  className="cursor-pointer rounded-md border border-transparent bg-primary px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
+                  className="cursor-pointer rounded-md border border-transparent bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
                   onClick={generationActions.handleNavigateToQuiz}
                 >
                   {t('문제 풀기')}

@@ -91,7 +91,7 @@ const SolveQuizDesignD: React.FC = () => {
             isCurrent &&
               'border-primary bg-primary text-primary-foreground shadow-md hover:opacity-90',
             isDone && 'border-primary/40 bg-background text-primary hover:border-primary',
-            isReview && 'border-amber-400 bg-amber-400 text-white hover:opacity-90',
+            isReview && 'border-warning bg-warning text-warning-foreground hover:opacity-90',
             stepState === 'todo' &&
               'border-border bg-background text-muted-foreground/40 hover:border-primary/40',
           )}
@@ -139,7 +139,7 @@ const SolveQuizDesignD: React.FC = () => {
             isCurrent &&
               'border-primary bg-primary text-primary-foreground shadow-md hover:opacity-90',
             isDone && 'border-primary/40 bg-background text-primary hover:border-primary',
-            isReview && 'border-amber-400 bg-amber-400 text-white hover:opacity-90',
+            isReview && 'border-warning bg-warning text-warning-foreground hover:opacity-90',
             stepState === 'todo' &&
               'border-border bg-background text-muted-foreground/40 hover:border-primary/40',
           )}
@@ -200,7 +200,7 @@ const SolveQuizDesignD: React.FC = () => {
       {/* 제출 다이얼로그 */}
       {quiz.showSubmitDialog && (
         <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-foreground/40"
           onClick={quizActions.handleOverlayClick}
         >
           <div
@@ -231,21 +231,21 @@ const SolveQuizDesignD: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
                   <span className="text-sm text-muted-foreground">{t('답변한 문제:')}</span>
-                  <span className="text-sm font-semibold text-emerald-600">
+                  <span className="text-sm font-semibold text-success">
                     {quiz.answeredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
                   <span className="text-sm text-muted-foreground">{t('안푼 문제:')}</span>
-                  <span className="text-sm font-semibold text-red-600">
+                  <span className="text-sm font-semibold text-destructive">
                     {quiz.unansweredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
                   <span className="text-sm text-muted-foreground">{t('검토할 문제:')}</span>
-                  <span className="text-sm font-semibold text-amber-600">
+                  <span className="text-sm font-semibold text-warning">
                     {quiz.reviewCount}
                     {t('개')}
                   </span>
@@ -275,13 +275,13 @@ const SolveQuizDesignD: React.FC = () => {
                         <span
                           className={cn(
                             'ml-3 flex items-center gap-2 break-words text-sm',
-                            unanswered && 'italic text-red-500',
-                            quizItem.check && 'text-amber-600',
+                            unanswered && 'italic text-destructive',
+                            quizItem.check && 'text-warning',
                           )}
                         >
                           <MarkdownText>{selectedAnswer}</MarkdownText>
                           {quizItem.check && (
-                            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-600">
+                            <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-warning">
                               {t('검토')}
                             </span>
                           )}

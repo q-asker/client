@@ -61,13 +61,13 @@ const SolveQuizMagicA: React.FC = () => {
       <button
         key={`${keyPrefix}${q.number}`}
         className={cn(
-          'flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white',
+          'flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card',
           'cursor-pointer transition-all duration-200',
           'hover:scale-110 hover:bg-accent',
           !unanswered && 'bg-accent',
-          q.check && 'bg-amber-200',
+          q.check && 'bg-warning/25',
           q.number === quiz.currentQuestion &&
-            'bg-primary font-bold text-white hover:scale-100 hover:bg-primary',
+            'bg-primary font-bold text-primary-foreground hover:scale-100 hover:bg-primary',
         )}
         onClick={() => quizActions.handleJumpTo(q.number)}
       >
@@ -92,11 +92,11 @@ const SolveQuizMagicA: React.FC = () => {
       {/* 제출 다이얼로그 */}
       {quiz.showSubmitDialog && (
         <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-foreground/50"
           onClick={quizActions.handleOverlayClick}
         >
           <div
-            className="w-[90%] max-w-[600px] animate-[slideIn_0.3s_ease-out] overflow-y-auto rounded-2xl bg-white shadow-card max-md:m-5 max-md:w-[95%]"
+            className="w-[90%] max-w-[600px] animate-[slideIn_0.3s_ease-out] overflow-y-auto rounded-2xl bg-card shadow-card max-md:m-5 max-md:w-[95%]"
             style={{ maxHeight: '80vh' }}
           >
             {/* 다이얼로그 헤더 */}
@@ -123,21 +123,21 @@ const SolveQuizMagicA: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-muted-foreground">{t('답변한 문제:')}</span>
-                  <span className="rounded bg-emerald-100 px-2 py-1 text-sm font-semibold text-emerald-600">
+                  <span className="rounded bg-success/15 px-2 py-1 text-sm font-semibold text-success">
                     {quiz.answeredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-muted-foreground">{t('안푼 문제:')}</span>
-                  <span className="rounded bg-red-100 px-2 py-1 text-sm font-semibold text-red-600">
+                  <span className="rounded bg-destructive/15 px-2 py-1 text-sm font-semibold text-destructive">
                     {quiz.unansweredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-muted-foreground">{t('검토할 문제:')}</span>
-                  <span className="rounded bg-amber-100 px-2 py-1 text-sm font-semibold text-amber-600">
+                  <span className="rounded bg-warning/15 px-2 py-1 text-sm font-semibold text-warning">
                     {quiz.reviewCount}
                     {t('개')}
                   </span>
@@ -167,13 +167,13 @@ const SolveQuizMagicA: React.FC = () => {
                         <span
                           className={cn(
                             'ml-3 flex items-center gap-2 break-words',
-                            unanswered && 'italic text-red-600',
-                            quizItem.check && 'text-amber-600',
+                            unanswered && 'italic text-destructive',
+                            quizItem.check && 'text-warning',
                           )}
                         >
                           <MarkdownText>{selectedAnswer}</MarkdownText>
                           {quizItem.check && (
-                            <span className="rounded bg-amber-400 px-1.5 py-0.5 text-xs font-medium text-white">
+                            <span className="rounded bg-warning px-1.5 py-0.5 text-xs font-medium text-warning-foreground">
                               {t('검토')}
                             </span>
                           )}
@@ -194,7 +194,7 @@ const SolveQuizMagicA: React.FC = () => {
                 {t('취소')}
               </button>
               <button
-                className="cursor-pointer rounded-lg border-none bg-primary px-6 py-2.5 font-medium text-white transition-all duration-200 hover:bg-primary/90 max-md:w-full"
+                className="cursor-pointer rounded-lg border-none bg-primary px-6 py-2.5 font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 max-md:w-full"
                 onClick={quizActions.handleConfirmSubmit}
               >
                 {t('제출하기')}
@@ -230,7 +230,7 @@ const SolveQuizMagicA: React.FC = () => {
           {/* 질문 네비게이션 */}
           <nav className="flex items-center justify-between max-md:mb-4 max-md:gap-2">
             <button
-              className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-white transition-all duration-200 hover:bg-primary/90 max-md:flex-1 max-md:text-sm"
+              className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-primary-foreground transition-all duration-200 hover:bg-primary/90 max-md:flex-1 max-md:text-sm"
               onClick={quizActions.handlePrev}
             >
               {t('이전')}
@@ -244,7 +244,7 @@ const SolveQuizMagicA: React.FC = () => {
               )}
             </span>
             <button
-              className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-white transition-all duration-200 hover:bg-primary/90 max-md:flex-1 max-md:text-sm"
+              className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-primary-foreground transition-all duration-200 hover:bg-primary/90 max-md:flex-1 max-md:text-sm"
               onClick={quizActions.handleNext}
             >
               {t('다음')}
@@ -261,7 +261,7 @@ const SolveQuizMagicA: React.FC = () => {
             <>
               <div className="relative flex">
                 {/* 좌측 문제 번호 패널 (데스크톱) */}
-                <aside className="absolute grid -translate-x-[120%] grid-cols-[repeat(5,minmax(2rem,1fr))] gap-2 rounded-2xl bg-white p-4 shadow-card max-[1500px]:hidden">
+                <aside className="absolute grid -translate-x-[120%] grid-cols-[repeat(5,minmax(2rem,1fr))] gap-2 rounded-2xl bg-card p-4 shadow-card max-[1500px]:hidden">
                   {quiz.quizzes.map((q) => renderQuestionButton(q))}
                   {Array.from({ length: remainingCount }).map((_, index) =>
                     renderPendingButton(index),
@@ -297,7 +297,7 @@ const SolveQuizMagicA: React.FC = () => {
                         <div
                           key={opt.id}
                           className={cn(
-                            'flex min-h-14 cursor-pointer items-center rounded-xl bg-white px-4 py-5 transition-all duration-200',
+                            'flex min-h-14 cursor-pointer items-center rounded-xl bg-card px-4 py-5 transition-all duration-200',
                             'hover:scale-[1.01] hover:bg-accent hover:shadow-sm',
                             'max-md:min-h-12 max-md:px-3 max-md:py-4',
                             quiz.selectedOption === opt.id && 'bg-accent shadow-sm',
@@ -321,7 +321,7 @@ const SolveQuizMagicA: React.FC = () => {
 
           {/* 확인 버튼 */}
           <button
-            className="mt-auto cursor-pointer rounded-lg border-none bg-primary p-3 text-base text-white transition-all duration-200 hover:bg-primary/90 max-md:mt-4 max-md:w-full"
+            className="mt-auto cursor-pointer rounded-lg border-none bg-primary p-3 text-base text-primary-foreground transition-all duration-200 hover:bg-primary/90 max-md:mt-4 max-md:w-full"
             onClick={quizActions.handleSubmit}
           >
             {t('확인')}
@@ -329,7 +329,7 @@ const SolveQuizMagicA: React.FC = () => {
 
           {/* 제출하기 버튼 */}
           <button
-            className="mt-8 w-[100px] cursor-pointer self-end rounded-lg border-none bg-primary p-3 text-base text-white transition-all duration-200 hover:bg-primary/90 max-md:mt-4 max-md:w-full max-md:self-stretch"
+            className="mt-8 w-[100px] cursor-pointer self-end rounded-lg border-none bg-primary p-3 text-base text-primary-foreground transition-all duration-200 hover:bg-primary/90 max-md:mt-4 max-md:w-full max-md:self-stretch"
             onClick={quizActions.handleFinish}
           >
             {t('제출하기')}
@@ -337,7 +337,7 @@ const SolveQuizMagicA: React.FC = () => {
         </section>
 
         {/* 하단 문제 번호 패널 (모바일/태블릿) */}
-        <aside className="mt-4 hidden grid-cols-[repeat(auto-fill,2rem)] justify-center gap-2 rounded-2xl bg-white p-4 shadow-card max-[1500px]:grid">
+        <aside className="mt-4 hidden grid-cols-[repeat(auto-fill,2rem)] justify-center gap-2 rounded-2xl bg-card p-4 shadow-card max-[1500px]:grid">
           {quiz.quizzes.map((q) => renderQuestionButton(q, 'bottom-'))}
           {Array.from({ length: remainingCount }).map((_, index) =>
             renderPendingButton(index, 'bottom-'),

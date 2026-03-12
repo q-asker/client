@@ -60,7 +60,7 @@ const SolveQuizDesignA: React.FC = () => {
           'cursor-pointer text-xs font-medium text-muted-foreground transition-colors duration-200',
           'hover:border-primary hover:text-primary',
           !unanswered && 'border-primary/40 bg-primary/10 text-primary',
-          q.check && 'border-amber-400 bg-amber-50 text-amber-600',
+          q.check && 'border-warning bg-warning/10 text-warning',
           q.number === quiz.currentQuestion &&
             'border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground',
         )}
@@ -87,7 +87,7 @@ const SolveQuizDesignA: React.FC = () => {
       {/* 제출 다이얼로그 */}
       {quiz.showSubmitDialog && (
         <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-foreground/40"
           onClick={quizActions.handleOverlayClick}
         >
           <div
@@ -118,21 +118,21 @@ const SolveQuizDesignA: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
                   <span className="text-sm text-muted-foreground">{t('답변한 문제:')}</span>
-                  <span className="text-sm font-semibold text-emerald-600">
+                  <span className="text-sm font-semibold text-success">
                     {quiz.answeredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
                   <span className="text-sm text-muted-foreground">{t('안푼 문제:')}</span>
-                  <span className="text-sm font-semibold text-red-600">
+                  <span className="text-sm font-semibold text-destructive">
                     {quiz.unansweredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
                   <span className="text-sm text-muted-foreground">{t('검토할 문제:')}</span>
-                  <span className="text-sm font-semibold text-amber-600">
+                  <span className="text-sm font-semibold text-warning">
                     {quiz.reviewCount}
                     {t('개')}
                   </span>
@@ -162,13 +162,13 @@ const SolveQuizDesignA: React.FC = () => {
                         <span
                           className={cn(
                             'ml-3 flex items-center gap-2 break-words text-sm',
-                            unanswered && 'italic text-red-500',
-                            quizItem.check && 'text-amber-600',
+                            unanswered && 'italic text-destructive',
+                            quizItem.check && 'text-warning',
                           )}
                         >
                           <MarkdownText>{selectedAnswer}</MarkdownText>
                           {quizItem.check && (
-                            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-600">
+                            <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-warning">
                               {t('검토')}
                             </span>
                           )}

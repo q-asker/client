@@ -100,11 +100,11 @@ const SolveQuizMagicB: React.FC = () => {
       {/* 제출 다이얼로그 */}
       {quiz.showSubmitDialog && (
         <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-foreground/50"
           onClick={quizActions.handleOverlayClick}
         >
           <div
-            className="w-[90%] max-w-[600px] animate-[slideIn_0.3s_ease-out] overflow-y-auto rounded-xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.15)] max-md:m-5 max-md:w-[95%]"
+            className="w-[90%] max-w-[600px] animate-[slideIn_0.3s_ease-out] overflow-y-auto rounded-xl bg-card shadow-lg max-md:m-5 max-md:w-[95%]"
             style={{ maxHeight: '80vh' }}
           >
             {/* 다이얼로그 헤더 */}
@@ -131,21 +131,21 @@ const SolveQuizMagicB: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-muted-foreground">{t('답변한 문제:')}</span>
-                  <span className="rounded bg-emerald-100 px-2 py-1 text-sm font-semibold text-emerald-600">
+                  <span className="rounded bg-success/15 px-2 py-1 text-sm font-semibold text-success">
                     {quiz.answeredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-muted-foreground">{t('안푼 문제:')}</span>
-                  <span className="rounded bg-red-100 px-2 py-1 text-sm font-semibold text-red-600">
+                  <span className="rounded bg-destructive/15 px-2 py-1 text-sm font-semibold text-destructive">
                     {quiz.unansweredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-muted-foreground">{t('검토할 문제:')}</span>
-                  <span className="rounded bg-amber-100 px-2 py-1 text-sm font-semibold text-amber-600">
+                  <span className="rounded bg-warning/15 px-2 py-1 text-sm font-semibold text-warning">
                     {quiz.reviewCount}
                     {t('개')}
                   </span>
@@ -175,13 +175,13 @@ const SolveQuizMagicB: React.FC = () => {
                         <span
                           className={cn(
                             'ml-3 flex items-center gap-2 break-words',
-                            unanswered && 'italic text-red-600',
-                            quizItem.check && 'text-amber-600',
+                            unanswered && 'italic text-destructive',
+                            quizItem.check && 'text-warning',
                           )}
                         >
                           <MarkdownText>{selectedAnswer}</MarkdownText>
                           {quizItem.check && (
-                            <span className="rounded bg-amber-400 px-1.5 py-0.5 text-xs font-medium text-white">
+                            <span className="rounded bg-warning px-1.5 py-0.5 text-xs font-medium text-warning-foreground">
                               {t('검토')}
                             </span>
                           )}
@@ -202,7 +202,7 @@ const SolveQuizMagicB: React.FC = () => {
                 {t('취소')}
               </button>
               <button
-                className="cursor-pointer rounded-md border-none bg-primary px-6 py-2.5 font-medium text-white transition-all duration-200 hover:bg-primary/90 max-md:w-full"
+                className="cursor-pointer rounded-md border-none bg-primary px-6 py-2.5 font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 max-md:w-full"
                 onClick={quizActions.handleConfirmSubmit}
               >
                 {t('제출하기')}
@@ -228,7 +228,7 @@ const SolveQuizMagicB: React.FC = () => {
         {/* 질문 네비게이션 */}
         <nav className="mb-4 flex items-center justify-between max-md:gap-2">
           <button
-            className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-white max-md:flex-1 max-md:text-sm"
+            className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-primary-foreground max-md:flex-1 max-md:text-sm"
             onClick={handlePrev}
           >
             {t('이전')}
@@ -237,7 +237,7 @@ const SolveQuizMagicB: React.FC = () => {
             {quiz.currentQuestion} / {quiz.totalQuestions}
           </span>
           <button
-            className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-white max-md:flex-1 max-md:text-sm"
+            className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-primary-foreground max-md:flex-1 max-md:text-sm"
             onClick={handleNext}
           >
             {t('다음')}
@@ -266,12 +266,12 @@ const SolveQuizMagicB: React.FC = () => {
                     <button
                       key={q.number}
                       className={cn(
-                        'relative z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-border bg-white text-xs font-medium transition-all duration-200',
+                        'relative z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-border bg-card text-xs font-medium transition-all duration-200',
                         'hover:scale-110 hover:border-primary',
                         !unanswered && 'border-accent bg-accent',
-                        q.check && 'border-amber-400 bg-amber-200',
+                        q.check && 'border-warning bg-warning/25',
                         isCurrent &&
-                          'scale-110 border-primary bg-primary text-white hover:scale-110',
+                          'scale-110 border-primary bg-primary text-primary-foreground hover:scale-110',
                       )}
                       onClick={() => handleJumpTo(q.number)}
                     >
@@ -359,7 +359,7 @@ const SolveQuizMagicB: React.FC = () => {
 
               {/* 확인 버튼 */}
               <button
-                className="mt-4 w-full cursor-pointer rounded-lg border-none bg-primary p-3 text-base text-white max-md:mt-4"
+                className="mt-4 w-full cursor-pointer rounded-lg border-none bg-primary p-3 text-base text-primary-foreground max-md:mt-4"
                 onClick={quizActions.handleSubmit}
               >
                 {t('확인')}
@@ -367,7 +367,7 @@ const SolveQuizMagicB: React.FC = () => {
 
               {/* 제출하기 버튼 */}
               <button
-                className="mt-8 w-[100px] cursor-pointer self-end rounded-lg border-none bg-primary p-3 text-base text-white max-md:mt-4 max-md:w-full"
+                className="mt-8 w-[100px] cursor-pointer self-end rounded-lg border-none bg-primary p-3 text-base text-primary-foreground max-md:mt-4 max-md:w-full"
                 onClick={quizActions.handleFinish}
               >
                 {t('제출하기')}
@@ -377,20 +377,20 @@ const SolveQuizMagicB: React.FC = () => {
         )}
 
         {/* 하단 문제 번호 패널 (모바일) */}
-        <aside className="mt-4 hidden grid-cols-[repeat(auto-fill,2rem)] justify-center gap-2 rounded-lg bg-white p-4 shadow-md max-md:grid">
+        <aside className="mt-4 hidden grid-cols-[repeat(auto-fill,2rem)] justify-center gap-2 rounded-lg bg-card p-4 shadow-md max-md:grid">
           {quiz.quizzes.map((q) => {
             const unanswered = isUnanswered(q.userAnswer, q.selections);
             return (
               <button
                 key={`bottom-${q.number}`}
                 className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-full border-2 border-border bg-white',
+                  'flex h-8 w-8 items-center justify-center rounded-full border-2 border-border bg-card',
                   'cursor-pointer transition-all duration-200',
                   'hover:scale-110 hover:border-primary',
                   !unanswered && 'border-accent bg-accent',
-                  q.check && 'border-amber-400 bg-amber-200',
+                  q.check && 'border-warning bg-warning/25',
                   q.number === quiz.currentQuestion &&
-                    'border-primary bg-primary font-bold text-white hover:scale-100',
+                    'border-primary bg-primary font-bold text-primary-foreground hover:scale-100',
                 )}
                 onClick={() => handleJumpTo(q.number)}
               >

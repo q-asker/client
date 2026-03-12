@@ -53,7 +53,7 @@ const HelpDesignB = () => {
                 itemScope
                 itemType="https://schema.org/HowToStep"
               >
-                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                   1
                 </div>
                 <h3 className="text-base font-semibold text-foreground" itemProp="name">
@@ -89,7 +89,7 @@ const HelpDesignB = () => {
                 itemScope
                 itemType="https://schema.org/HowToStep"
               >
-                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                   2
                 </div>
                 <h3 className="text-base font-semibold text-foreground" itemProp="name">
@@ -123,7 +123,7 @@ const HelpDesignB = () => {
                 itemScope
                 itemType="https://schema.org/HowToStep"
               >
-                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                   3
                 </div>
                 <h3 className="text-base font-semibold text-foreground" itemProp="name">
@@ -159,7 +159,7 @@ const HelpDesignB = () => {
                 itemScope
                 itemType="https://schema.org/HowToStep"
               >
-                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                   4
                 </div>
                 <h3 className="text-base font-semibold text-foreground" itemProp="name">
@@ -193,7 +193,7 @@ const HelpDesignB = () => {
                 itemScope
                 itemType="https://schema.org/HowToStep"
               >
-                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                   5
                 </div>
                 <h3 className="text-base font-semibold text-foreground" itemProp="name">
@@ -222,7 +222,7 @@ const HelpDesignB = () => {
                 itemScope
                 itemType="https://schema.org/HowToStep"
               >
-                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                   6
                 </div>
                 <h3 className="text-base font-semibold text-foreground" itemProp="name">

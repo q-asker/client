@@ -156,7 +156,7 @@ const HelpMagicB = () => {
                 >
                   <article itemProp="step" itemScope itemType="https://schema.org/HowToStep">
                     {/* 번호 원 */}
-                    <div className="absolute -left-[calc(2rem+13px)] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white md:-left-[calc(1.5rem+13px)]">
+                    <div className="absolute -left-[calc(2rem+13px)] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground md:-left-[calc(1.5rem+13px)]">
                       {step.number}
                     </div>
 

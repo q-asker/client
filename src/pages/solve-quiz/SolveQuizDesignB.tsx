@@ -60,7 +60,7 @@ const SolveQuizDesignB: React.FC = () => {
           'cursor-pointer text-sm font-medium text-muted-foreground transition-colors duration-200',
           'hover:border-primary hover:bg-primary/5',
           !unanswered && 'border-primary/40 bg-primary/10 text-primary',
-          q.check && 'border-amber-400 bg-amber-50 text-amber-600',
+          q.check && 'border-warning bg-warning/10 text-warning',
           q.number === quiz.currentQuestion &&
             'border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground',
         )}
@@ -87,7 +87,7 @@ const SolveQuizDesignB: React.FC = () => {
       {/* 제출 다이얼로그 */}
       {quiz.showSubmitDialog && (
         <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-foreground/50"
           onClick={quizActions.handleOverlayClick}
         >
           <div
@@ -118,21 +118,21 @@ const SolveQuizDesignB: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-muted-foreground">{t('답변한 문제:')}</span>
-                  <span className="rounded-lg bg-emerald-100 px-2 py-1 text-sm font-semibold text-emerald-600">
+                  <span className="rounded-lg bg-success/15 px-2 py-1 text-sm font-semibold text-success">
                     {quiz.answeredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-muted-foreground">{t('안푼 문제:')}</span>
-                  <span className="rounded-lg bg-red-100 px-2 py-1 text-sm font-semibold text-red-600">
+                  <span className="rounded-lg bg-destructive/15 px-2 py-1 text-sm font-semibold text-destructive">
                     {quiz.unansweredCount}
                     {t('개')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-muted-foreground">{t('검토할 문제:')}</span>
-                  <span className="rounded-lg bg-amber-100 px-2 py-1 text-sm font-semibold text-amber-600">
+                  <span className="rounded-lg bg-warning/15 px-2 py-1 text-sm font-semibold text-warning">
                     {quiz.reviewCount}
                     {t('개')}
                   </span>
@@ -162,13 +162,13 @@ const SolveQuizDesignB: React.FC = () => {
                         <span
                           className={cn(
                             'ml-3 flex items-center gap-2 break-words',
-                            unanswered && 'italic text-red-600',
-                            quizItem.check && 'text-amber-600',
+                            unanswered && 'italic text-destructive',
+                            quizItem.check && 'text-warning',
                           )}
                         >
                           <MarkdownText>{selectedAnswer}</MarkdownText>
                           {quizItem.check && (
-                            <span className="rounded-full bg-amber-400 px-1.5 py-0.5 text-xs font-medium text-white">
+                            <span className="rounded-full bg-warning px-1.5 py-0.5 text-xs font-medium text-warning-foreground">
                               {t('검토')}
                             </span>
                           )}
@@ -320,21 +320,21 @@ const SolveQuizDesignB: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{t('답변한 문제:')}</span>
-                <span className="rounded-lg bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-600">
+                <span className="rounded-lg bg-success/15 px-3 py-1 text-sm font-bold text-success">
                   {quiz.answeredCount}
                   {t('개')}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{t('안푼 문제:')}</span>
-                <span className="rounded-lg bg-red-100 px-3 py-1 text-sm font-bold text-red-600">
+                <span className="rounded-lg bg-destructive/15 px-3 py-1 text-sm font-bold text-destructive">
                   {quiz.unansweredCount}
                   {t('개')}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{t('검토할 문제:')}</span>
-                <span className="rounded-lg bg-amber-100 px-3 py-1 text-sm font-bold text-amber-600">
+                <span className="rounded-lg bg-warning/15 px-3 py-1 text-sm font-bold text-warning">
                   {quiz.reviewCount}
                   {t('개')}
                 </span>

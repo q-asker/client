@@ -83,7 +83,7 @@ const MakeQuizMagicA: React.FC = () => {
         <BlurFade delay={0.05} direction="left" inView>
           <section className="relative mb-8 md:mb-6">
             {/* 플로팅 넘버 뱃지 */}
-            <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
+            <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
               1
             </span>
             <div
@@ -132,7 +132,7 @@ const MakeQuizMagicA: React.FC = () => {
                     {t('파일을 여기에 드래그하세요')}
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">{t('또는')}</p>
-                  <div className="relative mt-4 inline-block cursor-pointer rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-md md:px-5 md:py-2">
+                  <div className="relative mt-4 inline-block cursor-pointer rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-md md:px-5 md:py-2">
                     {t('파일 선택하기')}
                     <input
                       type="file"
@@ -197,7 +197,7 @@ const MakeQuizMagicA: React.FC = () => {
             {/* 섹션 2: 퀴즈 타입 — 개별 카드 형태 */}
             <BlurFade delay={0.1} direction="right" inView>
               <section className="relative mb-8 md:mb-6">
-                <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
+                <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
                   2
                 </span>
                 <div className="rounded-2xl border border-border bg-background p-6 shadow-card md:p-5">
@@ -276,7 +276,7 @@ const MakeQuizMagicA: React.FC = () => {
             {/* 섹션 3: 문제 개수 — 대형 중앙 숫자 */}
             <BlurFade delay={0.15} direction="left" inView>
               <section className="relative mb-8 md:mb-6">
-                <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
+                <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
                   3
                 </span>
                 <div className="rounded-2xl border border-border bg-background p-6 shadow-card md:p-5">
@@ -327,7 +327,7 @@ const MakeQuizMagicA: React.FC = () => {
             {/* 섹션 4: 페이지 선택 */}
             <BlurFade delay={0.2} direction="right" inView>
               <section className="relative mb-8 md:mb-6">
-                <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
+                <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
                   4
                 </span>
                 <div className="rounded-2xl border border-border bg-background p-6 shadow-card md:p-5">
@@ -385,7 +385,7 @@ const MakeQuizMagicA: React.FC = () => {
                         />
                         <button
                           type="button"
-                          className="cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:shadow-md disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none md:h-8 md:min-w-11 md:whitespace-nowrap md:px-3 md:py-0 md:text-sm md:leading-none"
+                          className="cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-all duration-200 hover:shadow-md disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none md:h-8 md:min-w-11 md:whitespace-nowrap md:px-3 md:py-0 md:text-sm md:leading-none"
                           onClick={pageActions.handleApplyPageRange}
                           disabled={!pages.numPages}
                         >
@@ -522,7 +522,7 @@ const MakeQuizMagicA: React.FC = () => {
             {/* 섹션 5: 문제 생성 */}
             <BlurFade delay={0.25} direction="left" inView>
               <section className="relative mb-8 md:mb-6">
-                <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
+                <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-sm md:-left-1 md:-top-1 md:size-7 md:text-xs">
                   5
                 </span>
                 <div className="rounded-2xl border border-border bg-background p-6 shadow-card md:p-5">
@@ -556,7 +556,7 @@ const MakeQuizMagicA: React.FC = () => {
                   </div>
                   <div className="mt-6 flex flex-col items-center gap-3">
                     <button
-                      className="w-full max-w-sm cursor-pointer rounded-xl border-none bg-primary px-8 py-4 text-base font-bold text-white shadow-sm transition-all duration-200 hover:shadow-md disabled:cursor-not-allowed disabled:bg-muted-foreground disabled:shadow-none md:max-w-none md:py-3 md:text-sm"
+                      className="w-full max-w-sm cursor-pointer rounded-xl border-none bg-primary px-8 py-4 text-base font-bold text-primary-foreground shadow-sm transition-all duration-200 hover:shadow-md disabled:cursor-not-allowed disabled:bg-muted-foreground disabled:shadow-none md:max-w-none md:py-3 md:text-sm"
                       onClick={generationActions.generateQuestions}
                       disabled={
                         !upload.uploadedUrl || isWaitingForFirstQuiz || !pages.selectedPages.length
@@ -582,7 +582,7 @@ const MakeQuizMagicA: React.FC = () => {
         {generation.problemSetId && (
           <BlurFade delay={0.1} direction="up" inView>
             <section className="relative mb-8">
-              <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm">
+              <span className="absolute -left-3 -top-3 z-10 flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-sm">
                 ✓
               </span>
               <div className="rounded-2xl border border-border bg-background p-6 shadow-card">
@@ -610,7 +610,7 @@ const MakeQuizMagicA: React.FC = () => {
                       {t('다른 문제 생성')}
                     </button>
                     <button
-                      className="cursor-pointer rounded-full bg-primary px-5 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:shadow-md md:w-full md:py-2.5"
+                      className="cursor-pointer rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-all duration-200 hover:shadow-md md:w-full md:py-2.5"
                       onClick={generationActions.handleNavigateToQuiz}
                     >
                       {t('문제 풀기')}

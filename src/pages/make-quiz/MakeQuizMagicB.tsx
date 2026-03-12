@@ -85,7 +85,7 @@ const MakeQuizMagicB: React.FC = () => {
           {/* 1단계: 파일 업로드 */}
           <BlurFade delay={STAGGER_DELAY} inView className="relative mb-10">
             {/* 번호 원형 */}
-            <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white md:-left-[calc(1.5rem+13px)]">
+            <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground md:-left-[calc(1.5rem+13px)]">
               1
             </div>
 
@@ -143,7 +143,7 @@ const MakeQuizMagicB: React.FC = () => {
                     {t('파일을 여기에 드래그하세요')}
                   </div>
                   <p>{t('또는')}</p>
-                  <div className="relative inline-block cursor-pointer rounded-lg bg-primary px-4 py-2 text-white transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90 md:px-3 md:py-1.5 md:text-sm">
+                  <div className="relative inline-block cursor-pointer rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90 md:px-3 md:py-1.5 md:text-sm">
                     {t('파일 선택하기')}
                     <input
                       type="file"
@@ -167,7 +167,7 @@ const MakeQuizMagicB: React.FC = () => {
                     )}
                   </div>
                   <button
-                    className="mt-4 cursor-pointer rounded-lg border-none bg-destructive px-4 py-2 text-white md:px-3 md:py-1.5 md:text-sm"
+                    className="mt-4 cursor-pointer rounded-lg border-none bg-destructive px-4 py-2 text-destructive-foreground md:px-3 md:py-1.5 md:text-sm"
                     onClick={commonActions.handleRemoveFile}
                   >
                     {t('✕ 파일 삭제')}
@@ -212,7 +212,7 @@ const MakeQuizMagicB: React.FC = () => {
             <>
               {/* 2단계: 퀴즈 타입 선택 */}
               <BlurFade delay={STAGGER_DELAY * 2} inView className="relative mb-10">
-                <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white md:-left-[calc(1.5rem+13px)]">
+                <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground md:-left-[calc(1.5rem+13px)]">
                   2
                 </div>
 
@@ -232,7 +232,7 @@ const MakeQuizMagicB: React.FC = () => {
                         key={type.key}
                         className={cn(
                           'flex-1 cursor-pointer border-none bg-transparent py-3 font-medium text-muted-foreground transition-colors duration-200 md:py-2 md:text-sm',
-                          options.questionType === type.key && 'bg-primary text-white',
+                          options.questionType === type.key && 'bg-primary text-primary-foreground',
                         )}
                         onClick={() => {
                           optionActions.handleQuestionTypeChange(type.key, type.label);
@@ -282,7 +282,7 @@ const MakeQuizMagicB: React.FC = () => {
 
               {/* 2-2단계: 문제 개수 */}
               <BlurFade delay={STAGGER_DELAY * 3} inView className="relative mb-10">
-                <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white md:-left-[calc(1.5rem+13px)]">
+                <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground md:-left-[calc(1.5rem+13px)]">
                   3
                 </div>
 
@@ -322,7 +322,7 @@ const MakeQuizMagicB: React.FC = () => {
 
               {/* 3단계: 페이지 선택 */}
               <BlurFade delay={STAGGER_DELAY * 4} inView className="relative mb-10">
-                <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white md:-left-[calc(1.5rem+13px)]">
+                <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground md:-left-[calc(1.5rem+13px)]">
                   4
                 </div>
 
@@ -390,7 +390,7 @@ const MakeQuizMagicB: React.FC = () => {
                           />
                           <button
                             type="button"
-                            className="cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-2 text-[0.95rem] text-white transition-colors duration-200 hover:border-primary/80 hover:bg-primary/90 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:h-8 md:min-w-11 md:whitespace-nowrap md:px-2.5 md:py-0 md:text-sm md:leading-none"
+                            className="cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-2 text-[0.95rem] text-primary-foreground transition-colors duration-200 hover:border-primary/80 hover:bg-primary/90 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:h-8 md:min-w-11 md:whitespace-nowrap md:px-2.5 md:py-0 md:text-sm md:leading-none"
                             onClick={pageActions.handleApplyPageRange}
                             disabled={!pages.numPages}
                           >
@@ -528,7 +528,7 @@ const MakeQuizMagicB: React.FC = () => {
 
               {/* 4단계: 문제 생성 */}
               <BlurFade delay={STAGGER_DELAY * 5} inView className="relative mb-10">
-                <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white md:-left-[calc(1.5rem+13px)]">
+                <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground md:-left-[calc(1.5rem+13px)]">
                   5
                 </div>
 
@@ -569,7 +569,7 @@ const MakeQuizMagicB: React.FC = () => {
                   </div>
                   <div className="mt-5 flex flex-col items-center justify-center gap-4 md:mb-8 md:gap-3">
                     <button
-                      className="mt-6 cursor-pointer rounded-lg border-none bg-primary px-8 py-4 text-base text-white disabled:cursor-not-allowed disabled:bg-muted-foreground md:w-full md:px-0 md:py-3 md:text-sm"
+                      className="mt-6 cursor-pointer rounded-lg border-none bg-primary px-8 py-4 text-base text-primary-foreground disabled:cursor-not-allowed disabled:bg-muted-foreground md:w-full md:px-0 md:py-3 md:text-sm"
                       onClick={generationActions.generateQuestions}
                       disabled={
                         !upload.uploadedUrl || isWaitingForFirstQuiz || !pages.selectedPages.length
@@ -593,7 +593,7 @@ const MakeQuizMagicB: React.FC = () => {
           {/* 생성 완료 */}
           {generation.problemSetId && (
             <BlurFade delay={STAGGER_DELAY} inView className="relative mb-10">
-              <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white md:-left-[calc(1.5rem+13px)]">
+              <div className="absolute -left-[calc(2rem+13px)] flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground md:-left-[calc(1.5rem+13px)]">
                 ✓
               </div>
 
@@ -630,7 +630,7 @@ const MakeQuizMagicB: React.FC = () => {
                       {t('다른 문제 생성')}
                     </button>
                     <button
-                      className="cursor-pointer rounded-md border border-transparent bg-primary px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
+                      className="cursor-pointer rounded-md border border-transparent bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
                       onClick={generationActions.handleNavigateToQuiz}
                     >
                       {t('문제 풀기')}
