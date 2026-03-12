@@ -1,0 +1,38 @@
+[
+  {
+    "param": "header",
+    "label": "Header",
+    "variants": ["b", "c", "d", "e"],
+    "compare": "header-compare.html"
+  },
+  {
+    "param": "footer",
+    "label": "Footer",
+    "variants": ["b", "c", "d", "e"],
+    "compare": "footer-compare.html"
+  },
+  {
+    "param": "help",
+    "label": "Help",
+    "variants": ["b", "c", "d", "e"],
+    "compare": "help-compare.html"
+  },
+  {
+    "param": "rc",
+    "label": "Recent",
+    "variants": ["b", "c", "d", "e"],
+    "compare": "recent-changes-compare.html"
+  },
+  {
+    "param": "mq",
+    "label": "Quiz",
+    "variants": ["b", "c", "d", "e"],
+    "compare": "make-quiz-compare.html"
+  },
+  {
+    "param": "sq",
+    "label": "SolveQuiz",
+    "variants": ["b", "c", "d", "e", "f", "g", "h", "i"],
+    "compare": "solve-quiz-compare.html"
+  }
+]

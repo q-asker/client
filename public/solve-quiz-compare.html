@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Solve Quiz 디자인 비교</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, sans-serif;
+        background: #f1f1f1;
+      }
+      nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        padding: 10px;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      nav button {
+        padding: 6px 16px;
+        border-radius: 999px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      nav button:hover {
+        background: #eee;
+      }
+      nav button.active {
+        background: #333;
+        color: #fff;
+        border-color: #333;
+      }
+      .sep {
+        width: 1px;
+        height: 24px;
+        background: #ddd;
+      }
+      .id-input {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .id-input label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .id-input input {
+        width: 200px;
+        padding: 5px 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: 12px;
+        color: #333;
+      }
+      .id-input input:focus {
+        outline: none;
+        border-color: #999;
+      }
+      .id-input button {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #4f46e5;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .id-input button:hover {
+        background: #4338ca;
+      }
+      #single {
+        width: 100%;
+        height: calc(100vh - 46px);
+        border: none;
+        display: block;
+      }
+      #all {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+      }
+      #all .card {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      }
+      #all .label {
+        padding: 6px 16px;
+        font-weight: 700;
+        font-size: 13px;
+        background: #fff;
+        color: #333;
+        border-bottom: 1px solid #eee;
+      }
+      #all iframe {
+        width: 100%;
+        height: 800px;
+        border: none;
+        display: block;
+      }
+      .empty-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: calc(100vh - 46px);
+        color: #999;
+        font-size: 14px;
+        text-align: center;
+        line-height: 1.8;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="id-input">
+        <label>ID</label>
+        <input
+          id="pidInput"
+          type="text"
+          placeholder="problemSetId 입력"
+          onkeydown="if (event.key === 'Enter') applyId();"
+        />
+        <button onclick="applyId()">적용</button>
+      </div>
+      <div class="sep"></div>
+      <button onclick="toggleMock()" id="btn-mock">MOCK</button>
+      <div class="sep"></div>
+      <button onclick="showAll()" id="btn-all">ALL</button>
+      <button class="active" onclick="showOne('')">A</button>
+      <button onclick="showOne('b')">B</button>
+      <button onclick="showOne('c')">C</button>
+      <button onclick="showOne('d')">D</button>
+      <button onclick="showOne('e')">E</button>
+      <button onclick="showOne('f')">F</button>
+      <button onclick="showOne('g')">G</button>
+      <button onclick="showOne('h')">H</button>
+      <button onclick="showOne('i')">I</button>
+    </nav>
+    <div id="empty" class="empty-state">
+      퀴즈를 생성한 뒤 problemSetId를 입력하고<br />적용 버튼을 눌러주세요
+    </div>
+    <iframe id="single" style="display: none"></iframe>
+    <div id="all"></div>
+    <script>
+      var pid = '';
+      var currentVariant = '';
+      var isAllMode = false;
+      var useMock = false;
+
+      /* 초기화: mock 모드 기본 활성화 */
+      (function init() {
+        var hash = location.hash.slice(1);
+        if (hash) {
+          pid = hash;
+          document.getElementById('pidInput').value = pid;
+        } else {
+          /* 해시 없으면 mock 모드로 자동 시작 */
+          useMock = true;
+          pid = 'mock-test';
+          document.getElementById('pidInput').value = pid;
+          document.getElementById('btn-mock').classList.add('active');
+        }
+        /* A안 바로 표시 */
+        document.getElementById('empty').style.display = 'none';
+        var frame = document.getElementById('single');
+        frame.style.display = 'block';
+        frame.src = buildSrc('');
+      })();
+
+      function applyId() {
+        pid = document.getElementById('pidInput').value.trim();
+        if (!pid) return;
+        location.hash = pid;
+        if (isAllMode) {
+          showAll();
+        } else {
+          showOne(currentVariant);
+        }
+      }
+
+      function toggleMock() {
+        useMock = !useMock;
+        var btn = document.getElementById('btn-mock');
+        btn.classList.toggle('active', useMock);
+        if (useMock) {
+          pid = 'mock-test';
+          document.getElementById('pidInput').value = pid;
+        }
+        if (isAllMode) {
+          showAll();
+        } else if (pid) {
+          showOne(currentVariant);
+        }
+      }
+
+      function buildSrc(variant) {
+        var base = '/quiz/' + pid;
+        var params = [];
+        if (variant) params.push('sq=' + variant);
+        if (useMock) params.push('mock=true');
+        return params.length > 0 ? base + '?' + params.join('&') : base;
+      }
+
+      function activate(el) {
+        document.querySelectorAll('nav button').forEach(function (b) {
+          b.classList.remove('active');
+        });
+        el.classList.add('active');
+      }
+
+      function showOne(v) {
+        currentVariant = v;
+        isAllMode = false;
+        document.getElementById('all').style.display = 'none';
+
+        if (!pid) {
+          document.getElementById('single').style.display = 'none';
+          document.getElementById('empty').style.display = 'flex';
+          activate(event.target);
+          return;
+        }
+
+        document.getElementById('empty').style.display = 'none';
+        var frame = document.getElementById('single');
+        frame.style.display = 'block';
+        frame.src = buildSrc(v);
+        activate(event.target);
+      }
+
+      function showAll() {
+        isAllMode = true;
+        document.getElementById('single').style.display = 'none';
+
+        if (!pid) {
+          document.getElementById('empty').style.display = 'flex';
+          document.getElementById('all').style.display = 'none';
+          activate(event.target);
+          return;
+        }
+
+        document.getElementById('empty').style.display = 'none';
+        var allDiv = document.getElementById('all');
+
+        /* ALL iframe 동적 생성 */
+        var variants = [
+          { key: '', label: 'A — Original (디자인 토큰 적용)' },
+          { key: 'b', label: 'B — MagicUI A (Card+Progress)' },
+          { key: 'c', label: 'C — MagicUI B (Slide+Timeline)' },
+          { key: 'd', label: 'D — Design A (Minimal Clean)' },
+          { key: 'e', label: 'E — Design B (Split Panel)' },
+          { key: 'f', label: 'F — MagicUI C (Flashcard Flip)' },
+          { key: 'g', label: 'G — MagicUI D (Swipe+BottomSheet)' },
+          { key: 'h', label: 'H — Design C (Focus Mode)' },
+          { key: 'i', label: 'I — Design D (Stepper Wizard)' },
+        ];
+        allDiv.innerHTML = variants
+          .map(function (v) {
+            return (
+              '<div class="card"><div class="label">' +
+              v.label +
+              '</div><iframe src="' +
+              buildSrc(v.key) +
+              '"></iframe></div>'
+            );
+          })
+          .join('');
+        allDiv.style.display = 'flex';
+        activate(event.target);
+      }
+    </script>
+  </body>
+</html>

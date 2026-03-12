@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>디자인 믹서 — 컴포넌트 조합 비교</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, 'Pretendard', sans-serif;
+        background: #f5f5f5;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        background: #fff;
+        border-bottom: 1px solid #e0e0e0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .control-group label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .control-group select {
+        padding: 5px 24px 5px 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        font-size: 12px;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+      }
+      .control-group select:focus {
+        outline: none;
+        border-color: #999;
+      }
+      .sep {
+        width: 1px;
+        height: 24px;
+        background: #e0e0e0;
+      }
+      .actions {
+        display: flex;
+        gap: 6px;
+        margin-left: auto;
+      }
+      .actions button {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .actions button:hover {
+        background: #f0f0f0;
+      }
+      .actions button.copied {
+        background: #333;
+        color: #fff;
+        border-color: #333;
+      }
+      .actions a.compare-link {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .actions a.compare-link:hover {
+        background: #f0f0f0;
+      }
+      .actions a.compare-link .arrow {
+        font-size: 10px;
+        opacity: 0.5;
+      }
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        color: #999;
+        font-size: 13px;
+      }
+      #preview {
+        flex: 1;
+        width: 100%;
+        border: none;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="controls" id="controls">
+      <div class="loading">설정 로드 중...</div>
+    </div>
+    <iframe id="preview" src="/"></iframe>
+    <script>
+      /* variant 키 → 사람이 읽을 수 있는 라벨 */
+      var VARIANT_LABELS = {
+        b: 'MagicA (B)',
+        c: 'MagicB (C)',
+        d: 'DesignA (D)',
+        e: 'DesignB (E)',
+      };
+
+      /* design-variants.json에서 설정 로드 후 UI 생성 */
+      fetch('/design-variants.json')
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (components) {
+          buildControls(components);
+          restoreFromHash();
+          updatePreview();
+        })
+        .catch(function () {
+          document.getElementById('controls').innerHTML =
+            '<div class="loading" style="color:#c00">design-variants.json 로드 실패</div>';
+        });
+
+      function buildControls(components) {
+        var controls = document.getElementById('controls');
+        controls.innerHTML = '';
+
+        components.forEach(function (comp, i) {
+          /* 구분선 */
+          if (i > 0) {
+            var sep = document.createElement('div');
+            sep.className = 'sep';
+            controls.appendChild(sep);
+          }
+
+          var group = document.createElement('div');
+          group.className = 'control-group';
+
+          var label = document.createElement('label');
+          label.textContent = comp.label;
+          group.appendChild(label);
+
+          var select = document.createElement('select');
+          select.dataset.param = comp.param;
+          select.onchange = updatePreview;
+
+          /* 기본 옵션 */
+          var defaultOpt = document.createElement('option');
+          defaultOpt.value = '';
+          defaultOpt.textContent = comp.variants.length ? '기본 (A)' : '기본';
+          select.appendChild(defaultOpt);
+
+          /* variant 옵션 */
+          comp.variants.forEach(function (v) {
+            var opt = document.createElement('option');
+            opt.value = v;
+            opt.textContent = VARIANT_LABELS[v] || v.toUpperCase();
+            select.appendChild(opt);
+          });
+
+          /* variant가 없으면 비활성 */
+          if (!comp.variants.length) select.disabled = true;
+
+          group.appendChild(select);
+
+          /* 각자보기 링크 (compare 페이지가 있는 경우) */
+          if (comp.compare) {
+            var link = document.createElement('a');
+            link.className = 'compare-link';
+            link.href = '/' + comp.compare;
+            link.target = '_blank';
+            link.title = comp.label + ' 개별 비교';
+            link.innerHTML = '각자<span class="arrow">\u2197</span>';
+            group.appendChild(link);
+          }
+
+          controls.appendChild(group);
+        });
+
+        /* 액션 버튼 */
+        var actions = document.createElement('div');
+        actions.className = 'actions';
+        actions.innerHTML =
+          '<a class="compare-link" href="/solve-quiz-compare.html" target="_blank">SolveQuiz<span class="arrow">\u2197</span></a>' +
+          '<button onclick="resetAll()">초기화</button>' +
+          '<button id="copyBtn" onclick="copyUrl()">URL 복사</button>';
+        controls.appendChild(actions);
+      }
+
+      function buildQuery() {
+        var params = [];
+        document.querySelectorAll('select[data-param]').forEach(function (sel) {
+          if (sel.value) params.push(sel.dataset.param + '=' + sel.value);
+        });
+        return params.length ? '?' + params.join('&') : '';
+      }
+
+      function updatePreview() {
+        var query = buildQuery();
+        document.getElementById('preview').src = '/' + query;
+        location.hash = query ? query.slice(1) : '';
+      }
+
+      function restoreFromHash() {
+        var hash = location.hash.slice(1);
+        if (!hash) return;
+        var params = new URLSearchParams(hash);
+        document.querySelectorAll('select[data-param]').forEach(function (sel) {
+          var val = params.get(sel.dataset.param);
+          if (val) sel.value = val;
+        });
+      }
+
+      function resetAll() {
+        document.querySelectorAll('select[data-param]').forEach(function (sel) {
+          sel.value = '';
+        });
+        updatePreview();
+      }
+
+      function copyUrl() {
+        var query = buildQuery();
+        var url = location.origin + '/' + query;
+        navigator.clipboard.writeText(url).then(function () {
+          var btn = document.getElementById('copyBtn');
+          btn.textContent = '복사됨!';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'URL 복사';
+            btn.classList.remove('copied');
+          }, 1500);
+        });
+      }
+    </script>
+  </body>
+</html>
