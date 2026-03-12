@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { NavigateFunction } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import axiosInstance from '#shared/api';
 import { trackQuizEvents } from '#shared/lib/analytics';
 import { useQuizGenerationStore } from '#features/quiz-generation';
@@ -35,10 +36,21 @@ export const useSolveQuizData = ({
 }: UseSolveQuizDataParams): UseSolveQuizDataReturn => {
   const [localQuizzes, setLocalQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
   const reconnectStream = useQuizGenerationStore((state) => state.reconnectStream);
   const setProblemSetInfo = useQuizGenerationStore((state) => state.setProblemSetInfo);
 
   useEffect(() => {
+    /* mock 모드: API 호출 없이 mock 데이터 사용 */
+    if (isMock) {
+      import('../../../pages/solve-quiz/mockQuizData').then(({ MOCK_QUIZZES }) => {
+        setLocalQuizzes(MOCK_QUIZZES);
+        setIsLoading(false);
+      });
+      return;
+    }
+
     const fetchQuiz = async (): Promise<void> => {
       try {
         trackQuizEvents.startQuiz(problemSetId);
@@ -68,7 +80,7 @@ export const useSolveQuizData = ({
       }
     };
     fetchQuiz();
-  }, [problemSetId, navigate, reconnectStream, setProblemSetInfo]);
+  }, [problemSetId, navigate, reconnectStream, setProblemSetInfo, isMock]);
 
   useEffect(() => {
     if (!Array.isArray(quizzes) || quizzes.length === 0) {

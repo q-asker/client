@@ -1,3 +1,4 @@
+import React from 'react';
 import { useTranslation } from 'i18nexus';
 import { Link } from 'react-router-dom';
 
@@ -36,4 +37,35 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+import { lazy, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
+
+const FooterMagicA = lazy(() => import('./FooterMagicA'));
+const FooterMagicB = lazy(() => import('./FooterMagicB'));
+const FooterDesignA = lazy(() => import('./FooterDesignA'));
+const FooterDesignB = lazy(() => import('./FooterDesignB'));
+
+const FOOTER_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  b: FooterMagicA,
+  c: FooterMagicB,
+  d: FooterDesignA,
+  e: FooterDesignB,
+};
+
+const FooterWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('footer');
+  const VariantComponent = variant ? FOOTER_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <Footer />;
+};
+
+export default FooterWithVariant;

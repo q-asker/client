@@ -1,7 +1,7 @@
 import { useTranslation } from 'i18nexus';
 
-import React, { useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import React, { lazy, Suspense, useEffect } from 'react';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
@@ -323,4 +323,40 @@ const SolveQuiz: React.FC = () => {
   );
 };
 
-export default SolveQuiz;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const SolveQuizMagicA = lazy(() => import('./SolveQuizMagicA'));
+const SolveQuizMagicB = lazy(() => import('./SolveQuizMagicB'));
+const SolveQuizMagicC = lazy(() => import('./SolveQuizMagicC'));
+const SolveQuizMagicD = lazy(() => import('./SolveQuizMagicD'));
+const SolveQuizDesignA = lazy(() => import('./SolveQuizDesignA'));
+const SolveQuizDesignB = lazy(() => import('./SolveQuizDesignB'));
+const SolveQuizDesignC = lazy(() => import('./SolveQuizDesignC'));
+const SolveQuizDesignD = lazy(() => import('./SolveQuizDesignD'));
+
+const SQ_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  b: SolveQuizMagicA,
+  c: SolveQuizMagicB,
+  d: SolveQuizDesignA,
+  e: SolveQuizDesignB,
+  f: SolveQuizMagicC,
+  g: SolveQuizMagicD,
+  h: SolveQuizDesignC,
+  i: SolveQuizDesignD,
+};
+
+const SolveQuizWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('sq');
+  const VariantComponent = variant ? SQ_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <SolveQuiz />;
+};
+
+export default SolveQuizWithVariant;

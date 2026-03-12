@@ -218,4 +218,38 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
 };
 export { extractRoleFromToken } from './model/useHeader';
 
-export default Header;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+import { lazy, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
+
+const HeaderMagicA = lazy(() => import('./HeaderMagicA'));
+const HeaderMagicB = lazy(() => import('./HeaderMagicB'));
+const HeaderDesignA = lazy(() => import('./HeaderDesignA'));
+const HeaderDesignB = lazy(() => import('./HeaderDesignB'));
+
+const HEADER_VARIANTS: Record<
+  string,
+  React.LazyExoticComponent<React.ComponentType<HeaderProps>>
+> = {
+  b: HeaderMagicA,
+  c: HeaderMagicB,
+  d: HeaderDesignA,
+  e: HeaderDesignB,
+};
+
+const HeaderWithVariant = (props: HeaderProps) => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('header');
+  const VariantComponent = variant ? HEADER_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent {...props} />
+      </Suspense>
+    );
+  }
+  return <Header {...props} />;
+};
+
+export default HeaderWithVariant;

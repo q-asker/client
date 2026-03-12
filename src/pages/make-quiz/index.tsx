@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import React, { lazy, Suspense, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
 import Help from '#widgets/help';
@@ -536,4 +537,32 @@ const MakeQuiz: React.FC = () => {
   );
 };
 
-export default MakeQuiz;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const MakeQuizMagicA = lazy(() => import('./MakeQuizMagicA'));
+const MakeQuizMagicB = lazy(() => import('./MakeQuizMagicB'));
+const MakeQuizDesignA = lazy(() => import('./MakeQuizDesignA'));
+const MakeQuizDesignB = lazy(() => import('./MakeQuizDesignB'));
+
+const MQ_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  b: MakeQuizMagicA,
+  c: MakeQuizMagicB,
+  d: MakeQuizDesignA,
+  e: MakeQuizDesignB,
+};
+
+const MakeQuizWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('mq');
+  const VariantComponent = variant ? MQ_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <MakeQuiz />;
+};
+
+export default MakeQuizWithVariant;

@@ -1,7 +1,9 @@
+import React, { lazy, Suspense } from 'react';
 import { useTranslation } from 'i18nexus';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuizResult } from '#features/quiz-result';
 import { cn } from '@/shared/ui/lib/utils';
+import { MOCK_RESULT_QUIZZES, MOCK_TOTAL_TIME, MOCK_UPLOADED_URL } from './mockResultData';
 
 /** 선택지 타입 */
 interface QuizSelection {
@@ -30,7 +32,16 @@ const QuizResult = () => {
   const { state } = useLocation() as { state: QuizResultLocationState | null };
   const navigate = useNavigate();
   const { problemSetId } = useParams<{ problemSetId: string }>();
-  const { quizzes = [], totalTime = '00:00:00', uploadedUrl } = state || {};
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
+
+  const {
+    quizzes = [],
+    totalTime = '00:00:00',
+    uploadedUrl,
+  } = isMock
+    ? { quizzes: MOCK_RESULT_QUIZZES, totalTime: MOCK_TOTAL_TIME, uploadedUrl: MOCK_UPLOADED_URL }
+    : state || {};
   const {
     state: { correctCount, scorePercent },
     actions: { getQuizExplanation },
@@ -124,4 +135,32 @@ const QuizResult = () => {
   );
 };
 
-export default QuizResult;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const QuizResultMagicA = lazy(() => import('./QuizResultMagicA'));
+const QuizResultMagicB = lazy(() => import('./QuizResultMagicB'));
+const QuizResultDesignA = lazy(() => import('./QuizResultDesignA'));
+const QuizResultDesignB = lazy(() => import('./QuizResultDesignB'));
+
+const QR_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  b: QuizResultMagicA,
+  c: QuizResultMagicB,
+  d: QuizResultDesignA,
+  e: QuizResultDesignB,
+};
+
+const QuizResultWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('qr');
+  const VariantComponent = variant ? QR_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <QuizResult />;
+};
+
+export default QuizResultWithVariant;
