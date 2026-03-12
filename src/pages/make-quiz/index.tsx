@@ -194,11 +194,11 @@ const MakeQuiz: React.FC = () => {
               <div className="flex items-start gap-4 md:flex-col md:items-stretch md:gap-2">
                 {/* 선택한 난이도에 해당하는 설명 */}
                 <div className="mb-4 w-full text-center">
-                  <div className="w-full max-w-full rounded-[10px] border border-[#d7dfe8] bg-white p-3 shadow-sm md:p-3.5">
-                    <div className="mb-2 text-[13px] font-semibold text-[#4a5568]">
+                  <div className="w-full max-w-full rounded-[10px] border border-border bg-card p-3 shadow-sm md:p-3.5">
+                    <div className="mb-2 text-[13px] font-semibold text-muted-foreground">
                       {currentLevel?.title}
                     </div>
-                    <div className="rounded-lg bg-[#e6ebf1] px-3 py-2.5">
+                    <div className="rounded-lg bg-muted px-3 py-2.5">
                       <p className="m-0 whitespace-pre-wrap break-keep text-[13px] leading-relaxed md:break-words">
                         {currentLevel?.question}
                       </p>
@@ -208,9 +208,9 @@ const MakeQuiz: React.FC = () => {
                         {currentLevel.options.map((option: string, index: number) => (
                           <div
                             key={`${option}-${index}`}
-                            className="flex items-center rounded-lg border border-[#d7dfe8] bg-white px-2.5 py-2 md:px-3 md:py-2.5"
+                            className="flex items-center rounded-lg border border-border bg-card px-2.5 py-2 md:px-3 md:py-2.5"
                           >
-                            <span className="mr-2.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[#f0f3f5] text-xs font-semibold text-gray-700">
+                            <span className="mr-2.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-gray-700">
                               {index + 1}
                             </span>
                             <span className="whitespace-pre-wrap break-keep text-[13px] leading-relaxed md:break-words">

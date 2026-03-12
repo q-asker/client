@@ -47,9 +47,9 @@ const QuizExplanation: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f5f7fa]">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* 네비게이션 바 */}
-      <header className="flex items-center justify-between bg-[#6a33f8] p-4 text-white">
+      <header className="flex items-center justify-between bg-primary p-4 text-primary-foreground">
         <button
           className="cursor-pointer border-none bg-transparent text-xl text-inherit"
           onClick={() => commonActions.handleExit('/')}
@@ -77,7 +77,7 @@ const QuizExplanation: React.FC = () => {
                     className={cn(
                       'absolute inset-0 cursor-pointer rounded-[14px] transition-colors duration-300',
                       'before:absolute before:bottom-[3px] before:left-[3px] before:h-[22px] before:w-[22px] before:rounded-full before:bg-white before:transition-transform before:duration-300',
-                      quiz.showWrongOnly ? 'bg-[#4cd964] before:translate-x-[22px]' : 'bg-gray-300',
+                      quiz.showWrongOnly ? 'bg-emerald-500 before:translate-x-[22px]' : 'bg-gray-300',
                     )}
                   />
                 </label>
@@ -102,7 +102,7 @@ const QuizExplanation: React.FC = () => {
                     className={cn(
                       'absolute inset-0 cursor-pointer rounded-[14px] transition-colors duration-300',
                       'before:absolute before:bottom-[3px] before:left-[3px] before:h-[22px] before:w-[22px] before:rounded-full before:bg-white before:transition-transform before:duration-300',
-                      quiz.showWrongOnly ? 'bg-[#4cd964] before:translate-x-[22px]' : 'bg-gray-300',
+                      quiz.showWrongOnly ? 'bg-emerald-500 before:translate-x-[22px]' : 'bg-gray-300',
                     )}
                   />
                 </label>
@@ -112,7 +112,7 @@ const QuizExplanation: React.FC = () => {
             {/* 문제 영역 컨테이너 */}
             <div className="flex flex-col gap-4">
               {/* 좌측 번호 패널 (데스크톱) */}
-              <aside className="absolute grid -translate-x-[120%] grid-cols-[repeat(5,minmax(2rem,1fr))] gap-2 rounded-lg bg-white p-4 shadow-md max-[1500px]:hidden">
+              <aside className="absolute grid -translate-x-[120%] grid-cols-[repeat(5,minmax(2rem,1fr))] gap-2 rounded-lg bg-card p-4 shadow-md max-[1500px]:hidden">
                 {quiz.filteredQuizzes.map((q, index) => {
                   const correctOption = q.selections.find(
                     (opt) => (opt as unknown as { correct: boolean }).correct === true,
@@ -139,9 +139,9 @@ const QuizExplanation: React.FC = () => {
                         'flex h-8 w-8 items-center justify-center rounded border border-gray-300 bg-white',
                         'cursor-pointer transition-all duration-200',
                         'hover:scale-110 hover:bg-gray-200',
-                        isCorrect && 'border-[#77ff77] bg-[#ddffdd]',
-                        isIncorrect && 'border-[#ff7777] bg-[#ffdddd]',
-                        isCurrent && 'bg-[#6a33f8] text-white hover:scale-100 hover:bg-[#6a33f8]',
+                        isCorrect && 'border-emerald-300 bg-emerald-50',
+                        isIncorrect && 'border-red-300 bg-red-50',
+                        isCurrent && 'bg-primary text-primary-foreground hover:scale-100 hover:bg-primary',
                       )}
                       onClick={() =>
                         quiz.showWrongOnly
@@ -158,7 +158,7 @@ const QuizExplanation: React.FC = () => {
               {/* 질문 영역 */}
               <div
                 className={cn(
-                  'flex rounded-lg bg-[#e6ebf1] p-4 max-md:flex-col max-md:gap-2 max-md:p-3',
+                  'flex rounded-lg bg-muted p-4 max-md:flex-col max-md:gap-2 max-md:p-3',
                   (quiz.currentQuiz.userAnswer === undefined ||
                     quiz.currentQuiz.userAnswer === null) &&
                     'rounded-lg border-2 border-red-500',
@@ -194,7 +194,7 @@ const QuizExplanation: React.FC = () => {
                             : 'border border-gray-300',
                       )}
                     >
-                      <span className="mr-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f0f3f5] max-md:mr-2 max-md:h-6 max-md:w-6">
+                      <span className="mr-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted max-md:mr-2 max-md:h-6 max-md:w-6">
                         {idx + 1}
                       </span>
                       <span className="whitespace-pre-wrap break-words pr-3 text-base leading-[1.8] max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
@@ -208,14 +208,14 @@ const QuizExplanation: React.FC = () => {
               {/* 이전/다음 네비게이션 */}
               <nav className="mb-4 mt-4 flex justify-between gap-4 max-md:mb-4 max-md:gap-2">
                 <button
-                  className="flex-1 cursor-pointer rounded border-none bg-[#6a33f8] px-3 py-2 text-sm text-white hover:bg-violet-500 disabled:cursor-default disabled:bg-gray-400"
+                  className="flex-1 cursor-pointer rounded border-none bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/90 disabled:cursor-default disabled:bg-gray-400"
                   onClick={quizActions.handlePrev}
                   disabled={quiz.currentQuestion === 1}
                 >
                   {t('이전')}
                 </button>
                 <button
-                  className="flex-1 cursor-pointer rounded border-none bg-[#6a33f8] px-3 py-2 text-sm text-white hover:bg-violet-500 disabled:cursor-default disabled:bg-gray-400"
+                  className="flex-1 cursor-pointer rounded border-none bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/90 disabled:cursor-default disabled:bg-gray-400"
                   onClick={quizActions.handleNext}
                   disabled={
                     quiz.currentQuestion ===
@@ -228,7 +228,7 @@ const QuizExplanation: React.FC = () => {
 
               {/* 홈으로 버튼 */}
               <button
-                className="w-full cursor-pointer rounded-lg border-none bg-[#6a33f8] p-3 text-base text-white transition-all duration-200 hover:bg-violet-500 max-md:mt-4"
+                className="w-full cursor-pointer rounded-lg border-none bg-primary p-3 text-base text-primary-foreground transition-all duration-200 hover:bg-primary/90 max-md:mt-4"
                 onClick={() => commonActions.handleExit('/')}
               >
                 {t('홈으로')}
@@ -282,7 +282,7 @@ const QuizExplanation: React.FC = () => {
                       className={cn(
                         'absolute inset-0 cursor-pointer rounded-[14px] transition-colors duration-300',
                         'before:absolute before:bottom-[3px] before:left-[3px] before:h-[22px] before:w-[22px] before:rounded-full before:bg-white before:transition-transform before:duration-300',
-                        pdf.showPdf ? 'bg-[#4cd964] before:translate-x-[22px]' : 'bg-gray-300',
+                        pdf.showPdf ? 'bg-emerald-500 before:translate-x-[22px]' : 'bg-gray-300',
                       )}
                     />
                   </label>

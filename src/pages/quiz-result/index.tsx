@@ -43,7 +43,7 @@ const QuizResult = () => {
   });
 
   return (
-    <div className="p-8 flex flex-col items-center bg-[#f4f6f8] min-h-screen box-border text-gray-800 max-md:p-4">
+    <div className="p-8 flex flex-col items-center bg-muted min-h-screen box-border text-gray-800 max-md:p-4">
       {/* 메타데이터 카드 */}
       <div className="w-full max-w-[700px] flex justify-between gap-4 mb-8 max-md:flex-col max-md:gap-3">
         {[
@@ -81,7 +81,7 @@ const QuizResult = () => {
               className={cn(
                 'bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] px-8 py-6 transition-[transform,box-shadow] duration-200 border-l-[5px] border-l-transparent hover:-translate-y-1 hover:shadow-[0_6px_16px_rgba(0,0,0,0.08)]',
                 'max-md:px-6 max-md:py-4',
-                isCorrect ? 'border-l-[#3bbb7b]' : 'border-l-[#e05263]',
+                isCorrect ? 'border-l-emerald-500' : 'border-l-destructive',
               )}
             >
               <div className="text-xl font-semibold mb-3 text-gray-900 whitespace-pre-wrap break-words max-md:text-lg">
@@ -94,7 +94,7 @@ const QuizResult = () => {
               </div>
 
               {!isCorrect && (
-                <div className="text-[1.05rem] my-2 px-3 py-2 bg-[#f0f9f6] rounded-lg text-[#2d6a4f] border border-[#cce6db] whitespace-pre-wrap break-words max-md:text-base">
+                <div className="text-[1.05rem] my-2 px-3 py-2 bg-emerald-50 rounded-lg text-emerald-700 border border-emerald-200 whitespace-pre-wrap break-words max-md:text-base">
                   {t('정답 답안:')}
                   {correctSelection.content}
                 </div>
@@ -103,7 +103,7 @@ const QuizResult = () => {
               <div
                 className={cn(
                   'inline-block mt-3 px-4 py-2 rounded-lg text-base font-semibold uppercase tracking-tight max-md:text-[0.95rem] max-md:px-3 max-md:py-1.5',
-                  isCorrect ? 'bg-[#3bbb7b] text-white' : 'bg-[#e05263] text-white',
+                  isCorrect ? 'bg-emerald-500 text-white' : 'bg-destructive text-white',
                 )}
               >
                 {isCorrect ? t('정답') : t('오답')}

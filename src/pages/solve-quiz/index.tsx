@@ -54,13 +54,13 @@ const SolveQuiz: React.FC = () => {
       <button
         key={`${keyPrefix}${q.number}`}
         className={cn(
-          'flex h-8 w-8 items-center justify-center rounded border border-gray-300 bg-white',
+          'flex h-8 w-8 items-center justify-center rounded border border-border bg-card',
           'cursor-pointer transition-all duration-200',
-          'hover:scale-110 hover:bg-gray-200',
-          !unanswered && 'bg-[#dfe4e9]',
+          'hover:scale-110 hover:bg-muted',
+          !unanswered && 'bg-muted',
           q.check && 'bg-amber-200',
           q.number === quiz.currentQuestion &&
-            'bg-[#6a33f8] font-bold text-white hover:scale-100 hover:bg-[#6a33f8]',
+            'bg-primary font-bold text-primary-foreground hover:scale-100 hover:bg-primary',
         )}
         onClick={() => quizActions.handleJumpTo(q.number)}
       >
@@ -81,7 +81,7 @@ const SolveQuiz: React.FC = () => {
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f5f7fa]">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* 제출 다이얼로그 */}
       {quiz.showSubmitDialog && (
         <div
@@ -198,7 +198,7 @@ const SolveQuiz: React.FC = () => {
       )}
 
       {/* 상단 네비게이션 바 */}
-      <header className="flex items-center justify-between bg-[#6a33f8] p-4 text-white">
+      <header className="flex items-center justify-between bg-primary p-4 text-primary-foreground">
         <button
           className="cursor-pointer border-none bg-transparent text-xl text-inherit"
           onClick={() => navigate('/')}
@@ -215,7 +215,7 @@ const SolveQuiz: React.FC = () => {
           {/* 질문 네비게이션 */}
           <nav className="flex items-center justify-between max-md:mb-4 max-md:gap-2">
             <button
-              className="cursor-pointer rounded-lg border-none bg-[#6a33f8] px-4 py-2 text-white max-md:flex-1 max-md:text-sm"
+              className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-primary-foreground max-md:flex-1 max-md:text-sm"
               onClick={quizActions.handlePrev}
             >
               {t('이전')}
@@ -224,7 +224,7 @@ const SolveQuiz: React.FC = () => {
               {quiz.currentQuestion} / {quiz.totalQuestions}
             </span>
             <button
-              className="cursor-pointer rounded-lg border-none bg-[#6a33f8] px-4 py-2 text-white max-md:flex-1 max-md:text-sm"
+              className="cursor-pointer rounded-lg border-none bg-primary px-4 py-2 text-primary-foreground max-md:flex-1 max-md:text-sm"
               onClick={quizActions.handleNext}
             >
               {t('다음')}
@@ -241,7 +241,7 @@ const SolveQuiz: React.FC = () => {
             <>
               <div className="relative flex">
                 {/* 좌측 문제 번호 패널 (데스크톱) */}
-                <aside className="absolute grid -translate-x-[120%] grid-cols-[repeat(5,minmax(2rem,1fr))] gap-2 rounded-lg bg-white p-4 shadow-md max-[1500px]:hidden">
+                <aside className="absolute grid -translate-x-[120%] grid-cols-[repeat(5,minmax(2rem,1fr))] gap-2 rounded-lg bg-card p-4 shadow-md max-[1500px]:hidden">
                   {quiz.quizzes.map((q) => renderQuestionButton(q))}
                   {Array.from({ length: remainingCount }).map((_, index) =>
                     renderPendingButton(index),
@@ -249,19 +249,19 @@ const SolveQuiz: React.FC = () => {
                 </aside>
 
                 {/* 질문 + 검토 영역 */}
-                <div className="flex w-full items-center rounded-lg bg-[#e6ebf1] p-4 max-md:flex-col max-md:items-start max-md:gap-3">
+                <div className="flex w-full items-center rounded-lg bg-muted p-4 max-md:flex-col max-md:items-start max-md:gap-3">
                   <div className="flex-1 pr-3 max-md:w-full max-md:pr-0">
                     <p className="m-0 whitespace-pre-wrap break-words text-base leading-relaxed">
                       {quiz.currentQuiz.title}
                     </p>
                   </div>
-                  <div className="border-l border-[#c8d0d9] pl-3 max-md:self-end max-md:border-l-0 max-md:pl-0">
-                    <label className="flex cursor-pointer select-none items-center whitespace-nowrap text-base font-bold text-gray-600 transition-colors duration-200 hover:text-[#6a33f8]">
+                  <div className="border-l border-border pl-3 max-md:self-end max-md:border-l-0 max-md:pl-0">
+                    <label className="flex cursor-pointer select-none items-center whitespace-nowrap text-base font-bold text-muted-foreground transition-colors duration-200 hover:text-primary">
                       <input
                         type="checkbox"
                         checked={quiz.currentQuiz.check || false}
                         onChange={quizActions.handleCheckToggle}
-                        className="mr-2 h-5 w-5 cursor-pointer accent-[#6a33f8]"
+                        className="mr-2 h-5 w-5 cursor-pointer accent-primary"
                       />{' '}
                       {t('검토')}
                     </label>
@@ -275,14 +275,14 @@ const SolveQuiz: React.FC = () => {
                   <div
                     key={opt.id}
                     className={cn(
-                      'flex min-h-14 cursor-pointer items-center rounded-lg bg-white px-3 py-5 transition-colors duration-200',
-                      'hover:bg-[#dfe4e9]',
+                      'flex min-h-14 cursor-pointer items-center rounded-lg border border-border bg-card px-3 py-5 transition-colors duration-200',
+                      'hover:bg-muted',
                       'max-md:min-h-12 max-md:px-2 max-md:py-4',
-                      quiz.selectedOption === opt.id && 'bg-[#dfe4e9]',
+                      quiz.selectedOption === opt.id && 'border-primary bg-muted',
                     )}
                     onClick={() => quizActions.handleOptionSelect(opt.id)}
                   >
-                    <span className="mr-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f0f3f5] max-md:mr-2 max-md:h-6 max-md:w-6">
+                    <span className="mr-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted max-md:mr-2 max-md:h-6 max-md:w-6">
                       {idx + 1}
                     </span>
                     <span className="whitespace-pre-wrap break-words pr-3 text-base leading-[1.8] max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
@@ -296,7 +296,7 @@ const SolveQuiz: React.FC = () => {
 
           {/* 확인 버튼 */}
           <button
-            className="mt-auto cursor-pointer rounded-lg border-none bg-[#6a33f8] p-3 text-base text-white max-md:mt-4 max-md:w-full"
+            className="mt-auto cursor-pointer rounded-lg border-none bg-primary p-3 text-base text-primary-foreground max-md:mt-4 max-md:w-full"
             onClick={quizActions.handleSubmit}
           >
             {t('확인')}
@@ -304,7 +304,7 @@ const SolveQuiz: React.FC = () => {
 
           {/* 제출하기 버튼 */}
           <button
-            className="mt-8 w-[100px] cursor-pointer self-end rounded-lg border-none bg-[#6a33f8] p-3 text-base text-white max-md:mt-4 max-md:w-full max-md:self-stretch"
+            className="mt-8 w-[100px] cursor-pointer self-end rounded-lg border-none bg-primary p-3 text-base text-primary-foreground max-md:mt-4 max-md:w-full max-md:self-stretch"
             onClick={quizActions.handleFinish}
           >
             {t('제출하기')}
@@ -312,7 +312,7 @@ const SolveQuiz: React.FC = () => {
         </section>
 
         {/* 하단 문제 번호 패널 (모바일/태블릿) */}
-        <aside className="mt-4 hidden grid-cols-[repeat(auto-fill,2rem)] justify-center gap-2 rounded-lg bg-white p-4 shadow-md max-[1500px]:grid">
+        <aside className="mt-4 hidden grid-cols-[repeat(auto-fill,2rem)] justify-center gap-2 rounded-lg bg-card p-4 shadow-md max-[1500px]:grid">
           {quiz.quizzes.map((q) => renderQuestionButton(q, 'bottom-'))}
           {Array.from({ length: remainingCount }).map((_, index) =>
             renderPendingButton(index, 'bottom-'),
