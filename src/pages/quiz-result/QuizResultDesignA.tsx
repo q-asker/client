@@ -29,7 +29,7 @@ interface QuizResultLocationState {
   uploadedUrl?: string;
 }
 
-/** Editorial Scorecard — 대형 점수 표시, Shadcn Card/Badge/Button */
+/** Minimalist Scorecard — 모던 그래디언트 + 세련된 레이아웃 */
 const QuizResultDesignA = () => {
   const { t } = useTranslation();
   const { state } = useLocation() as { state: QuizResultLocationState | null };
@@ -58,61 +58,66 @@ const QuizResultDesignA = () => {
   const wrongCount = quizzes.length - correctCount;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
       <div className="mx-auto max-w-6xl px-6 py-10 max-md:px-4">
         <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
           {/* 좌측 패널 — sticky */}
           <aside className="lg:sticky lg:top-8 lg:self-start flex flex-col gap-4">
-            {/* 점수 카드 */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="mb-2 text-sm text-muted-foreground">{t('점수')}</div>
-                <div className="text-5xl font-black text-foreground">
-                  {scorePercent}
-                  <span className="text-lg ml-1">{t('점')}</span>
-                </div>
-              </CardContent>
-            </Card>
+            {/* 점수 히어로 카드 */}
+            <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-6 border border-primary/20 backdrop-blur-sm">
+              <div className="text-xs font-semibold uppercase tracking-widest text-primary/60 mb-3">
+                {t('점수')}
+              </div>
+              <div className="text-6xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-1">
+                {scorePercent}
+              </div>
+              <div className="text-xs text-muted-foreground">{t('점')}</div>
+            </div>
 
             {/* 문제 수 */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="mb-2 text-sm text-muted-foreground">{t('문제 수')}</div>
-                <div className="text-2xl font-bold text-foreground">
-                  {quizzes.length}
-                  {t('개')}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="rounded-xl p-5 bg-card/50 backdrop-blur border border-border/50 hover:border-border transition-colors duration-200">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                {t('문제 수')}
+              </div>
+              <div className="text-3xl font-bold text-foreground">
+                {quizzes.length}
+                <span className="text-sm font-medium ml-2 text-muted-foreground">{t('개')}</span>
+              </div>
+            </div>
 
             {/* 정답/오답 */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="mb-3 text-sm text-muted-foreground">{t('정답/오답')}</div>
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">{t('정답')}</div>
-                    <div className="text-xl font-bold text-success">{correctCount}</div>
-                  </div>
-                  <div className="h-8 border-l border-border" />
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">{t('오답')}</div>
-                    <div className="text-xl font-bold text-destructive">{wrongCount}</div>
-                  </div>
+            <div className="rounded-xl p-5 bg-card/50 backdrop-blur border border-border/50">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">
+                {t('정답/오답')}
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-success/5 rounded-lg border border-success/20">
+                  <span className="text-xs text-success font-semibold uppercase">{t('정답')}</span>
+                  <span className="text-2xl font-bold text-success">{correctCount}</span>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex items-center justify-between p-3 bg-destructive/5 rounded-lg border border-destructive/20">
+                  <span className="text-xs text-destructive font-semibold uppercase">
+                    {t('오답')}
+                  </span>
+                  <span className="text-2xl font-bold text-destructive">{wrongCount}</span>
+                </div>
+              </div>
+            </div>
 
             {/* 걸린 시간 */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="mb-2 text-sm text-muted-foreground">{t('걸린 시간')}</div>
-                <div className="text-xl font-bold text-foreground">{totalTime}</div>
-              </CardContent>
-            </Card>
+            <div className="rounded-xl p-5 bg-card/50 backdrop-blur border border-border/50">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                {t('걸린 시간')}
+              </div>
+              <div className="text-2xl font-bold text-foreground tabular-nums">{totalTime}</div>
+            </div>
 
             {/* 해설 보기 버튼 */}
-            <Button size="lg" className="w-full mt-2" onClick={getQuizExplanation}>
+            <Button
+              size="lg"
+              className="w-full mt-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+              onClick={getQuizExplanation}
+            >
               {t('해설 보기')}
             </Button>
           </aside>
@@ -127,36 +132,54 @@ const QuizResultDesignA = () => {
                 q.selections.find((s) => s.correct === true) || ({} as QuizSelection);
 
               return (
-                <Card
+                <div
                   key={q.number}
                   className={cn(
-                    'border-l-4 border-l-transparent transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
-                    isCorrect ? 'border-l-success' : 'border-l-destructive',
+                    'rounded-xl p-5 border transition-all duration-200 backdrop-blur-sm',
+                    isCorrect
+                      ? 'bg-success/5 border-success/30 hover:border-success/50'
+                      : 'bg-destructive/5 border-destructive/30 hover:border-destructive/50',
+                    'hover:shadow-md hover:-translate-y-0.5',
                   )}
                 >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="whitespace-pre-wrap break-words text-lg max-md:text-base">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex-1">
+                      <div className="text-base font-semibold text-foreground whitespace-pre-wrap break-words">
                         {q.number}. {q.title}
-                      </CardTitle>
-                      <Badge variant={isCorrect ? 'default' : 'destructive'}>
-                        {isCorrect ? t('정답') : t('오답')}
-                      </Badge>
+                      </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="border-t border-border pt-3 text-sm text-muted-foreground">
-                      <span className="font-medium text-foreground">{t('선택한 답:')}</span>{' '}
-                      {userAns === 0 ? t('입력 X') : selection.content}
+                    <div
+                      className={cn(
+                        'text-xs font-bold uppercase tracking-widest px-2.5 py-1.5 rounded-full shrink-0',
+                        isCorrect
+                          ? 'bg-success/20 text-success'
+                          : 'bg-destructive/20 text-destructive',
+                      )}
+                    >
+                      {isCorrect ? t('정답') : t('오답')}
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-sm">
+                      <span className="font-semibold text-muted-foreground">{t('선택한 답:')}</span>
+                      <div className="mt-1 text-foreground">
+                        {userAns === 0 ? t('입력 X') : selection.content}
+                      </div>
+                    </div>
+
                     {!isCorrect && (
-                      <div className="mt-3 rounded-lg bg-muted px-4 py-3 text-sm">
-                        <span className="font-medium text-foreground">{t('정답 답안:')}</span>{' '}
-                        {correctSelection.content}
+                      <div className="mt-3 p-3 rounded-lg bg-success/10 border border-success/20">
+                        <span className="text-xs font-semibold text-success uppercase">
+                          {t('정답 답안:')}
+                        </span>
+                        <div className="mt-1 text-sm text-foreground">
+                          {correctSelection.content}
+                        </div>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               );
             })}
           </div>
