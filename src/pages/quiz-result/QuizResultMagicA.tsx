@@ -56,95 +56,123 @@ const QuizResultMagicA = () => {
     uploadedUrl: uploadedUrl ?? '',
   });
 
-  return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-12 max-md:px-4 max-md:py-8">
-        {/* 대형 점수 표시 */}
-        <BlurFade delay={0.1}>
-          <div className="mb-12 text-center">
-            <div className="text-[5rem] font-black leading-none tracking-tight text-foreground max-md:text-[3.5rem]">
-              {scorePercent}
-            </div>
-            <span className="mt-2 block text-lg font-medium text-muted-foreground">{t('점')}</span>
-          </div>
-        </BlurFade>
+  const wrongCount = quizzes.length - correctCount;
 
-        {/* 메타데이터 카드 */}
-        <div className="mb-10 grid grid-cols-3 gap-4 max-md:grid-cols-1 max-md:gap-3">
-          {[
-            { icon: '📋', label: t('문제 수'), value: `${quizzes.length}${t('개')}` },
-            { icon: '⏱️', label: t('걸린 시간'), value: totalTime },
-            {
-              icon: '🏆',
-              label: t('정답'),
-              value: `${correctCount}/${quizzes.length}`,
-            },
-          ].map((meta, index) => (
-            <BlurFade key={meta.label} delay={0.2 + index * 0.1}>
-              <Card className="text-center">
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-6xl px-6 py-10 max-md:px-4">
+        <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+          {/* 좌측 패널 — sticky */}
+          <aside className="lg:sticky lg:top-8 lg:self-start flex flex-col gap-4">
+            {/* 점수 카드 */}
+            <BlurFade delay={0.1}>
+              <Card>
                 <CardContent className="pt-6">
-                  <span className="mb-2 block text-2xl">{meta.icon}</span>
-                  <div className="text-sm text-muted-foreground">{meta.label}</div>
-                  <div className="mt-1 text-xl font-bold text-foreground">{meta.value}</div>
+                  <div className="mb-2 text-sm text-muted-foreground">{t('점수')}</div>
+                  <div className="text-5xl font-black text-foreground">
+                    {scorePercent}
+                    <span className="text-lg ml-1">{t('점')}</span>
+                  </div>
                 </CardContent>
               </Card>
             </BlurFade>
-          ))}
-        </div>
 
-        {/* 문제별 결과 리스트 */}
-        <div className="mb-12 flex flex-col gap-4">
-          {quizzes.map((q, index) => {
-            const userAns = q.userAnswer;
-            const selection = q.selections.find((s) => s.id === userAns) || ({} as QuizSelection);
-            const isCorrect = selection.correct === true;
-            const correctSelection =
-              q.selections.find((s) => s.correct === true) || ({} as QuizSelection);
+            {/* 문제 수 */}
+            <BlurFade delay={0.2}>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="mb-2 text-sm text-muted-foreground">{t('문제 수')}</div>
+                  <div className="text-2xl font-bold text-foreground">
+                    {quizzes.length}
+                    {t('개')}
+                  </div>
+                </CardContent>
+              </Card>
+            </BlurFade>
 
-            return (
-              <BlurFade key={q.number} delay={0.5 + index * 0.1}>
-                <Card
-                  className={cn(
-                    'border-l-4 border-l-transparent transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
-                    isCorrect ? 'border-l-success' : 'border-l-destructive',
-                  )}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="whitespace-pre-wrap break-words text-lg max-md:text-base">
-                        {q.number}. {q.title}
-                      </CardTitle>
-                      <Badge variant={isCorrect ? 'default' : 'destructive'}>
-                        {isCorrect ? t('정답') : t('오답')}
-                      </Badge>
+            {/* 정답/오답 */}
+            <BlurFade delay={0.3}>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="mb-3 text-sm text-muted-foreground">{t('정답/오답')}</div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">{t('정답')}</div>
+                      <div className="text-xl font-bold text-success">{correctCount}</div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="border-t border-border pt-3 text-sm text-muted-foreground">
-                      <span className="font-medium text-foreground">{t('선택한 답:')}</span>{' '}
-                      {userAns === 0 ? t('입력 X') : selection.content}
+                    <div className="h-8 border-l border-border" />
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">{t('오답')}</div>
+                      <div className="text-xl font-bold text-destructive">{wrongCount}</div>
                     </div>
-                    {!isCorrect && (
-                      <div className="mt-3 rounded-lg bg-muted px-4 py-3 text-sm">
-                        <span className="font-medium text-foreground">{t('정답 답안:')}</span>{' '}
-                        {correctSelection.content}
-                      </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </BlurFade>
+
+            {/* 걸린 시간 */}
+            <BlurFade delay={0.4}>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="mb-2 text-sm text-muted-foreground">{t('걸린 시간')}</div>
+                  <div className="text-xl font-bold text-foreground">{totalTime}</div>
+                </CardContent>
+              </Card>
+            </BlurFade>
+
+            {/* 해설 보기 버튼 */}
+            <BlurFade delay={0.5}>
+              <Button size="lg" className="w-full mt-2" onClick={getQuizExplanation}>
+                {t('해설 보기')}
+              </Button>
+            </BlurFade>
+          </aside>
+
+          {/* 우측 패널 — 문항 리스트 */}
+          <div className="flex flex-col gap-4">
+            {quizzes.map((q, index) => {
+              const userAns = q.userAnswer;
+              const selection = q.selections.find((s) => s.id === userAns) || ({} as QuizSelection);
+              const isCorrect = selection.correct === true;
+              const correctSelection =
+                q.selections.find((s) => s.correct === true) || ({} as QuizSelection);
+
+              return (
+                <BlurFade key={q.number} delay={0.6 + index * 0.1}>
+                  <Card
+                    className={cn(
+                      'border-l-4 border-l-transparent transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
+                      isCorrect ? 'border-l-success' : 'border-l-destructive',
                     )}
-                  </CardContent>
-                </Card>
-              </BlurFade>
-            );
-          })}
-        </div>
-
-        {/* 해설 보기 CTA */}
-        <BlurFade delay={0.5 + quizzes.length * 0.1}>
-          <div className="text-center">
-            <Button size="lg" className="w-full max-w-md text-lg" onClick={getQuizExplanation}>
-              {t('해설 보기')}
-            </Button>
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="whitespace-pre-wrap break-words text-lg max-md:text-base">
+                          {q.number}. {q.title}
+                        </CardTitle>
+                        <Badge variant={isCorrect ? 'default' : 'destructive'}>
+                          {isCorrect ? t('정답') : t('오답')}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="border-t border-border pt-3 text-sm text-muted-foreground">
+                        <span className="font-medium text-foreground">{t('선택한 답:')}</span>{' '}
+                        {userAns === 0 ? t('입력 X') : selection.content}
+                      </div>
+                      {!isCorrect && (
+                        <div className="mt-3 rounded-lg bg-muted px-4 py-3 text-sm">
+                          <span className="font-medium text-foreground">{t('정답 답안:')}</span>{' '}
+                          {correctSelection.content}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </BlurFade>
+              );
+            })}
           </div>
-        </BlurFade>
+        </div>
       </div>
     </div>
   );
