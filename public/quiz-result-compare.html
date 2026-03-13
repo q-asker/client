@@ -80,21 +80,77 @@
   <body>
     <nav>
       <button onclick="showAll()" id="btn-all">ALL</button>
-      <button class="active" onclick="showOne('')">A</button>
-      <button onclick="showOne('b')">B</button>
-      <button onclick="showOne('c')">C</button>
-      <button onclick="showOne('d')">D</button>
-      <button onclick="showOne('e')">E</button>
+      <button onclick="showOne('')" id="btn-0">기본</button>
+      <button onclick="showOne('1')" id="btn-1">1</button>
+      <button onclick="showOne('2')" id="btn-2">2</button>
+      <button onclick="showOne('3')" id="btn-3">3</button>
+      <button onclick="showOne('4')" id="btn-4">4</button>
+      <button onclick="showOne('5')" id="btn-5">5</button>
+      <button onclick="showOne('6')" id="btn-6">6</button>
+      <button onclick="showOne('7')" id="btn-7">7</button>
+      <button onclick="showOne('8')" id="btn-8">8</button>
+      <button onclick="showOne('9')" id="btn-9">9</button>
+      <button onclick="showOne('10')" id="btn-10">10</button>
+      <button onclick="showOne('11')" id="btn-11">11</button>
+      <button onclick="showOne('12')" id="btn-12">12</button>
     </nav>
     <iframe id="single" src=""></iframe>
     <div id="all"></div>
     <script>
+      var STORAGE_KEY = 'compare_quiz_result';
       var currentVariant = '';
       var isAllMode = false;
 
-      /* 초기화: A안 바로 표시 */
+      var ALL_VARIANTS = [
+        { key: '', label: '기본 — Original' },
+        { key: '1', label: '1 — MagicA (Cascade Reveal)' },
+        { key: '2', label: '2 — MagicB (Slide Stack)' },
+        { key: '3', label: '3 — DesignA (Editorial Scorecard)' },
+        { key: '4', label: '4 — DesignB (Compact Dashboard)' },
+        { key: '5', label: '5 — DesignC (Progress Ring)' },
+        { key: '6', label: '6 — DesignD (Timeline)' },
+        { key: '7', label: '7 — DesignE (Info Card 3-Grid)' },
+        { key: '8', label: '8 — DesignF (Compact List)' },
+        { key: '9', label: '9 — DesignG (Stats Enhanced)' },
+        { key: '10', label: '10 — DesignH (Dark Theme)' },
+        { key: '11', label: '11 — MagicC (Reveal Animation)' },
+        { key: '12', label: '12 — MagicD (Glassmorphism)' },
+      ];
+
+      function saveState() {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ variant: currentVariant, allMode: isAllMode }),
+        );
+      }
+      function loadState() {
+        try {
+          var s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          return s && typeof s.variant === 'string' ? s : { variant: '', allMode: false };
+        } catch (e) {
+          return { variant: '', allMode: false };
+        }
+      }
+
+      function activateButton(variant) {
+        document.querySelectorAll('nav button').forEach(function (b) {
+          b.classList.remove('active');
+        });
+        var id = variant === 'all' ? 'btn-all' : variant ? 'btn-' + variant : 'btn-0';
+        var el = document.getElementById(id);
+        if (el) el.classList.add('active');
+      }
+
       (function init() {
-        document.getElementById('single').src = buildSrc('');
+        var saved = loadState();
+        currentVariant = saved.variant;
+        isAllMode = saved.allMode;
+        if (isAllMode) {
+          showAllFromState();
+        } else {
+          document.getElementById('single').src = buildSrc(currentVariant);
+          activateButton(currentVariant);
+        }
       })();
 
       function buildSrc(variant) {
@@ -104,47 +160,50 @@
         return base + '?' + params.join('&');
       }
 
-      function activate(el) {
-        document.querySelectorAll('nav button').forEach(function (b) {
-          b.classList.remove('active');
-        });
-        el.classList.add('active');
-      }
-
       function showOne(v) {
         currentVariant = v;
         isAllMode = false;
+        saveState();
         document.getElementById('all').style.display = 'none';
         var frame = document.getElementById('single');
         frame.style.display = 'block';
         frame.src = buildSrc(v);
-        activate(event.target);
+        activateButton(v);
       }
 
       function showAll() {
         isAllMode = true;
+        currentVariant = '';
+        saveState();
         document.getElementById('single').style.display = 'none';
         var allDiv = document.getElementById('all');
-        var variants = [
-          { key: '', label: 'A — Original' },
-          { key: 'b', label: 'B — MagicA (Cascade Reveal)' },
-          { key: 'c', label: 'C — MagicB (Slide Stack)' },
-          { key: 'd', label: 'D — DesignA (Editorial Scorecard)' },
-          { key: 'e', label: 'E — DesignB (Compact Dashboard)' },
-        ];
-        allDiv.innerHTML = variants
-          .map(function (v) {
-            return (
-              '<div class="card"><div class="label">' +
-              v.label +
-              '</div><iframe src="' +
-              buildSrc(v.key) +
-              '"></iframe></div>'
-            );
-          })
-          .join('');
+        allDiv.innerHTML = ALL_VARIANTS.map(function (v) {
+          return (
+            '<div class="card"><div class="label">' +
+            v.label +
+            '</div><iframe src="' +
+            buildSrc(v.key) +
+            '"></iframe></div>'
+          );
+        }).join('');
         allDiv.style.display = 'flex';
-        activate(event.target);
+        activateButton('all');
+      }
+
+      function showAllFromState() {
+        document.getElementById('single').style.display = 'none';
+        var allDiv = document.getElementById('all');
+        allDiv.innerHTML = ALL_VARIANTS.map(function (v) {
+          return (
+            '<div class="card"><div class="label">' +
+            v.label +
+            '</div><iframe src="' +
+            buildSrc(v.key) +
+            '"></iframe></div>'
+          );
+        }).join('');
+        allDiv.style.display = 'flex';
+        activateButton('all');
       }
     </script>
   </body>

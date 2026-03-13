@@ -79,6 +79,15 @@
   --shadow-focus-ring: 0 0 0 3px oklch(0.511 0.2301 276.97 / 0.2);
   --shadow-focus-ring-sm: 0 0 0 2px oklch(0.511 0.2301 276.97 / 0.2);
 
+  /* === 다크 테마 색상 (DesignH용) === */
+  --color-surface-dark: oklch(0.15 0.05 264.66);
+  --color-surface-dark-hover: oklch(0.22 0.05 264.66);
+  --color-surface-dark-card: oklch(0.11 0.03 264.66);
+  --color-success-gradient-from: oklch(0.65 0.15 142);
+  --color-success-gradient-to: oklch(0.58 0.12 160);
+  --color-destructive-gradient-from: oklch(0.65 0.18 25);
+  --color-destructive-gradient-to: oklch(0.58 0.15 35);
+
   /* 커스텀 키프레임 애니메이션 */
   --animate-fade-in-slide-down: fadeInSlideDown 0.6s ease-out forwards;
   --animate-fade-in-scale: fadeInScale 0.4s ease-out;
