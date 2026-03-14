@@ -80,7 +80,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
           >
             <Menu className="size-5" />
           </button>
-          <Link to="/" className="text-foreground dark:text-foreground no-underline">
+          <Link to="/" className="text-inherit no-underline">
             <Logo />
           </Link>
         </div>
@@ -89,7 +89,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
         <div className="flex items-center gap-1 md:gap-3">
           <Link
             to="/boards"
-            className="inline-flex items-center whitespace-nowrap px-3 py-2 text-muted-foreground no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10 text-sm md:text-base"
+            className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 text-sm md:text-base"
           >
             <MessageSquare className="mr-1.5 size-4" />
             <strong>{t('문의하기')}</strong>
@@ -98,7 +98,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
           <div className="relative inline-flex items-center">
             <Link
               to="/history"
-              className="inline-flex items-center whitespace-nowrap px-3 py-2 text-muted-foreground no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10 text-sm md:text-base"
+              className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 text-sm md:text-base"
               onClick={handleQuizManagement}
             >
               <ClipboardList className="mr-1.5 size-4" />
@@ -159,7 +159,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               </div>
             ) : (
               <Link
-                className="inline-flex items-center whitespace-nowrap text-sm text-primary no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10 px-3 py-2 rounded md:text-base"
+                className="inline-flex items-center whitespace-nowrap text-sm text-indigo-600 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-700 px-3 py-2 rounded md:text-base"
                 to="/login"
               >
                 <LogIn className="mr-1.5 size-4" />
