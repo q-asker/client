@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { MessageSquare, ClipboardList, LogIn, Menu, X } from 'lucide-react';
 import { useHeader } from './model/useHeader';
 import { useClickOutside } from '#shared/lib/useClickOutside';
 import Logo from '#shared/ui/logo';
@@ -74,10 +75,10 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
         <div className="flex items-center">
           <button
             id="menuButton"
-            className="mr-3 cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-xl text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
+            className="mr-3 cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
             onClick={toggleSidebar}
           >
-            ☰
+            <Menu className="size-5" />
           </button>
           <Link to="/" className="text-inherit no-underline">
             <Logo />
@@ -90,7 +91,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
             to="/boards"
             className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 text-sm md:text-base"
           >
-            <span className="mr-1.5 inline-flex items-center">💬</span>
+            <MessageSquare className="mr-1.5 size-4" />
             <strong>{t('문의하기')}</strong>
           </Link>
 
@@ -100,7 +101,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 text-sm md:text-base"
               onClick={handleQuizManagement}
             >
-              <span className="mr-1.5 inline-flex items-center">📋</span>
+              <ClipboardList className="mr-1.5 size-4" />
               <strong>{t('퀴즈 기록')}</strong>
             </Link>
             {!isAuthenticated && showNavTooltip && (
@@ -158,10 +159,10 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               </div>
             ) : (
               <Link
-                className="block whitespace-nowrap text-sm text-indigo-600 no-underline md:text-base"
+                className="inline-flex items-center whitespace-nowrap text-sm text-indigo-600 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-700 px-3 py-2 rounded md:text-base"
                 to="/login"
               >
-                <span className="mr-1.5 inline-flex items-center">🔐</span>
+                <LogIn className="mr-1.5 size-4" />
                 <strong>{t('로그인')}</strong>
               </Link>
             )}
@@ -180,10 +181,10 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
         <div className="flex items-center justify-between p-4">
           <h2>{t('메뉴')}</h2>
           <button
-            className="cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-xl text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
+            className="cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
             onClick={closeSidebar}
           >
-            ✕
+            <X className="size-5" />
           </button>
         </div>
         <nav className="w-full">
