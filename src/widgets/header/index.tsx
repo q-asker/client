@@ -173,7 +173,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
       <aside
         id="sidebar"
         className={cn(
-          'fixed left-0 top-0 z-[1000] h-full w-64 bg-white shadow-[2px_0_8px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-in-out',
+          'fixed left-0 top-0 z-[9999] h-full w-64 bg-white shadow-[2px_0_8px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-in-out',
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
@@ -253,6 +253,8 @@ const HeaderMagicC_ConceptMid = lazy(() => import('./HeaderMagicC_ConceptMid'));
 const HeaderMagicC_ConceptMax = lazy(() => import('./HeaderMagicC_ConceptMax'));
 const HeaderMagicC_PolishMid = lazy(() => import('./HeaderMagicC_PolishMid'));
 const HeaderMagicC_PolishMax = lazy(() => import('./HeaderMagicC_PolishMax'));
+const HeaderDesignD = lazy(() => import('./HeaderDesignD'));
+const HeaderDesignE = lazy(() => import('./HeaderDesignE'));
 
 const HEADER_VARIANTS: Record<
   string,
@@ -289,6 +291,8 @@ const HEADER_VARIANTS: Record<
   '29': HeaderMagicC_ConceptMax,
   '30': HeaderMagicC_PolishMid,
   '31': HeaderMagicC_PolishMax,
+  '32': HeaderDesignD,
+  '33': HeaderDesignE,
 };
 
 const HeaderWithVariant = (props: HeaderProps) => {
