@@ -1,228 +1,143 @@
-# 디자인 변형 공통 규칙 (Design Variants Rules)
+---
+name: 디자인 변형 표준 규칙
+description: 모든 페이지의 Design A-H, Magic A-D 12개 디자인 변형에 대한 전사 표준 규칙
+type: reference
+globs: 'src/pages/**'
+---
 
-## 1. 에이전트/스킬 사용 규칙
+# 디자인 변형 표준 규칙
 
-- **모든 컴포넌트 변형 작성 시 `/design-variants` 스킬 필수 참조**
-- 스킬은 design-variants-rules.md(본 문서) + 페이지별 특화 규칙 참고
-- 실제 구현: TypeScript + React, 색상: OKLch, 애니메이션: Framer Motion
+## 개요
 
-## 2. 기술 제약 (준수 필수)
+모든 페이지는 **Design A-H, Magic A-D** 12개 디자인 변형을 표준으로 지원한다:
 
-### 파일 구조
+- **기본**: 원본 구현 (쿼리 파라미터 없음)
+- **DesignA-D**: 4개 기본 디자인 변형 (query parameter: 1-4)
+- **DesignE-H**: 4개 추가 디자인 변형 (query parameter: 5-8)
+- **MagicA-B**: 2개 애니메이션 변형 (query parameter: 9-10)
+- **MagicC-D**: 2개 고급 애니메이션 변형 (query parameter: 11-12)
 
-- 위치: `src/pages/{페이지}/{ComponentName}.tsx`
-- 네이밍: PascalCase (예: `SolveQuizMagicA.tsx`)
-- index.tsx에서 export
+각 변형은 **lazy-loaded 컴포넌트**로 구현되며, query parameter로 활성화된다.
 
-### 색상
+## 공통 레이아웃 원칙
 
-- **OKLch 색공간만 사용** (`oklch()` 함수)
-- HEX, RGB, 색상명 금지
-- 형식: `oklch(lightness% chroma hue)`
-  - lightness: 0~100
-  - chroma: 0~0.4
-  - hue: 0~360
+변형마다 고유한 시각적 표현을 가지되, 다음 기본 원칙을 따른다:
 
-예:
+### 레이아웃 구조
 
-```tsx
-// ✅ 좋음
-className="bg-blue-600 dark:bg-blue-900"  // Tailwind에서 oklch로 정의됨
-style={{ color: 'oklch(70% 0.2 220)' }}  // 직접 정의
+페이지 특성에 따라 상이하지만, 일반적으로:
 
-// ❌ 금지
-className="bg-[#2563eb]"
-style={{ color: '#2563eb' }}
+```
+주요 콘텐츠 영역 (flex / grid 레이아웃)
+  ├─ 좌측 또는 헤더: 메타 정보/네비게이션
+  └─ 우측 또는 메인: 핵심 콘텐츠
 ```
 
-### 스타일링
+### 반응형 설계
 
-- **Tailwind CSS 유틸리티 클래스 우선**
-- 커스텀 CSS는 `src/app/globals.css`에만 작성
-- 컴포넌트별 `.css` 파일 금지
-- `dark:` 클래스로 다크모드 지원
+- **Mobile** (< 768px): 1열 또는 스택 레이아웃
+- **Tablet** (768px-1024px): 2열 레이아웃
+- **Desktop** (≥ 1024px): 3열 이상 또는 사이드바 포함
 
-### 애니메이션
+## 신규 변형 작성 지침
 
-- **Framer Motion만 사용** (`motion.div`, `motion.button` 등)
-- CSS animation/transition도 Tailwind `transition` 클래스 사용 가능
-- 다른 애니메이션 라이브러리 금지
+### 핵심 원칙: 완전히 독립적인 디자인
 
-### TypeScript
+**기존 변형을 "참조"하지 말 것**. 새로운 변형을 만들 때는:
 
-- `strict: true` 모드
-- 컴포넌트 인터페이스 정의 필수
-- `React.FC` 사용
-- Props 타입 명시
+1. **구조 독립성**: 페이지의 핵심 구조만 유지하고, 카드/컴포넌트 구조는 처음부터 설계
+2. **시각적 차별성**: 색상, 타이포그래피, 아이콘, 레이아웃 등 모든 요소를 새롭게 표현
+3. **애니메이션 독립성**: 기존 애니메이션을 그냥 갖다 쓰지 말고, 고유한 스타일 개발
+4. **컴포넌트 재사용**: Shadcn/MagicUI를 사용할 수 있지만, 조합/스타일링은 완전히 다르게
+5. **색상/그래디언트**: tweakcn 색공간(OKLch) 기반 CSS 변수 사용. HEX/RGB 금지
 
-### 임포트
+### 체크리스트
 
-**shrimp-rules.md의 Import 규칙을 따릅니다**:
+새 변형 추가 시:
 
-- FSD 슬라이스: `#features/`, `#widgets/` 등
-- Shadcn/MagicUI: `@/shared/ui/components/`
-- 절대경로 사용 (상대경로 금지)
+- [ ] 기존 변형의 코드를 보지 않고 처음부터 설계
+- [ ] 시각적 계층 구조 명확 (색상, 크기, 가중치로 차별화)
+- [ ] 고유한 진입/상호작용 애니메이션 (copy-paste 금지)
+- [ ] 색상: `oklch()` 기반 CSS 변수만 사용
+- [ ] `npm run build` 성공
+- [ ] `npx prettier --check .` 성공
+- [ ] 비교 페이지에 버튼 추가
+- [ ] 비교 페이지에서 시각적 차별성 확인
 
-## 3. 모든 변형이 필수로 제공할 기능
+## tweakcn 스펙 준수
 
-### UI 요소 (필수)
+### CSS 변수 정의 (globals.css @theme)
 
-- [ ] 진행률 표시 (퍼센트 또는 시각화)
-- [ ] 현재 문제 번호 표시 (Q n / total)
-- [ ] 문제별 상태 표시 (정답/미답변/검토)
-- [ ] 선택 옵션 UI
-- [ ] 이전/다음/확인/제출 버튼
-- [ ] 제출 다이얼로그 (통계: 전체/답변/미답변/검토)
-- [ ] 검토 마크 체크박스
-- [ ] 마크다운 콘텐츠 렌더링
+모든 색상은 OKLch 색공간으로 정의된 CSS 변수 사용:
 
-### 기능 (필수)
-
-- [ ] mock=true 모드 지원 (테스트용)
-- [ ] 문제 점프 네비게이션
-- [ ] 답변 선택 & 저장
-- [ ] 제출 전 확인
-- [ ] 다크모드 지원
-- [ ] 반응형 디자인
-
-## 4. 코드 품질 기준
-
-### 파일 크기
-
-- 컴포넌트 파일: < 250줄 권장
-- 길면 로직을 함수/hook으로 분리
-
-### 조건문
-
-- 3줄 이상의 조건은 함수로 추출
-
-```tsx
-// ❌ 피하기
-{
-  quiz.showSubmitDialog && quiz.submitReady && !quiz.isLoading && <div>...</div>;
-}
-
-// ✅ 좋음
-{
-  shouldShowSubmitDialog() && <div>...</div>;
+```css
+@theme {
+  /* 예시 */
+  --color-primary: oklch(0.5 0.1 270);
+  --color-primary-hover: oklch(0.55 0.1 270);
+  --color-success: oklch(0.65 0.15 142);
+  --color-destructive: oklch(0.65 0.18 25);
 }
 ```
 
-### 타입 정의
+### 금지 사항
+
+- ❌ HEX 색상 (`#ffffff`)
+- ❌ RGB 색상 (`rgb(255, 255, 255)`)
+- ❌ 절대 Tailwind 클래스 (`bg-slate-900`, `text-white/30`)
+
+### 올바른 방식
+
+- ✅ CSS 변수 클래스 (`bg-background`, `text-foreground`)
+- ✅ Tailwind 투명도 수정자 (`bg-muted/60`)
+- ✅ 인라인 CSS 변수 (`style={{ backgroundColor: 'var(--color-primary)' }}`)
+
+## 성능 고려사항
+
+### 코드 분할 (Code Splitting)
+
+모든 변형은 `lazy()` 로딩으로 초기 번들 크기 감소:
 
 ```tsx
-interface QuizState {
-  currentQuestion: number;
-  totalQuestions: number;
+const DesignA = lazy(() => import('./DesignA'));
+const DesignB = lazy(() => import('./DesignB'));
+// ...
+
+const VARIANTS = {
+  '1': DesignA,
+  '2': DesignB,
   // ...
-}
-
-interface ComponentProps {
-  quiz: QuizState;
-}
+};
 ```
 
-### 주석
+### 애니메이션 최적화
 
-- 복잡한 로직에만 한국어 주석 추가
-- 간단한 코드는 주석 불필요 (코드 자체가 설명)
-- 함수/인터페이스 위에는 JSDoc 불필요 (타입이 명확하면)
+- **CSS 기반 애니메이션**: 성능 우선 (transition, animation)
+- **Framer Motion**: 복잡한 인터랙션에만 사용 (필요할 때만)
+- **GPU 가속**: `transform`, `opacity` 사용 (성능 최적)
 
-## 5. 반응형 설계
+## 페이지별 규칙 참조
 
-### Breakpoints (Tailwind 기본값)
+각 페이지는 고유한 디자인 변형 규칙을 정의한다:
 
-- sm: 640px
-- md: 768px
-- lg: 1024px ← **주요 레이아웃 전환점**
-- xl: 1280px
+- [quiz-result-design-rules.md](quiz-result-design-rules.md) — Quiz Result (12개 변형)
+- [make-quiz-design-rules.md](make-quiz-design-rules.md) — Make-Quiz (8개 변형)
+- [solve-quiz-design-rules.md](solve-quiz-design-rules.md) — Solve-Quiz (8개 변형)
+- [quiz-explanation-design-rules.md](quiz-explanation-design-rules.md) — Quiz-Explanation (8개 변형)
+- [quiz-history-design-rules.md](quiz-history-design-rules.md) — Quiz-History (8개 변형)
+- [board-design-rules.md](board-design-rules.md) — Board (8개 변형)
+- [board-detail-design-rules.md](board-detail-design-rules.md) — Board-Detail (8개 변형)
+- [board-write-design-rules.md](board-write-design-rules.md) — Board-Write (8개 변형)
+- [login-redirect-design-rules.md](login-redirect-design-rules.md) — Login-Redirect (8개 변형)
+- [login-select-design-rules.md](login-select-design-rules.md) — Login-Select (8개 변형)
+- [maintenance-design-rules.md](maintenance-design-rules.md) — Maintenance (8개 변형)
+- [privacy-policy-design-rules.md](privacy-policy-design-rules.md) — Privacy-Policy (8개 변형)
 
-### 패턴
+---
 
-```tsx
-// 모바일 1열 → 데스크톱 2열
-<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+## 참고 자료
 
-// 모바일: 숨김 → 데스크톱: 표시
-<aside className="hidden lg:block">
-
-// 모바일: 하단 고정 → 데스크톱: 우측 사이드바
-<nav className="fixed bottom-0 lg:relative lg:flex-col">
-```
-
-## 6. 다크모드
-
-### 필수 구현
-
-- 모든 텍스트 색상: `text-gray-900 dark:text-white`
-- 모든 배경: `bg-white dark:bg-slate-900`
-- 모든 테두리: `border-gray-200 dark:border-gray-700`
-
-### 대비 확인
-
-- 다크모드에서도 가독성 유지 필수
-- 밝은 색상 사용 시 명도(lightness) 조정
-
-## 7. 검증 기준
-
-### TypeScript
-
-```bash
-npx tsc --noEmit  # 컴파일 에러 없음
-```
-
-### 빌드
-
-```bash
-npm run build  # 성공
-```
-
-### 포맷팅
-
-```bash
-npx prettier --check .  # 통과
-```
-
-### 런타임
-
-- `/quiz/test?sq=N&mock=true` 로드 가능
-- solve-quiz-compare.html에서 즉시 변경
-- 콘솔 에러 없음
-
-### 다크모드
-
-- `<html class="dark">` 상태에서 가독성 유지
-- 모든 색상 대비 확인 (WCAG AA 권장)
-
-## 8. 참고: 완성된 변형 분석
-
-### Magic 변형들 (애니메이션 중심)
-
-- #1 MagicA, #13 MagicE, #14 MagicF, #15 MagicG, #16 MagicH
-- 패턴: BlurFade, TextAnimate, perspective, staggerChildren, infinite rotate
-- 색상 선택: 선명함 (chroma > 0.15)
-
-### Design 변형들 (구조 중심)
-
-- #4 DesignB, #7 DesignC, #8 DesignD, #11 DesignG, #12 DesignH
-- 패턴: sidebar, grid, timeline, header, chat
-- 색상 선택: 차분함 (chroma < 0.15)
-
-## 9. 자주하는 실수
-
-❌ **금지**
-
-- `import './Component.css'`
-- `style={{ color: '#2563eb' }}`
-- `<div style={dynamicStyle}>` (Tailwind 클래스 사용)
-- MagicUI 외 다른 애니메이션 라이브러리
-- 기존 변형 코드 복사 후 색상만 변경
-- `useEffect` 과다 사용 (hook 계층 유의)
-
-✅ **권장**
-
-- Tailwind 클래스 우선
-- OKLch 색상 사용
-- Framer Motion으로 고급 애니메이션
-- 타입 정의 완성
-- 컴포넌트 분리 (크기 < 250줄)
+- tweakcn 스펙: code-rules.md
+- Framer Motion 문서: https://www.framer.com/motion/
+- Shadcn UI 컴포넌트: @/shared/ui/components/
+- MagicUI 컴포넌트: @/shared/ui/components/
