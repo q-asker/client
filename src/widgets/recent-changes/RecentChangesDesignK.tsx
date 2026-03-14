@@ -18,14 +18,16 @@ const RecentChangesDesignK = () => {
       </h3>
       <div className="flex flex-wrap gap-3">
         {changes.map((log) => (
-          <div
-            key={log.id}
-            className="group flex flex-col items-start gap-1 rounded-full border border-primary/20 bg-primary/5 px-4 py-2.5 transition-all hover:border-primary/40 hover:bg-primary/10"
-          >
-            <span className="text-xs font-medium text-primary/70">{formatDate(log.dateTime)}</span>
-            <p className="line-clamp-1 text-xs text-foreground/80 group-hover:text-foreground">
-              {t(log.updateText)}
-            </p>
+          <div key={log.id} className="flex gap-2 items-start">
+            <div className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
+            <div className="group flex flex-col items-start gap-1 rounded-full border border-primary/20 bg-primary/5 px-4 py-2.5 transition-all hover:border-primary/40 hover:bg-primary/10">
+              <span className="text-xs font-medium text-primary/70">
+                {formatDate(log.dateTime)}
+              </span>
+              <p className="line-clamp-1 text-xs text-foreground/80 group-hover:text-foreground">
+                {t(log.updateText)}
+              </p>
+            </div>
           </div>
         ))}
       </div>

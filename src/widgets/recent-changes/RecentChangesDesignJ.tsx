@@ -18,14 +18,16 @@ const RecentChangesDesignJ = () => {
       </h3>
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
         {changes.map((log) => (
-          <div
-            key={log.id}
-            className="flex flex-col gap-3 rounded-xl border border-primary/10 bg-gradient-to-br from-primary/5 to-primary/0 p-5 transition-all hover:border-primary/30 hover:shadow-md hover:shadow-primary/10"
-          >
-            <div className="inline-flex w-fit rounded-full bg-primary/10 px-3 py-1">
-              <span className="text-xs font-semibold text-primary">{formatDate(log.dateTime)}</span>
+          <div key={log.id} className="flex gap-3">
+            <div className="mt-1 size-2.5 shrink-0 rounded-full bg-primary" />
+            <div className="flex flex-col gap-3 rounded-xl border border-primary/10 bg-gradient-to-br from-primary/5 to-primary/0 p-5 transition-all hover:border-primary/30 hover:shadow-md hover:shadow-primary/10 flex-1">
+              <div className="inline-flex w-fit rounded-full bg-primary/10 px-3 py-1">
+                <span className="text-xs font-semibold text-primary">
+                  {formatDate(log.dateTime)}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-foreground">{t(log.updateText)}</p>
             </div>
-            <p className="text-sm leading-relaxed text-foreground">{t(log.updateText)}</p>
           </div>
         ))}
       </div>

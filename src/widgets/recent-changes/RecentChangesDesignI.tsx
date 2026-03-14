@@ -18,16 +18,18 @@ const RecentChangesDesignI = () => {
       </h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
         {changes.map((log) => (
-          <div
-            key={log.id}
-            className="flex flex-col gap-2 rounded-lg border border-border/50 bg-muted/40 p-4 transition-all hover:border-border hover:bg-muted/60"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-medium text-primary/80">
-                {formatDate(log.dateTime)}
-              </span>
+          <div key={log.id} className="flex gap-3">
+            <div className="mt-1 size-2.5 shrink-0 rounded-full bg-primary" />
+            <div className="flex flex-col gap-2 rounded-lg border border-border/50 bg-muted/40 p-4 transition-all hover:border-border hover:bg-muted/60 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-medium text-primary/80">
+                  {formatDate(log.dateTime)}
+                </span>
+              </div>
+              <p className="line-clamp-2 text-sm font-medium text-foreground">
+                {t(log.updateText)}
+              </p>
             </div>
-            <p className="line-clamp-2 text-sm font-medium text-foreground">{t(log.updateText)}</p>
           </div>
         ))}
       </div>
