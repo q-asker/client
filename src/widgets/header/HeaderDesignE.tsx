@@ -154,9 +154,9 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                     whileHover={{ scale: 1.2, rotate: 15 }}
                     transition={{ type: 'spring', damping: 15, stiffness: 400 }}
                   >
-                    <MessageSquare className="size-4 sm:hidden" />
+                    <MessageSquare className="mr-1.5 size-4" />
                   </motion.span>
-                  <span className="max-sm:hidden">{t('문의하기')}</span>
+                  <span>{t('문의하기')}</span>
                 </Link>
               </motion.div>
             </BlurFade>
@@ -183,9 +183,9 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                     whileHover={{ scale: 1.2, rotate: 15 }}
                     transition={{ type: 'spring', damping: 15, stiffness: 400 }}
                   >
-                    <ClipboardList className="size-4 sm:hidden" />
+                    <ClipboardList className="mr-1.5 size-4" />
                   </motion.span>
-                  <span className="max-sm:hidden">{t('퀴즈 기록')}</span>
+                  <span>{t('퀴즈 기록')}</span>
                 </Link>
                 {!isAuthenticated && showNavTooltip && (
                   <motion.span
@@ -231,9 +231,9 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                       whileHover={{ scale: 1.2, rotate: 15 }}
                       transition={{ type: 'spring', damping: 15, stiffness: 400 }}
                     >
-                      <LogIn className="size-4 sm:hidden" />
+                      <LogIn className="mr-1.5 size-4" />
                     </motion.span>
-                    <span className="max-sm:hidden">{t('로그인')}</span>
+                    <span>{t('로그인')}</span>
                   </Link>
                 </motion.div>
               </BlurFade>

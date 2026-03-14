@@ -114,7 +114,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
             className="mr-3 cursor-pointer border-none bg-transparent p-1.5 text-gray-700 transition-colors duration-200 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
             onClick={toggleSidebar}
           >
-            <Menu className="size-5" />
+            <Menu className="size-4 md:size-5" />
           </button>
           <Link to="/" className="text-inherit no-underline">
             <Logo />
@@ -134,8 +134,8 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                     : 'text-gray-700 hover:bg-amber-50 dark:text-gray-300 dark:hover:bg-amber-900/20',
                 )}
               >
-                <MessageSquare className="size-4 sm:hidden" />
-                <span className="max-sm:hidden">{t('문의하기')}</span>
+                <MessageSquare className="mr-1.5 size-4" />
+                <span>{t('문의하기')}</span>
               </Link>
             </BlurFade>
 
@@ -151,8 +151,8 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   )}
                   onClick={handleQuizManagement}
                 >
-                  <ClipboardList className="size-4 sm:hidden" />
-                  <span className="max-sm:hidden">{t('퀴즈 기록')}</span>
+                  <ClipboardList className="mr-1.5 size-4" />
+                  <span>{t('퀴즈 기록')}</span>
                 </Link>
                 {!isAuthenticated && showNavTooltip && (
                   <span
@@ -184,8 +184,8 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   )}
                   to="/login"
                 >
-                  <LogIn className="size-4 sm:hidden" />
-                  <span className="max-sm:hidden">{t('로그인')}</span>
+                  <LogIn className="mr-1.5 size-4" />
+                  <span>{t('로그인')}</span>
                 </Link>
               </BlurFade>
             )}
