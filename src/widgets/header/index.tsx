@@ -256,6 +256,8 @@ const HeaderMagicC_PolishMid = lazy(() => import('./HeaderMagicC_PolishMid'));
 const HeaderMagicC_PolishMax = lazy(() => import('./HeaderMagicC_PolishMax'));
 const HeaderDesignD = lazy(() => import('./HeaderDesignD'));
 const HeaderDesignE = lazy(() => import('./HeaderDesignE'));
+const HeaderDesignF = lazy(() => import('./HeaderDesignF'));
+const HeaderDesignG = lazy(() => import('./HeaderDesignG'));
 
 const HEADER_VARIANTS: Record<
   string,
@@ -294,6 +296,8 @@ const HEADER_VARIANTS: Record<
   '31': HeaderMagicC_PolishMax,
   '32': HeaderDesignD,
   '33': HeaderDesignE,
+  '34': HeaderDesignF,
+  '35': HeaderDesignG,
 };
 
 const HeaderWithVariant = (props: HeaderProps) => {
