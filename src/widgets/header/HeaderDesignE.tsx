@@ -121,7 +121,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
         <div className="flex items-center">
           <button
             id="menuButton"
-            className="mr-3 cursor-pointer border-none bg-transparent p-1.5 text-gray-700 transition-colors duration-200 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+            className="mr-3 cursor-pointer border-none bg-transparent p-1.5 text-muted-foreground transition-colors duration-200 hover:text-foreground"
             onClick={toggleSidebar}
           >
             <Menu className="size-5" />
@@ -145,8 +145,8 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium no-underline transition-colors duration-200 sm:text-base',
                     isActive('/boards')
-                      ? 'text-indigo-600 dark:text-indigo-400'
-                      : 'text-gray-700 dark:text-gray-300',
+                      ? 'text-primary dark:text-primary'
+                      : 'text-foreground dark:text-foreground',
                   )}
                 >
                   <motion.span
@@ -173,8 +173,8 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium no-underline transition-colors duration-200 sm:text-base',
                     isActive('/history')
-                      ? 'text-indigo-600 dark:text-indigo-400'
-                      : 'text-gray-700 dark:text-gray-300',
+                      ? 'text-primary dark:text-primary'
+                      : 'text-foreground dark:text-foreground',
                   )}
                   onClick={handleQuizManagement}
                 >
@@ -189,7 +189,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                 </Link>
                 {!isAuthenticated && showNavTooltip && (
                   <motion.span
-                    className="absolute left-1/2 top-[calc(100%+8px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-lg before:absolute before:left-1/2 before:top-[-4px] before:-translate-x-1/2 before:border-x-[6px] before:border-b-[6px] before:border-t-0 before:border-solid before:border-transparent before:border-b-gray-900 before:content-[''] dark:bg-gray-800 dark:before:border-b-gray-800 max-sm:hidden"
+                    className="absolute left-1/2 top-[calc(100%+8px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-foreground px-2.5 py-1.5 text-xs text-background shadow-lg before:absolute before:left-1/2 before:top-[-4px] before:-translate-x-1/2 before:border-x-[6px] before:border-b-[6px] before:border-t-0 before:border-solid before:border-transparent before:border-b-foreground before:content-[''] max-sm:hidden"
                     initial={{ opacity: 0, scale: 0.8, y: -8 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, y: -8 }}
@@ -245,7 +245,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
             <div className="relative">
               <motion.button
                 id="profileButton"
-                className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border-2 border-indigo-200 bg-indigo-50 p-0 text-sm font-bold text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 md:size-9 md:text-base"
+                className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border-2 border-primary/30 bg-primary/10 p-0 text-sm font-bold text-primary md:size-9 md:text-base"
                 onClick={() => setIsProfileOpen((prev) => !prev)}
                 aria-expanded={isProfileOpen}
                 aria-haspopup="true"
@@ -267,10 +267,10 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: -4 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                    className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[170px] rounded-lg border border-gray-200 bg-white p-2.5 shadow-md dark:border-gray-700 dark:bg-gray-900"
+                    className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[170px] rounded-lg border border-border bg-card p-2.5 shadow-md dark:bg-card/50"
                   >
                     <motion.span
-                      className="mb-2 block px-1 text-sm font-semibold text-gray-900 dark:text-white"
+                      className="mb-2 block px-1 text-sm font-semibold text-foreground"
                       custom={0}
                       variants={dropdownItemVariants}
                       initial="hidden"
@@ -280,7 +280,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                     </motion.span>
                     <div className="mb-1.5 h-px bg-gray-200 dark:bg-gray-700" />
                     <motion.button
-                      className="flex w-full cursor-pointer items-center gap-2 rounded px-1 py-1.5 text-left text-sm text-gray-700 transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400"
+                      className="flex w-full cursor-pointer items-center gap-2 rounded px-1 py-1.5 text-left text-sm text-foreground transition-colors duration-200 hover:bg-primary/10 hover:text-primary"
                       type="button"
                       custom={1}
                       variants={dropdownItemVariants}
@@ -321,12 +321,12 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed left-0 top-0 z-[1000] flex h-full w-[260px] flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950"
+              className="fixed left-0 top-0 z-[1000] flex h-full w-[260px] flex-col border-r border-border bg-background dark:bg-background"
             >
               {/* 사이드바 헤더 */}
               <div className="flex items-center justify-between px-5 py-4">
                 <motion.h2
-                  className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400"
+                  className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.05, type: 'spring', stiffness: 300, damping: 25 }}
@@ -334,19 +334,19 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   {t('메뉴')}
                 </motion.h2>
                 <button
-                  className="cursor-pointer border-none bg-transparent p-1 text-gray-600 transition-colors duration-200 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+                  className="cursor-pointer border-none bg-transparent p-1 text-muted-foreground transition-colors duration-200 hover:text-foreground"
                   onClick={closeSidebar}
                 >
                   <X className="size-4" />
                 </button>
               </div>
 
-              <div className="mx-5 h-px bg-gray-200 dark:bg-gray-800" />
+              <div className="mx-5 h-px bg-border" />
 
               {/* 사이드바 네비게이션 */}
               <nav className="flex flex-col gap-0 px-3 py-2">
                 <motion.div
-                  className="flex cursor-pointer items-center justify-between rounded px-4 py-3 text-gray-700 transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400"
+                  className="flex cursor-pointer items-center justify-between rounded px-4 py-3 text-foreground transition-colors duration-200 hover:bg-primary/5 hover:text-primary"
                   custom={0}
                   variants={sidebarItemVariants}
                   initial="hidden"
@@ -359,13 +359,13 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   </span>
                   <div className="flex gap-1">
                     <button
-                      className="cursor-pointer border-none bg-transparent px-2 py-1 text-[11px] font-bold text-gray-700 transition-colors hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+                      className="cursor-pointer border-none bg-transparent px-2 py-1 text-[11px] font-bold text-foreground transition-colors hover:text-primary"
                       onClick={() => handleLanguageChange('ko')}
                     >
                       KO
                     </button>
                     <button
-                      className="cursor-pointer border-none bg-transparent px-2 py-1 text-[11px] font-bold text-gray-700 transition-colors hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+                      className="cursor-pointer border-none bg-transparent px-2 py-1 text-[11px] font-bold text-foreground transition-colors hover:text-primary"
                       onClick={() => handleLanguageChange('en')}
                     >
                       EN
@@ -374,7 +374,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                 </motion.div>
 
                 <motion.button
-                  className="flex w-full cursor-pointer items-center gap-3 rounded bg-transparent px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wide text-gray-700 transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400"
+                  className="flex w-full cursor-pointer items-center gap-3 rounded bg-transparent px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wide text-foreground transition-colors duration-200 hover:bg-primary/5 hover:text-primary"
                   type="button"
                   custom={1}
                   variants={sidebarItemVariants}

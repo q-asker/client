@@ -76,7 +76,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
         <div className="flex items-center">
           <button
             id="menuButton"
-            className="mr-3 cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+            className="mr-3 cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
             onClick={toggleSidebar}
           >
             <Menu className="size-5" />
@@ -90,19 +90,19 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
         <div className="flex items-center gap-1 md:gap-3">
           <Link
             to="/boards"
-            className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 text-sm md:text-base dark:text-gray-300 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400"
+            className="inline-flex items-center whitespace-nowrap px-3 py-2 text-foreground no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary text-sm md:text-base"
           >
             <MessageSquare className="mr-1.5 size-4" />
             <strong>{t('문의하기')}</strong>
           </Link>
 
           {/* 구분선 */}
-          <div className="h-5 w-px bg-gray-300 dark:bg-gray-700 mx-1" />
+          <div className="h-5 w-px bg-border mx-1" />
 
           <div className="relative inline-flex items-center">
             <Link
               to="/history"
-              className="inline-flex items-center whitespace-nowrap px-3 py-2 text-gray-700 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 text-sm md:text-base dark:text-gray-300 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400"
+              className="inline-flex items-center whitespace-nowrap px-3 py-2 text-foreground no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary text-sm md:text-base"
               onClick={handleQuizManagement}
             >
               <ClipboardList className="mr-1.5 size-4" />
@@ -110,7 +110,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
             </Link>
             {!isAuthenticated && showNavTooltip && (
               <span
-                className="absolute left-1/2 top-[calc(100%+6px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-gray-900 px-2 py-1.5 pl-2.5 text-xs text-white shadow-lg before:absolute before:left-1/2 before:top-[-4px] before:-translate-x-1/2 before:border-x-[6px] before:border-b-[6px] before:border-t-0 before:border-solid before:border-transparent before:border-b-gray-900 before:content-[''] max-sm:hidden dark:bg-gray-800 dark:before:border-b-gray-800"
+                className="absolute left-1/2 top-[calc(100%+6px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-foreground px-2 py-1.5 pl-2.5 text-xs text-background shadow-lg before:absolute before:left-1/2 before:top-[-4px] before:-translate-x-1/2 before:border-x-[6px] before:border-b-[6px] before:border-t-0 before:border-solid before:border-transparent before:border-b-foreground before:content-[''] max-sm:hidden"
                 role="status"
               >
                 {t('로그인하고, 퀴즈기록을 저장해보세요')}
@@ -127,7 +127,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
           </div>
 
           {/* 구분선 */}
-          <div className="h-5 w-px bg-gray-300 dark:bg-gray-700 mx-1" />
+          <div className="h-5 w-px bg-border mx-1" />
 
           {/* 인증 버튼 */}
           <div className="flex items-center">
@@ -135,7 +135,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               <div className="relative">
                 <button
                   id="profileButton"
-                  className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-indigo-100 bg-indigo-50 p-0 text-sm font-bold text-indigo-600 transition-colors duration-200 hover:bg-indigo-100 md:size-9 md:text-base dark:border-indigo-900 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50"
+                  className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-primary/30 bg-primary/10 p-0 text-sm font-bold text-primary transition-colors duration-200 hover:bg-primary/20 md:size-9 md:text-base"
                   onClick={() => setIsProfileOpen((prev) => !prev)}
                   aria-expanded={isProfileOpen}
                   aria-haspopup="true"
@@ -147,13 +147,13 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                 {isProfileOpen && (
                   <div
                     id="profileDropdown"
-                    className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[180px] rounded-xl border border-gray-200 bg-white p-3 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+                    className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[180px] rounded-xl border border-border bg-card p-3 shadow-lg dark:bg-card/50"
                   >
-                    <span className="mb-2.5 block font-semibold text-gray-900 dark:text-white">
+                    <span className="mb-2.5 block font-semibold text-foreground">
                       {displayName}
                     </span>
                     <button
-                      className="w-full cursor-pointer border-none bg-transparent px-1 py-1.5 text-left text-indigo-600 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300"
+                      className="w-full cursor-pointer border-none bg-transparent px-1 py-1.5 text-left text-primary hover:text-primary"
                       type="button"
                       onClick={() => {
                         setIsProfileOpen(false);
@@ -168,7 +168,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               </div>
             ) : (
               <Link
-                className="inline-flex items-center whitespace-nowrap text-sm text-indigo-600 no-underline transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-700 px-3 py-2 rounded md:text-base dark:hover:bg-indigo-900/20 dark:hover:text-indigo-500"
+                className="inline-flex items-center whitespace-nowrap text-sm text-primary no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary px-3 py-2 rounded md:text-base"
                 to="/login"
               >
                 <LogIn className="mr-1.5 size-4" />
@@ -197,17 +197,17 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
           </button>
         </div>
         <nav className="w-full">
-          <div className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-base text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400">
+          <div className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-base text-foreground transition-all duration-200 hover:bg-primary/5 hover:text-primary">
             {t('언어')}
             <div>
               <button
-                className="cursor-pointer border-none bg-transparent text-base text-gray-700 dark:text-gray-300"
+                className="cursor-pointer border-none bg-transparent text-base text-foreground"
                 onClick={() => handleLanguageChange('ko')}
               >
                 🇰🇷
               </button>
               <button
-                className="cursor-pointer border-none bg-transparent text-base text-gray-700 dark:text-gray-300"
+                className="cursor-pointer border-none bg-transparent text-base text-foreground"
                 onClick={() => handleLanguageChange('en')}
               >
                 🇬🇧
@@ -215,7 +215,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
             </div>
           </div>
           <button
-            className="block w-full cursor-pointer border-none bg-transparent px-4 py-3 text-left text-base text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400"
+            className="block w-full cursor-pointer border-none bg-transparent px-4 py-3 text-left text-base text-foreground transition-all duration-200 hover:bg-primary/5 hover:text-primary"
             type="button"
             onClick={handleHelp}
           >
