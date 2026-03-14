@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, ClipboardList, LogIn, Menu, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { MessageSquare, ClipboardList, LogIn, Menu, X, Globe, HelpCircle } from 'lucide-react';
 import { useHeader } from './model/useHeader';
 import { useClickOutside } from '#shared/lib/useClickOutside';
 import Logo from '#shared/ui/logo';
@@ -12,6 +13,16 @@ interface HeaderProps {
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setShowHelp?: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+// 사이드바 메뉴 항목 stagger 애니메이션
+const sidebarItemVariants = {
+  hidden: { opacity: 0, x: -16 },
+  visible: (i: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: { delay: i * 0.08, type: 'spring', damping: 20, stiffness: 300 },
+  }),
+};
 
 const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }: HeaderProps) => {
   const {
@@ -179,50 +190,102 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
         </div>
       </div>
 
-      {/* 사이드바 */}
-      <aside
-        id="sidebar"
-        className={cn(
-          'fixed left-0 top-0 z-[9999] h-full w-64 bg-white dark:bg-gray-950 shadow-[2px_0_8px_rgba(0,0,0,0.1)] dark:shadow-[2px_0_8px_rgba(0,0,0,0.3)] transition-transform duration-300 ease-in-out',
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+      {/* 사이드바 + 오버레이 — 아이콘별 그룹, 소제목+구분선 */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[999] bg-foreground/20"
+              onClick={closeSidebar}
+            />
+            <motion.aside
+              id="sidebar"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+              className="fixed left-0 top-0 z-[1000] flex h-full w-[280px] flex-col border-r border-border bg-background"
+            >
+              <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                <motion.h2
+                  className="text-xs font-bold uppercase tracking-[0.2em] text-foreground"
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05, type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  {t('메뉴')}
+                </motion.h2>
+                <button
+                  className="cursor-pointer border-none bg-transparent p-1.5 text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                  onClick={closeSidebar}
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+
+              <nav className="flex flex-col gap-0 p-2">
+                {/* 설정 그룹 소제목 */}
+                <div className="px-4 pb-1 pt-3">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                    {t('설정')}
+                  </span>
+                </div>
+
+                {/* 언어 전환 토글 */}
+                <motion.div
+                  className="flex cursor-pointer items-center justify-between rounded-lg px-4 py-3.5 text-sm text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05, type: 'spring', damping: 20, stiffness: 300 }}
+                >
+                  <span className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.15em]">
+                    <Globe className="size-4" />
+                    {t('언어')}
+                  </span>
+                  <div className="flex gap-0.5 rounded-full bg-muted p-0.5">
+                    <button
+                      className="cursor-pointer rounded-full border-none bg-transparent px-2.5 py-1 text-xs font-bold text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+                      onClick={() => handleLanguageChange('ko')}
+                    >
+                      KO
+                    </button>
+                    <button
+                      className="cursor-pointer rounded-full border-none bg-transparent px-2.5 py-1 text-xs font-bold text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+                      onClick={() => handleLanguageChange('en')}
+                    >
+                      EN
+                    </button>
+                  </div>
+                </motion.div>
+
+                {/* 구분선 + 지원 그룹 소제목 */}
+                <div className="mx-4 my-1 border-t border-border/60" />
+                <div className="px-4 pb-1 pt-3">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                    {t('지원')}
+                  </span>
+                </div>
+
+                <motion.button
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg border-none bg-transparent px-4 py-3.5 text-left text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+                  type="button"
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.08, type: 'spring', damping: 20, stiffness: 300 }}
+                  onClick={handleHelp}
+                >
+                  <HelpCircle className="size-4" />
+                  {t('도움말 보기')}
+                </motion.button>
+              </nav>
+            </motion.aside>
+          </>
         )}
-      >
-        <div className="flex items-center justify-between p-4">
-          <h2 className="dark:text-white">{t('메뉴')}</h2>
-          <button
-            className="cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
-            onClick={closeSidebar}
-          >
-            <X className="size-5" />
-          </button>
-        </div>
-        <nav className="w-full">
-          <div className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-base text-foreground transition-all duration-200 hover:bg-primary/5 hover:text-primary">
-            {t('언어')}
-            <div>
-              <button
-                className="cursor-pointer border-none bg-transparent text-base text-foreground"
-                onClick={() => handleLanguageChange('ko')}
-              >
-                🇰🇷
-              </button>
-              <button
-                className="cursor-pointer border-none bg-transparent text-base text-foreground"
-                onClick={() => handleLanguageChange('en')}
-              >
-                🇬🇧
-              </button>
-            </div>
-          </div>
-          <button
-            className="block w-full cursor-pointer border-none bg-transparent px-4 py-3 text-left text-base text-foreground transition-all duration-200 hover:bg-primary/5 hover:text-primary"
-            type="button"
-            onClick={handleHelp}
-          >
-            {t('도움말 보기')}
-          </button>
-        </nav>
-      </aside>
+      </AnimatePresence>
     </div>
   );
 };
