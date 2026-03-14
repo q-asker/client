@@ -35,12 +35,18 @@ const RecentChangesMagicA = lazy(() => import('./RecentChangesMagicA'));
 const RecentChangesMagicB = lazy(() => import('./RecentChangesMagicB'));
 const RecentChangesDesignA = lazy(() => import('./RecentChangesDesignA'));
 const RecentChangesDesignB = lazy(() => import('./RecentChangesDesignB'));
+const RecentChangesDesignI = lazy(() => import('./RecentChangesDesignI'));
+const RecentChangesDesignJ = lazy(() => import('./RecentChangesDesignJ'));
+const RecentChangesDesignK = lazy(() => import('./RecentChangesDesignK'));
 
 const RC_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   '1': RecentChangesMagicA,
   '2': RecentChangesMagicB,
   '3': RecentChangesDesignA,
   '4': RecentChangesDesignB,
+  '5': RecentChangesDesignI,
+  '6': RecentChangesDesignJ,
+  '7': RecentChangesDesignK,
 };
 
 const RecentChangesWithVariant = () => {
