@@ -1,3 +1,5 @@
+import React, { lazy, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import { useRecentChanges } from './model/useRecentChanges';
 
@@ -28,4 +30,32 @@ const RecentChanges = () => {
   );
 };
 
-export default RecentChanges;
+/* 쿼리 파라미터 기반 변형 스위칭 */
+const RecentChangesMagicA = lazy(() => import('./RecentChangesMagicA'));
+const RecentChangesMagicB = lazy(() => import('./RecentChangesMagicB'));
+const RecentChangesDesignA = lazy(() => import('./RecentChangesDesignA'));
+const RecentChangesDesignB = lazy(() => import('./RecentChangesDesignB'));
+
+const RC_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  '1': RecentChangesMagicA,
+  '2': RecentChangesMagicB,
+  '3': RecentChangesDesignA,
+  '4': RecentChangesDesignB,
+};
+
+const RecentChangesWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('rc');
+  const VariantComponent = variant ? RC_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <RecentChanges />;
+};
+
+export default RecentChangesWithVariant;

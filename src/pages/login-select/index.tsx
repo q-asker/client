@@ -1,4 +1,6 @@
 import { useTranslation } from 'i18nexus';
+import React, { lazy, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Logo from '#shared/ui/logo';
 
 const LoginSelect = () => {
@@ -30,4 +32,32 @@ const LoginSelect = () => {
   );
 };
 
-export default LoginSelect;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const LoginSelectMagicA = lazy(() => import('./LoginSelectMagicA'));
+const LoginSelectMagicB = lazy(() => import('./LoginSelectMagicB'));
+const LoginSelectDesignA = lazy(() => import('./LoginSelectDesignA'));
+const LoginSelectDesignB = lazy(() => import('./LoginSelectDesignB'));
+
+const LS_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  '1': LoginSelectMagicA,
+  '2': LoginSelectMagicB,
+  '3': LoginSelectDesignA,
+  '4': LoginSelectDesignB,
+};
+
+const LoginSelectWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('ls');
+  const VariantComponent = variant ? LS_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <LoginSelect />;
+};
+
+export default LoginSelectWithVariant;

@@ -1,5 +1,6 @@
 import type { CSSProperties, RefObject } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import CustomToast from '#shared/toast';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import { loadInterval, MAX_SELECT_PAGES, pageCountToLoad } from './constants';
@@ -77,14 +78,21 @@ const readSavedPagesState = (): SavedPagesState | null => {
   }
 };
 
+const MOCK_NUM_PAGES = 10;
+
 export const usePrepareQuizPages = ({
   t,
   uploadedUrl: _uploadedUrl,
 }: UsePrepareQuizPagesParams): PrepareQuizPagesReturn => {
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
+
   const savedStateRef = useRef(readSavedPagesState());
   const [pageMode, setPageMode] = useState<PageMode>(savedStateRef.current?.pageMode || 'CUSTOM');
-  const [numPages, setNumPages] = useState<number | null>(null);
-  const [selectedPages, setSelectedPages] = useState<number[]>([]);
+  const [numPages, setNumPages] = useState<number | null>(isMock ? MOCK_NUM_PAGES : null);
+  const [selectedPages, setSelectedPages] = useState<number[]>(
+    isMock ? Array.from({ length: MOCK_NUM_PAGES }, (_, i) => i + 1) : [],
+  );
   const [hoveredPage, setHoveredPage] = useState<HoveredPage | null>(null);
   const [visiblePageCount, setVisiblePageCount] = useState(pageCountToLoad);
   const visiblePageCountRef = useRef(pageCountToLoad);

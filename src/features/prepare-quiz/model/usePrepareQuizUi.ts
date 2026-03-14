@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useClickOutside } from '#shared/lib/useClickOutside';
 
 export interface PrepareQuizUiState {
@@ -18,8 +19,9 @@ export interface PrepareQuizUiReturn {
 }
 
 export const usePrepareQuizUi = (): PrepareQuizUiReturn => {
+  const [searchParams] = useSearchParams();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
+  const [showHelp, setShowHelp] = useState(searchParams.get('showHelp') === 'true');
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => !prev);

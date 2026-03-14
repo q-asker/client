@@ -29,6 +29,8 @@ interface QuizTypeOption {
 const MakeQuiz: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
   const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
   const acceptExtensions: string = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
   const { state, actions } = usePrepareQuiz({ t, navigate });
@@ -360,87 +362,115 @@ const MakeQuiz: React.FC = () => {
                       {pages.selectedPages.length}/{pages.numPages ?? 0}
                     </span>
                   </div>
-                  <Document
-                    file={upload.uploadedUrl}
-                    onLoadSuccess={pageActions.onDocumentLoadSuccess}
-                    onLoadError={console.error}
-                    options={pdfOptions}
-                  >
-                    <div className="relative">
-                      <div
-                        className="grid max-h-[360px] grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 overflow-y-auto p-1.5"
-                        onMouseLeave={pageActions.handlePageMouseLeave}
-                      >
-                        {Array.from(
-                          new Array(Math.min(pages.visiblePageCount, pages.numPages ?? 0)),
-                          (_el: undefined, index: number) => {
-                            const pageNumber: number = index + 1;
-                            const isSelected: boolean = pages.selectedPages.includes(pageNumber);
-                            const isHovered: boolean = pages.hoveredPage?.pageNumber === pageNumber;
+                  {isMock ? (
+                    /* mock 모드: PDF 뷰어 대신 페이지 목록 표시 */
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 p-1.5">
+                      {Array.from({ length: pages.numPages ?? 0 }, (_, index) => {
+                        const pageNumber = index + 1;
+                        const isSelected = pages.selectedPages.includes(pageNumber);
+                        return (
+                          <div
+                            key={`mock_page_${pageNumber}`}
+                            className={cn(
+                              'flex h-[200px] cursor-pointer items-center justify-center rounded-md border bg-gray-100 text-center transition-all duration-200 hover:scale-[1.02]',
+                              isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200',
+                            )}
+                            onClick={() => pageActions.handlePageSelection(pageNumber)}
+                          >
+                            <div className="flex flex-col items-center gap-2">
+                              <span className="text-3xl text-gray-300">📄</span>
+                              <span className="text-sm font-medium text-gray-600">
+                                {t('페이지')} {pageNumber}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <Document
+                      file={upload.uploadedUrl}
+                      onLoadSuccess={pageActions.onDocumentLoadSuccess}
+                      onLoadError={console.error}
+                      options={pdfOptions}
+                    >
+                      <div className="relative">
+                        <div
+                          className="grid max-h-[360px] grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 overflow-y-auto p-1.5"
+                          onMouseLeave={pageActions.handlePageMouseLeave}
+                        >
+                          {Array.from(
+                            new Array(Math.min(pages.visiblePageCount, pages.numPages ?? 0)),
+                            (_el: undefined, index: number) => {
+                              const pageNumber: number = index + 1;
+                              const isSelected: boolean = pages.selectedPages.includes(pageNumber);
+                              const isHovered: boolean =
+                                pages.hoveredPage?.pageNumber === pageNumber;
 
-                            return (
-                              <div
-                                key={`page_${pageNumber}`}
-                                className={cn(
-                                  'relative cursor-pointer overflow-hidden rounded-md border border-gray-200 text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
-                                  isSelected && 'border-indigo-500',
-                                  isHovered && 'border-indigo-300 shadow-focus-ring-sm',
-                                )}
-                                onClick={() => {
-                                  pageActions.handlePageSelection(pageNumber);
-                                }}
-                                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                                  pageActions.handlePageMouseEnter(e, pageNumber);
-                                }}
-                              >
-                                <Page
-                                  pageNumber={pageNumber}
-                                  width={150}
-                                  renderTextLayer={false}
-                                  renderAnnotationLayer={false}
-                                />
-
-                                <p
+                              return (
+                                <div
+                                  key={`page_${pageNumber}`}
                                   className={cn(
-                                    'mt-2 flex items-center justify-center pb-2 text-sm',
-                                    "before:mr-2 before:inline-block before:size-4 before:rounded-[3px] before:border before:border-gray-300 before:bg-white before:content-['']",
-                                    isSelected &&
-                                      "before:border-indigo-500 before:bg-indigo-500 before:bg-[url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpath%20fill='none'%20stroke='white'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M4%208l3%203%205-5'/%3e%3c/svg%3e\")]",
+                                    'relative cursor-pointer overflow-hidden rounded-md border border-gray-200 text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
+                                    isSelected && 'border-indigo-500',
+                                    isHovered && 'border-indigo-300 shadow-focus-ring-sm',
                                   )}
+                                  onClick={() => {
+                                    pageActions.handlePageSelection(pageNumber);
+                                  }}
+                                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                                    pageActions.handlePageMouseEnter(e, pageNumber);
+                                  }}
                                 >
-                                  {t('페이지')}
-                                  {pageNumber}
-                                </p>
-                              </div>
-                            );
-                          },
-                        )}
-                        {pages.visiblePageCount < (pages.numPages ?? 0) && (
-                          <div className="col-span-full mt-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-5 text-gray-500">
-                            <div className="mb-2 size-6 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-500" />
-                            <p className="m-0 text-sm font-medium">
-                              {t('더 많은 페이지 로딩 중... (')}
-                              {pages.visiblePageCount}/{pages.numPages})
-                            </p>
+                                  <Page
+                                    pageNumber={pageNumber}
+                                    width={150}
+                                    renderTextLayer={false}
+                                    renderAnnotationLayer={false}
+                                  />
+
+                                  <p
+                                    className={cn(
+                                      'mt-2 flex items-center justify-center pb-2 text-sm',
+                                      "before:mr-2 before:inline-block before:size-4 before:rounded-[3px] before:border before:border-gray-300 before:bg-white before:content-['']",
+                                      isSelected &&
+                                        "before:border-indigo-500 before:bg-indigo-500 before:bg-[url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpath%20fill='none'%20stroke='white'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M4%208l3%203%205-5'/%3e%3c/svg%3e\")]",
+                                    )}
+                                  >
+                                    {t('페이지')}
+                                    {pageNumber}
+                                  </p>
+                                </div>
+                              );
+                            },
+                          )}
+                          {pages.visiblePageCount < (pages.numPages ?? 0) && (
+                            <div className="col-span-full mt-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-5 text-gray-500">
+                              <div className="mb-2 size-6 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-500" />
+                              <p className="m-0 text-sm font-medium">
+                                {t('더 많은 페이지 로딩 중... (')}
+                                {pages.visiblePageCount}/{pages.numPages})
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {pages.isPreviewVisible && pages.hoveredPage && (
+                          <div
+                            className="pointer-events-none absolute z-30 rounded-lg bg-white p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.3)] transition-[opacity,top] duration-200"
+                            style={pages.hoveredPage.style}
+                          >
+                            <Page
+                              pageNumber={pages.hoveredPage.pageNumber}
+                              width={640}
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                            />
                           </div>
                         )}
                       </div>
-
-                      {pages.isPreviewVisible && pages.hoveredPage && (
-                        <div
-                          className="pointer-events-none absolute z-30 rounded-lg bg-white p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.3)] transition-[opacity,top] duration-200"
-                          style={pages.hoveredPage.style}
-                        >
-                          <Page
-                            pageNumber={pages.hoveredPage.pageNumber}
-                            width={640}
-                            renderTextLayer={false}
-                            renderAnnotationLayer={false}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </Document>
+                    </Document>
+                  )}
                 </div>
               )}
             </div>
@@ -538,16 +568,33 @@ const MakeQuiz: React.FC = () => {
 };
 
 /* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const MakeQuizMagicA = lazy(() => import('./MakeQuizMagicA'));
-const MakeQuizMagicB = lazy(() => import('./MakeQuizMagicB'));
-const MakeQuizDesignA = lazy(() => import('./MakeQuizDesignA'));
-const MakeQuizDesignB = lazy(() => import('./MakeQuizDesignB'));
+/* 기존 유지 디자인 (참고용) */
+const MakeQuizDesignA_ConceptMid = lazy(() => import('./MakeQuizDesignA_ConceptMid'));
+const MakeQuizDesignB_PolishMid = lazy(() => import('./MakeQuizDesignB_PolishMid'));
+const MakeQuizDesignB_PolishMax = lazy(() => import('./MakeQuizDesignB_PolishMax'));
+
+/* 새 디자인 변형 8종 */
+const MakeQuizDesign_A = lazy(() => import('./MakeQuizDesign_A'));
+const MakeQuizDesign_B = lazy(() => import('./MakeQuizDesign_B'));
+const MakeQuizDesign_C = lazy(() => import('./MakeQuizDesign_C'));
+const MakeQuizDesign_D = lazy(() => import('./MakeQuizDesign_D'));
+const MakeQuizDesign_E = lazy(() => import('./MakeQuizDesign_E'));
+const MakeQuizDesign_F = lazy(() => import('./MakeQuizDesign_F'));
+const MakeQuizDesign_G = lazy(() => import('./MakeQuizDesign_G'));
+const MakeQuizDesign_H = lazy(() => import('./MakeQuizDesign_H'));
 
 const MQ_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  b: MakeQuizMagicA,
-  c: MakeQuizMagicB,
-  d: MakeQuizDesignA,
-  e: MakeQuizDesignB,
+  '1': MakeQuizDesignA_ConceptMid,
+  '2': MakeQuizDesignB_PolishMid,
+  '3': MakeQuizDesignB_PolishMax,
+  '4': MakeQuizDesign_A,
+  '5': MakeQuizDesign_B,
+  '6': MakeQuizDesign_C,
+  '7': MakeQuizDesign_D,
+  '8': MakeQuizDesign_E,
+  '9': MakeQuizDesign_F,
+  '10': MakeQuizDesign_G,
+  '11': MakeQuizDesign_H,
 };
 
 const MakeQuizWithVariant = () => {

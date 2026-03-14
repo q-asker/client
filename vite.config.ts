@@ -30,6 +30,7 @@ export default defineConfig(({ command }) => {
       },
     },
     server: {
+      allowedHosts: true,
       proxy: {
         '/api': {
           target: proxyTarget,

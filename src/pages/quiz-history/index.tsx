@@ -1,14 +1,26 @@
+import React, { lazy, Suspense } from 'react';
 import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuizHistory } from '#features/quiz-history';
 import { cn } from '@/shared/ui/lib/utils';
+import { MOCK_QUIZ_HISTORY, MOCK_QUIZ_STATS } from './mockHistoryData';
+import type { MockQuizHistoryRecord } from './mockHistoryData';
 
 const QuizHistory = () => {
   const { t, currentLanguage } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
+
   const {
-    state: { quizHistory, loading, explanationLoading, isSidebarOpen, stats },
+    state: {
+      quizHistory: realHistory,
+      loading,
+      explanationLoading,
+      isSidebarOpen,
+      stats: realStats,
+    },
     actions: {
       toggleSidebar,
       setIsSidebarOpen,
@@ -21,7 +33,26 @@ const QuizHistory = () => {
     },
   } = useQuizHistory({ t, navigate, currentLanguage });
 
-  if (loading) {
+  // mock 모드 시 mock 데이터 사용
+  const quizHistory = isMock ? (MOCK_QUIZ_HISTORY as unknown as typeof realHistory) : realHistory;
+  const stats = isMock ? (MOCK_QUIZ_STATS as unknown as typeof realStats) : realStats;
+  const isLoading = isMock ? false : loading;
+
+  // mock 모드에서 formatDate 대체
+  const safeFormatDate = (dateString: string) => {
+    if (isMock) {
+      return new Date(dateString).toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+    return formatDate(dateString);
+  };
+
+  if (isLoading) {
     return (
       <>
         <Header
@@ -144,112 +175,115 @@ const QuizHistory = () => {
               </div>
             ) : (
               <div className="p-6">
-                {quizHistory.map((record) => (
-                  <div
-                    key={record.problemSetId}
-                    className={cn(
-                      'flex justify-between items-stretch p-6 mb-4 border border-gray-200 rounded-2xl bg-white transition-all duration-200 relative last:mb-0 hover:border-gray-300 hover:shadow-[0_8px_25px_rgba(0,0,0,0.08)] hover:-translate-y-0.5',
-                      'max-md:flex-col max-md:items-start max-md:gap-4',
-                      record.status === 'completed'
-                        ? 'border-l-[5px] border-l-emerald-500'
-                        : 'border-l-[5px] border-l-amber-500',
-                    )}
-                  >
-                    <div className="flex-1 min-w-0">
-                      {/* 제목 영역 */}
-                      <div className="flex items-center mb-4 gap-3 flex-wrap max-md:w-full max-md:gap-2 max-sm:flex-col max-sm:items-start">
-                        <span className="text-xl">📄</span>
-                        <span className="text-xl font-bold text-gray-900 min-w-0 break-all [overflow-wrap:anywhere] max-w-[900px] block max-md:text-base">
-                          {record.fileName}
-                        </span>
-                        <span
-                          className={cn(
-                            'px-3 py-1 rounded-md text-[0.8rem] font-semibold uppercase tracking-wider whitespace-nowrap max-md:text-xs max-md:px-2.5 max-md:py-[0.2rem]',
-                            record.status === 'completed'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-amber-100 text-amber-800',
-                          )}
-                        >
-                          {record.status === 'completed' ? t('완료') : t('미완료')}
-                        </span>
-                      </div>
-
-                      {/* 상세 정보 */}
-                      <div className="flex flex-wrap gap-3 mb-3 max-md:gap-2">
-                        <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg font-medium max-md:text-xs max-md:px-2 max-md:py-1">
-                          📝 {record.questionCount}
-                          {t('문제')}
-                        </span>
-                        <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg font-medium max-md:text-xs max-md:px-2 max-md:py-1">
-                          🎯 {record.quizLevel}
-                        </span>
-                        {record.status === 'completed' && (
-                          <>
-                            <span className="text-sm bg-green-100 text-green-600 px-3 py-1.5 rounded-lg font-bold max-md:text-xs max-md:px-2 max-md:py-1">
-                              🏆{' '}
-                              {t('{{score}}점 ({{correct}}/{{total}})', {
-                                score: record.score,
-                                correct: record.correctCount,
-                                total: record.totalQuestions,
-                              })}
-                            </span>
-                            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg font-medium max-md:text-xs max-md:px-2 max-md:py-1">
-                              ⏱️ {record.totalTime}
-                            </span>
-                          </>
-                        )}
-                      </div>
-
-                      {/* 날짜 */}
-                      <div className="text-[0.85rem] text-gray-400 leading-snug">
-                        <div>
-                          {t('생성:')}
-                          {formatDate(record.createdAt)}
-                        </div>
-                        {record.completedAt && (
-                          <div>
-                            {t('완료:')}
-                            {formatDate(record.completedAt)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* 액션 버튼 */}
-                    <div className="flex flex-col gap-2 items-end ml-auto max-md:flex-row max-md:w-full max-md:justify-end max-sm:flex-col max-sm:items-stretch">
-                      {record.status === 'completed' ? (
-                        <>
-                          <button
-                            className="px-5 py-2 border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 min-w-[100px] text-center bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(59,130,246,0.3)] max-md:min-w-[80px] max-md:text-xs max-md:px-4 max-sm:w-full"
-                            onClick={() => navigateToExplanation(record)}
-                            disabled={explanationLoading}
+                {quizHistory.map((record) => {
+                  const rec = record as unknown as MockQuizHistoryRecord;
+                  return (
+                    <div
+                      key={rec.problemSetId}
+                      className={cn(
+                        'flex justify-between items-stretch p-6 mb-4 border border-gray-200 rounded-2xl bg-white transition-all duration-200 relative last:mb-0 hover:border-gray-300 hover:shadow-[0_8px_25px_rgba(0,0,0,0.08)] hover:-translate-y-0.5',
+                        'max-md:flex-col max-md:items-start max-md:gap-4',
+                        rec.status === 'completed'
+                          ? 'border-l-[5px] border-l-emerald-500'
+                          : 'border-l-[5px] border-l-amber-500',
+                      )}
+                    >
+                      <div className="flex-1 min-w-0">
+                        {/* 제목 영역 */}
+                        <div className="flex items-center mb-4 gap-3 flex-wrap max-md:w-full max-md:gap-2 max-sm:flex-col max-sm:items-start">
+                          <span className="text-xl">📄</span>
+                          <span className="text-xl font-bold text-gray-900 min-w-0 break-all [overflow-wrap:anywhere] max-w-[900px] block max-md:text-base">
+                            {rec.fileName}
+                          </span>
+                          <span
+                            className={cn(
+                              'px-3 py-1 rounded-md text-[0.8rem] font-semibold uppercase tracking-wider whitespace-nowrap max-md:text-xs max-md:px-2.5 max-md:py-[0.2rem]',
+                              rec.status === 'completed'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-amber-100 text-amber-800',
+                            )}
                           >
-                            {explanationLoading ? t('로딩...') : t('해설 보기')}
-                          </button>
+                            {rec.status === 'completed' ? t('완료') : t('미완료')}
+                          </span>
+                        </div>
+
+                        {/* 상세 정보 */}
+                        <div className="flex flex-wrap gap-3 mb-3 max-md:gap-2">
+                          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg font-medium max-md:text-xs max-md:px-2 max-md:py-1">
+                            📝 {rec.questionCount}
+                            {t('문제')}
+                          </span>
+                          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg font-medium max-md:text-xs max-md:px-2 max-md:py-1">
+                            🎯 {rec.quizLevel}
+                          </span>
+                          {rec.status === 'completed' && (
+                            <>
+                              <span className="text-sm bg-green-100 text-green-600 px-3 py-1.5 rounded-lg font-bold max-md:text-xs max-md:px-2 max-md:py-1">
+                                🏆{' '}
+                                {t('{{score}}점 ({{correct}}/{{total}})', {
+                                  score: rec.score,
+                                  correct: rec.correctCount,
+                                  total: rec.totalQuestions,
+                                })}
+                              </span>
+                              <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg font-medium max-md:text-xs max-md:px-2 max-md:py-1">
+                                ⏱️ {rec.totalTime}
+                              </span>
+                            </>
+                          )}
+                        </div>
+
+                        {/* 날짜 */}
+                        <div className="text-[0.85rem] text-gray-400 leading-snug">
+                          <div>
+                            {t('생성:')}
+                            {safeFormatDate(rec.createdAt)}
+                          </div>
+                          {rec.completedAt && (
+                            <div>
+                              {t('완료:')}
+                              {safeFormatDate(rec.completedAt)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 액션 버튼 */}
+                      <div className="flex flex-col gap-2 items-end ml-auto max-md:flex-row max-md:w-full max-md:justify-end max-sm:flex-col max-sm:items-stretch">
+                        {rec.status === 'completed' ? (
+                          <>
+                            <button
+                              className="px-5 py-2 border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 min-w-[100px] text-center bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(59,130,246,0.3)] max-md:min-w-[80px] max-md:text-xs max-md:px-4 max-sm:w-full"
+                              onClick={() => navigateToExplanation(record)}
+                              disabled={explanationLoading}
+                            >
+                              {explanationLoading ? t('로딩...') : t('해설 보기')}
+                            </button>
+                            <button
+                              className="px-5 py-2 border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 min-w-[100px] text-center bg-violet-500 text-white hover:bg-violet-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(139,92,246,0.3)] max-md:min-w-[80px] max-md:text-xs max-md:px-4 max-sm:w-full"
+                              onClick={() => navigateToQuiz(record)}
+                            >
+                              {t('다시 풀기')}
+                            </button>
+                          </>
+                        ) : (
                           <button
-                            className="px-5 py-2 border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 min-w-[100px] text-center bg-violet-500 text-white hover:bg-violet-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(139,92,246,0.3)] max-md:min-w-[80px] max-md:text-xs max-md:px-4 max-sm:w-full"
+                            className="px-5 py-2 border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 min-w-[100px] text-center bg-emerald-500 text-white hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(16,185,129,0.3)] max-md:min-w-[80px] max-md:text-xs max-md:px-4 max-sm:w-full"
                             onClick={() => navigateToQuiz(record)}
                           >
-                            {t('다시 풀기')}
+                            {t('퀴즈 풀기')}
                           </button>
-                        </>
-                      ) : (
+                        )}
                         <button
-                          className="px-5 py-2 border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 min-w-[100px] text-center bg-emerald-500 text-white hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(16,185,129,0.3)] max-md:min-w-[80px] max-md:text-xs max-md:px-4 max-sm:w-full"
-                          onClick={() => navigateToQuiz(record)}
+                          className="px-5 py-2 border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 min-w-[100px] text-center bg-red-500 text-white hover:bg-red-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(239,68,68,0.3)] max-md:min-w-[80px] max-md:text-xs max-md:px-4 max-sm:w-full"
+                          onClick={() => deleteQuizRecord(rec.problemSetId)}
                         >
-                          {t('퀴즈 풀기')}
+                          {t('삭제')}
                         </button>
-                      )}
-                      <button
-                        className="px-5 py-2 border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 min-w-[100px] text-center bg-red-500 text-white hover:bg-red-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(239,68,68,0.3)] max-md:min-w-[80px] max-md:text-xs max-md:px-4 max-sm:w-full"
-                        onClick={() => deleteQuizRecord(record.problemSetId)}
-                      >
-                        {t('삭제')}
-                      </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -259,4 +293,32 @@ const QuizHistory = () => {
   );
 };
 
-export default QuizHistory;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const QuizHistoryMagicA = lazy(() => import('./QuizHistoryMagicA'));
+const QuizHistoryMagicB = lazy(() => import('./QuizHistoryMagicB'));
+const QuizHistoryDesignA = lazy(() => import('./QuizHistoryDesignA'));
+const QuizHistoryDesignB = lazy(() => import('./QuizHistoryDesignB'));
+
+const QH_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  '1': QuizHistoryMagicA,
+  '2': QuizHistoryMagicB,
+  '3': QuizHistoryDesignA,
+  '4': QuizHistoryDesignB,
+};
+
+const QuizHistoryWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('qh');
+  const VariantComponent = variant ? QH_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <QuizHistory />;
+};
+
+export default QuizHistoryWithVariant;

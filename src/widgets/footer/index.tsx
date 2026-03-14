@@ -47,10 +47,10 @@ const FooterDesignA = lazy(() => import('./FooterDesignA'));
 const FooterDesignB = lazy(() => import('./FooterDesignB'));
 
 const FOOTER_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  b: FooterMagicA,
-  c: FooterMagicB,
-  d: FooterDesignA,
-  e: FooterDesignB,
+  '1': FooterMagicA,
+  '2': FooterMagicB,
+  '3': FooterDesignA,
+  '4': FooterDesignB,
 };
 
 const FooterWithVariant = () => {

@@ -1,5 +1,6 @@
+import React, { lazy, Suspense } from 'react';
 import { useTranslation } from 'i18nexus';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
   const { t } = useTranslation();
@@ -99,4 +100,32 @@ const PrivacyPolicy = () => {
   );
 };
 
-export default PrivacyPolicy;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const PrivacyPolicyMagicA = lazy(() => import('./PrivacyPolicyMagicA'));
+const PrivacyPolicyMagicB = lazy(() => import('./PrivacyPolicyMagicB'));
+const PrivacyPolicyDesignA = lazy(() => import('./PrivacyPolicyDesignA'));
+const PrivacyPolicyDesignB = lazy(() => import('./PrivacyPolicyDesignB'));
+
+const PP_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  '1': PrivacyPolicyMagicA,
+  '2': PrivacyPolicyMagicB,
+  '3': PrivacyPolicyDesignA,
+  '4': PrivacyPolicyDesignB,
+};
+
+const PrivacyPolicyWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('pp');
+  const VariantComponent = variant ? PP_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <PrivacyPolicy />;
+};
+
+export default PrivacyPolicyWithVariant;

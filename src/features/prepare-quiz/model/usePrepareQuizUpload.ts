@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import CustomToast from '#shared/toast';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import Timer from '#shared/lib/timer';
@@ -42,6 +43,9 @@ interface UsePrepareQuizUploadParams {
 export const usePrepareQuizUpload = ({
   t,
 }: UsePrepareQuizUploadParams): PrepareQuizUploadReturn => {
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
+
   const setIsWaitingForFirstQuiz = useCallback((isWaitingForFirstQuiz: boolean) => {
     useQuizGenerationStore.setState({ isWaitingForFirstQuiz });
   }, []);
@@ -49,8 +53,12 @@ export const usePrepareQuizUpload = ({
   const storeFileInfo = useQuizGenerationStore((state) => state.fileInfo);
   const setUploadedUrlInStore = useQuizGenerationStore((state) => state.setUploadedUrl);
   const setUploadedFileInfo = useQuizGenerationStore((state) => state.setUploadedFileInfo);
-  const [file, setFile] = useState<UploadedFileInfo | null>(null);
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [file, setFile] = useState<UploadedFileInfo | null>(
+    isMock ? { name: 'sample-document.pdf', size: 2.5 * 1024 * 1024 } : null,
+  );
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(
+    isMock ? 'mock://sample.pdf' : null,
+  );
   const [isDragging, setIsDragging] = useState(false);
   const [uploadElapsedTime, setUploadElapsedTime] = useState(0);
   const [fileExtension, setFileExtension] = useState<string | null>(null);

@@ -18,20 +18,218 @@
       }
       .controls {
         display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 16px;
+        flex-direction: column;
+        gap: 0;
         background: #fff;
-        border-bottom: 1px solid #e0e0e0;
         position: sticky;
         top: 0;
         z-index: 10;
+        max-height: calc(100vh - 200px);
+      }
+      #componentVariantRows {
+        display: flex;
+        flex-direction: column;
+        max-height: 160px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      #componentVariantRows::-webkit-scrollbar {
+        width: 6px;
+      }
+      #componentVariantRows::-webkit-scrollbar-track {
+        background: #f5f5f5;
+      }
+      #componentVariantRows::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 3px;
+      }
+      #componentVariantRows::-webkit-scrollbar-thumb:hover {
+        background: #999;
+      }
+      .control-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-bottom: 1px solid #e0e0e0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+      }
+      .control-row::-webkit-scrollbar {
+        height: 6px;
+      }
+      .control-row::-webkit-scrollbar-track {
+        background: #f5f5f5;
+      }
+      .control-row::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 3px;
+      }
+      .control-row::-webkit-scrollbar-thumb:hover {
+        background: #999;
+      }
+      .variant-select-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-bottom: 1px solid #e0e0e0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        min-height: 50px;
+        flex-shrink: 0;
+      }
+      .variant-select-row::-webkit-scrollbar {
+        height: 6px;
+      }
+      .variant-select-row::-webkit-scrollbar-track {
+        background: #f5f5f5;
+      }
+      .variant-select-row::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 3px;
+      }
+      .variant-select-row::-webkit-scrollbar-thumb:hover {
+        background: #999;
+      }
+      .variant-select-row label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .variant-select-row select {
+        padding: 5px 24px 5px 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        font-size: 12px;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        width: 200px;
+        flex-shrink: 0;
+      }
+      .variant-select-row select:focus {
+        outline: none;
+        border-color: #999;
+      }
+      .variant-chips {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex: 1;
+        flex-shrink: 0;
+      }
+      .variant-chip {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        position: relative;
+        flex-shrink: 0;
+      }
+      .variant-chip:hover {
+        background: #f0f0f0;
+        border-color: #999;
+      }
+      .variant-chip.excluded {
+        display: none;
+      }
+
+      .variant-chip.active {
+        background: #2563eb;
+        color: white;
+        border-color: #2563eb;
+      }
+      .variant-chip .chip-x {
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f44336;
+        color: white;
+        border-radius: 50%;
+        font-size: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+      .variant-chip .chip-x:hover {
+        background: #d32f2f;
+      }
+      .actions-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-bottom: 1px solid #e0e0e0;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+      .actions-row::-webkit-scrollbar {
+        height: 6px;
+      }
+      .actions-row::-webkit-scrollbar-track {
+        background: #f5f5f5;
+      }
+      .actions-row::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 3px;
+      }
+      .actions-row::-webkit-scrollbar-thumb:hover {
+        background: #999;
+      }
+      .actions-row button,
+      .actions-row a {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+      .actions-row button:hover,
+      .actions-row a:hover {
+        background: #f0f0f0;
+      }
+      .actions-row a.compare-link .arrow {
+        font-size: 10px;
+        opacity: 0.5;
       }
       .control-group {
         display: flex;
         align-items: center;
         gap: 6px;
+        flex-shrink: 0;
       }
       .control-group label {
         font-size: 11px;
@@ -53,56 +251,125 @@
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
         background-repeat: no-repeat;
         background-position: right 8px center;
+        flex-shrink: 0;
+        min-width: 150px;
       }
       .control-group select:focus {
         outline: none;
         border-color: #999;
       }
-      .sep {
-        width: 1px;
-        height: 24px;
-        background: #e0e0e0;
+      .trash-panel {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 350px;
+        height: 100vh;
+        background: white;
+        border-left: 1px solid #e0e0e0;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        flex-direction: column;
+        animation: slideIn 0.3s ease;
       }
-      .actions {
+      .trash-panel.open {
         display: flex;
-        gap: 6px;
-        margin-left: auto;
       }
-      .actions button {
-        padding: 5px 12px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        background: #fff;
-        color: #333;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.15s;
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+        }
+        to {
+          transform: translateX(0);
+        }
       }
-      .actions button:hover {
-        background: #f0f0f0;
-      }
-      .actions a.compare-link {
-        padding: 5px 12px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        background: #fff;
-        color: #333;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.15s;
-        text-decoration: none;
-        display: inline-flex;
+      .trash-header {
+        padding: 16px;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
         align-items: center;
-        gap: 4px;
+        justify-content: space-between;
       }
-      .actions a.compare-link:hover {
-        background: #f0f0f0;
+      .trash-header h2 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
       }
-      .actions a.compare-link .arrow {
+      .trash-close {
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: #666;
+        padding: 0;
+      }
+      .trash-close:hover {
+        color: #333;
+      }
+      .trash-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+      }
+      .trash-item {
+        padding: 10px;
+        background: #fff9e6;
+        border: 1px solid #ffc107;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+      }
+      .trash-item-name {
+        font-weight: 500;
+        color: #333;
+      }
+      .trash-item-restore {
+        padding: 4px 8px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
         font-size: 10px;
-        opacity: 0.5;
+        font-weight: 600;
+        transition: all 0.15s;
+      }
+      .trash-item-restore:hover {
+        background: #45a049;
+      }
+      .trash-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #999;
+        font-size: 13px;
+      }
+      .trash-btn {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #666;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+      .trash-btn:hover {
+        background: #fff3cd;
+        border-color: #ffc107;
+        color: #ff9800;
+      }
+      .trash-btn.has-items {
+        border-color: #ffc107;
       }
       .loading {
         display: flex;
@@ -121,18 +388,75 @@
     </style>
   </head>
   <body>
-    <div class="controls" id="controls">
-      <div class="loading">설정 로드 중...</div>
+    <div class="controls">
+      <div id="componentVariantRows"></div>
+      <div class="actions-row" id="actionsRow" style="display: none"></div>
+    </div>
+    <div class="trash-panel" id="trashPanel">
+      <div class="trash-header">
+        <h2 id="trashTitle">휴지통</h2>
+        <button class="trash-close" onclick="closeTrash()">×</button>
+      </div>
+      <div class="trash-content" id="trashContent">
+        <div class="trash-empty">휴지통이 비어있습니다</div>
+      </div>
     </div>
     <iframe id="preview" src="/"></iframe>
     <script>
       /* variant 키 → 사람이 읽을 수 있는 라벨 */
       var VARIANT_LABELS = {
-        b: 'MagicA (B)',
-        c: 'MagicB (C)',
-        d: 'DesignA (D)',
-        e: 'DesignB (E)',
+        1: '1 · MagicA',
+        2: '2 · MagicB',
+        3: '3 · DesignA',
+        4: '4 · DesignB',
+        5: '5 · DesignA 컨셉·중간',
+        6: '6 · DesignA 컨셉·대폭',
+        7: '7 · DesignA 세련·중간',
+        8: '8 · DesignA 세련·대폭',
+        9: '9 · DesignB 컨셉·중간',
+        10: '10 · DesignB 컨셉·대폭',
+        11: '11 · DesignB 세련·중간',
+        12: '12 · DesignB 세련·대폭',
+        13: '13 · MagicA 컨셉·중간',
+        14: '14 · MagicA 컨셉·대폭',
+        15: '15 · MagicA 세련·중간',
+        16: '16 · MagicA 세련·대폭',
+        17: '17 · MagicB 컨셉·중간',
+        18: '18 · MagicB 컨셉·대폭',
+        19: '19 · MagicB 세련·중간',
+        20: '20 · MagicB 세련·대폭',
+        21: '21 · Anime / DesignC / DesignE',
+        22: '22 · DesignC / DesignC 컨셉·중간 / DesignF',
+        23: '23 · DesignC 컨셉·중간 / DesignC 컨셉·대폭 / DesignG',
+        24: '24 · DesignC 컨셉·대폭 / DesignC 세련·중간 / DesignH',
+        25: '25 · DesignC 세련·중간 / DesignC 세련·대폭 / MagicE',
+        26: '26 · DesignC 세련·대폭 / MagicC / MagicF',
+        27: '27 · MagicC / MagicC 컨셉·중간 / MagicG',
+        28: '28 · MagicC 컨셉·중간 / MagicC 컨셉·대폭 / MagicH',
+        29: '29 · MagicC 컨셉·대폭 / MagicC 세련·중간',
+        30: '30 · MagicC 세련·중간 / MagicC 세련·대폭',
+        31: '31 · MagicC 세련·대폭',
       };
+
+      let excludedVariants = [];
+      let allComponents = [];
+      let currentSelections = {}; // 각 컴포넌트별 선택된 variant 추적
+      let currentTrashComponent = null; // 현재 열린 휴지통의 컴포넌트
+      const STORAGE_KEY_EXCLUDED = 'mixer_excluded_variants';
+      const STORAGE_KEY_SELECTIONS = 'mixer_selections';
+
+      /* 초기화: 먼저 제외된 variant 복원 */
+      restoreExcluded();
+
+      /* 저장된 선택 복원 */
+      (function () {
+        try {
+          var saved = localStorage.getItem(STORAGE_KEY_SELECTIONS);
+          if (saved) {
+            currentSelections = JSON.parse(saved);
+          }
+        } catch (e) {}
+      })();
 
       /* design-variants.json에서 설정 로드 후 UI 생성 */
       fetch('/design-variants.json')
@@ -140,9 +464,11 @@
           return r.json();
         })
         .then(function (components) {
-          buildControls(components);
-          restoreFromHash();
-          updatePreview();
+          allComponents = components;
+          buildComponentVariantRows();
+          buildActions();
+          restoreSelections();
+          updatePreviewFromChip();
         })
         .catch(function () {
           document.getElementById('controls').innerHTML =
@@ -175,7 +501,7 @@
           /* 기본 옵션 */
           var defaultOpt = document.createElement('option');
           defaultOpt.value = '';
-          defaultOpt.textContent = comp.variants.length ? '기본 (A)' : '기본';
+          defaultOpt.textContent = comp.variants.length ? '기본' : '기본';
           select.appendChild(defaultOpt);
 
           /* variant 옵션 */
@@ -193,15 +519,6 @@
 
           controls.appendChild(group);
         });
-
-        /* 액션 버튼 */
-        var actions = document.createElement('div');
-        actions.className = 'actions';
-        actions.innerHTML =
-          '<a class="compare-link" href="/solve-quiz-compare.html" target="_blank">SolveQuiz<span class="arrow">\u2197</span></a>' +
-          '<a class="compare-link" href="/quiz-result-compare.html" target="_blank">QuizResult<span class="arrow">\u2197</span></a>' +
-          '<button onclick="resetAll()">초기화</button>';
-        controls.appendChild(actions);
       }
 
       function buildQuery() {
@@ -212,20 +529,65 @@
         return params.length ? '?' + params.join('&') : '';
       }
 
-      function updatePreview() {
-        var query = buildQuery();
-        document.getElementById('preview').src = '/' + query;
-        location.hash = query ? query.slice(1) : '';
+      var STORAGE_KEY = 'mixer_selections';
+
+      function saveSelections() {
+        var selections = {};
+        document.querySelectorAll('select[data-param]').forEach(function (sel) {
+          if (sel.value) selections[sel.dataset.param] = sel.value;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(selections));
       }
 
-      function restoreFromHash() {
-        var hash = location.hash.slice(1);
-        if (!hash) return;
-        var params = new URLSearchParams(hash);
-        document.querySelectorAll('select[data-param]').forEach(function (sel) {
-          var val = params.get(sel.dataset.param);
-          if (val) sel.value = val;
+      function restoreSelections() {
+        try {
+          var saved = JSON.parse(localStorage.getItem(STORAGE_KEY_SELECTIONS));
+          if (!saved) return;
+
+          // 각 칩을 확인하고 저장된 선택과 일치하면 active 클래스 추가
+          document.querySelectorAll('.variant-chip').forEach(function (chip) {
+            var component = chip.dataset.component;
+            var variant = chip.dataset.variant;
+            if (saved[component] === variant) {
+              chip.classList.add('active');
+            }
+          });
+        } catch (e) {}
+      }
+
+      function updatePreview() {
+        var query = buildQuery();
+        /* mock=true로 전 섹션 표시, showHelp=true로 도움말 열림 */
+        var base = query ? query + '&mock=true&showHelp=true' : '?mock=true&showHelp=true';
+        document.getElementById('preview').src = '/' + base;
+        saveSelections();
+      }
+
+      function updatePreviewFromChip() {
+        // 선택 저장
+        localStorage.setItem(STORAGE_KEY_SELECTIONS, JSON.stringify(currentSelections));
+
+        // UI 업데이트: 모든 칩의 active 상태 업데이트
+        document.querySelectorAll('.variant-chip').forEach(function (chip) {
+          var component = chip.dataset.component;
+          var variant = chip.dataset.variant;
+          if (currentSelections[component] === variant) {
+            chip.classList.add('active');
+          } else {
+            chip.classList.remove('active');
+          }
         });
+
+        // iframe 업데이트
+        var params = [];
+        for (var key in currentSelections) {
+          if (currentSelections[key]) {
+            params.push(key + '=' + currentSelections[key]);
+          }
+        }
+        var query = params.length ? params.join('&') : '';
+        var base = query ? '?mock=true&showHelp=true&' + query : '?mock=true&showHelp=true';
+        document.getElementById('preview').src = '/' + base;
       }
 
       function resetAll() {
@@ -233,6 +595,206 @@
           sel.value = '';
         });
         updatePreview();
+      }
+
+      /* 각 컴포넌트별 variant 선택 행 생성 */
+      function buildComponentVariantRows() {
+        var container = document.getElementById('componentVariantRows');
+        container.innerHTML = '';
+
+        allComponents.forEach(function (comp, idx) {
+          if (!comp.variants.length) return; // variant가 없으면 스킵
+
+          var row = document.createElement('div');
+          row.className = 'variant-select-row';
+          row.dataset.component = comp.param;
+
+          var label = document.createElement('label');
+          label.textContent = comp.label;
+          row.appendChild(label);
+
+          var chipsDiv = document.createElement('div');
+          chipsDiv.className = 'variant-chips';
+
+          comp.variants.forEach(function (v) {
+            var chip = document.createElement('div');
+            chip.className = 'variant-chip';
+            chip.dataset.variant = v;
+            chip.dataset.component = comp.param;
+
+            var key = comp.param + ':' + v;
+            if (excludedVariants.includes(key)) {
+              chip.classList.add('excluded');
+            }
+
+            // 저장된 선택과 일치하면 active 상태 추가
+            if (currentSelections[comp.param] === v) {
+              chip.classList.add('active');
+            }
+
+            var text = document.createElement('span');
+            text.textContent = VARIANT_LABELS[v] || v;
+
+            var xBtn = document.createElement('div');
+            xBtn.className = 'chip-x';
+            xBtn.textContent = '×';
+            xBtn.onclick = (function (variant, component) {
+              return function (e) {
+                e.stopPropagation();
+                excludeVariant(component, variant);
+              };
+            })(v, comp.param);
+
+            chip.appendChild(text);
+            chip.appendChild(xBtn);
+
+            // 칩 클릭 이벤트
+            chip.addEventListener(
+              'click',
+              (function (variant, component) {
+                return function (e) {
+                  if (e.target.closest('.chip-x')) return;
+                  currentSelections[component] = variant;
+                  updatePreviewFromChip();
+                };
+              })(v, comp.param),
+            );
+
+            chipsDiv.appendChild(chip);
+          });
+
+          row.appendChild(chipsDiv);
+
+          // 컴포넌트별 휴지통 버튼
+          var trashBtn = document.createElement('button');
+          trashBtn.className = 'trash-btn';
+          trashBtn.dataset.component = comp.param;
+          var excludedCountForBtn = excludedVariants.filter(function (key) {
+            return key.startsWith(comp.param + ':');
+          }).length;
+          trashBtn.textContent =
+            excludedCountForBtn > 0 ? '🗑️ (' + excludedCountForBtn + ')' : '🗑️';
+          trashBtn.onclick = (function (component) {
+            return function () {
+              openComponentTrash(component);
+            };
+          })(comp.param);
+          row.appendChild(trashBtn);
+
+          container.appendChild(row);
+        });
+      }
+
+      /* 액션 버튼 행 */
+      function buildActions() {
+        var actionsRow = document.getElementById('actionsRow');
+        actionsRow.innerHTML =
+          '<a class="compare-link" href="/solve-quiz-compare.html" target="_blank">퀴즈풀기<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/quiz-result-compare.html" target="_blank">퀴즈결과<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/quiz-history-compare.html" target="_blank">퀴즈기록<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/quiz-explanation-compare.html" target="_blank">퀴즈해설<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/login-select-compare.html" target="_blank">로그인<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/login-redirect-compare.html" target="_blank">로그인리다이렉트<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/maintenance-compare.html" target="_blank">점검<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/privacy-policy-compare.html" target="_blank">개인정보<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/board-compare.html" target="_blank">문의목록<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/board-detail-compare.html" target="_blank">문의상세<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/board-write-compare.html" target="_blank">문의작성<span class="arrow">\u2197</span></a>';
+        actionsRow.style.display = 'flex';
+      }
+
+      function excludeVariant(component, variantNum) {
+        if (confirm('"' + VARIANT_LABELS[variantNum] + '"을(를) 목록에서 제외할까요?')) {
+          var key = component + ':' + variantNum;
+          if (!excludedVariants.includes(key)) {
+            excludedVariants.push(key);
+          }
+          saveExcluded();
+          buildComponentVariantRows();
+          if (currentTrashComponent) {
+            updateTrashContent();
+          }
+        }
+      }
+
+      function restoreVariant(key) {
+        excludedVariants = excludedVariants.filter(function (v) {
+          return v !== key;
+        });
+        saveExcluded();
+        buildComponentVariantRows();
+        if (currentTrashComponent) {
+          updateTrashContent();
+        }
+      }
+
+      function saveExcluded() {
+        localStorage.setItem(STORAGE_KEY_EXCLUDED, JSON.stringify(excludedVariants));
+      }
+
+      function restoreExcluded() {
+        try {
+          var saved = localStorage.getItem(STORAGE_KEY_EXCLUDED);
+          if (saved) {
+            excludedVariants = JSON.parse(saved);
+          }
+        } catch (e) {}
+      }
+
+      function openComponentTrash(component) {
+        currentTrashComponent = component;
+        var componentLabel = allComponents.find(function (c) {
+          return c.param === component;
+        }).label;
+        document.getElementById('trashTitle').textContent = componentLabel + ' 휴지통';
+        updateTrashContent();
+        var panel = document.getElementById('trashPanel');
+        panel.classList.add('open');
+      }
+
+      function closeTrash() {
+        var panel = document.getElementById('trashPanel');
+        panel.classList.remove('open');
+        currentTrashComponent = null;
+      }
+
+      function updateTrashContent() {
+        var trashContent = document.getElementById('trashContent');
+
+        // 현재 컴포넌트의 제외된 항목만 필터링
+        var componentExcluded = excludedVariants.filter(function (key) {
+          return key.startsWith(currentTrashComponent + ':');
+        });
+
+        if (componentExcluded.length === 0) {
+          trashContent.innerHTML = '<div class="trash-empty">휴지통이 비어있습니다</div>';
+        } else {
+          trashContent.innerHTML = componentExcluded
+            .map(function (key) {
+              var parts = key.split(':');
+              var variantNum = parts[1];
+              return (
+                '<div class="trash-item">' +
+                '<span class="trash-item-name">' +
+                VARIANT_LABELS[variantNum] +
+                '</span>' +
+                '<button class="trash-item-restore" onclick="restoreVariant(\'' +
+                key +
+                '\')">복원</button>' +
+                '</div>'
+              );
+            })
+            .join('');
+        }
+
+        // 모든 휴지통 버튼의 카운트 업데이트
+        document.querySelectorAll('.trash-btn').forEach(function (btn) {
+          var component = btn.dataset.component;
+          var count = excludedVariants.filter(function (key) {
+            return key.startsWith(component + ':');
+          }).length;
+          btn.textContent = count > 0 ? '🗑️ (' + count + ')' : '🗑️';
+        });
       }
     </script>
   </body>

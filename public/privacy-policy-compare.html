@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Privacy Policy 개인정보처리방침 디자인 비교</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, sans-serif;
+        background: #f1f1f1;
+      }
+      nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        padding: 10px;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      nav button {
+        padding: 6px 16px;
+        border-radius: 999px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      nav button:hover {
+        background: #eee;
+      }
+      nav button.active {
+        background: #333;
+        color: #fff;
+        border-color: #333;
+      }
+      #single {
+        width: 100%;
+        height: calc(100vh - 46px);
+        border: none;
+        display: block;
+      }
+      #all {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+      }
+      #all .card {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      }
+      #all .label {
+        padding: 6px 16px;
+        font-weight: 700;
+        font-size: 13px;
+        background: #fff;
+        color: #333;
+        border-bottom: 1px solid #eee;
+      }
+      #all iframe {
+        width: 100%;
+        height: 900px;
+        border: none;
+        display: block;
+      }
+
+      .nav-btn-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .delete-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 16px;
+        height: 16px;
+        padding: 0;
+        border: none;
+        background: #f44336;
+        color: white;
+        border-radius: 50%;
+        font-size: 10px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        transition: all 0.15s;
+      }
+
+      .nav-btn-wrapper:hover .delete-btn {
+        display: flex;
+      }
+
+      .delete-btn:hover {
+        background: #d32f2f;
+        transform: scale(1.2);
+      }
+
+      nav button.excluded {
+        display: none;
+      }
+
+      .trash-btn {
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #666;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        margin-left: auto;
+      }
+
+      .trash-btn:hover {
+        background: #fff3cd;
+        border-color: #ffc107;
+        color: #ff9800;
+      }
+
+      .trash-btn.has-items {
+        border-color: #ffc107;
+      }
+
+      .trash-panel {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 350px;
+        height: 100vh;
+        background: white;
+        border-left: 1px solid #e0e0e0;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        flex-direction: column;
+        animation: slideIn 0.3s ease;
+      }
+
+      .trash-panel.open {
+        display: flex;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+        }
+        to {
+          transform: translateX(0);
+        }
+      }
+
+      .trash-header {
+        padding: 16px;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .trash-header h2 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .trash-close {
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: #666;
+        padding: 0;
+      }
+
+      .trash-close:hover {
+        color: #333;
+      }
+
+      .trash-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+      }
+
+      .trash-item {
+        padding: 10px;
+        background: #fff9e6;
+        border: 1px solid #ffc107;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+      }
+
+      .trash-item-name {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .trash-item-restore {
+        padding: 4px 8px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 600;
+        transition: all 0.15s;
+      }
+
+      .trash-item-restore:hover {
+        background: #45a049;
+      }
+
+      .trash-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #999;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="nav"></nav>
+    <div class="trash-panel" id="trashPanel">
+      <div class="trash-header">
+        <h2>휴지통</h2>
+        <button class="trash-close" onclick="toggleTrash()">×</button>
+      </div>
+      <div class="trash-content" id="trashContent">
+        <div class="trash-empty">휴지통이 비어있습니다</div>
+      </div>
+    </div>
+    <iframe id="single" src=""></iframe>
+    <div id="all"></div>
+    <script>
+      var STORAGE_KEY = 'compare_privacy_policy';
+      var STORAGE_KEY_EXCLUDED = 'privacy-policy_excluded_variants';
+      var currentVariant = '';
+      var isAllMode = false;
+      var excludedVariants = [];
+
+      var ALL_VARIANTS = [
+        { key: '', label: '기본 — Original' },
+        { key: '1', label: '1 — MagicA (BlurFade Stagger Sections)' },
+        { key: '2', label: '2 — MagicB (TextAnimate + Card Sections)' },
+        { key: '3', label: '3 — DesignA (Card Grid + Badge)' },
+        { key: '4', label: '4 — DesignB (Sidebar TOC + Content)' },
+      ];
+
+      function saveState() {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ variant: currentVariant, allMode: isAllMode }),
+        );
+      }
+      function loadState() {
+        try {
+          var s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          return s && typeof s.variant === 'string' ? s : { variant: '', allMode: false };
+        } catch (e) {
+          return { variant: '', allMode: false };
+        }
+      }
+
+      function activateButton(variant) {
+        document.querySelectorAll('nav button').forEach(function (b) {
+          b.classList.remove('active');
+        });
+        var id = variant === 'all' ? 'btn-all' : variant ? 'btn-' + variant : 'btn-0';
+        var el = document.getElementById(id);
+        if (el) el.classList.add('active');
+      }
+
+      function buildNav() {
+        var nav = document.getElementById('nav');
+        nav.innerHTML = '';
+
+        var allBtn = document.createElement('button');
+        allBtn.id = 'btn-all';
+        allBtn.textContent = 'ALL';
+        allBtn.onclick = showAll;
+        nav.appendChild(allBtn);
+
+        ALL_VARIANTS.forEach(function (v) {
+          var wrapper = document.createElement('div');
+          wrapper.className = 'nav-btn-wrapper';
+
+          var btn = document.createElement('button');
+          btn.id = 'btn-' + (v.key || '0');
+          btn.textContent = v.label.split(' — ')[0];
+          btn.dataset.key = v.key;
+          btn.onclick = function () {
+            showOne(v.key);
+          };
+
+          if (excludedVariants.includes(v.key)) {
+            btn.classList.add('excluded');
+          }
+
+          var deleteBtn = document.createElement('button');
+          deleteBtn.className = 'delete-btn';
+          deleteBtn.textContent = '×';
+          deleteBtn.onclick = function (e) {
+            e.stopPropagation();
+            excludeVariant(v.key);
+          };
+
+          wrapper.appendChild(btn);
+          wrapper.appendChild(deleteBtn);
+          nav.appendChild(wrapper);
+        });
+
+        var trashBtn = document.createElement('button');
+        trashBtn.id = 'trashBtn';
+        trashBtn.className = 'trash-btn';
+        trashBtn.textContent = '🗑️ 휴지통';
+        trashBtn.onclick = toggleTrash;
+        nav.appendChild(trashBtn);
+
+        updateTrashButton();
+      }
+
+      function excludeVariant(key) {
+        var v = ALL_VARIANTS.find(function (v) {
+          return v.key === key;
+        });
+        if (confirm('"' + v.label.split(' — ')[0] + '"을(를) 목록에서 제외할까요?')) {
+          if (!excludedVariants.includes(key)) {
+            excludedVariants.push(key);
+          }
+          saveExcluded();
+          buildNav();
+          updateTrashContent();
+        }
+      }
+
+      function restoreVariant(key) {
+        excludedVariants = excludedVariants.filter(function (v) {
+          return v !== key;
+        });
+        saveExcluded();
+        buildNav();
+        updateTrashContent();
+      }
+
+      function updateTrashButton() {
+        var trashBtn = document.getElementById('trashBtn');
+        if (excludedVariants.length > 0) {
+          trashBtn.classList.add('has-items');
+          trashBtn.textContent = '🗑️ 휴지통 (' + excludedVariants.length + ')';
+        } else {
+          trashBtn.classList.remove('has-items');
+          trashBtn.textContent = '🗑️ 휴지통';
+        }
+      }
+
+      function updateTrashContent() {
+        var trashContent = document.getElementById('trashContent');
+        if (excludedVariants.length === 0) {
+          trashContent.innerHTML = '<div class="trash-empty">휴지통이 비어있습니다</div>';
+        } else {
+          var html = excludedVariants
+            .map(function (key) {
+              var v = ALL_VARIANTS.find(function (v) {
+                return v.key === key;
+              });
+              return (
+                '<div class="trash-item"><span class="trash-item-name">' +
+                v.label.split(' — ')[0] +
+                '</span><button class="trash-item-restore" onclick="restoreVariant(\'' +
+                key +
+                '\')">복원</button></div>'
+              );
+            })
+            .join('');
+          trashContent.innerHTML = html;
+        }
+        updateTrashButton();
+      }
+
+      function toggleTrash() {
+        var panel = document.getElementById('trashPanel');
+        panel.classList.toggle('open');
+      }
+
+      function saveExcluded() {
+        localStorage.setItem(STORAGE_KEY_EXCLUDED, JSON.stringify(excludedVariants));
+      }
+
+      function restoreExcluded() {
+        var saved = localStorage.getItem(STORAGE_KEY_EXCLUDED);
+        if (saved) {
+          try {
+            excludedVariants = JSON.parse(saved);
+          } catch (e) {
+            excludedVariants = [];
+          }
+        }
+      }
+
+      (function init() {
+        restoreExcluded();
+        buildNav();
+        var saved = loadState();
+        currentVariant = saved.variant;
+        isAllMode = saved.allMode;
+        if (isAllMode) {
+          showAllFromState();
+        } else {
+          document.getElementById('single').src = buildSrc(currentVariant);
+          activateButton(currentVariant);
+        }
+      })();
+
+      function buildSrc(variant) {
+        var base = '/privacy-policy';
+        var params = [];
+        if (variant) params.push('pp=' + variant);
+        return params.length ? base + '?' + params.join('&') : base;
+      }
+
+      function showOne(v) {
+        if (excludedVariants.includes(v)) return;
+        currentVariant = v;
+        isAllMode = false;
+        saveState();
+        document.getElementById('all').style.display = 'none';
+        var frame = document.getElementById('single');
+        frame.style.display = 'block';
+        frame.src = buildSrc(v);
+        activateButton(v);
+      }
+
+      function showAll() {
+        isAllMode = true;
+        currentVariant = '';
+        saveState();
+        document.getElementById('single').style.display = 'none';
+        var allDiv = document.getElementById('all');
+        allDiv.innerHTML = ALL_VARIANTS.filter(function (v) {
+          return !excludedVariants.includes(v.key);
+        })
+          .map(function (v) {
+            return (
+              '<div class="card"><div class="label">' +
+              v.label +
+              '</div><iframe src="' +
+              buildSrc(v.key) +
+              '"></iframe></div>'
+            );
+          })
+          .join('');
+        allDiv.style.display = 'flex';
+        activateButton('all');
+      }
+
+      function showAllFromState() {
+        document.getElementById('single').style.display = 'none';
+        var allDiv = document.getElementById('all');
+        allDiv.innerHTML = ALL_VARIANTS.filter(function (v) {
+          return !excludedVariants.includes(v.key);
+        })
+          .map(function (v) {
+            return (
+              '<div class="card"><div class="label">' +
+              v.label +
+              '</div><iframe src="' +
+              buildSrc(v.key) +
+              '"></iframe></div>'
+            );
+          })
+          .join('');
+        allDiv.style.display = 'flex';
+        activateButton('all');
+      }
+    </script>
+  </body>
+</html>

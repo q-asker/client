@@ -481,6 +481,7 @@ const App = () => {
           <Route path="/en" element={<MakeQuiz />} />
           <Route path="/login" element={<LoginSelect />} />
           <Route path="/login/redirect" element={<LoginRedirect />} />
+          <Route path="/maintenance" element={<Maintenance />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
           <Route path="/result/:problemSetId" element={<QuizResult />} />

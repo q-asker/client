@@ -12,9 +12,10 @@ import {
 } from '#features/prepare-quiz';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { Document, Page } from 'react-pdf';
+import MockPageGrid from './MockPageGrid';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import RecentChanges from '#widgets/recent-changes';
 import { cn } from '@/shared/ui/lib/utils';
 import type { QuestionType, QuizLevel } from '#features/prepare-quiz';
@@ -28,10 +29,14 @@ interface QuizTypeOption {
   icon: LucideIcon;
 }
 
-/** Clean Editorial 디자인 — 보더리스, 대형 타이포그래피, 모노크롬 */
-const MakeQuizDesignA: React.FC = () => {
+/** Clean Editorial — 컨셉 극대화 + 중간 수준
+ *  극적인 워터마크(10rem, overflow-hidden), 그라데이션 divider,
+ *  타이포 대비 극대화, 도트 그리드 업로드 영역 */
+const MakeQuizDesignA_ConceptMid: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
   const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
   const acceptExtensions: string = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
   const { state, actions } = usePrepareQuiz({ t, navigate });
@@ -59,6 +64,11 @@ const MakeQuizDesignA: React.FC = () => {
   const currentLevel: { title: string; question: string; options: string[] } | undefined =
     levelDescriptions[options.quizLevel as QuizLevel];
 
+  /** 그라데이션 divider */
+  const GradientDivider = () => (
+    <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+  );
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header
@@ -70,23 +80,25 @@ const MakeQuizDesignA: React.FC = () => {
 
       <div className="mx-auto mt-12 flex-1 px-6 md:mt-8 md:w-[90%] md:px-4 lg:w-[65%]">
         {/* ─── 섹션 1: 파일 업로드 ─── */}
-        <section className="relative">
-          {/* 워터마크 번호 */}
-          <span className="pointer-events-none absolute -top-2 left-0 select-none text-[5rem] font-black leading-none text-primary/10 md:text-[4rem]">
+        <section className="relative overflow-hidden">
+          {/* 극적인 워터마크 번호 — 10rem, 부분 잘림 */}
+          <span className="pointer-events-none absolute -top-6 -left-4 select-none text-[10rem] font-black leading-none text-primary/10 md:text-[7rem]">
             01
           </span>
-          <div className="relative z-10 pt-10 md:pt-8">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-xl">
+          <div className="relative z-10 pt-14 md:pt-10">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-2xl">
               {t('파일을 업로드하세요')}
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               {t('퀴즈를 생성할 문서를 드래그하거나 선택하세요')}
             </p>
           </div>
 
+          {/* 도트 그리드 패턴 업로드 영역 */}
           <div
             className={cn(
-              'mt-8 flex flex-col items-center justify-center rounded-3xl bg-muted px-8 py-16 text-center transition-colors duration-200 md:px-5 md:py-12',
+              'mt-8 flex flex-col items-center justify-center rounded-3xl px-8 py-16 text-center transition-colors duration-200 md:px-5 md:py-12',
+              'bg-[radial-gradient(circle,_var(--color-border)_1px,_transparent_1px)] bg-[size:20px_20px]',
               upload.isDragging && 'bg-primary/10',
             )}
             onDragOver={uploadActions.handleDragOver}
@@ -104,7 +116,7 @@ const MakeQuizDesignA: React.FC = () => {
                   {t('초')}
                 </div>
                 {upload.fileExtension && upload.fileExtension !== 'pdf' && (
-                  <div className="mt-4 max-w-[400px] text-sm leading-relaxed text-muted-foreground md:max-w-[90%]">
+                  <div className="mt-4 max-w-[400px] text-xs leading-relaxed text-muted-foreground md:max-w-[90%]">
                     <strong className="text-foreground">
                       {upload.fileExtension.toUpperCase()}
                     </strong>{' '}
@@ -120,12 +132,12 @@ const MakeQuizDesignA: React.FC = () => {
               <>
                 {/* 업로드 아이콘 */}
                 <div className="mb-6 flex size-20 items-center justify-center rounded-full bg-background shadow-card md:size-16">
-                  <Cloud className="size-12 md:size-10 text-muted-foreground" />
+                  <Cloud className="size-12 text-muted-foreground md:size-10" />
                 </div>
                 <div className="text-lg font-semibold text-foreground md:text-base">
                   {t('파일을 여기에 드래그하세요')}
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">{t('또는')}</p>
+                <p className="mt-2 text-xs text-muted-foreground">{t('또는')}</p>
                 <div className="relative mt-4 inline-block cursor-pointer rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity duration-200 hover:opacity-90 md:px-5 md:py-2 md:text-sm">
                   {t('파일 선택하기')}
                   <input
@@ -141,7 +153,6 @@ const MakeQuizDesignA: React.FC = () => {
                     {t('크기 제한')} ·{' '}
                     <strong className="text-foreground">{MAX_FILE_SIZE / 1024 / 1024}MB</strong>
                   </span>
-                  <span className="hidden md:hidden">·</span>
                   <span>
                     {t('지원하는 파일')} ·{' '}
                     <strong className="text-foreground">{SUPPORTED_EXTENSIONS.join(', ')}</strong>
@@ -156,11 +167,11 @@ const MakeQuizDesignA: React.FC = () => {
             ) : (
               <>
                 <div className="mb-4 flex size-20 items-center justify-center rounded-full bg-background shadow-card md:size-16">
-                  <FileText className="size-8 md:size-6 text-muted-foreground" />
+                  <FileText className="size-8 text-muted-foreground md:size-6" />
                 </div>
                 <div className="text-lg font-bold text-foreground">{safeFileName}</div>
                 {safeFileSize && (
-                  <span className="mt-1 text-sm text-muted-foreground">
+                  <span className="mt-1 text-xs text-muted-foreground">
                     ({(safeFileSize / 1024 / 1024).toFixed(2)} MB)
                   </span>
                 )}
@@ -179,12 +190,13 @@ const MakeQuizDesignA: React.FC = () => {
         {upload.uploadedUrl && !generation.problemSetId && (
           <>
             {/* ─── 섹션 2: 퀴즈 타입 ─── */}
-            <section className="relative border-t border-border pt-8 mt-12 md:pt-6 md:mt-8">
-              <span className="pointer-events-none absolute -top-2 left-0 select-none text-[5rem] font-black leading-none text-primary/10 md:text-[4rem]">
+            <section className="relative mt-12 overflow-hidden pt-8 md:mt-8 md:pt-6">
+              <GradientDivider />
+              <span className="pointer-events-none absolute -top-6 -left-4 select-none text-[10rem] font-black leading-none text-primary/10 md:text-[7rem]">
                 02
               </span>
-              <div className="relative z-10 pt-10 md:pt-8">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-xl">
+              <div className="relative z-10 pt-14 md:pt-10">
+                <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-2xl">
                   {t('퀴즈 타입을 선택하세요')}
                 </h2>
               </div>
@@ -242,12 +254,13 @@ const MakeQuizDesignA: React.FC = () => {
             </section>
 
             {/* ─── 섹션 3: 문제 개수 ─── */}
-            <section className="relative border-t border-border pt-8 mt-12 md:pt-6 md:mt-8">
-              <span className="pointer-events-none absolute -top-2 left-0 select-none text-[5rem] font-black leading-none text-primary/10 md:text-[4rem]">
+            <section className="relative mt-12 overflow-hidden pt-8 md:mt-8 md:pt-6">
+              <GradientDivider />
+              <span className="pointer-events-none absolute -top-6 -left-4 select-none text-[10rem] font-black leading-none text-primary/10 md:text-[7rem]">
                 03
               </span>
-              <div className="relative z-10 pt-10 md:pt-8">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-xl">
+              <div className="relative z-10 pt-14 md:pt-10">
+                <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-2xl">
                   {t('문제 개수를 지정하세요')}
                 </h2>
               </div>
@@ -257,7 +270,7 @@ const MakeQuizDesignA: React.FC = () => {
                 <div className="text-[4rem] font-black leading-none tracking-tight text-foreground md:text-[3rem]">
                   {options.questionCount}
                 </div>
-                <span className="mt-2 text-sm font-medium text-muted-foreground">{t('문제')}</span>
+                <span className="mt-2 text-xs font-medium text-muted-foreground">{t('문제')}</span>
               </div>
 
               <div className="mx-auto mt-6 max-w-md">
@@ -284,15 +297,16 @@ const MakeQuizDesignA: React.FC = () => {
             </section>
 
             {/* ─── 섹션 4: 페이지 선택 ─── */}
-            <section className="relative border-t border-border pt-8 mt-12 md:pt-6 md:mt-8">
-              <span className="pointer-events-none absolute -top-2 left-0 select-none text-[5rem] font-black leading-none text-primary/10 md:text-[4rem]">
+            <section className="relative mt-12 overflow-hidden pt-8 md:mt-8 md:pt-6">
+              <GradientDivider />
+              <span className="pointer-events-none absolute -top-6 -left-4 select-none text-[10rem] font-black leading-none text-primary/10 md:text-[7rem]">
                 04
               </span>
-              <div className="relative z-10 pt-10 md:pt-8">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-xl">
+              <div className="relative z-10 pt-14 md:pt-10">
+                <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-2xl">
                   {t('특정 페이지를 지정하세요')}
                 </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {t('최대 ')}
                   {MAX_SELECT_PAGES}
                   {t(' 페이지')} {t('선택할 수 있어요')}
@@ -384,98 +398,108 @@ const MakeQuizDesignA: React.FC = () => {
                       {pages.selectedPages.length}/{pages.numPages ?? 0}
                     </span>
                   </div>
-                  <Document
-                    file={upload.uploadedUrl}
-                    onLoadSuccess={pageActions.onDocumentLoadSuccess}
-                    onLoadError={console.error}
-                    options={pdfOptions}
-                  >
-                    <div className="relative">
-                      <div
-                        className="grid max-h-[360px] grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 overflow-y-auto p-1.5"
-                        onMouseLeave={pageActions.handlePageMouseLeave}
-                      >
-                        {Array.from(
-                          new Array(Math.min(pages.visiblePageCount, pages.numPages ?? 0)),
-                          (_el: undefined, index: number) => {
-                            const pageNumber: number = index + 1;
-                            const isSelected: boolean = pages.selectedPages.includes(pageNumber);
-                            const isHovered: boolean = pages.hoveredPage?.pageNumber === pageNumber;
+                  {isMock ? (
+                    <MockPageGrid
+                      numPages={pages.numPages ?? 0}
+                      selectedPages={pages.selectedPages}
+                      onPageClick={pageActions.handlePageSelection}
+                    />
+                  ) : (
+                    <Document
+                      file={upload.uploadedUrl}
+                      onLoadSuccess={pageActions.onDocumentLoadSuccess}
+                      onLoadError={console.error}
+                      options={pdfOptions}
+                    >
+                      <div className="relative">
+                        <div
+                          className="grid max-h-[360px] grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 overflow-y-auto p-1.5"
+                          onMouseLeave={pageActions.handlePageMouseLeave}
+                        >
+                          {Array.from(
+                            new Array(Math.min(pages.visiblePageCount, pages.numPages ?? 0)),
+                            (_el: undefined, index: number) => {
+                              const pageNumber: number = index + 1;
+                              const isSelected: boolean = pages.selectedPages.includes(pageNumber);
+                              const isHovered: boolean =
+                                pages.hoveredPage?.pageNumber === pageNumber;
 
-                            return (
-                              <div
-                                key={`page_${pageNumber}`}
-                                className={cn(
-                                  'relative cursor-pointer overflow-hidden rounded-xl border-2 border-transparent bg-background text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-card',
-                                  isSelected && 'border-primary',
-                                  isHovered && 'border-muted-foreground',
-                                )}
-                                onClick={() => {
-                                  pageActions.handlePageSelection(pageNumber);
-                                }}
-                                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                                  pageActions.handlePageMouseEnter(e, pageNumber);
-                                }}
-                              >
-                                <Page
-                                  pageNumber={pageNumber}
-                                  width={150}
-                                  renderTextLayer={false}
-                                  renderAnnotationLayer={false}
-                                />
-
-                                <p
+                              return (
+                                <div
+                                  key={`page_${pageNumber}`}
                                   className={cn(
-                                    'mt-2 flex items-center justify-center pb-2 text-sm text-muted-foreground',
-                                    "before:mr-2 before:inline-block before:size-4 before:rounded-full before:border before:border-border before:bg-background before:content-['']",
-                                    isSelected &&
-                                      "font-semibold text-foreground before:border-primary before:bg-primary before:bg-[url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpath%20fill='none'%20stroke='white'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M4%208l3%203%205-5'/%3e%3c/svg%3e\")]",
+                                    'relative cursor-pointer overflow-hidden rounded-xl border-2 border-transparent bg-background text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-card',
+                                    isSelected && 'border-primary',
+                                    isHovered && 'border-muted-foreground',
                                   )}
+                                  onClick={() => {
+                                    pageActions.handlePageSelection(pageNumber);
+                                  }}
+                                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                                    pageActions.handlePageMouseEnter(e, pageNumber);
+                                  }}
                                 >
-                                  {t('페이지')}
-                                  {pageNumber}
-                                </p>
-                              </div>
-                            );
-                          },
-                        )}
-                        {pages.visiblePageCount < (pages.numPages ?? 0) && (
-                          <div className="col-span-full mt-4 flex flex-col items-center justify-center rounded-xl bg-background p-5 text-muted-foreground">
-                            <div className="mb-2 size-6 animate-spin rounded-full border-2 border-border border-t-foreground" />
-                            <p className="m-0 text-sm font-medium">
-                              {t('더 많은 페이지 로딩 중... (')}
-                              {pages.visiblePageCount}/{pages.numPages})
-                            </p>
+                                  <Page
+                                    pageNumber={pageNumber}
+                                    width={150}
+                                    renderTextLayer={false}
+                                    renderAnnotationLayer={false}
+                                  />
+
+                                  <p
+                                    className={cn(
+                                      'mt-2 flex items-center justify-center pb-2 text-sm text-muted-foreground',
+                                      "before:mr-2 before:inline-block before:size-4 before:rounded-full before:border before:border-border before:bg-background before:content-['']",
+                                      isSelected &&
+                                        "font-semibold text-foreground before:border-primary before:bg-primary before:bg-[url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpath%20fill='none'%20stroke='white'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M4%208l3%203%205-5'/%3e%3c/svg%3e\")]",
+                                    )}
+                                  >
+                                    {t('페이지')}
+                                    {pageNumber}
+                                  </p>
+                                </div>
+                              );
+                            },
+                          )}
+                          {pages.visiblePageCount < (pages.numPages ?? 0) && (
+                            <div className="col-span-full mt-4 flex flex-col items-center justify-center rounded-xl bg-background p-5 text-muted-foreground">
+                              <div className="mb-2 size-6 animate-spin rounded-full border-2 border-border border-t-foreground" />
+                              <p className="m-0 text-sm font-medium">
+                                {t('더 많은 페이지 로딩 중... (')}
+                                {pages.visiblePageCount}/{pages.numPages})
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {pages.isPreviewVisible && pages.hoveredPage && (
+                          <div
+                            className="pointer-events-none absolute z-30 rounded-2xl bg-background p-3 shadow-card transition-[opacity,top] duration-200"
+                            style={pages.hoveredPage.style}
+                          >
+                            <Page
+                              pageNumber={pages.hoveredPage.pageNumber}
+                              width={640}
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                            />
                           </div>
                         )}
                       </div>
-
-                      {pages.isPreviewVisible && pages.hoveredPage && (
-                        <div
-                          className="pointer-events-none absolute z-30 rounded-2xl bg-background p-3 shadow-card transition-[opacity,top] duration-200"
-                          style={pages.hoveredPage.style}
-                        >
-                          <Page
-                            pageNumber={pages.hoveredPage.pageNumber}
-                            width={640}
-                            renderTextLayer={false}
-                            renderAnnotationLayer={false}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </Document>
+                    </Document>
+                  )}
                 </div>
               )}
             </section>
 
             {/* ─── 섹션 5: 문제 생성 ─── */}
-            <section className="relative border-t border-border pt-8 mt-12 md:pt-6 md:mt-8">
-              <span className="pointer-events-none absolute -top-2 left-0 select-none text-[5rem] font-black leading-none text-primary/10 md:text-[4rem]">
+            <section className="relative mt-12 overflow-hidden pt-8 md:mt-8 md:pt-6">
+              <GradientDivider />
+              <span className="pointer-events-none absolute -top-6 -left-4 select-none text-[10rem] font-black leading-none text-primary/10 md:text-[7rem]">
                 05
               </span>
-              <div className="relative z-10 pt-10 md:pt-8">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-xl">
+              <div className="relative z-10 pt-14 md:pt-10">
+                <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-2xl">
                   {t('문제를 생성하세요')}
                 </h2>
               </div>
@@ -500,7 +524,7 @@ const MakeQuizDesignA: React.FC = () => {
                     )}
                   </div>
                 ) : (
-                  <p className="m-0 text-sm text-muted-foreground">
+                  <p className="m-0 text-xs text-muted-foreground">
                     {t('문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.')}
                   </p>
                 )}
@@ -519,7 +543,7 @@ const MakeQuizDesignA: React.FC = () => {
                 {!isWaitingForFirstQuiz &&
                   !pages.selectedPages.length &&
                   pages.numPages === null && (
-                    <p className="mt-1 text-center text-sm text-muted-foreground">
+                    <p className="mt-1 text-center text-xs text-muted-foreground">
                       {t('페이지 정보를 불러오는 중입니다. 잠시만 기다려주세요.')}
                     </p>
                   )}
@@ -530,14 +554,15 @@ const MakeQuizDesignA: React.FC = () => {
 
         {/* ─── 생성 완료 결과 ─── */}
         {generation.problemSetId && (
-          <section className="border-t border-border pt-8 mt-12 md:pt-6 md:mt-8">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-xl">
+          <section className="mt-12 pt-8 md:mt-8 md:pt-6">
+            <GradientDivider />
+            <h2 className="mt-8 text-3xl font-bold tracking-tight text-foreground md:text-2xl">
               {t('생성된 문제')}
             </h2>
             <div className="mt-6 flex w-full flex-wrap items-center gap-6 rounded-2xl bg-muted p-6 md:flex-col md:items-start md:gap-3 md:p-4">
               <div className="flex items-center gap-4 md:gap-3">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-background shadow-card md:size-10">
-                  <FileText className="size-8 md:size-6 text-muted-foreground" />
+                  <FileText className="size-8 text-muted-foreground md:size-6" />
                 </div>
                 <div className="min-w-0">
                   <div className="break-words text-lg font-bold text-foreground md:text-base">
@@ -578,4 +603,4 @@ const MakeQuizDesignA: React.FC = () => {
   );
 };
 
-export default MakeQuizDesignA;
+export default MakeQuizDesignA_ConceptMid;

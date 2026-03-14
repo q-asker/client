@@ -419,10 +419,10 @@ const HelpDesignA = lazy(() => import('./HelpDesignA'));
 const HelpDesignB = lazy(() => import('./HelpDesignB'));
 
 const HELP_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  b: HelpMagicA,
-  c: HelpMagicB,
-  d: HelpDesignA,
-  e: HelpDesignB,
+  '1': HelpMagicA,
+  '2': HelpMagicB,
+  '3': HelpDesignA,
+  '4': HelpDesignB,
 };
 
 const HelpWithVariant = () => {

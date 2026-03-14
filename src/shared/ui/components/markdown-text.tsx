@@ -52,6 +52,16 @@ const MarkdownText = ({ children, className }: MarkdownTextProps) => {
             </th>
           ),
           td: ({ children }) => <td className="border border-border px-3 py-1.5">{children}</td>,
+          // 제목
+          h1: ({ children }) => (
+            <h1 className="mb-2 mt-4 text-xl font-bold first:mt-0">{children}</h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="mb-2 mt-4 text-lg font-bold first:mt-0">{children}</h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="mb-1 mt-3 text-base font-semibold first:mt-0">{children}</h3>
+          ),
           // 구분선
           hr: () => <hr className="my-3 border-border" />,
           // 인용

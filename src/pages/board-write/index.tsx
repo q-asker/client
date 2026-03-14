@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { lazy, Suspense, useState, useEffect } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Header from '#widgets/header';
 import CustomToast from '#shared/toast';
 import axiosInstance from '#shared/api';
@@ -18,13 +18,15 @@ interface BoardEditData {
 
 const BoardWrite = () => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   const navigate = useNavigate();
   const { boardId } = useParams<{ boardId: string }>();
 
-  const isEditMode = !!boardId;
+  const isEditMode = !isMock && !!boardId;
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -207,4 +209,32 @@ const BoardWrite = () => {
   );
 };
 
-export default BoardWrite;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const BoardWriteMagicA = lazy(() => import('./BoardWriteMagicA'));
+const BoardWriteMagicB = lazy(() => import('./BoardWriteMagicB'));
+const BoardWriteDesignA = lazy(() => import('./BoardWriteDesignA'));
+const BoardWriteDesignB = lazy(() => import('./BoardWriteDesignB'));
+
+const BDW_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  '1': BoardWriteMagicA,
+  '2': BoardWriteMagicB,
+  '3': BoardWriteDesignA,
+  '4': BoardWriteDesignB,
+};
+
+const BoardWriteWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('bdw');
+  const VariantComponent = variant ? BDW_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <BoardWrite />;
+};
+
+export default BoardWriteWithVariant;

@@ -104,154 +104,156 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <div className="relative bg-background shadow-sm">
-      {/* 3-column 그리드: 좌측 네비 | 중앙 로고 | 우측 네비+프로필 */}
-      <div className="mx-auto grid w-full max-w-5xl grid-cols-3 items-center px-4 py-4 md:px-6">
-        {/* 좌측: 메뉴 버튼 + 문의하기 */}
-        <div className="flex items-center gap-1">
-          <button
-            id="menuButton"
-            className="cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
-            onClick={toggleSidebar}
-          >
-            <Menu className="size-5" />
-          </button>
-
-          <BlurFade delay={0.05}>
-            <Link
-              to="/boards"
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium no-underline transition-all duration-200',
-                isActive('/boards')
-                  ? 'bg-muted font-semibold text-primary'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-              )}
+    <>
+      <div className="relative bg-background shadow-sm">
+        {/* 3-column 그리드: 좌측 네비 | 중앙 로고 | 우측 네비+프로필 */}
+        <div className="mx-auto grid w-full max-w-5xl grid-cols-3 items-center px-4 py-4 md:px-6">
+          {/* 좌측: 메뉴 버튼 + 문의하기 */}
+          <div className="flex items-center gap-1">
+            <button
+              id="menuButton"
+              className="cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+              onClick={toggleSidebar}
             >
-              <MessageSquare className="size-4" />
-              <span className="max-sm:hidden">{t('문의하기')}</span>
-            </Link>
-          </BlurFade>
-        </div>
+              <Menu className="size-5" />
+            </button>
 
-        {/* 중앙: 로고 (절대 위치로 정중앙 고정) */}
-        <div className="flex justify-center">
-          <Link to="/" className="text-inherit no-underline">
-            <Logo />
-          </Link>
-        </div>
-
-        {/* 우측: 퀴즈 기록 + 로그인/프로필 */}
-        <div className="flex items-center justify-end gap-1">
-          <BlurFade delay={0.1}>
-            <div className="relative inline-flex items-center">
+            <BlurFade delay={0.05}>
               <Link
-                to="/history"
+                to="/boards"
                 className={cn(
                   'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium no-underline transition-all duration-200',
-                  isActive('/history')
+                  isActive('/boards')
                     ? 'bg-muted font-semibold text-primary'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                 )}
-                onClick={handleQuizManagement}
               >
-                <ClipboardList className="size-4" />
-                <span className="max-sm:hidden">{t('퀴즈 기록')}</span>
-              </Link>
-              {/* 툴팁: "퀴즈 기록" 아래에 위치 */}
-              {!isAuthenticated && showNavTooltip && (
-                <span
-                  className="absolute left-1/2 top-[calc(100%+6px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-2 py-1.5 pl-2.5 text-xs text-primary-foreground shadow-lg before:absolute before:left-1/2 before:top-[-4px] before:-translate-x-1/2 before:border-x-[6px] before:border-b-[6px] before:border-t-0 before:border-solid before:border-transparent before:border-b-primary before:content-[''] max-sm:hidden"
-                  role="status"
-                >
-                  {t('로그인하고, 퀴즈기록을 저장해보세요')}
-                  <button
-                    type="button"
-                    className="cursor-pointer border-none bg-transparent p-0.5 px-1 text-xs leading-none text-inherit hover:opacity-80"
-                    aria-label={t('닫기')}
-                    onClick={handleNavTooltipClose}
-                  >
-                    <X className="size-3" />
-                  </button>
-                </span>
-              )}
-            </div>
-          </BlurFade>
-
-          {/* 로그인 버튼 (미인증 시) */}
-          {!isAuthenticated && (
-            <BlurFade delay={0.15}>
-              <Link
-                className={cn(
-                  'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium no-underline transition-all duration-200',
-                  isActive('/login')
-                    ? 'bg-muted font-semibold text-primary'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                )}
-                to="/login"
-              >
-                <LogIn className="size-4" />
-                <span className="max-sm:hidden">{t('로그인')}</span>
+                <MessageSquare className="size-4" />
+                <span className="max-sm:hidden">{t('문의하기')}</span>
               </Link>
             </BlurFade>
-          )}
+          </div>
 
-          {/* 프로필 버튼 (인증 시) */}
-          {isAuthenticated && (
-            <div className="relative ml-1">
-              <button
-                id="profileButton"
-                className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border-none bg-primary p-0 text-sm font-bold text-primary-foreground transition-colors duration-200 hover:bg-primary/90 md:size-9 md:text-base"
-                onClick={() => setIsProfileOpen((prev) => !prev)}
-                aria-expanded={isProfileOpen}
-                aria-haspopup="true"
-                title={displayName}
-                type="button"
-              >
-                {profileInitial}
-              </button>
-              <AnimatePresence>
-                {isProfileOpen && (
-                  <motion.div
-                    id="profileDropdown"
-                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                    className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[180px] rounded-xl border border-border bg-background p-3 shadow-lg"
+          {/* 중앙: 로고 (절대 위치로 정중앙 고정) */}
+          <div className="flex justify-center">
+            <Link to="/" className="text-inherit no-underline">
+              <Logo />
+            </Link>
+          </div>
+
+          {/* 우측: 퀴즈 기록 + 로그인/프로필 */}
+          <div className="flex items-center justify-end gap-1">
+            <BlurFade delay={0.1}>
+              <div className="relative inline-flex items-center">
+                <Link
+                  to="/history"
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium no-underline transition-all duration-200',
+                    isActive('/history')
+                      ? 'bg-muted font-semibold text-primary'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                  )}
+                  onClick={handleQuizManagement}
+                >
+                  <ClipboardList className="size-4" />
+                  <span className="max-sm:hidden">{t('퀴즈 기록')}</span>
+                </Link>
+                {/* 툴팁: "퀴즈 기록" 아래에 위치 */}
+                {!isAuthenticated && showNavTooltip && (
+                  <span
+                    className="absolute left-1/2 top-[calc(100%+6px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-2 py-1.5 pl-2.5 text-xs text-primary-foreground shadow-lg before:absolute before:left-1/2 before:top-[-4px] before:-translate-x-1/2 before:border-x-[6px] before:border-b-[6px] before:border-t-0 before:border-solid before:border-transparent before:border-b-primary before:content-[''] max-sm:hidden"
+                    role="status"
                   >
-                    <motion.span
-                      className="mb-2.5 block font-semibold text-foreground"
-                      custom={0}
-                      variants={dropdownItemVariants}
-                      initial="hidden"
-                      animate="visible"
-                    >
-                      {displayName}
-                    </motion.span>
-                    <motion.button
-                      className="flex w-full cursor-pointer items-center gap-1.5 rounded-lg border-none bg-transparent px-1 py-1.5 text-left text-primary transition-colors duration-200 hover:bg-muted hover:text-primary/80"
+                    {t('로그인하고, 퀴즈기록을 저장해보세요')}
+                    <button
                       type="button"
-                      custom={1}
-                      variants={dropdownItemVariants}
-                      initial="hidden"
-                      animate="visible"
-                      onClick={() => {
-                        setIsProfileOpen(false);
-                        handleLogout();
-                      }}
+                      className="cursor-pointer border-none bg-transparent p-0.5 px-1 text-xs leading-none text-inherit hover:opacity-80"
+                      aria-label={t('닫기')}
+                      onClick={handleNavTooltipClose}
                     >
-                      <LogOut className="size-4" />
-                      <strong>{t('로그아웃')}</strong>
-                    </motion.button>
-                  </motion.div>
+                      <X className="size-3" />
+                    </button>
+                  </span>
                 )}
-              </AnimatePresence>
-            </div>
-          )}
+              </div>
+            </BlurFade>
+
+            {/* 로그인 버튼 (미인증 시) */}
+            {!isAuthenticated && (
+              <BlurFade delay={0.15}>
+                <Link
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium no-underline transition-all duration-200',
+                    isActive('/login')
+                      ? 'bg-muted font-semibold text-primary'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                  )}
+                  to="/login"
+                >
+                  <LogIn className="size-4" />
+                  <span className="max-sm:hidden">{t('로그인')}</span>
+                </Link>
+              </BlurFade>
+            )}
+
+            {/* 프로필 버튼 (인증 시) */}
+            {isAuthenticated && (
+              <div className="relative ml-1">
+                <button
+                  id="profileButton"
+                  className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border-none bg-primary p-0 text-sm font-bold text-primary-foreground transition-colors duration-200 hover:bg-primary/90 md:size-9 md:text-base"
+                  onClick={() => setIsProfileOpen((prev) => !prev)}
+                  aria-expanded={isProfileOpen}
+                  aria-haspopup="true"
+                  title={displayName}
+                  type="button"
+                >
+                  {profileInitial}
+                </button>
+                <AnimatePresence>
+                  {isProfileOpen && (
+                    <motion.div
+                      id="profileDropdown"
+                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                      transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                      className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[180px] rounded-xl border border-border bg-background p-3 shadow-lg"
+                    >
+                      <motion.span
+                        className="mb-2.5 block font-semibold text-foreground"
+                        custom={0}
+                        variants={dropdownItemVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        {displayName}
+                      </motion.span>
+                      <motion.button
+                        className="flex w-full cursor-pointer items-center gap-1.5 rounded-lg border-none bg-transparent px-1 py-1.5 text-left text-primary transition-colors duration-200 hover:bg-muted hover:text-primary/80"
+                        type="button"
+                        custom={1}
+                        variants={dropdownItemVariants}
+                        initial="hidden"
+                        animate="visible"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          handleLogout();
+                        }}
+                      >
+                        <LogOut className="size-4" />
+                        <strong>{t('로그아웃')}</strong>
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* 사이드바 + 오버레이 */}
+      {/* 사이드바 + 오버레이 — 헤더의 relative 컨테이너 밖에 렌더링하여 전체 페이지를 덮도록 함 */}
       <AnimatePresence>
         {isSidebarOpen && (
           <>
@@ -337,7 +339,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
           </>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 };
 

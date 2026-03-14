@@ -12,9 +12,10 @@ import {
 } from '#features/prepare-quiz';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { Document, Page } from 'react-pdf';
+import MockPageGrid from './MockPageGrid';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import RecentChanges from '#widgets/recent-changes';
 import { cn } from '@/shared/ui/lib/utils';
 import type { QuestionType, QuizLevel } from '#features/prepare-quiz';
@@ -36,10 +37,12 @@ interface QuizTypeOption {
   icon: LucideIcon;
 }
 
-/** E안 - Dashboard Panel */
-const MakeQuizDesignB: React.FC = () => {
+/** PolishMid — 세련미 + 중간 수준 */
+const MakeQuizDesignB_PolishMid: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
   const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
   const acceptExtensions: string = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
   const { state, actions } = usePrepareQuiz({ t, navigate });
@@ -83,8 +86,8 @@ const MakeQuizDesignB: React.FC = () => {
             {/* 좌측 패널: 파일 업로드 + PDF 미리보기 */}
             <div className="lg:sticky lg:top-24 lg:self-start">
               {/* 파일 정보 패널 */}
-              <div className="rounded-xl border border-border bg-background p-6 shadow-card">
-                <div className="border-b border-border pb-3 mb-4">
+              <div className="rounded-xl border border-border bg-background p-7 shadow-card transition-shadow duration-300 hover:shadow-lg">
+                <div className="mb-4 border-b border-border bg-gradient-to-r from-muted/30 via-muted/10 to-transparent -mx-7 -mt-7 rounded-t-xl px-7 py-3">
                   <h2 className="text-lg font-semibold text-foreground">{t('업로드된 파일')}</h2>
                 </div>
                 <div
@@ -128,88 +131,97 @@ const MakeQuizDesignB: React.FC = () => {
                         {pages.selectedPages.length}/{pages.numPages ?? 0}
                       </span>
                     </div>
-                    <Document
-                      file={upload.uploadedUrl}
-                      onLoadSuccess={pageActions.onDocumentLoadSuccess}
-                      onLoadError={console.error}
-                      options={pdfOptions}
-                    >
-                      <div className="relative">
-                        <div
-                          className="grid max-h-[360px] grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 overflow-y-auto p-1.5"
-                          onMouseLeave={pageActions.handlePageMouseLeave}
-                        >
-                          {Array.from(
-                            new Array(Math.min(pages.visiblePageCount, pages.numPages ?? 0)),
-                            (_el: undefined, index: number) => {
-                              const pageNumber: number = index + 1;
-                              const isSelected: boolean = pages.selectedPages.includes(pageNumber);
-                              const isHovered: boolean =
-                                pages.hoveredPage?.pageNumber === pageNumber;
+                    {isMock ? (
+                      <MockPageGrid
+                        numPages={pages.numPages ?? 0}
+                        selectedPages={pages.selectedPages}
+                        onPageClick={pageActions.handlePageSelection}
+                      />
+                    ) : (
+                      <Document
+                        file={upload.uploadedUrl}
+                        onLoadSuccess={pageActions.onDocumentLoadSuccess}
+                        onLoadError={console.error}
+                        options={pdfOptions}
+                      >
+                        <div className="relative">
+                          <div
+                            className="grid max-h-[360px] grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 overflow-y-auto p-1.5"
+                            onMouseLeave={pageActions.handlePageMouseLeave}
+                          >
+                            {Array.from(
+                              new Array(Math.min(pages.visiblePageCount, pages.numPages ?? 0)),
+                              (_el: undefined, index: number) => {
+                                const pageNumber: number = index + 1;
+                                const isSelected: boolean =
+                                  pages.selectedPages.includes(pageNumber);
+                                const isHovered: boolean =
+                                  pages.hoveredPage?.pageNumber === pageNumber;
 
-                              return (
-                                <div
-                                  key={`page_${pageNumber}`}
-                                  className={cn(
-                                    'relative cursor-pointer overflow-hidden rounded-md border border-border text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
-                                    isSelected && 'border-primary',
-                                    isHovered && 'border-primary/60 shadow-focus-ring-sm',
-                                  )}
-                                  onClick={() => {
-                                    pageActions.handlePageSelection(pageNumber);
-                                  }}
-                                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                                    pageActions.handlePageMouseEnter(e, pageNumber);
-                                  }}
-                                >
-                                  <Page
-                                    pageNumber={pageNumber}
-                                    width={150}
-                                    renderTextLayer={false}
-                                    renderAnnotationLayer={false}
-                                  />
-
-                                  <p
+                                return (
+                                  <div
+                                    key={`page_${pageNumber}`}
                                     className={cn(
-                                      'mt-2 flex items-center justify-center pb-2 text-sm',
-                                      "before:mr-2 before:inline-block before:size-4 before:rounded-[3px] before:border before:border-border before:bg-background before:content-['']",
-                                      isSelected &&
-                                        "before:border-primary before:bg-primary before:bg-[url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpath%20fill='none'%20stroke='white'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M4%208l3%203%205-5'/%3e%3c/svg%3e\")]",
+                                      'relative cursor-pointer overflow-hidden rounded-md border border-border text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
+                                      isSelected && 'border-primary',
+                                      isHovered && 'border-primary/60 shadow-focus-ring-sm',
                                     )}
+                                    onClick={() => {
+                                      pageActions.handlePageSelection(pageNumber);
+                                    }}
+                                    onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                                      pageActions.handlePageMouseEnter(e, pageNumber);
+                                    }}
                                   >
-                                    {t('페이지')}
-                                    {pageNumber}
-                                  </p>
-                                </div>
-                              );
-                            },
-                          )}
-                          {pages.visiblePageCount < (pages.numPages ?? 0) && (
-                            <div className="col-span-full mt-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted p-5 text-muted-foreground">
-                              <div className="mb-2 size-6 animate-spin rounded-full border-2 border-border border-t-primary" />
-                              <p className="m-0 text-sm font-medium">
-                                {t('더 많은 페이지 로딩 중... (')}
-                                {pages.visiblePageCount}/{pages.numPages})
-                              </p>
+                                    <Page
+                                      pageNumber={pageNumber}
+                                      width={150}
+                                      renderTextLayer={false}
+                                      renderAnnotationLayer={false}
+                                    />
+
+                                    <p
+                                      className={cn(
+                                        'mt-2 flex items-center justify-center pb-2 text-sm',
+                                        "before:mr-2 before:inline-block before:size-4 before:rounded-[3px] before:border before:border-border before:bg-background before:content-['']",
+                                        isSelected &&
+                                          "before:border-primary before:bg-primary before:bg-[url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpath%20fill='none'%20stroke='white'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M4%208l3%203%205-5'/%3e%3c/svg%3e\")]",
+                                      )}
+                                    >
+                                      {t('페이지')}
+                                      {pageNumber}
+                                    </p>
+                                  </div>
+                                );
+                              },
+                            )}
+                            {pages.visiblePageCount < (pages.numPages ?? 0) && (
+                              <div className="col-span-full mt-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted p-5 text-muted-foreground">
+                                <div className="mb-2 size-6 animate-spin rounded-full border-2 border-border border-t-primary" />
+                                <p className="m-0 text-sm font-medium">
+                                  {t('더 많은 페이지 로딩 중... (')}
+                                  {pages.visiblePageCount}/{pages.numPages})
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {pages.isPreviewVisible && pages.hoveredPage && (
+                            <div
+                              className="pointer-events-none absolute z-30 rounded-lg bg-background p-2.5 shadow-card transition-[opacity,top] duration-200"
+                              style={pages.hoveredPage.style}
+                            >
+                              <Page
+                                pageNumber={pages.hoveredPage.pageNumber}
+                                width={640}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                              />
                             </div>
                           )}
                         </div>
-
-                        {pages.isPreviewVisible && pages.hoveredPage && (
-                          <div
-                            className="pointer-events-none absolute z-30 rounded-lg bg-background p-2.5 shadow-card transition-[opacity,top] duration-200"
-                            style={pages.hoveredPage.style}
-                          >
-                            <Page
-                              pageNumber={pages.hoveredPage.pageNumber}
-                              width={640}
-                              renderTextLayer={false}
-                              renderAnnotationLayer={false}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </Document>
+                      </Document>
+                    )}
                   </div>
                 )}
               </div>
@@ -218,8 +230,8 @@ const MakeQuizDesignB: React.FC = () => {
             {/* 우측 패널: 퀴즈 옵션 */}
             <div className="mt-6 space-y-6 lg:mt-0">
               {/* 퀴즈 타입 패널 */}
-              <div className="rounded-xl border border-border bg-background p-6 shadow-card">
-                <div className="border-b border-border pb-3 mb-4">
+              <div className="rounded-xl border border-border bg-background p-7 shadow-card transition-shadow duration-300 hover:shadow-lg">
+                <div className="mb-4 border-b border-border bg-gradient-to-r from-muted/30 via-muted/10 to-transparent -mx-7 -mt-7 rounded-t-xl px-7 py-3">
                   <h2 className="text-lg font-semibold text-foreground">
                     {t('1. 퀴즈 타입을 선택하세요!')}
                   </h2>
@@ -229,7 +241,7 @@ const MakeQuizDesignB: React.FC = () => {
                     <button
                       key={type.key}
                       className={cn(
-                        'flex-1 cursor-pointer border-none bg-background py-3 font-medium text-muted-foreground transition-colors duration-200 md:py-2 md:text-sm',
+                        'flex-1 cursor-pointer border-none bg-background py-3 font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 md:py-2 md:text-sm',
                         options.questionType === type.key && 'bg-primary text-primary-foreground',
                       )}
                       onClick={() => {
@@ -279,8 +291,8 @@ const MakeQuizDesignB: React.FC = () => {
               <div className="border-t border-border" />
 
               {/* 문제 개수 패널 */}
-              <div className="rounded-xl border border-border bg-background p-6 shadow-card">
-                <div className="border-b border-border pb-3 mb-4">
+              <div className="rounded-xl border border-border bg-background p-7 shadow-card transition-shadow duration-300 hover:shadow-lg">
+                <div className="mb-4 border-b border-border bg-gradient-to-r from-muted/30 via-muted/10 to-transparent -mx-7 -mt-7 rounded-t-xl px-7 py-3">
                   <h2 className="text-lg font-semibold text-foreground">
                     {t('2. 문제 개수를 지정하세요!')}
                   </h2>
@@ -312,8 +324,8 @@ const MakeQuizDesignB: React.FC = () => {
               <div className="border-t border-border" />
 
               {/* 페이지 선택 패널 */}
-              <div className="rounded-xl border border-border bg-background p-6 shadow-card">
-                <div className="border-b border-border pb-3 mb-4">
+              <div className="rounded-xl border border-border bg-background p-7 shadow-card transition-shadow duration-300 hover:shadow-lg">
+                <div className="mb-4 border-b border-border bg-gradient-to-r from-muted/30 via-muted/10 to-transparent -mx-7 -mt-7 rounded-t-xl px-7 py-3">
                   <h2 className="text-lg font-semibold text-foreground">
                     {t('3. 특정 페이지를 지정하세요!')}
                   </h2>
@@ -348,7 +360,7 @@ const MakeQuizDesignB: React.FC = () => {
                           }
                         }}
                         disabled={!pages.numPages}
-                        className="w-20 rounded-lg border border-border px-3 py-2 text-center text-base transition-all duration-200 focus:border-primary focus:shadow-focus-ring-sm focus:outline-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:w-15 md:px-2 md:py-1.5 md:text-sm"
+                        className="w-20 rounded-lg border border-border px-3 py-2 text-center text-base transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:w-15 md:px-2 md:py-1.5 md:text-sm"
                       />
                       <span className="text-center text-muted-foreground md:inline-flex md:items-center md:px-0.5 md:text-sm">
                         ~
@@ -367,11 +379,11 @@ const MakeQuizDesignB: React.FC = () => {
                           }
                         }}
                         disabled={!pages.numPages}
-                        className="w-20 rounded-lg border border-border px-3 py-2 text-center text-base transition-all duration-200 focus:border-primary focus:shadow-focus-ring-sm focus:outline-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:w-15 md:px-2 md:py-1.5 md:text-sm"
+                        className="w-20 rounded-lg border border-border px-3 py-2 text-center text-base transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:w-15 md:px-2 md:py-1.5 md:text-sm"
                       />
                       <button
                         type="button"
-                        className="cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-2 text-[0.95rem] text-primary-foreground transition-colors duration-200 hover:border-primary/80 hover:bg-primary/90 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:h-8 md:min-w-11 md:whitespace-nowrap md:px-2.5 md:py-0 md:text-sm md:leading-none"
+                        className="cursor-pointer rounded-lg border border-primary bg-primary px-3.5 py-2 text-[0.95rem] text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:border-primary/80 hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:h-8 md:min-w-11 md:whitespace-nowrap md:px-2.5 md:py-0 md:text-sm md:leading-none"
                         onClick={pageActions.handleApplyPageRange}
                         disabled={!pages.numPages}
                       >
@@ -381,7 +393,7 @@ const MakeQuizDesignB: React.FC = () => {
                   </div>
                   <div className="flex flex-1 flex-wrap items-center justify-end gap-2 md:w-full md:flex-col md:items-stretch md:gap-2.5">
                     <button
-                      className="cursor-pointer rounded-lg border border-primary/30 bg-primary/10 px-3.5 py-2 text-[0.95rem] text-primary transition-colors duration-200 hover:bg-primary/8 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:w-full"
+                      className="cursor-pointer rounded-lg border border-primary/30 bg-primary/10 px-3.5 py-2 text-[0.95rem] text-primary transition-all duration-200 hover:scale-[1.02] hover:bg-primary/8 hover:shadow-md disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:w-full"
                       onClick={pageActions.handleSelectAllPages}
                     >
                       {pages.selectedPages.length === pages.numPages
@@ -389,14 +401,14 @@ const MakeQuizDesignB: React.FC = () => {
                         : t('전체 선택')}
                     </button>
                     <button
-                      className="cursor-pointer rounded-lg border border-destructive/20 bg-background px-3.5 py-2 text-[0.95rem] text-destructive transition-colors duration-200 hover:bg-destructive/5 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:w-full"
+                      className="cursor-pointer rounded-lg border border-destructive/20 bg-background px-3.5 py-2 text-[0.95rem] text-destructive transition-all duration-200 hover:scale-[1.02] hover:bg-destructive/5 hover:shadow-md disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground md:w-full"
                       onClick={pageActions.handleClearAllPages}
                     >
                       {t('전체 해제')}
                     </button>
                     <button
                       className={cn(
-                        'cursor-pointer rounded-lg border border-border bg-background px-3.5 py-2 text-[0.95rem] text-foreground transition-colors duration-200 hover:bg-muted md:hidden',
+                        'cursor-pointer rounded-lg border border-border bg-background px-3.5 py-2 text-[0.95rem] text-foreground transition-all duration-200 hover:scale-[1.02] hover:bg-muted hover:shadow-md md:hidden',
                         pages.isPreviewVisible &&
                           'border-primary bg-primary text-primary-foreground',
                       )}
@@ -413,8 +425,8 @@ const MakeQuizDesignB: React.FC = () => {
               <div className="border-t border-border" />
 
               {/* 문제 생성 패널 */}
-              <div className="rounded-xl border border-border bg-background p-6 shadow-card">
-                <div className="border-b border-border pb-3 mb-4">
+              <div className="rounded-xl border border-border bg-background p-7 shadow-card transition-shadow duration-300 hover:shadow-lg">
+                <div className="mb-4 border-b border-border bg-gradient-to-r from-muted/30 via-muted/10 to-transparent -mx-7 -mt-7 rounded-t-xl px-7 py-3">
                   <h2 className="text-lg font-semibold text-foreground">
                     {t('4. 문제를 생성하세요!')}
                   </h2>
@@ -446,7 +458,7 @@ const MakeQuizDesignB: React.FC = () => {
                 </div>
                 <div className="mt-5 flex flex-col items-center justify-center gap-4 md:gap-3">
                   <button
-                    className="w-full cursor-pointer rounded-lg border-none bg-primary px-8 py-4 text-base text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:px-0 md:py-3 md:text-sm"
+                    className="w-full cursor-pointer rounded-lg border-none bg-primary px-8 py-4 text-base text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:px-0 md:py-3 md:text-sm"
                     onClick={generationActions.generateQuestions}
                     disabled={
                       !upload.uploadedUrl || isWaitingForFirstQuiz || !pages.selectedPages.length
@@ -469,7 +481,7 @@ const MakeQuizDesignB: React.FC = () => {
           /* 파일 미업로드 상태: 단일 컬럼 */
           <div
             className={cn(
-              'rounded-lg border-2 border-dashed border-border p-10 text-center transition-colors duration-200 hover:border-primary md:p-6',
+              'rounded-lg border-2 border-dashed border-border p-10 text-center transition-all duration-300 hover:border-primary hover:shadow-lg md:p-6',
               upload.isDragging && 'border-primary bg-primary/10',
             )}
             onDragOver={uploadActions.handleDragOver}
@@ -506,13 +518,13 @@ const MakeQuizDesignB: React.FC = () => {
             ) : (
               <>
                 <div className="mb-4 md:mb-3">
-                  <Cloud className="size-12 md:size-10 text-muted-foreground" />
+                  <Cloud className="size-12 text-muted-foreground md:size-10" />
                 </div>
                 <div className="my-2 text-lg font-bold text-foreground">
                   {t('파일을 여기에 드래그하세요')}
                 </div>
                 <p className="text-muted-foreground">{t('또는')}</p>
-                <div className="relative inline-block cursor-pointer rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90 md:px-3 md:py-1.5 md:text-sm">
+                <div className="relative inline-block cursor-pointer rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90 hover:shadow-md md:px-3 md:py-1.5 md:text-sm">
                   {t('파일 선택하기')}
                   <input
                     type="file"
@@ -557,13 +569,13 @@ const MakeQuizDesignB: React.FC = () => {
 
         {/* 생성된 문제 (full-width 하단) */}
         {generation.problemSetId && (
-          <div className="mt-8 rounded-xl border border-border bg-background p-6 shadow-card">
-            <div className="border-b border-border pb-3 mb-4">
+          <div className="mt-8 rounded-xl border border-border bg-background p-7 shadow-card transition-shadow duration-300 hover:shadow-lg">
+            <div className="mb-4 border-b border-border bg-gradient-to-r from-muted/30 via-muted/10 to-transparent -mx-7 -mt-7 rounded-t-xl px-7 py-3">
               <h2 className="text-lg font-semibold text-foreground">{t('생성된 문제')}</h2>
             </div>
             <div className="flex w-full flex-wrap items-center gap-6 rounded-lg border border-border bg-muted p-6 transition-shadow duration-200 hover:shadow-card md:flex-col md:items-start md:gap-2 md:p-4">
               <div className="shrink-0">
-                <FileText className="size-8 md:size-6 text-muted-foreground" />
+                <FileText className="size-8 text-muted-foreground md:size-6" />
               </div>
               <div className="min-w-0 grow-0">
                 <div className="mb-1 break-words text-lg font-semibold text-foreground md:text-[0.95rem]">
@@ -572,19 +584,19 @@ const MakeQuizDesignB: React.FC = () => {
               </div>
               <div className="ml-auto flex max-w-full shrink-0 flex-wrap items-center gap-3 md:ml-0 md:w-full md:flex-col md:gap-2">
                 <button
-                  className="cursor-pointer rounded-md border border-destructive/20 bg-destructive/10 px-4 py-2 font-medium text-destructive transition-colors duration-200 hover:bg-destructive/20 disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
+                  className="cursor-pointer rounded-md border border-destructive/20 bg-destructive/10 px-4 py-2 font-medium text-destructive transition-all duration-200 hover:scale-[1.02] hover:bg-destructive/20 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
                   onClick={commonActions.handleRemoveFile}
                 >
                   {t('다른 파일 넣기')}
                 </button>
                 <button
-                  className="cursor-pointer rounded-md border border-primary/30 bg-primary/10 px-4 py-2 font-medium text-primary transition-colors duration-200 hover:bg-primary/8 disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
+                  className="cursor-pointer rounded-md border border-primary/30 bg-primary/10 px-4 py-2 font-medium text-primary transition-all duration-200 hover:scale-[1.02] hover:bg-primary/8 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
                   onClick={commonActions.handleReCreate}
                 >
                   {t('다른 문제 생성')}
                 </button>
                 <button
-                  className="cursor-pointer rounded-md border border-transparent bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
+                  className="cursor-pointer rounded-md border border-transparent bg-primary px-4 py-2 font-medium text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 md:w-full md:whitespace-nowrap md:py-2.5 md:text-sm"
                   onClick={generationActions.handleNavigateToQuiz}
                 >
                   {t('문제 풀기')}
@@ -603,4 +615,4 @@ const MakeQuizDesignB: React.FC = () => {
   );
 };
 
-export default MakeQuizDesignB;
+export default MakeQuizDesignB_PolishMid;

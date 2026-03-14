@@ -1,11 +1,12 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { lazy, Suspense, useEffect, useState, useCallback, useMemo } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import CustomToast from '#shared/toast';
 import { useAuthStore, authService } from '#entities/auth';
 import axiosInstance from '#shared/api';
 import { useTranslation } from 'i18nexus';
 import Header, { extractRoleFromToken } from '#widgets/header';
 import { cn } from '@/shared/ui/lib/utils';
+import { MOCK_BOARD_DETAIL } from './mockBoardDetailData';
 
 /** 댓글을 포함한 게시글 상세 타입 */
 interface BoardDetailPost {
@@ -23,6 +24,8 @@ interface BoardDetailPost {
 const BoardDetail = () => {
   const { t } = useTranslation();
   const { boardId } = useParams<{ boardId: string }>();
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -34,9 +37,10 @@ const BoardDetail = () => {
   const { accessToken, clearAuth } = useAuthStore();
 
   const isAdmin = useMemo(() => {
+    if (isMock) return true;
     const role = extractRoleFromToken(accessToken);
     return role === 'ROLE_ADMIN';
-  }, [accessToken]);
+  }, [accessToken, isMock]);
 
   const formatDate = (isoString: string | null): string => {
     if (!isoString) return '-';
@@ -50,6 +54,13 @@ const BoardDetail = () => {
   };
 
   const fetchPost = useCallback(async () => {
+    /* mock 모드: API 호출 없이 로컬 데이터 사용 */
+    if (isMock) {
+      setPost(MOCK_BOARD_DETAIL as BoardDetailPost);
+      setLoading(false);
+      return;
+    }
+
     try {
       await authService.refresh();
     } catch {
@@ -80,7 +91,7 @@ const BoardDetail = () => {
     } finally {
       setLoading(false);
     }
-  }, [boardId, navigate, clearAuth]);
+  }, [boardId, navigate, clearAuth, isMock]);
 
   useEffect(() => {
     fetchPost();
@@ -257,4 +268,32 @@ const BoardDetail = () => {
   );
 };
 
-export default BoardDetail;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const BoardDetailMagicA = lazy(() => import('./BoardDetailMagicA'));
+const BoardDetailMagicB = lazy(() => import('./BoardDetailMagicB'));
+const BoardDetailDesignA = lazy(() => import('./BoardDetailDesignA'));
+const BoardDetailDesignB = lazy(() => import('./BoardDetailDesignB'));
+
+const BDD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  '1': BoardDetailMagicA,
+  '2': BoardDetailMagicB,
+  '3': BoardDetailDesignA,
+  '4': BoardDetailDesignB,
+};
+
+const BoardDetailWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('bdd');
+  const VariantComponent = variant ? BDD_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <BoardDetail />;
+};
+
+export default BoardDetailWithVariant;

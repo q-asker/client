@@ -1,11 +1,13 @@
 import { useTranslation } from 'i18nexus';
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Document, Page } from 'react-pdf';
 import type { DocumentProps } from 'react-pdf';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuizExplanation } from '#features/quiz-explanation';
 import { cn } from '@/shared/ui/lib/utils';
+import MarkdownText from '@/shared/ui/components/markdown-text';
 import type { Quiz } from '#features/quiz-generation';
+import { MOCK_QUIZZES, MOCK_EXPLANATION, MOCK_UPLOADED_URL } from './mockExplanationData';
 
 /** location.state 타입 */
 interface LocationState {
@@ -21,11 +23,21 @@ const QuizExplanation: React.FC = () => {
   const { problemSetId } = useParams<{ problemSetId: string }>();
   const navigate = useNavigate();
   const { state: locationState } = useLocation();
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
+
   const {
     quizzes: initialQuizzes = [],
     explanation: rawExplanation = [],
     uploadedUrl,
-  } = (locationState as LocationState) || {};
+  } = isMock
+    ? {
+        quizzes: MOCK_QUIZZES,
+        explanation: MOCK_EXPLANATION,
+        uploadedUrl: MOCK_UPLOADED_URL,
+      }
+    : (locationState as LocationState) || {};
+
   const { state, actions } = useQuizExplanation({
     t,
     navigate,
@@ -245,9 +257,9 @@ const QuizExplanation: React.FC = () => {
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="m-0 text-xl text-gray-800">{t('해설')}</h3>
               </div>
-              <p className="whitespace-pre-wrap break-words text-base leading-[1.8] text-gray-800">
+              <MarkdownText className="text-base leading-[1.8] text-gray-800">
                 {explanation.thisExplanationText}
-              </p>
+              </MarkdownText>
 
               {/* 참조 페이지 */}
               <div className="my-4 rounded-lg bg-gray-50 p-4">
@@ -365,4 +377,40 @@ const QuizExplanation: React.FC = () => {
   );
 };
 
-export default QuizExplanation;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const QuizExplanationMagicA = lazy(() => import('./QuizExplanationMagicA'));
+const QuizExplanationMagicB = lazy(() => import('./QuizExplanationMagicB'));
+const QuizExplanationMagicC = lazy(() => import('./QuizExplanationMagicC'));
+const QuizExplanationMagicD = lazy(() => import('./QuizExplanationMagicD'));
+const QuizExplanationDesignA = lazy(() => import('./QuizExplanationDesignA'));
+const QuizExplanationDesignB = lazy(() => import('./QuizExplanationDesignB'));
+const QuizExplanationDesignC = lazy(() => import('./QuizExplanationDesignC'));
+const QuizExplanationDesignD = lazy(() => import('./QuizExplanationDesignD'));
+
+const QE_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  '1': QuizExplanationMagicA,
+  '2': QuizExplanationMagicB,
+  '3': QuizExplanationDesignA,
+  '4': QuizExplanationDesignB,
+  '5': QuizExplanationMagicC,
+  '6': QuizExplanationMagicD,
+  '7': QuizExplanationDesignC,
+  '8': QuizExplanationDesignD,
+};
+
+const QuizExplanationWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('qe');
+  const VariantComponent = variant ? QE_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <QuizExplanation />;
+};
+
+export default QuizExplanationWithVariant;

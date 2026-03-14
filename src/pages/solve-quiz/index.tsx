@@ -332,16 +332,32 @@ const SolveQuizDesignA = lazy(() => import('./SolveQuizDesignA'));
 const SolveQuizDesignB = lazy(() => import('./SolveQuizDesignB'));
 const SolveQuizDesignC = lazy(() => import('./SolveQuizDesignC'));
 const SolveQuizDesignD = lazy(() => import('./SolveQuizDesignD'));
+const SolveQuizDesignE = lazy(() => import('./SolveQuizDesignE'));
+const SolveQuizDesignF = lazy(() => import('./SolveQuizDesignF'));
+const SolveQuizDesignG = lazy(() => import('./SolveQuizDesignG'));
+const SolveQuizDesignH = lazy(() => import('./SolveQuizDesignH'));
+const SolveQuizMagicE = lazy(() => import('./SolveQuizMagicE'));
+const SolveQuizMagicF = lazy(() => import('./SolveQuizMagicF'));
+const SolveQuizMagicG = lazy(() => import('./SolveQuizMagicG'));
+const SolveQuizMagicH = lazy(() => import('./SolveQuizMagicH'));
 
 const SQ_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  b: SolveQuizMagicA,
-  c: SolveQuizMagicB,
-  d: SolveQuizDesignA,
-  e: SolveQuizDesignB,
-  f: SolveQuizMagicC,
-  g: SolveQuizMagicD,
-  h: SolveQuizDesignC,
-  i: SolveQuizDesignD,
+  '1': SolveQuizMagicA,
+  '2': SolveQuizMagicB,
+  '3': SolveQuizDesignA,
+  '4': SolveQuizDesignB,
+  '5': SolveQuizMagicC,
+  '6': SolveQuizMagicD,
+  '7': SolveQuizDesignC,
+  '8': SolveQuizDesignD,
+  '9': SolveQuizDesignE,
+  '10': SolveQuizDesignF,
+  '11': SolveQuizDesignG,
+  '12': SolveQuizDesignH,
+  '13': SolveQuizMagicE,
+  '14': SolveQuizMagicF,
+  '15': SolveQuizMagicG,
+  '16': SolveQuizMagicH,
 };
 
 const SolveQuizWithVariant = () => {

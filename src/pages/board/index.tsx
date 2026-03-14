@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { lazy, Suspense, useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '#entities/auth';
 import Header from '#widgets/header';
 import { cn } from '@/shared/ui/lib/utils';
+import { MOCK_BOARD_RESPONSE } from './mockBoardData';
 
 // 유지보수를 위해 페이지 사이즈를 상수로 분리
 const PAGE_SIZE = 10;
@@ -26,6 +27,8 @@ interface BoardListResponse {
 
 const Board = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
   const accessToken = useAuthStore((state) => state.accessToken);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -52,30 +55,43 @@ const Board = () => {
     });
   };
 
-  const fetchPosts = useCallback(async (page: number) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        `${getBaseUrl()}/boards?page=${page}&size=${PAGE_SIZE}&sort=createdAt,desc`,
-        {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
+  const fetchPosts = useCallback(
+    async (page: number) => {
+      setLoading(true);
+      setError(null);
 
-      if (!response.ok) throw new Error('데이터를 불러오는데 실패했습니다.');
+      /* mock 모드: API 호출 없이 로컬 데이터 사용 */
+      if (isMock) {
+        setPosts(MOCK_BOARD_RESPONSE.posts);
+        setTotalPages(MOCK_BOARD_RESPONSE.totalPages);
+        setTotalElements(MOCK_BOARD_RESPONSE.totalElements);
+        setLoading(false);
+        return;
+      }
 
-      const data: BoardListResponse = await response.json();
-      setPosts(data.posts || []);
-      setTotalPages(data.totalPages || 0);
-      setTotalElements(data.totalElements || 0);
-    } catch {
-      setError('게시글 목록을 불러올 수 없습니다.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      try {
+        const response = await fetch(
+          `${getBaseUrl()}/boards?page=${page}&size=${PAGE_SIZE}&sort=createdAt,desc`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          },
+        );
+
+        if (!response.ok) throw new Error('데이터를 불러오는데 실패했습니다.');
+
+        const data: BoardListResponse = await response.json();
+        setPosts(data.posts || []);
+        setTotalPages(data.totalPages || 0);
+        setTotalElements(data.totalElements || 0);
+      } catch {
+        setError('게시글 목록을 불러올 수 없습니다.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isMock],
+  );
 
   useEffect(() => {
     fetchPosts(currentPage);
@@ -237,4 +253,32 @@ const Board = () => {
   );
 };
 
-export default Board;
+/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
+const BoardMagicA = lazy(() => import('./BoardMagicA'));
+const BoardMagicB = lazy(() => import('./BoardMagicB'));
+const BoardDesignA = lazy(() => import('./BoardDesignA'));
+const BoardDesignB = lazy(() => import('./BoardDesignB'));
+
+const BD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  '1': BoardMagicA,
+  '2': BoardMagicB,
+  '3': BoardDesignA,
+  '4': BoardDesignB,
+};
+
+const BoardWithVariant = () => {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('bd');
+  const VariantComponent = variant ? BD_VARIANTS[variant] : null;
+
+  if (VariantComponent) {
+    return (
+      <Suspense fallback={null}>
+        <VariantComponent />
+      </Suspense>
+    );
+  }
+  return <Board />;
+};
+
+export default BoardWithVariant;
