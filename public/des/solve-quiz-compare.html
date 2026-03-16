@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solve Quiz 변형 비교</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, 'Pretendard', sans-serif;
+        background: #f5f5f5;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        background: #fff;
+        border-bottom: 1px solid #e0e0e0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        overflow-x: auto;
+      }
+
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      .control-item {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        flex-shrink: 0;
+        position: relative;
+      }
+
+      .control-item:hover {
+        background: #f0f0f0;
+        border-color: #999;
+      }
+
+      .control-item.active {
+        background: #2563eb;
+        color: white;
+        border-color: #2563eb;
+      }
+
+      .control-item.excluded {
+        display: none;
+      }
+
+      .variant-btn .delete-btn {
+        position: absolute;
+        top: 50%;
+        right: -8px;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        padding: 0;
+        border: none;
+        background: #f44336;
+        color: white;
+        border-radius: 50%;
+        font-size: 10px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        transition: all 0.15s;
+      }
+
+      .variant-btn:hover .delete-btn {
+        display: flex;
+      }
+
+      .variant-btn .delete-btn:hover {
+        background: #d32f2f;
+        transform: translateY(-50%) scale(1.2);
+      }
+
+      .sep {
+        width: 1px;
+        height: 24px;
+        background: #e0e0e0;
+        flex-shrink: 0;
+      }
+
+      .trash-btn {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #666;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+
+      .trash-btn:hover {
+        background: #fff3cd;
+        border-color: #ffc107;
+        color: #ff9800;
+      }
+
+      .trash-btn.has-items {
+        border-color: #ffc107;
+      }
+
+      .trash-panel {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 350px;
+        height: 100vh;
+        background: white;
+        border-left: 1px solid #e0e0e0;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        flex-direction: column;
+        animation: slideIn 0.3s ease;
+      }
+
+      .trash-panel.open {
+        display: flex;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+        }
+        to {
+          transform: translateX(0);
+        }
+      }
+
+      .trash-header {
+        padding: 16px;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .trash-header h2 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .trash-close {
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: #666;
+        padding: 0;
+      }
+
+      .trash-close:hover {
+        color: #333;
+      }
+
+      .trash-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+      }
+
+      .trash-item {
+        padding: 10px;
+        background: #fff9e6;
+        border: 1px solid #ffc107;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+      }
+
+      .trash-item-name {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .trash-item-restore {
+        padding: 4px 8px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 600;
+        transition: all 0.15s;
+      }
+
+      .trash-item-restore:hover {
+        background: #45a049;
+      }
+
+      .trash-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #999;
+        font-size: 13px;
+      }
+
+      #preview {
+        flex: 1;
+        width: 100%;
+        border: none;
+        display: block;
+      }
+
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        color: #999;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="controls" id="controls">
+      <div class="loading">변형 로드 중...</div>
+    </div>
+    <div class="trash-panel" id="trashPanel">
+      <div class="trash-header">
+        <h2>휴지통</h2>
+        <button class="trash-close" onclick="toggleTrash()">×</button>
+      </div>
+      <div class="trash-content" id="trashContent">
+        <div class="trash-empty">휴지통이 비어있습니다</div>
+      </div>
+    </div>
+    <iframe id="preview" src="/quiz/test?sq=1&mock=true"></iframe>
+
+    <script>
+      const VARIANTS = [];
+
+      let currentVariant = 1;
+      let excludedVariants = [];
+      const STORAGE_KEY_VARIANT = 'solve_quiz_variant';
+      const STORAGE_KEY_EXCLUDED = 'solve-quiz_excluded_variants';
+
+      function buildControls() {
+        const controls = document.getElementById('controls');
+        controls.innerHTML = '';
+
+        // 카테고리 필터 버튼
+        const filterGroup = document.createElement('div');
+        filterGroup.className = 'control-group';
+
+        const allBtn = document.createElement('button');
+        allBtn.className = 'control-item active';
+        allBtn.textContent = 'ALL';
+        allBtn.onclick = () => updateFilter('all');
+        filterGroup.appendChild(allBtn);
+
+        const magicBtn = document.createElement('button');
+        magicBtn.className = 'control-item';
+        magicBtn.textContent = 'Magic';
+        magicBtn.onclick = () => updateFilter('magic');
+        filterGroup.appendChild(magicBtn);
+
+        const designBtn = document.createElement('button');
+        designBtn.className = 'control-item';
+        designBtn.textContent = 'Design';
+        designBtn.onclick = () => updateFilter('design');
+        filterGroup.appendChild(designBtn);
+
+        controls.appendChild(filterGroup);
+
+        const sep = document.createElement('div');
+        sep.className = 'sep';
+        controls.appendChild(sep);
+
+        // 변형 버튼들
+        VARIANTS.forEach((v) => {
+          const btn = document.createElement('button');
+          btn.className = 'control-item variant-btn';
+          btn.dataset.variant = v.num;
+          btn.dataset.category = v.category;
+          btn.textContent = v.name;
+          btn.title = v.desc;
+          btn.onclick = () => selectVariant(v.num);
+
+          if (excludedVariants.includes(v.num)) {
+            btn.classList.add('excluded');
+          }
+
+          if (v.num === currentVariant) btn.classList.add('active');
+
+          // x 버튼 추가
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'delete-btn';
+          deleteBtn.textContent = '×';
+          deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            excludeVariant(v.num);
+          };
+          btn.appendChild(deleteBtn);
+
+          controls.appendChild(btn);
+        });
+
+        // 휴지통 버튼
+        const sep2 = document.createElement('div');
+        sep2.className = 'sep';
+        controls.appendChild(sep2);
+
+        const trashBtn = document.createElement('button');
+        trashBtn.id = 'trashBtn';
+        trashBtn.className = 'trash-btn';
+        trashBtn.textContent = '🗑️ 휴지통';
+        trashBtn.onclick = toggleTrash;
+        controls.appendChild(trashBtn);
+
+        updateTrashButton();
+      }
+
+      function updateFilter(category) {
+        document.querySelectorAll('.control-item:not(.variant-btn)').forEach((btn) => {
+          btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        document.querySelectorAll('.variant-btn').forEach((btn) => {
+          if (category === 'all') {
+            btn.style.display = 'block';
+          } else {
+            btn.style.display = btn.dataset.category === category ? 'block' : 'none';
+          }
+        });
+      }
+
+      function selectVariant(variantNum) {
+        if (excludedVariants.includes(variantNum)) return;
+
+        currentVariant = variantNum;
+        updatePreview();
+
+        document.querySelectorAll('.variant-btn').forEach((btn) => {
+          btn.classList.toggle('active', parseInt(btn.dataset.variant) === variantNum);
+        });
+
+        localStorage.setItem(STORAGE_KEY_VARIANT, variantNum);
+      }
+
+      function excludeVariant(variantNum) {
+        if (
+          confirm(`"${VARIANTS.find((v) => v.num === variantNum).name}"을(를) 목록에서 제외할까요?`)
+        ) {
+          if (!excludedVariants.includes(variantNum)) {
+            excludedVariants.push(variantNum);
+          }
+          saveExcluded();
+          updateControls();
+          updateTrashContent();
+        }
+      }
+
+      function restoreVariant(variantNum) {
+        excludedVariants = excludedVariants.filter((v) => v !== variantNum);
+        saveExcluded();
+        updateControls();
+        updateTrashContent();
+      }
+
+      function updateControls() {
+        document.querySelectorAll('.variant-btn').forEach((btn) => {
+          const variant = parseInt(btn.dataset.variant);
+          btn.classList.toggle('excluded', excludedVariants.includes(variant));
+        });
+      }
+
+      function updateTrashButton() {
+        const trashBtn = document.getElementById('trashBtn');
+        if (excludedVariants.length > 0) {
+          trashBtn.classList.add('has-items');
+          trashBtn.textContent = `🗑️ 휴지통 (${excludedVariants.length})`;
+        } else {
+          trashBtn.classList.remove('has-items');
+          trashBtn.textContent = '🗑️ 휴지통';
+        }
+      }
+
+      function updateTrashContent() {
+        const trashContent = document.getElementById('trashContent');
+        if (excludedVariants.length === 0) {
+          trashContent.innerHTML = '<div class="trash-empty">휴지통이 비어있습니다</div>';
+        } else {
+          trashContent.innerHTML = excludedVariants
+            .map((variantNum) => {
+              const variant = VARIANTS.find((v) => v.num === variantNum);
+              return `
+            <div class="trash-item">
+              <span class="trash-item-name">${variant.name}</span>
+              <button class="trash-item-restore" onclick="restoreVariant(${variantNum})">복원</button>
+            </div>
+          `;
+            })
+            .join('');
+        }
+        updateTrashButton();
+      }
+
+      function toggleTrash() {
+        const panel = document.getElementById('trashPanel');
+        panel.classList.toggle('open');
+      }
+
+      function updatePreview() {
+        document.getElementById('preview').src = `/quiz/test?sq=${currentVariant}&mock=true`;
+      }
+
+      function saveExcluded() {
+        localStorage.setItem(STORAGE_KEY_EXCLUDED, JSON.stringify(excludedVariants));
+      }
+
+      function restoreExcluded() {
+        const saved = localStorage.getItem(STORAGE_KEY_VARIANT);
+        const savedExcluded = localStorage.getItem(STORAGE_KEY_EXCLUDED);
+
+        if (savedExcluded) {
+          excludedVariants = JSON.parse(savedExcluded);
+        }
+
+        if (saved) {
+          const variant = parseInt(saved);
+          if (VARIANTS.some((v) => v.num === variant) && !excludedVariants.includes(variant)) {
+            currentVariant = variant;
+          }
+        }
+      }
+
+      // 초기화
+      restoreExcluded();
+      buildControls();
+    </script>
+  </body>
+</html>
