@@ -1,7 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { MessageSquare, ClipboardList, LogIn, Menu, X, Globe, HelpCircle } from 'lucide-react';
+import {
+  MessageSquare,
+  ClipboardList,
+  LogIn,
+  Menu,
+  X,
+  Globe,
+  HelpCircle,
+  LogOut,
+  User,
+} from 'lucide-react';
 import { useHeader } from './model/useHeader';
 import { useClickOutside } from '#shared/lib/useClickOutside';
 import Logo from '#shared/ui/logo';
@@ -137,7 +147,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   aria-label={t('닫기')}
                   onClick={handleNavTooltipClose}
                 >
-                  ✕
+                  <X className="size-3" />
                 </button>
               </span>
             )}
@@ -161,27 +171,47 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                 >
                   {profileInitial}
                 </button>
-                {isProfileOpen && (
-                  <div
-                    id="profileDropdown"
-                    className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[180px] rounded-xl border border-border bg-card p-3 shadow-lg dark:bg-card/50"
-                  >
-                    <span className="mb-2.5 block font-semibold text-foreground">
-                      {displayName}
-                    </span>
-                    <button
-                      className="w-full cursor-pointer border-none bg-transparent px-1 py-1.5 text-left text-primary hover:text-primary"
-                      type="button"
-                      onClick={() => {
-                        setIsProfileOpen(false);
-                        handleLogout();
-                      }}
+                <AnimatePresence>
+                  {isProfileOpen && (
+                    <motion.div
+                      id="profileDropdown"
+                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                      transition={{ duration: 0.15, ease: 'easeOut' }}
+                      className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[200px] overflow-hidden rounded-xl border border-border bg-card shadow-lg dark:bg-card/90"
                     >
-                      <span className="mr-1.5 inline-flex items-center">🚪</span>
-                      <strong>{t('로그아웃')}</strong>
-                    </button>
-                  </div>
-                )}
+                      {/* 프로필 정보 */}
+                      <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                          {profileInitial}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {displayName}
+                          </p>
+                          {user?.email && (
+                            <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                          )}
+                        </div>
+                      </div>
+                      {/* 메뉴 */}
+                      <div className="p-1.5">
+                        <button
+                          className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                          type="button"
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            handleLogout();
+                          }}
+                        >
+                          <LogOut className="size-4" />
+                          {t('로그아웃')}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <Link
