@@ -14,7 +14,7 @@ const Logo = ({ className = '' }: LogoProps) => {
       )}
     >
       <img
-        src="/favicon-256x256.png"
+        src="/icons/favicon-256x256.png"
         alt="Q-Asker"
         className="w-7 h-7 mr-2 mb-[5px] max-[480px]:w-[22px] max-[480px]:h-[22px] max-[480px]:mr-1.5 max-[480px]:mb-[3px]"
       />

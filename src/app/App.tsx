@@ -99,7 +99,7 @@ const SEO_CONFIG = {
           '@type': 'Organization',
           name: 'Q-Asker',
           url: 'https://www.q-asker.com',
-          logo: 'https://www.q-asker.com/favicon-512x512.png',
+          logo: 'https://www.q-asker.com/icons/favicon-512x512.png',
         },
         faq: {
           '@context': 'https://schema.org',
@@ -258,7 +258,7 @@ const SEO_CONFIG = {
           '@type': 'Organization',
           name: 'Q-Asker',
           url: 'https://www.q-asker.com',
-          logo: 'https://www.q-asker.com/favicon-512x512.png',
+          logo: 'https://www.q-asker.com/icons/favicon-512x512.png',
         },
         faq: {
           '@context': 'https://schema.org',
