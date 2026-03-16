@@ -127,8 +127,8 @@ const BoardDesignB = () => {
           {/* 헤더 */}
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-foreground">문의 게시판</h1>
-              <span className="text-sm text-muted-foreground">총 {totalElements}건</span>
+              <h1 className="text-2xl font-bold text-foreground">문의 게시판</h1>
+              <span className="text-base text-muted-foreground">총 {totalElements}건</span>
             </div>
             {posts.length > 0 && (
               <Button size="sm" onClick={handleWriteClick}>
@@ -149,7 +149,7 @@ const BoardDesignB = () => {
           {posts.length === 0 && !error ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-muted-foreground">
               <MessageSquare className="mb-3 size-10 opacity-50" />
-              <p className="mb-4 text-sm">아직 등록된 문의가 없습니다</p>
+              <p className="mb-4 text-base">아직 등록된 문의가 없습니다</p>
               <Button size="sm" onClick={handleWriteClick}>
                 <Plus className="mr-1 size-3" />
                 문의 작성하기
@@ -158,7 +158,7 @@ const BoardDesignB = () => {
           ) : (
             <>
               {/* 테이블 헤더 */}
-              <div className="flex items-center border-b-2 border-border px-3 py-2 text-xs font-semibold text-muted-foreground max-md:hidden">
+              <div className="flex items-center border-b-2 border-border px-3 py-2.5 text-sm font-semibold text-muted-foreground max-md:hidden">
                 <span className="w-[6%] text-center">#</span>
                 <span className="flex-1 pl-2">제목</span>
                 <span className="w-[12%] text-center">작성자</span>
@@ -178,11 +178,11 @@ const BoardDesignB = () => {
                   <div
                     key={post.boardId}
                     className={cn(
-                      'flex items-center border-b border-border px-3 py-2.5 text-sm transition-colors hover:bg-muted/50',
+                      'flex items-center border-b border-border px-3 py-3 text-base transition-colors hover:bg-muted/50',
                       'max-md:flex-col max-md:items-start max-md:gap-1.5 max-md:py-3',
                     )}
                   >
-                    <span className="w-[6%] text-center text-xs text-muted-foreground max-md:hidden">
+                    <span className="w-[6%] text-center text-sm text-muted-foreground max-md:hidden">
                       {virtualNumber}
                     </span>
                     <span className="flex-1 truncate pl-2 max-md:w-full max-md:pl-0">
@@ -193,14 +193,14 @@ const BoardDesignB = () => {
                         {post.title}
                       </Link>
                     </span>
-                    <span className="w-[12%] text-center text-xs text-muted-foreground max-md:w-full max-md:text-left">
+                    <span className="w-[12%] text-center text-sm text-muted-foreground max-md:w-full max-md:text-left">
                       {post.userName}
                     </span>
-                    <span className="w-[12%] text-center text-xs text-muted-foreground max-md:hidden">
+                    <span className="w-[12%] text-center text-sm text-muted-foreground max-md:hidden">
                       {formatDate(post.createdAt)}
                     </span>
                     <span className="w-[8%] text-center max-md:hidden">
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
                         <Eye className="size-3" />
                         {post.viewCount || 0}
                       </span>
@@ -209,7 +209,7 @@ const BoardDesignB = () => {
                       <Badge
                         variant="outline"
                         className={cn(
-                          'text-[0.7rem]',
+                          'text-xs',
                           post.status === 'ANSWERED'
                             ? 'border-emerald-300 text-emerald-700'
                             : 'border-amber-300 text-amber-700',
@@ -237,7 +237,7 @@ const BoardDesignB = () => {
                 >
                   <ChevronLeft className="size-4" />
                 </Button>
-                <span className="text-xs font-medium text-muted-foreground">
+                <span className="text-sm font-medium text-muted-foreground">
                   {currentPage + 1} / {totalPages === 0 ? 1 : totalPages}
                 </span>
                 <Button

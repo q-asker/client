@@ -5,39 +5,42 @@ import CustomToast from '#shared/toast';
 import axiosInstance from '#shared/api';
 import { useAuthStore } from '#entities/auth';
 import { useTranslation } from 'i18nexus';
+import { Button } from '@/shared/ui/components/button';
+import { Input } from '@/shared/ui/components/input';
+import { Skeleton } from '@/shared/ui/components/skeleton';
+import { BlurFade } from '@/shared/ui/components/blur-fade';
+import { Send, X, Loader2 } from 'lucide-react';
 
 const MAX_TITLE_LENGTH = 100;
 const MAX_CONTENT_LENGTH = 5000;
 
-/** 게시글 상세 응답 (수정 모드에서 사용) */
 interface BoardEditData {
   title: string;
   content: string;
   isWriter: boolean;
 }
 
+/** Slide Form — BlurFade 섹션별 순차 등장 */
 const BoardWrite = () => {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
-  const isMock = searchParams.get('mock') === 'true';
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   const navigate = useNavigate();
   const { boardId } = useParams<{ boardId: string }>();
-
-  const isEditMode = !isMock && !!boardId;
+  const [searchParams] = useSearchParams();
+  const isMock = searchParams.get('mock') === 'true';
+  const isEditMode = !!boardId;
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCheckingAccess, setIsCheckingAccess] = useState(isEditMode);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(isEditMode && !isMock);
 
   const { accessToken, clearAuth } = useAuthStore();
 
-  // 수정 모드일 때 백엔드에 데이터와 권한을 직접 요청 (마운트 시 1회만 실행)
   useEffect(() => {
-    if (!isEditMode) return;
+    if (!isEditMode || isMock) return;
 
     const fetchPostAndVerify = async () => {
       try {
@@ -46,15 +49,12 @@ const BoardWrite = () => {
           navigate('/login', { replace: true });
           return;
         }
-
         const { data } = await axiosInstance.get<BoardEditData>(`/boards/${boardId}`);
-
         if (!data.isWriter) {
           CustomToast.error(t('수정 권한이 없습니다.'));
           navigate(`/boards/${boardId}`, { replace: true });
           return;
         }
-
         setTitle(data.title);
         setContent(data.content);
       } catch {
@@ -71,6 +71,7 @@ const BoardWrite = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isMock) return;
 
     if (!accessToken) {
       CustomToast.error(t('로그인이 필요합니다.'));
@@ -91,14 +92,12 @@ const BoardWrite = () => {
     }
 
     setIsSubmitting(true);
-
     try {
       if (isEditMode) {
         await axiosInstance.put(`/boards/${boardId}`, { title, content });
       } else {
         await axiosInstance.post('/boards', { title, content });
       }
-
       CustomToast.success(t(`게시글이 성공적으로 ${isEditMode ? '수정' : '등록'}되었습니다.`));
       navigate(isEditMode ? `/boards/${boardId}` : '/boards', { replace: true });
     } catch (error: unknown) {
@@ -109,10 +108,12 @@ const BoardWrite = () => {
         clearAuth();
         navigate('/login', { replace: true });
       } else if (status === 403) {
-        const errorMessage =
-          err?.response?.data?.message ||
-          '수정 권한이 없거나 이미 답변이 달린 글은 수정할 수 없습니다.';
-        CustomToast.error(t(errorMessage));
+        CustomToast.error(
+          t(
+            err?.response?.data?.message ||
+              '수정 권한이 없거나 이미 답변이 달린 글은 수정할 수 없습니다.',
+          ),
+        );
       } else {
         CustomToast.error(t('오류가 발생했습니다. 다시 시도해주세요.'));
       }
@@ -123,89 +124,110 @@ const BoardWrite = () => {
 
   if (isCheckingAccess) {
     return (
-      <div className="w-full bg-gray-50 min-h-screen flex flex-col justify-center items-center">
-        <div className="text-center p-24 text-gray-500 text-lg">권한 확인 중...</div>
-      </div>
+      <>
+        <Header
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+        <div className="min-h-screen bg-background p-8 max-md:p-4">
+          <div className="mx-auto max-w-4xl space-y-4">
+            <Skeleton className="h-12 rounded" />
+            <Skeleton className="h-96 rounded" />
+          </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="w-full bg-gray-50 min-h-screen flex flex-col">
+    <>
       <Header
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         setIsSidebarOpen={setIsSidebarOpen}
       />
-      <div className="w-full max-w-[800px] mx-auto mt-10 px-5 box-border max-md:mt-5 max-md:px-4">
-        <div className="bg-white rounded-2xl shadow-card p-10 box-border max-md:px-5 max-md:py-6">
-          {/* 헤더 */}
-          <div className="border-b-2 border-gray-200 pb-5 mb-8 text-center">
-            <h1 className="text-[2rem] text-gray-900 font-extrabold mb-2.5 max-md:text-2xl">
-              {isEditMode ? '✍️ 문의 수정하기' : '✍️ 문의하기'}
+
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-4xl px-6 py-10 max-md:px-4">
+          <BlurFade delay={0.05}>
+            <h1 className="mb-8 border-l-4 border-primary/40 pl-4 text-4xl font-bold text-foreground max-md:text-2xl">
+              {isEditMode ? '문의 수정' : '새 문의 작성'}
             </h1>
-            <p className="text-gray-500 text-[1.05rem] max-md:text-[0.95rem]">
-              {isEditMode ? '수정할 내용을 입력해주세요' : '정확한 답변을 위해 상세히 적어주세요'}
-            </p>
-          </div>
+          </BlurFade>
 
-          {/* 폼 */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="title" className="font-semibold text-gray-700 text-[1.05rem]">
-                제목
-              </label>
-              <input
-                type="text"
-                id="title"
-                className="w-full p-4 border border-gray-300 rounded-xl text-base font-[inherit] transition-[border-color,box-shadow] duration-200 bg-gray-50 box-border focus:outline-none focus:border-brand focus:shadow-focus-ring focus:bg-white disabled:bg-gray-200 disabled:cursor-not-allowed"
-                placeholder="제목을 입력해주세요"
-                value={title}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-                disabled={isSubmitting}
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+            <BlurFade delay={0.1}>
+              <div>
+                <label
+                  htmlFor="title"
+                  className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                >
+                  제목
+                </label>
+                <Input
+                  type="text"
+                  id="title"
+                  className="h-14 text-lg"
+                  placeholder="제목을 입력해주세요"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+            </BlurFade>
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="content" className="font-semibold text-gray-700 text-[1.05rem]">
-                내용
-              </label>
-              <textarea
-                id="content"
-                className="w-full p-4 border border-gray-300 rounded-xl text-base font-[inherit] transition-[border-color,box-shadow] duration-200 bg-gray-50 box-border min-h-[250px] resize-y focus:outline-none focus:border-brand focus:shadow-focus-ring focus:bg-white disabled:bg-gray-200 disabled:cursor-not-allowed"
-                placeholder="문의 내용을 상세히 적어주세요."
-                value={content}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
-                disabled={isSubmitting}
-              />
-            </div>
+            <BlurFade delay={0.15}>
+              <div>
+                <label
+                  htmlFor="content"
+                  className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                >
+                  내용
+                </label>
+                <textarea
+                  id="content"
+                  className="min-h-[400px] w-full resize-y rounded-lg border border-input bg-background p-5 text-base leading-relaxed transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-muted"
+                  placeholder="문의 내용을 상세히 적어주세요."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+            </BlurFade>
 
-            {/* 하단 버튼 */}
-            <div className="flex justify-center gap-4 mt-5 max-md:gap-3">
-              <button
-                type="button"
-                className="px-7 py-3.5 rounded-xl font-semibold text-[1.05rem] cursor-pointer transition-all duration-200 border border-gray-300 bg-white text-gray-600 min-w-[120px] hover:bg-gray-100 max-md:flex-1 max-md:px-0 max-md:min-w-0 max-md:text-center"
-                onClick={() => navigate(isEditMode ? `/boards/${boardId}` : '/boards')}
-              >
-                취소
-              </button>
-              <button
-                type="submit"
-                className="px-7 py-3.5 rounded-xl font-semibold text-[1.05rem] cursor-pointer transition-all duration-200 border-none bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to text-white shadow-brand-sm min-w-[120px] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-brand-md disabled:bg-gray-400 disabled:bg-none disabled:shadow-none disabled:cursor-not-allowed max-md:flex-1 max-md:px-0 max-md:min-w-0 max-md:text-center"
-                disabled={isSubmitting}
-              >
-                {isSubmitting
-                  ? isEditMode
-                    ? '수정 중...'
-                    : '등록 중...'
-                  : isEditMode
-                    ? '수정완료'
-                    : '등록하기'}
-              </button>
-            </div>
+            <BlurFade delay={0.2}>
+              <div className="sticky bottom-0 -mx-6 border-t-2 border-primary/20 bg-background/95 px-6 py-4 backdrop-blur max-md:-mx-4 max-md:px-4">
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => navigate(isEditMode ? `/boards/${boardId}` : '/boards')}
+                  >
+                    <X className="mr-1 size-4" />
+                    취소
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <Loader2 className="mr-1 size-4 animate-spin" />
+                    ) : (
+                      <Send className="mr-1 size-4" />
+                    )}
+                    {isSubmitting
+                      ? isEditMode
+                        ? '수정 중...'
+                        : '등록 중...'
+                      : isEditMode
+                        ? '수정완료'
+                        : '등록하기'}
+                  </Button>
+                </div>
+              </div>
+            </BlurFade>
           </form>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -10,7 +10,7 @@ import {
 } from '@/shared/ui/components/card';
 import { LogIn, Sparkles, BookOpen, Zap } from 'lucide-react';
 
-/** 좌우 분할 레이아웃 — 좌측 브랜드 소개, 우측 로그인 카드 */
+/** 전면 브랜드 배경 + 정중앙 글래스 로그인 카드 */
 const LoginSelectDesignB = () => {
   const { t } = useTranslation();
   const baseUrl = (import.meta.env.VITE_BASE_URL as string) || '';
@@ -18,62 +18,46 @@ const LoginSelectDesignB = () => {
   const googleLoginUrl = `${baseUrl}/oauth2/authorization/google`;
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* 좌측: 브랜드 영역 */}
-      <div className="hidden flex-1 flex-col justify-between bg-primary p-12 text-primary-foreground lg:flex">
-        <div>
-          <Logo className="mb-2 [&_span]:text-primary-foreground" />
-        </div>
-
-        {/* 핵심 기능 소개 */}
-        <div className="flex flex-col gap-8">
-          <h1 className="text-4xl leading-tight font-bold">
-            {t('AI가 만드는')}
-            <br />
-            {t('나만의 퀴즈')}
-          </h1>
-          <p className="max-w-md text-lg text-primary-foreground/80">
-            {t('PDF, PPT, Word 파일을 업로드하면 AI가 자동으로 퀴즈를 생성합니다.')}
-          </p>
-
-          {/* 기능 하이라이트 */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-primary-foreground/15">
-                <Sparkles className="size-5" />
-              </div>
-              <span className="text-sm font-medium">{t('AI 기반 자동 퀴즈 생성')}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-primary-foreground/15">
-                <BookOpen className="size-5" />
-              </div>
-              <span className="text-sm font-medium">{t('다양한 파일 형식 지원')}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-primary-foreground/15">
-                <Zap className="size-5" />
-              </div>
-              <span className="text-sm font-medium">{t('즉시 풀고 결과 확인')}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 하단 저작권 */}
-        <p className="text-xs text-primary-foreground/50">
-          &copy; 2025 Q-Asker. All rights reserved.
-        </p>
+    <div className="relative flex min-h-screen flex-col bg-primary/80">
+      {/* 브랜드 로고 — 좌상단 고정 */}
+      <div className="absolute left-8 top-6 z-10 hidden lg:block">
+        <Logo className="[&_span]:text-primary-foreground" />
       </div>
 
-      {/* 우측: 로그인 영역 */}
-      <div className="flex flex-1 items-center justify-center p-6 lg:max-w-lg">
-        <div className="flex w-full max-w-sm flex-col gap-8">
+      {/* 로그인 카드 — 화면 정중앙 */}
+      <div className="flex flex-1 items-center justify-center p-6">
+        <div className="flex w-full max-w-sm flex-col items-center gap-8">
           {/* 모바일에서만 보이는 로고 */}
           <div className="flex justify-center lg:hidden">
-            <Logo />
+            <Logo className="[&_span]:text-primary-foreground" />
           </div>
 
-          <Card className="border-0 shadow-none lg:border lg:shadow-sm">
+          {/* 브랜드 헤드라인 — 카드 위 */}
+          <div className="hidden flex-col items-center gap-3 text-center text-primary-foreground lg:flex">
+            <h1 className="text-3xl leading-tight font-bold">{t('AI가 만드는 나만의 퀴즈')}</h1>
+            <div className="flex flex-wrap justify-center gap-x-5 gap-y-1">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="size-3.5 shrink-0 text-primary-foreground/60" />
+                <span className="whitespace-nowrap text-xs text-primary-foreground/70">
+                  {t('AI 기반 자동 퀴즈 생성')}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <BookOpen className="size-3.5 shrink-0 text-primary-foreground/60" />
+                <span className="whitespace-nowrap text-xs text-primary-foreground/70">
+                  {t('다양한 파일 형식 지원')}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Zap className="size-3.5 shrink-0 text-primary-foreground/60" />
+                <span className="whitespace-nowrap text-xs text-primary-foreground/70">
+                  {t('즉시 풀고 결과 확인')}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <Card className="w-full border-0 bg-card/95 shadow-xl backdrop-blur-sm">
             <CardHeader className="text-center">
               <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10">
                 <LogIn className="size-6 text-primary" />
@@ -102,7 +86,7 @@ const LoginSelectDesignB = () => {
                 asChild
                 variant="outline"
                 size="lg"
-                className="h-12 rounded-xl text-base font-semibold"
+                className="h-12 rounded-xl border-border/50 bg-background text-base font-semibold"
               >
                 <a href={googleLoginUrl} className="no-underline">
                   <svg className="mr-2 size-5" viewBox="0 0 24 24">
@@ -129,10 +113,15 @@ const LoginSelectDesignB = () => {
             </CardContent>
           </Card>
 
-          {/* 하단 안내 */}
-          <p className="text-center text-xs text-muted-foreground">
-            {t('로그인 시 서비스 이용약관에 동의하게 됩니다.')}
-          </p>
+          {/* 하단 안내 + 저작권 */}
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-center text-xs text-primary-foreground/60">
+              {t('로그인 시 서비스 이용약관에 동의하게 됩니다.')}
+            </p>
+            <p className="hidden text-center text-xs text-primary-foreground/40 lg:block">
+              &copy; 2025 Q-Asker. All rights reserved.
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -108,7 +108,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
           </Link>
 
           {/* 구분선 */}
-          <div className="h-5 w-px bg-border mx-1" />
+          <div className="h-5 w-px bg-muted mx-1" />
 
           <div className="relative inline-flex items-center">
             <Link
@@ -121,7 +121,14 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
             </Link>
             {!isAuthenticated && showNavTooltip && (
               <span
-                className="absolute left-1/2 top-[calc(100%+6px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-foreground px-2 py-1.5 pl-2.5 text-xs text-background shadow-lg before:absolute before:left-1/2 before:top-[-4px] before:-translate-x-1/2 before:border-x-[6px] before:border-b-[6px] before:border-t-0 before:border-solid before:border-transparent before:border-b-foreground before:content-[''] max-sm:hidden"
+                className="absolute left-1/2 top-[calc(100%+6px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1.5 pl-2.5 text-xs text-foreground shadow-lg max-sm:hidden"
+                style={{
+                  backgroundColor: 'oklch(0.9222 0.0013 286.3737) !important',
+                  borderColor: 'oklch(0.8901 0.0073 248.0338) !important',
+                  borderWidth: '1px',
+                  borderStyle: 'solid',
+                  color: 'oklch(0.2236 0.0108 248.5103) !important',
+                }}
                 role="status"
               >
                 {t('로그인하고, 퀴즈기록을 저장해보세요')}
@@ -138,7 +145,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
           </div>
 
           {/* 구분선 */}
-          <div className="h-5 w-px bg-border mx-1" />
+          <div className="h-5 w-px bg-muted mx-1" />
 
           {/* 인증 버튼 */}
           <div className="flex items-center">
