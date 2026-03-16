@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import { useRecentChanges } from './model/useRecentChanges';
@@ -38,23 +38,7 @@ const RecentChanges = () => {
 };
 
 /* 쿼리 파라미터 기반 변형 스위칭 */
-const RecentChangesMagicA = lazy(() => import('./RecentChangesMagicA'));
-const RecentChangesMagicB = lazy(() => import('./RecentChangesMagicB'));
-const RecentChangesDesignA = lazy(() => import('./RecentChangesDesignA'));
-const RecentChangesDesignB = lazy(() => import('./RecentChangesDesignB'));
-const RecentChangesDesignI = lazy(() => import('./RecentChangesDesignI'));
-const RecentChangesDesignJ = lazy(() => import('./RecentChangesDesignJ'));
-const RecentChangesDesignK = lazy(() => import('./RecentChangesDesignK'));
-
-const RC_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': RecentChangesMagicA,
-  '2': RecentChangesMagicB,
-  '3': RecentChangesDesignA,
-  '4': RecentChangesDesignB,
-  '5': RecentChangesDesignI,
-  '6': RecentChangesDesignJ,
-  '7': RecentChangesDesignK,
-};
+const RC_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
 
 const RecentChangesWithVariant = () => {
   const [searchParams] = useSearchParams();

@@ -1,5 +1,3 @@
-import React, { lazy, Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import { Construction } from 'lucide-react';
 
@@ -32,32 +30,4 @@ const Maintenance = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const MaintenanceMagicA = lazy(() => import('./MaintenanceMagicA'));
-const MaintenanceMagicB = lazy(() => import('./MaintenanceMagicB'));
-const MaintenanceDesignA = lazy(() => import('./MaintenanceDesignA'));
-const MaintenanceDesignB = lazy(() => import('./MaintenanceDesignB'));
-
-const MT_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': MaintenanceMagicA,
-  '2': MaintenanceMagicB,
-  '3': MaintenanceDesignA,
-  '4': MaintenanceDesignB,
-};
-
-const MaintenanceWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('mt');
-  const VariantComponent = variant ? MT_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <Maintenance />;
-};
-
-export default MaintenanceWithVariant;
+export default Maintenance;

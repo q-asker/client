@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import CustomToast from '#shared/toast';
 import { useAuthStore, authService } from '#entities/auth';
@@ -269,17 +269,7 @@ const BoardDetail = () => {
 };
 
 /* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const BoardDetailMagicA = lazy(() => import('./BoardDetailMagicA'));
-const BoardDetailMagicB = lazy(() => import('./BoardDetailMagicB'));
-const BoardDetailDesignA = lazy(() => import('./BoardDetailDesignA'));
-const BoardDetailDesignB = lazy(() => import('./BoardDetailDesignB'));
-
-const BDD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': BoardDetailMagicA,
-  '2': BoardDetailMagicB,
-  '3': BoardDetailDesignA,
-  '4': BoardDetailDesignB,
-};
+const BDD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
 
 const BoardDetailWithVariant = () => {
   const [searchParams] = useSearchParams();
@@ -287,11 +277,7 @@ const BoardDetailWithVariant = () => {
   const VariantComponent = variant ? BDD_VARIANTS[variant] : null;
 
   if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
+    return <VariantComponent />;
   }
   return <BoardDetail />;
 };

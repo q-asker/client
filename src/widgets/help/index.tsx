@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { useTranslation } from 'i18nexus';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -423,17 +423,7 @@ const Help = () => {
 };
 
 /* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const HelpMagicA = lazy(() => import('./HelpMagicA'));
-const HelpMagicB = lazy(() => import('./HelpMagicB'));
-const HelpDesignA = lazy(() => import('./HelpDesignA'));
-const HelpDesignB = lazy(() => import('./HelpDesignB'));
-
-const HELP_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': HelpMagicA,
-  '2': HelpMagicB,
-  '3': HelpDesignA,
-  '4': HelpDesignB,
-};
+const HELP_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
 
 const HelpWithVariant = () => {
   const [searchParams] = useSearchParams();

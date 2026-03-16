@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
@@ -647,34 +647,7 @@ const MakeQuiz: React.FC = () => {
 };
 
 /* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-/* 기존 유지 디자인 (참고용) */
-const MakeQuizDesignA_ConceptMid = lazy(() => import('./MakeQuizDesignA_ConceptMid'));
-const MakeQuizDesignB_PolishMid = lazy(() => import('./MakeQuizDesignB_PolishMid'));
-const MakeQuizDesignB_PolishMax = lazy(() => import('./MakeQuizDesignB_PolishMax'));
-
-/* 새 디자인 변형 8종 */
-const MakeQuizDesign_A = lazy(() => import('./MakeQuizDesign_A'));
-const MakeQuizDesign_B = lazy(() => import('./MakeQuizDesign_B'));
-const MakeQuizDesign_C = lazy(() => import('./MakeQuizDesign_C'));
-const MakeQuizDesign_D = lazy(() => import('./MakeQuizDesign_D'));
-const MakeQuizDesign_E = lazy(() => import('./MakeQuizDesign_E'));
-const MakeQuizDesign_F = lazy(() => import('./MakeQuizDesign_F'));
-const MakeQuizDesign_G = lazy(() => import('./MakeQuizDesign_G'));
-const MakeQuizDesign_H = lazy(() => import('./MakeQuizDesign_H'));
-
-const MQ_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': MakeQuizDesignA_ConceptMid,
-  '2': MakeQuizDesignB_PolishMid,
-  '3': MakeQuizDesignB_PolishMax,
-  '4': MakeQuizDesign_A,
-  '5': MakeQuizDesign_B,
-  '6': MakeQuizDesign_C,
-  '7': MakeQuizDesign_D,
-  '8': MakeQuizDesign_E,
-  '9': MakeQuizDesign_F,
-  '10': MakeQuizDesign_G,
-  '11': MakeQuizDesign_H,
-};
+const MQ_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
 
 const MakeQuizWithVariant = () => {
   const [searchParams] = useSearchParams();
@@ -682,11 +655,7 @@ const MakeQuizWithVariant = () => {
   const VariantComponent = variant ? MQ_VARIANTS[variant] : null;
 
   if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
+    return <VariantComponent />;
   }
   return <MakeQuiz />;
 };

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '#entities/auth';
 import Header from '#widgets/header';
@@ -258,17 +258,7 @@ const Board = () => {
 };
 
 /* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const BoardMagicA = lazy(() => import('./BoardMagicA'));
-const BoardMagicB = lazy(() => import('./BoardMagicB'));
-const BoardDesignA = lazy(() => import('./BoardDesignA'));
-const BoardDesignB = lazy(() => import('./BoardDesignB'));
-
-const BD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': BoardMagicA,
-  '2': BoardMagicB,
-  '3': BoardDesignA,
-  '4': BoardDesignB,
-};
+const BD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
 
 const BoardWithVariant = () => {
   const [searchParams] = useSearchParams();
@@ -276,11 +266,7 @@ const BoardWithVariant = () => {
   const VariantComponent = variant ? BD_VARIANTS[variant] : null;
 
   if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
+    return <VariantComponent />;
   }
   return <Board />;
 };

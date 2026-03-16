@@ -1,4 +1,3 @@
-import React, { lazy, Suspense } from 'react';
 import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -338,32 +337,4 @@ const QuizHistory = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const QuizHistoryMagicA = lazy(() => import('./QuizHistoryMagicA'));
-const QuizHistoryMagicB = lazy(() => import('./QuizHistoryMagicB'));
-const QuizHistoryDesignA = lazy(() => import('./QuizHistoryDesignA'));
-const QuizHistoryDesignB = lazy(() => import('./QuizHistoryDesignB'));
-
-const QH_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': QuizHistoryMagicA,
-  '2': QuizHistoryMagicB,
-  '3': QuizHistoryDesignA,
-  '4': QuizHistoryDesignB,
-};
-
-const QuizHistoryWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('qh');
-  const VariantComponent = variant ? QH_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <QuizHistory />;
-};
-
-export default QuizHistoryWithVariant;
+export default QuizHistory;

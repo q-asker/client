@@ -298,85 +298,13 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
 export { extractRoleFromToken } from './model/useHeader';
 
 /* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
-
-const HeaderMagicA = lazy(() => import('./HeaderMagicA'));
-const HeaderMagicB = lazy(() => import('./HeaderMagicB'));
-const HeaderDesignA = lazy(() => import('./HeaderDesignA'));
-const HeaderDesignB = lazy(() => import('./HeaderDesignB'));
-const HeaderDesignA_ConceptMid = lazy(() => import('./HeaderDesignA_ConceptMid'));
-const HeaderDesignA_ConceptMax = lazy(() => import('./HeaderDesignA_ConceptMax'));
-const HeaderDesignA_PolishMid = lazy(() => import('./HeaderDesignA_PolishMid'));
-const HeaderDesignA_PolishMax = lazy(() => import('./HeaderDesignA_PolishMax'));
-const HeaderDesignB_ConceptMid = lazy(() => import('./HeaderDesignB_ConceptMid'));
-const HeaderDesignB_ConceptMax = lazy(() => import('./HeaderDesignB_ConceptMax'));
-const HeaderDesignB_PolishMid = lazy(() => import('./HeaderDesignB_PolishMid'));
-const HeaderDesignB_PolishMax = lazy(() => import('./HeaderDesignB_PolishMax'));
-const HeaderMagicA_ConceptMid = lazy(() => import('./HeaderMagicA_ConceptMid'));
-const HeaderMagicA_ConceptMax = lazy(() => import('./HeaderMagicA_ConceptMax'));
-const HeaderMagicA_PolishMid = lazy(() => import('./HeaderMagicA_PolishMid'));
-const HeaderMagicA_PolishMax = lazy(() => import('./HeaderMagicA_PolishMax'));
-const HeaderMagicB_ConceptMid = lazy(() => import('./HeaderMagicB_ConceptMid'));
-const HeaderMagicB_ConceptMax = lazy(() => import('./HeaderMagicB_ConceptMax'));
-const HeaderMagicB_PolishMid = lazy(() => import('./HeaderMagicB_PolishMid'));
-const HeaderMagicB_PolishMax = lazy(() => import('./HeaderMagicB_PolishMax'));
-const HeaderAnime = lazy(() => import('./HeaderAnime'));
-const HeaderDesignC = lazy(() => import('./HeaderDesignC'));
-const HeaderDesignC_ConceptMid = lazy(() => import('./HeaderDesignC_ConceptMid'));
-const HeaderDesignC_ConceptMax = lazy(() => import('./HeaderDesignC_ConceptMax'));
-const HeaderDesignC_PolishMid = lazy(() => import('./HeaderDesignC_PolishMid'));
-const HeaderDesignC_PolishMax = lazy(() => import('./HeaderDesignC_PolishMax'));
-const HeaderMagicC = lazy(() => import('./HeaderMagicC'));
-const HeaderMagicC_ConceptMid = lazy(() => import('./HeaderMagicC_ConceptMid'));
-const HeaderMagicC_ConceptMax = lazy(() => import('./HeaderMagicC_ConceptMax'));
-const HeaderMagicC_PolishMid = lazy(() => import('./HeaderMagicC_PolishMid'));
-const HeaderMagicC_PolishMax = lazy(() => import('./HeaderMagicC_PolishMax'));
-const HeaderDesignD = lazy(() => import('./HeaderDesignD'));
-const HeaderDesignE = lazy(() => import('./HeaderDesignE'));
-const HeaderDesignF = lazy(() => import('./HeaderDesignF'));
-const HeaderDesignG = lazy(() => import('./HeaderDesignG'));
 
 const HEADER_VARIANTS: Record<
   string,
   React.LazyExoticComponent<React.ComponentType<HeaderProps>>
-> = {
-  '1': HeaderMagicA,
-  '2': HeaderMagicB,
-  '3': HeaderDesignA,
-  '4': HeaderDesignB,
-  '5': HeaderDesignA_ConceptMid,
-  '6': HeaderDesignA_ConceptMax,
-  '7': HeaderDesignA_PolishMid,
-  '8': HeaderDesignA_PolishMax,
-  '9': HeaderDesignB_ConceptMid,
-  '10': HeaderDesignB_ConceptMax,
-  '11': HeaderDesignB_PolishMid,
-  '12': HeaderDesignB_PolishMax,
-  '13': HeaderMagicA_ConceptMid,
-  '14': HeaderMagicA_ConceptMax,
-  '15': HeaderMagicA_PolishMid,
-  '16': HeaderMagicA_PolishMax,
-  '17': HeaderMagicB_ConceptMid,
-  '18': HeaderMagicB_ConceptMax,
-  '19': HeaderMagicB_PolishMid,
-  '20': HeaderMagicB_PolishMax,
-  '21': HeaderAnime,
-  '22': HeaderDesignC,
-  '23': HeaderDesignC_ConceptMid,
-  '24': HeaderDesignC_ConceptMax,
-  '25': HeaderDesignC_PolishMid,
-  '26': HeaderDesignC_PolishMax,
-  '27': HeaderMagicC,
-  '28': HeaderMagicC_ConceptMid,
-  '29': HeaderMagicC_ConceptMax,
-  '30': HeaderMagicC_PolishMid,
-  '31': HeaderMagicC_PolishMax,
-  '32': HeaderDesignD,
-  '33': HeaderDesignE,
-  '34': HeaderDesignF,
-  '35': HeaderDesignG,
-};
+> = {};
 
 const HeaderWithVariant = (props: HeaderProps) => {
   const [searchParams] = useSearchParams();
