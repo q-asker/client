@@ -1,7 +1,0 @@
-[
-  { "param": "header", "label": "헤더", "variants": [] },
-  { "param": "footer", "label": "푸터", "variants": [] },
-  { "param": "help", "label": "도움말", "variants": [] },
-  { "param": "rc", "label": "최근변경", "variants": [] },
-  { "param": "mq", "label": "퀴즈생성", "variants": [] }
-]

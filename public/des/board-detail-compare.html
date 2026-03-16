@@ -264,7 +264,17 @@
       var isAllMode = false;
       var excludedVariants = [];
 
-      var ALL_VARIANTS = [];
+      var ALL_VARIANTS = [
+        { key: '', label: 'Original — 기존 디자인' },
+        { key: '1', label: '1 — Glass Elegance (BlurFade, TextAnimate, MagicCard)' },
+        { key: '2', label: '2 — Bold Dynamic (BorderBeam, ShineBorder, ShimmerButton)' },
+        { key: '3', label: '3 — Minimal Clean (Framer Motion, Shadcn)' },
+        { key: '4', label: '4 — Structured Professional (2열 레이아웃, 사이드 패널)' },
+        { key: '5', label: '5 — Conversational Chat Bubble (BlurFade, TextAnimate)' },
+        { key: '6', label: '6 — Timeline Thread (MagicCard, BlurFade)' },
+        { key: '7', label: '7 — Accordion Expandable (Framer Motion, AnimatePresence)' },
+        { key: '8', label: '8 — Stacked Notification Cards (Framer Motion, 분할 레이아웃)' },
+      ];
 
       function saveState() {
         localStorage.setItem(
