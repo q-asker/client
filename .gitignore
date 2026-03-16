@@ -32,8 +32,6 @@ gcp-credential.json
 
 # Claude Code
 docs/.playwright-mcp
-*.png
-!public/*.png
 !src/assets/*.png
 CLAUDE.md
 shrimp-rules.md
