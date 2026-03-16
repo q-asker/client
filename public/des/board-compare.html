@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>Login Redirect 로그인 리다이렉트 디자인 비교</title>
+    <title>Board 게시판 목록 디자인 비교</title>
     <style>
       * {
         margin: 0;
@@ -71,7 +71,7 @@
       }
       #all iframe {
         width: 100%;
-        height: 400px;
+        height: 800px;
         border: none;
         display: block;
       }
@@ -258,19 +258,13 @@
     <iframe id="single" src=""></iframe>
     <div id="all"></div>
     <script>
-      var STORAGE_KEY = 'compare_login_redirect';
-      var STORAGE_KEY_EXCLUDED = 'login-redirect_excluded_variants';
+      var STORAGE_KEY = 'compare_board';
+      var STORAGE_KEY_EXCLUDED = 'board_excluded_variants';
       var currentVariant = '';
       var isAllMode = false;
       var excludedVariants = [];
 
-      var ALL_VARIANTS = [
-        { key: '', label: '기본 — Original' },
-        { key: '1', label: '1 — MagicA (BlurFade + Card + Spinner)' },
-        { key: '2', label: '2 — MagicB (TextAnimate + Bounce Dots)' },
-        { key: '3', label: '3 — DesignA (Shadcn Card + Skeleton)' },
-        { key: '4', label: '4 — DesignB (Fullscreen Primary)' },
-      ];
+      var ALL_VARIANTS = [];
 
       function saveState() {
         localStorage.setItem(
@@ -438,10 +432,10 @@
       })();
 
       function buildSrc(variant) {
-        var base = '/login/redirect';
-        var params = [];
-        if (variant) params.push('lr=' + variant);
-        return params.length ? base + '?' + params.join('&') : base;
+        var base = '/boards';
+        var params = ['mock=true'];
+        if (variant) params.push('bd=' + variant);
+        return base + '?' + params.join('&');
       }
 
       function showOne(v) {

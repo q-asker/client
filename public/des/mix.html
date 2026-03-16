@@ -390,7 +390,11 @@
   <body>
     <div class="controls">
       <div id="componentVariantRows"></div>
-      <div class="actions-row" id="actionsRow" style="display: none"></div>
+      <div id="actionsRows" style="display: none">
+        <div class="actions-row" id="actionsRow1"></div>
+        <div class="actions-row" id="actionsRow2"></div>
+        <div class="actions-row" id="actionsRow3"></div>
+      </div>
     </div>
     <div class="trash-panel" id="trashPanel">
       <div class="trash-header">
@@ -404,46 +408,7 @@
     <iframe id="preview" src="/"></iframe>
     <script>
       /* variant 키 → 사람이 읽을 수 있는 라벨 */
-      var VARIANT_LABELS = {
-        1: '1 · MagicA',
-        2: '2 · MagicB',
-        3: '3 · DesignA',
-        4: '4 · DesignB',
-        5: '5 · DesignI (2열 컴팩트)',
-        6: '6 · DesignJ (반응형 넉넉)',
-        7: '7 · DesignK (3열 미니멀)',
-        5: '5 · DesignA 컨셉·중간',
-        6: '6 · DesignA 컨셉·대폭',
-        7: '7 · DesignA 세련·중간',
-        8: '8 · DesignA 세련·대폭',
-        9: '9 · DesignB 컨셉·중간',
-        10: '10 · DesignB 컨셉·대폭',
-        11: '11 · DesignB 세련·중간',
-        12: '12 · DesignB 세련·대폭',
-        13: '13 · MagicA 컨셉·중간',
-        14: '14 · MagicA 컨셉·대폭',
-        15: '15 · MagicA 세련·중간',
-        16: '16 · MagicA 세련·대폭',
-        17: '17 · MagicB 컨셉·중간',
-        18: '18 · MagicB 컨셉·대폭',
-        19: '19 · MagicB 세련·중간',
-        20: '20 · MagicB 세련·대폭',
-        21: '21 · Anime / DesignC / DesignE',
-        22: '22 · DesignC / DesignC 컨셉·중간 / DesignF',
-        23: '23 · DesignC 컨셉·중간 / DesignC 컨셉·대폭 / DesignG',
-        24: '24 · DesignC 컨셉·대폭 / DesignC 세련·중간 / DesignH',
-        25: '25 · DesignC 세련·중간 / DesignC 세련·대폭 / MagicE',
-        26: '26 · DesignC 세련·대폭 / MagicC / MagicF',
-        27: '27 · MagicC / MagicC 컨셉·중간 / MagicG',
-        28: '28 · MagicC 컨셉·중간 / MagicC 컨셉·대폭 / MagicH',
-        29: '29 · MagicC 컨셉·대폭 / MagicC 세련·중간',
-        30: '30 · MagicC 세련·중간 / MagicC 세련·대폭',
-        31: '31 · MagicC 세련·대폭',
-        32: '32 · DesignD (미니멀 + 컬러풀)',
-        33: '33 · DesignE (미니멀 + 애니메이션)',
-        34: '34 · DesignF (구분선 · 미니멀)',
-        35: '35 · DesignG (구분선 · 컬러풀)',
-      };
+      var VARIANT_LABELS = {};
 
       let excludedVariants = [];
       let allComponents = [];
@@ -466,7 +431,7 @@
       })();
 
       /* design-variants.json에서 설정 로드 후 UI 생성 */
-      fetch('/design-variants.json')
+      fetch('/des/design-variants.json')
         .then(function (r) {
           return r.json();
         })
@@ -692,25 +657,23 @@
         });
       }
 
-      /* 액션 버튼 행 */
+      /* 액션 버튼 행 (3행) */
       function buildActions() {
-        var actionsRow = document.getElementById('actionsRow');
-        actionsRow.innerHTML =
+        document.getElementById('actionsRow1').innerHTML =
           '<a class="compare-link" href="/solve-quiz-compare.html" target="_blank">퀴즈풀기<span class="arrow">\u2197</span></a>' +
           '<a class="compare-link" href="/quiz-result-compare.html" target="_blank">퀴즈결과<span class="arrow">\u2197</span></a>' +
           '<a class="compare-link" href="/quiz-history-compare.html" target="_blank">퀴즈기록<span class="arrow">\u2197</span></a>' +
-          '<a class="compare-link" href="/quiz-explanation-compare.html" target="_blank">퀴즈해설<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/quiz-explanation-compare.html" target="_blank">퀴즈해설<span class="arrow">\u2197</span></a>';
+        document.getElementById('actionsRow2').innerHTML =
+          '<a class="compare-link" href="/board-compare.html" target="_blank">문의목록<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/board-detail-compare.html" target="_blank">문의상세<span class="arrow">\u2197</span></a>' +
+          '<a class="compare-link" href="/board-write-compare.html" target="_blank">문의작성<span class="arrow">\u2197</span></a>';
+        document.getElementById('actionsRow3').innerHTML =
           '<a class="compare-link" href="/login-select-compare.html" target="_blank">로그인<span class="arrow">\u2197</span></a>' +
           '<a class="compare-link" href="/login-redirect-compare.html" target="_blank">로그인리다이렉트<span class="arrow">\u2197</span></a>' +
           '<a class="compare-link" href="/maintenance-compare.html" target="_blank">점검<span class="arrow">\u2197</span></a>' +
-          '<a class="compare-link" href="/privacy-policy-compare.html" target="_blank">개인정보<span class="arrow">\u2197</span></a>' +
-          '<a class="compare-link" href="/board-compare.html" target="_blank">문의목록<span class="arrow">\u2197</span></a>' +
-          '<a class="compare-link" href="/board-detail-compare.html" target="_blank">문의상세<span class="arrow">\u2197</span></a>' +
-          '<a class="compare-link" href="/board-write-compare.html" target="_blank">문의작성<span class="arrow">\u2197</span></a>' +
-          '<a class="compare-link" href="/?rc=5&mock=true" target="_blank">최근변경5<span class="arrow">\u2197</span></a>' +
-          '<a class="compare-link" href="/?rc=6&mock=true" target="_blank">최근변경6<span class="arrow">\u2197</span></a>' +
-          '<a class="compare-link" href="/?rc=7&mock=true" target="_blank">최근변경7<span class="arrow">\u2197</span></a>';
-        actionsRow.style.display = 'flex';
+          '<a class="compare-link" href="/privacy-policy-compare.html" target="_blank">개인정보<span class="arrow">\u2197</span></a>';
+        document.getElementById('actionsRows').style.display = 'block';
       }
 
       function excludeVariant(component, variantNum) {

@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>Login 로그인 디자인 비교</title>
+    <title>Maintenance 점검 페이지 디자인 비교</title>
     <style>
       * {
         margin: 0;
@@ -258,19 +258,13 @@
     <iframe id="single" src=""></iframe>
     <div id="all"></div>
     <script>
-      var STORAGE_KEY = 'compare_login_select';
-      var STORAGE_KEY_EXCLUDED = 'login-select_excluded_variants';
+      var STORAGE_KEY = 'compare_maintenance';
+      var STORAGE_KEY_EXCLUDED = 'maintenance_excluded_variants';
       var currentVariant = '';
       var isAllMode = false;
       var excludedVariants = [];
 
-      var ALL_VARIANTS = [
-        { key: '', label: '기본 — Original' },
-        { key: '1', label: '1 — MagicA (BlurFade + ShimmerButton)' },
-        { key: '2', label: '2 — MagicB (TextAnimate + BlurFade)' },
-        { key: '3', label: '3 — DesignA (Shadcn Card)' },
-        { key: '4', label: '4 — DesignB (Split Layout)' },
-      ];
+      var ALL_VARIANTS = [];
 
       function saveState() {
         localStorage.setItem(
@@ -438,9 +432,9 @@
       })();
 
       function buildSrc(variant) {
-        var base = '/login';
+        var base = '/maintenance';
         var params = [];
-        if (variant) params.push('ls=' + variant);
+        if (variant) params.push('mt=' + variant);
         return params.length ? base + '?' + params.join('&') : base;
       }
 

@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>Board 게시판 목록 디자인 비교</title>
+    <title>Board Detail 게시물 상세 디자인 비교</title>
     <style>
       * {
         margin: 0;
@@ -258,19 +258,13 @@
     <iframe id="single" src=""></iframe>
     <div id="all"></div>
     <script>
-      var STORAGE_KEY = 'compare_board';
-      var STORAGE_KEY_EXCLUDED = 'board_excluded_variants';
+      var STORAGE_KEY = 'compare_board_detail';
+      var STORAGE_KEY_EXCLUDED = 'board-detail_excluded_variants';
       var currentVariant = '';
       var isAllMode = false;
       var excludedVariants = [];
 
-      var ALL_VARIANTS = [
-        { key: '', label: '기본 — Original' },
-        { key: '1', label: '1 — MagicA (Stagger Cards)' },
-        { key: '2', label: '2 — MagicB (Slide Table)' },
-        { key: '3', label: '3 — DesignA (Card List)' },
-        { key: '4', label: '4 — DesignB (Compact Table)' },
-      ];
+      var ALL_VARIANTS = [];
 
       function saveState() {
         localStorage.setItem(
@@ -438,9 +432,9 @@
       })();
 
       function buildSrc(variant) {
-        var base = '/boards';
+        var base = '/boards/mock-bd-001';
         var params = ['mock=true'];
-        if (variant) params.push('bd=' + variant);
+        if (variant) params.push('bdd=' + variant);
         return base + '?' + params.join('&');
       }
 

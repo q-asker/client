@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>Maintenance 점검 페이지 디자인 비교</title>
+    <title>Quiz History 디자인 비교</title>
     <style>
       * {
         margin: 0;
@@ -43,37 +43,6 @@
         background: #333;
         color: #fff;
         border-color: #333;
-      }
-      #single {
-        width: 100%;
-        height: calc(100vh - 46px);
-        border: none;
-        display: block;
-      }
-      #all {
-        display: none;
-        flex-direction: column;
-        gap: 12px;
-        padding: 12px;
-      }
-      #all .card {
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-      }
-      #all .label {
-        padding: 6px 16px;
-        font-weight: 700;
-        font-size: 13px;
-        background: #fff;
-        color: #333;
-        border-bottom: 1px solid #eee;
-      }
-      #all iframe {
-        width: 100%;
-        height: 600px;
-        border: none;
-        display: block;
       }
 
       .nav-btn-wrapper {
@@ -242,6 +211,37 @@
         color: #999;
         font-size: 13px;
       }
+      #single {
+        width: 100%;
+        height: calc(100vh - 46px);
+        border: none;
+        display: block;
+      }
+      #all {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+      }
+      #all .card {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      }
+      #all .label {
+        padding: 6px 16px;
+        font-weight: 700;
+        font-size: 13px;
+        background: #fff;
+        color: #333;
+        border-bottom: 1px solid #eee;
+      }
+      #all iframe {
+        width: 100%;
+        height: 800px;
+        border: none;
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -258,19 +258,13 @@
     <iframe id="single" src=""></iframe>
     <div id="all"></div>
     <script>
-      var STORAGE_KEY = 'compare_maintenance';
-      var STORAGE_KEY_EXCLUDED = 'maintenance_excluded_variants';
+      var STORAGE_KEY = 'compare_quiz_history';
+      var STORAGE_KEY_EXCLUDED = 'quiz-history_excluded_variants';
       var currentVariant = '';
       var isAllMode = false;
       var excludedVariants = [];
 
-      var ALL_VARIANTS = [
-        { key: '', label: '기본 — Original' },
-        { key: '1', label: '1 — MagicA (BlurFade + ShimmerButton)' },
-        { key: '2', label: '2 — MagicB (TextAnimate + Gradient)' },
-        { key: '3', label: '3 — DesignA (Shadcn Card + Wrench)' },
-        { key: '4', label: '4 — DesignB (Fullscreen + Progress Bar)' },
-      ];
+      var ALL_VARIANTS = [];
 
       function saveState() {
         localStorage.setItem(
@@ -438,10 +432,10 @@
       })();
 
       function buildSrc(variant) {
-        var base = '/maintenance';
-        var params = [];
-        if (variant) params.push('mt=' + variant);
-        return params.length ? base + '?' + params.join('&') : base;
+        var base = '/history';
+        var params = ['mock=true'];
+        if (variant) params.push('qh=' + variant);
+        return base + '?' + params.join('&');
       }
 
       function showOne(v) {
