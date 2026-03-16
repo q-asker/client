@@ -29,11 +29,13 @@ import {
   FileText,
   Upload,
   ArrowUpFromLine,
+  X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
 import { Badge } from '@/shared/ui/components/badge';
 import { TextAnimate } from '@/shared/ui/components/text-animate';
+import { BorderBeam } from '@/shared/ui/components/border-beam';
 
 /** 퀴즈 유형 옵션 */
 interface QuizTypeOption {
@@ -87,7 +89,7 @@ const MakeQuiz: React.FC = () => {
         {upload.uploadedUrl && !generation.problemSetId ? (
           <div className="lg:grid lg:grid-cols-2 lg:gap-8">
             {/* 좌측: 파일 정보 + PDF 미리보기 */}
-            <div className="lg:sticky lg:top-24 lg:self-start">
+            <div className="lg:sticky lg:top-6 lg:self-start">
               <Card className="rounded-2xl border border-border">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold tracking-tight md:text-xl">
@@ -119,18 +121,26 @@ const MakeQuiz: React.FC = () => {
                       className="mt-6 cursor-pointer rounded-2xl border-none bg-destructive px-6 py-2.5 text-sm font-semibold text-background transition-opacity duration-200 hover:opacity-90 md:px-5 md:py-2"
                       onClick={commonActions.handleRemoveFile}
                     >
-                      {t('✕ 파일 삭제')}
+                      <span className="inline-flex items-center gap-1">
+                        <X className="size-3.5" strokeWidth={2.5} />
+                        {t('파일 삭제')}
+                      </span>
                     </button>
                   </div>
 
-                  {/* 페이지 지정 */}
+                  {/* 페이지 지정 + PDF 그리드 통합 */}
                   {upload.uploadedUrl && (
-                    <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-muted p-4 md:flex-col md:items-stretch md:p-3">
-                      <div className="flex flex-1 flex-wrap items-center gap-2 md:flex-col md:items-start md:gap-1.5">
-                        <span className="text-sm font-medium text-foreground">
-                          {t('원하는 페이지 입력:')}
+                    <div
+                      className="mt-4 rounded-2xl border border-border bg-background p-5 md:p-4"
+                      ref={pages.pdfPreviewRef}
+                    >
+                      {/* 페이지 선택 툴바 */}
+                      <div className="mb-3 flex h-9 items-stretch gap-2">
+                        <span className="flex shrink-0 items-center text-sm font-semibold text-foreground">
+                          {t('페이지 지정:')}
                         </span>
-                        <div className="flex flex-nowrap items-center gap-2 md:w-full md:justify-center">
+                        {/* 범위 입력 그룹 */}
+                        <div className="inline-flex items-center overflow-hidden rounded-xl border border-border bg-muted/40 shadow-sm">
                           <input
                             type="number"
                             min="1"
@@ -140,14 +150,14 @@ const MakeQuiz: React.FC = () => {
                               pageActions.setPageRangeStart(e.target.value)
                             }
                             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                              if (e.key === 'Enter') {
-                                pageActions.handleApplyPageRange();
-                              }
+                              if (e.key === 'Enter') pageActions.handleApplyPageRange();
                             }}
                             disabled={!pages.numPages}
-                            className="w-20 rounded-xl border border-border bg-background px-3 py-2 text-center text-sm transition-all duration-200 focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:w-15 md:px-2 md:py-1.5"
+                            className="w-12 border-none bg-transparent text-center text-sm font-bold tabular-nums text-foreground outline-none disabled:cursor-not-allowed disabled:text-muted-foreground"
                           />
-                          <span className="text-muted-foreground">~</span>
+                          <span className="select-none px-1 text-sm font-medium text-muted-foreground">
+                            –
+                          </span>
                           <input
                             type="number"
                             min="1"
@@ -157,41 +167,41 @@ const MakeQuiz: React.FC = () => {
                               pageActions.setPageRangeEnd(e.target.value)
                             }
                             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                              if (e.key === 'Enter') {
-                                pageActions.handleApplyPageRange();
-                              }
+                              if (e.key === 'Enter') pageActions.handleApplyPageRange();
                             }}
                             disabled={!pages.numPages}
-                            className="w-20 rounded-xl border border-border bg-background px-3 py-2 text-center text-sm transition-all duration-200 focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:w-15 md:px-2 md:py-1.5"
+                            className="w-12 border-none bg-transparent text-center text-sm font-bold tabular-nums text-foreground outline-none disabled:cursor-not-allowed disabled:text-muted-foreground"
                           />
                           <button
                             type="button"
-                            className="cursor-pointer rounded-2xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground md:h-8 md:min-w-11 md:px-3 md:py-0 md:text-sm md:leading-none"
+                            className="cursor-pointer self-stretch border-l border-border bg-primary px-4 text-xs font-semibold text-primary-foreground transition-opacity duration-150 hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
                             onClick={pageActions.handleApplyPageRange}
                             disabled={!pages.numPages}
                           >
                             {t('적용')}
                           </button>
                         </div>
-                      </div>
-                      <div className="flex flex-wrap items-center justify-end gap-2 md:w-full md:flex-col md:gap-2">
+
+                        {/* 구분선 */}
+                        <div className="w-px bg-border" />
+
+                        {/* 액션 버튼 그룹 */}
                         <button
-                          className="cursor-pointer rounded-2xl border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-muted md:w-full"
+                          className="cursor-pointer rounded-xl border border-border bg-muted/40 px-3 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-muted"
                           onClick={pageActions.handleSelectAllPages}
                         >
                           {t('전체 선택')}
                         </button>
                         <button
-                          className="cursor-pointer rounded-2xl border border-destructive/20 bg-background px-4 py-2 text-sm font-medium text-destructive transition-colors duration-200 hover:bg-destructive/5 md:w-full"
+                          className="cursor-pointer rounded-xl border border-destructive/20 bg-muted/40 px-3 text-xs font-medium text-destructive transition-colors duration-150 hover:bg-destructive/5"
                           onClick={pageActions.handleClearAllPages}
                         >
                           {t('전체 해제')}
                         </button>
                         <button
                           className={cn(
-                            'cursor-pointer rounded-2xl border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-muted md:hidden',
-                            pages.isPreviewVisible &&
-                              'border-primary bg-primary text-primary-foreground',
+                            'cursor-pointer rounded-xl border border-border bg-muted/40 px-3 text-xs font-medium text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground md:hidden',
+                            pages.isPreviewVisible && 'border-primary/30 bg-primary/5 text-primary',
                           )}
                           type="button"
                           onClick={() => pageActions.setIsPreviewVisible((prev: boolean) => !prev)}
@@ -199,22 +209,17 @@ const MakeQuiz: React.FC = () => {
                           {pages.isPreviewVisible ? t('미리보기 끄기') : t('미리보기 켜기')}
                         </button>
                       </div>
-                    </div>
-                  )}
-
-                  {/* PDF 페이지 그리드 */}
-                  {upload.uploadedUrl && (
-                    <div
-                      className="mt-4 rounded-2xl border border-border bg-background p-5 md:p-4"
-                      ref={pages.pdfPreviewRef}
-                    >
-                      <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-                        <span className="font-medium text-foreground">
-                          {t('선택된 페이지 수: ')}
+                      {/* 선택 카운트 */}
+                      <div className="mb-4 flex items-center gap-1.5">
+                        <span className="text-xs text-muted-foreground">
+                          {t('선택된 페이지 수:')}
                         </span>
-                        <Badge variant="default" className="rounded-full">
-                          {pages.selectedPages.length}/{pages.numPages ?? 0}
-                        </Badge>
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {pages.selectedPages.length}
+                        </span>
+                        <span className="text-xs text-muted-foreground/60">
+                          (최대 {MAX_SELECT_PAGES})
+                        </span>
                       </div>
                       {isMock ? (
                         <MockPageGrid
@@ -247,7 +252,7 @@ const MakeQuiz: React.FC = () => {
                                     <div
                                       key={`page_${pageNumber}`}
                                       className={cn(
-                                        'relative cursor-pointer overflow-hidden rounded-xl border-2 border-transparent bg-muted text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
+                                        'relative cursor-pointer overflow-hidden rounded-none border-2 border-transparent bg-muted text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
                                         isSelected && 'border-primary',
                                         isHovered && 'border-muted-foreground',
                                       )}
@@ -497,34 +502,77 @@ const MakeQuiz: React.FC = () => {
           /* 파일 미업로드 상태: 풀폭 드래그 영역 */
           <div
             className={cn(
-              'group relative overflow-hidden rounded-3xl border-2 border-dashed border-border bg-background transition-all duration-300',
-              upload.isDragging && 'border-primary bg-primary/5 shadow-lg shadow-primary/10',
+              'group relative overflow-hidden rounded-3xl border border-border/60 bg-background shadow-[0_2px_12px_oklch(0_0_0/0.04)] transition-all duration-300',
+              upload.isDragging &&
+                'border-primary/40 bg-primary/5 shadow-[0_4px_24px_oklch(0.511_0.23_277/0.12)]',
             )}
             onDragOver={uploadActions.handleDragOver}
             onDragEnter={uploadActions.handleDragEnter}
             onDragLeave={uploadActions.handleDragLeave}
             onDrop={uploadActions.handleDrop}
           >
+            {upload.isDragging && (
+              <BorderBeam
+                size={120}
+                duration={4}
+                colorFrom="oklch(0.511 0.2301 276.97)"
+                colorTo="oklch(0.627 0.1638 271.53)"
+                borderWidth={2}
+              />
+            )}
             {isWaitingForFirstQuiz && !upload.uploadedUrl ? (
               /* 업로드 진행 중 */
-              <div className="flex flex-col items-center px-8 py-20 text-center md:px-5 md:py-14">
-                <div className="mb-6 size-14 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
-                <div className="text-lg font-semibold text-foreground md:text-base">
-                  {t('파일 업로드 중...')}
-                  {Math.floor(upload.uploadElapsedTime / 1000)}
-                  {t('초')}
+              <div className="flex flex-col items-center px-8 py-16 text-center md:px-5 md:py-12">
+                {/* SVG 원형 프로그레스 */}
+                <div className="relative mb-6 flex size-20 items-center justify-center">
+                  <svg className="size-full -rotate-90" viewBox="0 0 64 64">
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      fill="none"
+                      className="stroke-muted"
+                      strokeWidth="4"
+                    />
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      fill="none"
+                      className="stroke-primary"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      strokeDasharray="176"
+                      strokeDashoffset="44"
+                      style={{ animation: 'spin 1.5s linear infinite', transformOrigin: 'center' }}
+                    />
+                  </svg>
+                  {/* 중앙 경과 시간 */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-bold text-primary tabular-nums">
+                      {Math.floor(upload.uploadElapsedTime / 1000)}
+                      <span className="text-xs font-normal text-muted-foreground">초</span>
+                    </span>
+                  </div>
                 </div>
-                {upload.fileExtension && upload.fileExtension !== 'pdf' && (
-                  <div className="mt-4 max-w-[400px] text-sm leading-relaxed text-muted-foreground md:max-w-[90%]">
+
+                {/* 상태 텍스트 */}
+                <div className="mb-2 text-base font-semibold text-foreground">
+                  {upload.fileExtension && upload.fileExtension !== 'pdf'
+                    ? t('파일 변환 중')
+                    : t('파일 업로드 중')}
+                </div>
+
+                {/* 변환 안내 */}
+                {upload.fileExtension && upload.fileExtension !== 'pdf' ? (
+                  <p className="max-w-[360px] text-sm leading-relaxed text-muted-foreground">
                     <strong className="text-foreground">
                       {upload.fileExtension.toUpperCase()}
                     </strong>{' '}
                     {t('파일을 PDF로 변환하고 있어요')}
-                    <br />
-                    <span className="text-xs italic">
-                      {t('파일 크기에 따라 시간이 소요될 수 있습니다')}
-                    </span>
-                  </div>
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">{t('잠시만 기다려 주세요')}</p>
                 )}
               </div>
             ) : (

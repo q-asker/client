@@ -1,4 +1,5 @@
 import { useTranslation } from 'i18nexus';
+import { FileText } from 'lucide-react';
 import { cn } from '@/shared/ui/lib/utils';
 
 interface MockPageGridProps {
@@ -26,7 +27,7 @@ const MockPageGrid = ({ numPages, selectedPages, onPageClick }: MockPageGridProp
             onClick={() => onPageClick(pageNumber)}
           >
             <div className="flex flex-col items-center gap-2">
-              <span className="text-3xl text-muted-foreground/50">📄</span>
+              <FileText className="size-8 text-muted-foreground/50" />
               <span className="text-sm font-medium text-muted-foreground">
                 {t('페이지')} {pageNumber}
               </span>
