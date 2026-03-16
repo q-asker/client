@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Board Detail — Candidate D: Notion-like Document</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Pretendard',
+          -apple-system,
+          sans-serif;
+        background: #fff;
+        color: #37352f;
+        min-height: 100vh;
+      }
+
+      /* 상단 - 슬림 툴바 */
+      .toolbar {
+        height: 44px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+        position: sticky;
+        top: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        z-index: 10;
+      }
+
+      .toolbar-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: none;
+        background: transparent;
+        color: rgba(55, 53, 47, 0.65);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: 'Pretendard', sans-serif;
+        transition: background 0.1s;
+      }
+
+      .toolbar-btn:hover {
+        background: rgba(55, 53, 47, 0.08);
+      }
+
+      .toolbar-btn svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .toolbar-separator {
+        width: 1px;
+        height: 20px;
+        background: rgba(55, 53, 47, 0.09);
+        margin: 0 4px;
+      }
+
+      .toolbar-spacer {
+        flex: 1;
+      }
+
+      .toolbar-breadcrumb {
+        font-size: 12px;
+        color: rgba(55, 53, 47, 0.5);
+      }
+
+      .toolbar-breadcrumb span {
+        color: rgba(55, 53, 47, 0.65);
+        cursor: pointer;
+      }
+
+      .toolbar-breadcrumb span:hover {
+        color: #37352f;
+      }
+
+      /* 메인 */
+      .page {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 40px 96px 100px;
+      }
+
+      /* 커버 영역 (아이콘 + 제목) */
+      .page-icon {
+        font-size: 40px;
+        margin-bottom: 8px;
+        line-height: 1;
+      }
+
+      .page-title {
+        font-size: 32px;
+        font-weight: 800;
+        line-height: 1.25;
+        color: #37352f;
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+      }
+
+      /* 프로퍼티 테이블 (Notion 스타일) */
+      .properties {
+        margin-bottom: 32px;
+        border-top: 1px solid rgba(55, 53, 47, 0.09);
+      }
+
+      .property-row {
+        display: flex;
+        align-items: center;
+        min-height: 34px;
+        border-bottom: 1px solid rgba(55, 53, 47, 0.05);
+        transition: background 0.1s;
+      }
+
+      .property-row:hover {
+        background: rgba(55, 53, 47, 0.03);
+      }
+
+      .property-label {
+        width: 140px;
+        padding: 6px 8px;
+        font-size: 13px;
+        color: rgba(55, 53, 47, 0.5);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .property-label svg {
+        width: 14px;
+        height: 14px;
+        opacity: 0.6;
+      }
+
+      .property-value {
+        padding: 6px 8px;
+        font-size: 13px;
+        color: #37352f;
+        flex: 1;
+      }
+
+      .property-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .tag-green {
+        background: rgba(0, 135, 107, 0.1);
+        color: #0a6847;
+      }
+
+      .tag-yellow {
+        background: rgba(203, 145, 47, 0.1);
+        color: #9a6700;
+      }
+
+      /* 본문 */
+      .content-body {
+        font-size: 15px;
+        line-height: 1.85;
+        color: #37352f;
+        white-space: pre-wrap;
+        padding: 8px 0 40px;
+      }
+
+      /* 구분선 */
+      .divider {
+        height: 1px;
+        background: rgba(55, 53, 47, 0.09);
+        margin: 8px 0 24px;
+      }
+
+      /* 토글 댓글 섹션 */
+      .toggle-section {
+        margin-bottom: 24px;
+      }
+
+      .toggle-header {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 0;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .toggle-arrow {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(55, 53, 47, 0.45);
+        transition: transform 0.15s;
+        flex-shrink: 0;
+      }
+
+      .toggle-arrow.open {
+        transform: rotate(90deg);
+      }
+
+      .toggle-header h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #37352f;
+      }
+
+      .toggle-header .count {
+        font-size: 14px;
+        color: rgba(55, 53, 47, 0.45);
+        margin-left: 4px;
+      }
+
+      .toggle-body {
+        padding-left: 24px;
+        border-left: 2px solid rgba(55, 53, 47, 0.06);
+        margin-left: 9px;
+      }
+
+      .reply-block {
+        padding: 12px 0;
+        position: relative;
+      }
+
+      .reply-block + .reply-block {
+        border-top: 1px solid rgba(55, 53, 47, 0.05);
+      }
+
+      .reply-block:hover {
+        background: rgba(55, 53, 47, 0.02);
+        margin-left: -8px;
+        margin-right: -8px;
+        padding-left: 8px;
+        padding-right: 8px;
+        border-radius: 4px;
+      }
+
+      .reply-block-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .reply-block-avatar {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+      }
+
+      .reply-block-author {
+        font-size: 13px;
+        font-weight: 600;
+        color: #37352f;
+      }
+
+      .reply-block-role {
+        font-size: 11px;
+        color: rgba(55, 53, 47, 0.45);
+      }
+
+      .reply-block-text {
+        font-size: 14px;
+        line-height: 1.7;
+        color: rgba(55, 53, 47, 0.85);
+        white-space: pre-wrap;
+        padding-left: 26px;
+      }
+
+      /* 답변 입력 (인라인) */
+      .inline-reply {
+        margin-top: 16px;
+        padding-left: 24px;
+        margin-left: 9px;
+        border-left: 2px solid rgba(55, 53, 47, 0.06);
+      }
+
+      .inline-reply-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(55, 53, 47, 0.5);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .inline-reply textarea {
+        width: 100%;
+        border: 1px solid rgba(55, 53, 47, 0.16);
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-family: 'Pretendard', sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #37352f;
+        resize: none;
+        background: rgba(55, 53, 47, 0.024);
+        transition: all 0.15s;
+      }
+
+      .inline-reply textarea:focus {
+        outline: none;
+        background: #fff;
+        border-color: rgba(35, 131, 226, 0.57);
+        box-shadow: 0 0 0 2px rgba(35, 131, 226, 0.14);
+      }
+
+      .inline-reply-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 8px;
+      }
+
+      /* 하단 액션 */
+      .page-actions {
+        margin-top: 40px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(55, 53, 47, 0.09);
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      /* 버튼 */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.1s;
+        border: none;
+        font-family: 'Pretendard', sans-serif;
+      }
+
+      .btn-text {
+        background: transparent;
+        color: rgba(55, 53, 47, 0.65);
+      }
+
+      .btn-text:hover {
+        background: rgba(55, 53, 47, 0.08);
+        color: #37352f;
+      }
+
+      .btn-fill {
+        background: #2383e2;
+        color: #fff;
+      }
+
+      .btn-fill:hover {
+        background: #0b6bcb;
+      }
+
+      .btn-danger-text {
+        background: transparent;
+        color: #eb5757;
+      }
+
+      .btn-danger-text:hover {
+        background: rgba(235, 87, 87, 0.08);
+      }
+
+      .btn svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 4px;
+      }
+
+      /* 반응형 */
+      @media (max-width: 768px) {
+        .page {
+          padding: 24px 24px 80px;
+        }
+
+        .page-title {
+          font-size: 24px;
+        }
+
+        .property-label {
+          width: 100px;
+        }
+
+        .page-actions {
+          flex-direction: column;
+        }
+
+        .btn-group {
+          width: 100%;
+        }
+
+        .btn-group .btn {
+          flex: 1;
+          justify-content: center;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page {
+          padding: 16px 16px 60px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 툴바 -->
+    <div class="toolbar">
+      <button class="toolbar-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <span class="toolbar-breadcrumb"> <span>문의 게시판</span> / #16 </span>
+      <span class="toolbar-spacer"></span>
+      <button class="toolbar-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="19" cy="12" r="1" />
+          <circle cx="5" cy="12" r="1" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="page">
+      <!-- 아이콘 + 제목 -->
+      <div class="page-icon">📋</div>
+      <h1 class="page-title">퀴즈 생성 시 PDF 파일이 업로드되지 않습니다</h1>
+
+      <!-- 프로퍼티 -->
+      <div class="properties">
+        <div class="property-row">
+          <div class="property-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            작성자
+          </div>
+          <div class="property-value">김철수</div>
+        </div>
+        <div class="property-row">
+          <div class="property-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            작성일
+          </div>
+          <div class="property-value">2026. 03. 12. 14:30</div>
+        </div>
+        <div class="property-row">
+          <div class="property-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            조회수
+          </div>
+          <div class="property-value">42</div>
+        </div>
+        <div class="property-row">
+          <div class="property-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            상태
+          </div>
+          <div class="property-value">
+            <span class="property-tag tag-green">답변완료</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 본문 -->
+      <div class="content-body">
+        안녕하세요. 퀴즈 생성 페이지에서 PDF 파일을 업로드하려고 하면 "지원하지 않는 파일
+        형식입니다"라는 오류가 발생합니다. 파일 크기는 약 2MB이고 일반적인 PDF 파일입니다.
+        브라우저는 Chrome 최신 버전을 사용하고 있습니다. 확인 부탁드립니다. 감사합니다.
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- 댓글 (토글) -->
+      <div class="toggle-section">
+        <div
+          class="toggle-header"
+          onclick="
+            this.querySelector('.toggle-arrow').classList.toggle('open');
+            this.nextElementSibling.style.display =
+              this.nextElementSibling.style.display === 'none' ? '' : 'none';
+          "
+        >
+          <span class="toggle-arrow open">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5.14v14l11-7-11-7z" />
+            </svg>
+          </span>
+          <h2>답변</h2>
+          <span class="count">2</span>
+        </div>
+        <div class="toggle-body">
+          <div class="reply-block">
+            <div class="reply-block-header">
+              <div class="reply-block-avatar">Q</div>
+              <span class="reply-block-author">Q-Asker 운영팀</span>
+              <span class="reply-block-role">관리자</span>
+            </div>
+            <div class="reply-block-text">
+              안녕하세요, Q-Asker 운영팀입니다. 해당 문제는 PDF 파일의 인코딩 방식에 따라 발생할 수
+              있습니다. 파일을 다시 저장한 후 업로드해 주시겠어요? 문제가 지속되면
+              support@q-asker.com으로 파일을 보내주시면 확인해 드리겠습니다.
+            </div>
+          </div>
+
+          <div class="reply-block">
+            <div class="reply-block-header">
+              <div class="reply-block-avatar">Q</div>
+              <span class="reply-block-author">Q-Asker 운영팀</span>
+              <span class="reply-block-role">관리자</span>
+            </div>
+            <div class="reply-block-text">
+              추가로, 다음 업데이트에서 더 많은 PDF 형식을 지원할 예정입니다. 불편을 드려
+              죄송합니다.
+            </div>
+          </div>
+        </div>
+
+        <!-- 관리자 답변 입력 -->
+        <div class="inline-reply">
+          <div class="inline-reply-label">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            관리자 답변 작성
+          </div>
+          <textarea rows="3" placeholder="답변을 입력하세요..."></textarea>
+          <div class="inline-reply-actions">
+            <button class="btn btn-fill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+              </svg>
+              등록
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 액션 -->
+      <div class="page-actions">
+        <div class="btn-group">
+          <button class="btn btn-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            목록으로
+          </button>
+          <button class="btn btn-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            새 문의하기
+          </button>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            수정
+          </button>
+          <button class="btn btn-danger-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              />
+            </svg>
+            삭제
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

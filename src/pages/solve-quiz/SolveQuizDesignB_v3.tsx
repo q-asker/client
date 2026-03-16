@@ -8,8 +8,8 @@ import { useQuizGenerationStore } from '#features/quiz-generation';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 
-/** E안: Split Panel — lg 이상 2컬럼, 우측 네비게이션+통계 패널 */
-const SolveQuizDesignB: React.FC = () => {
+/** V3: Card Action — 분리된 액션 카드, 북마크 검토 배지 */
+const SolveQuizDesignB_v3: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,6 +39,9 @@ const SolveQuizDesignB: React.FC = () => {
 
   const remainingCount =
     isStreaming && totalCount > 0 ? Math.max(0, totalCount - quiz.totalQuestions) : 0;
+
+  const progressPercent =
+    quiz.totalQuestions > 0 ? Math.round((quiz.answeredCount / quiz.totalQuestions) * 100) : 0;
 
   useEffect(() => {
     return () => {
@@ -200,9 +203,9 @@ const SolveQuizDesignB: React.FC = () => {
       )}
 
       {/* 상단 네비게이션 바 */}
-      <header className="relative flex items-center justify-center bg-primary px-6 py-4 text-primary-foreground shadow-card">
+      <header className="flex items-center justify-between bg-primary px-6 py-4 text-primary-foreground shadow-card">
         <button
-          className="absolute left-6 cursor-pointer border-none bg-transparent text-xl text-inherit"
+          className="cursor-pointer border-none bg-transparent text-xl text-inherit"
           onClick={() => navigate('/')}
         >
           x
@@ -241,48 +244,37 @@ const SolveQuizDesignB: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* 문제 영역 — 시각적으로 하나의 카드 */}
-              <div className="w-full overflow-hidden rounded-2xl bg-card shadow-card">
-                {/* 질문 제목 + 검토 배지 */}
-                <div className="flex items-start justify-between gap-3 p-5 pb-0">
+              {/* V3: 질문 카드 — 우측 상단에 북마크 배지 검토 */}
+              <div className="relative flex w-full items-center rounded-2xl bg-card p-5 shadow-card max-md:flex-col max-md:items-start max-md:gap-3">
+                <div className="flex-1 pr-12 max-md:w-full max-md:pr-0">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                    <MarkdownText>{quiz.currentQuiz.title.split('\n')[0]}</MarkdownText>
+                    <MarkdownText>{quiz.currentQuiz.title}</MarkdownText>
                   </div>
-                  <button
-                    onClick={quizActions.handleCheckToggle}
-                    className={cn(
-                      'flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-none px-2 py-1 text-xs font-semibold transition-all duration-200',
-                      quiz.currentQuiz.check
-                        ? 'bg-warning/12 text-warning'
-                        : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
-                    )}
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill={quiz.currentQuiz.check ? 'currentColor' : 'none'}
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-                    </svg>
-                    {t('검토')}
-                  </button>
                 </div>
-
-                {/* 문제 본문 (코드, 힌트 등) */}
-                {quiz.currentQuiz.title.includes('\n') && (
-                  <div className="p-5 pt-3">
-                    <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                      <MarkdownText>
-                        {quiz.currentQuiz.title.split('\n').slice(1).join('\n')}
-                      </MarkdownText>
-                    </div>
-                  </div>
-                )}
+                {/* 북마크 아이콘 + 텍스트 배지 — 카드 우측 상단 */}
+                <button
+                  onClick={quizActions.handleCheckToggle}
+                  className={cn(
+                    'absolute right-3 top-3 flex cursor-pointer items-center gap-1 rounded-lg border-none px-2 py-1 text-xs font-semibold transition-all duration-200',
+                    quiz.currentQuiz.check
+                      ? 'bg-warning/12 text-warning'
+                      : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
+                  )}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill={quiz.currentQuiz.check ? 'currentColor' : 'none'}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                  </svg>
+                  {t('검토')}
+                </button>
               </div>
 
               {/* 선택지 리스트 */}
@@ -307,16 +299,38 @@ const SolveQuizDesignB: React.FC = () => {
                   </div>
                 ))}
               </div>
+
+              {/* V3: 확인 버튼 — 선택지 아래 카드 형태 액션 영역 */}
+              <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+                <button
+                  className="w-full cursor-pointer rounded-xl border-none bg-primary py-3 text-base font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90"
+                  onClick={quizActions.handleSubmit}
+                >
+                  {t('확인')}
+                </button>
+              </div>
             </>
           )}
 
-          {/* 확인 버튼 */}
-          <button
-            className="mt-auto cursor-pointer rounded-2xl border-none bg-primary py-3.5 text-base font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90 max-md:mt-4 max-md:w-full"
-            onClick={quizActions.handleSubmit}
-          >
-            {t('확인')}
-          </button>
+          {/* V3: 제출하기 (모바일) — 진행률 바 + 제출 버튼 카드 */}
+          <div className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-card lg:hidden">
+            <div className="mb-3 flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">{t('진행률')}</span>
+              <span className="font-semibold text-foreground">{progressPercent}%</span>
+            </div>
+            <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <button
+              className="w-full cursor-pointer rounded-xl border-none bg-primary py-3 text-sm font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90"
+              onClick={quizActions.handleFinish}
+            >
+              {t('제출하기')}
+            </button>
+          </div>
         </section>
 
         {/* 우측 패널: 네비게이션 + 실시간 통계 (col-span-4) — lg 이상에서만 표시 */}
@@ -360,19 +374,12 @@ const SolveQuizDesignB: React.FC = () => {
             <div className="mt-4 pt-3">
               <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
                 <span>{t('진행률')}</span>
-                <span className="font-semibold text-foreground">
-                  {quiz.totalQuestions > 0
-                    ? Math.round((quiz.answeredCount / quiz.totalQuestions) * 100)
-                    : 0}
-                  %
-                </span>
+                <span className="font-semibold text-foreground">{progressPercent}%</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-primary transition-all duration-300"
-                  style={{
-                    width: `${quiz.totalQuestions > 0 ? (quiz.answeredCount / quiz.totalQuestions) * 100 : 0}%`,
-                  }}
+                  style={{ width: `${progressPercent}%` }}
                 />
               </div>
             </div>
@@ -411,4 +418,4 @@ const SolveQuizDesignB: React.FC = () => {
   );
 };
 
-export default SolveQuizDesignB;
+export default SolveQuizDesignB_v3;

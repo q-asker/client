@@ -8,8 +8,8 @@ import { useQuizGenerationStore } from '#features/quiz-generation';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 
-/** E안: Split Panel — lg 이상 2컬럼, 우측 네비게이션+통계 패널 */
-const SolveQuizDesignB: React.FC = () => {
+/** V1: Floating Bottom Bar — 하단 고정 액션 바, 깃발 아이콘 검토 토글 */
+const SolveQuizDesignB_v1: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -83,7 +83,7 @@ const SolveQuizDesignB: React.FC = () => {
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background pb-20">
       {/* 제출 다이얼로그 */}
       {quiz.showSubmitDialog && (
         <div
@@ -200,9 +200,9 @@ const SolveQuizDesignB: React.FC = () => {
       )}
 
       {/* 상단 네비게이션 바 */}
-      <header className="relative flex items-center justify-center bg-primary px-6 py-4 text-primary-foreground shadow-card">
+      <header className="flex items-center justify-between bg-primary px-6 py-4 text-primary-foreground shadow-card">
         <button
-          className="absolute left-6 cursor-pointer border-none bg-transparent text-xl text-inherit"
+          className="cursor-pointer border-none bg-transparent text-xl text-inherit"
           onClick={() => navigate('/')}
         >
           x
@@ -241,25 +241,28 @@ const SolveQuizDesignB: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* 문제 영역 — 시각적으로 하나의 카드 */}
-              <div className="w-full overflow-hidden rounded-2xl bg-card shadow-card">
-                {/* 질문 제목 + 검토 배지 */}
-                <div className="flex items-start justify-between gap-3 p-5 pb-0">
+              {/* 질문 + 검토 영역 — V1: 깃발 아이콘 토글 */}
+              <div className="flex w-full items-center rounded-2xl bg-card p-5 shadow-card max-md:flex-col max-md:items-start max-md:gap-3">
+                <div className="flex-1 pr-4 max-md:w-full max-md:pr-0">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                    <MarkdownText>{quiz.currentQuiz.title.split('\n')[0]}</MarkdownText>
+                    <MarkdownText>{quiz.currentQuiz.title}</MarkdownText>
                   </div>
+                </div>
+                {/* 깃발 아이콘 토글 버튼 */}
+                <div className="border-l border-border pl-4 max-md:self-end max-md:border-l-0 max-md:pl-0">
                   <button
                     onClick={quizActions.handleCheckToggle}
                     className={cn(
-                      'flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-none px-2 py-1 text-xs font-semibold transition-all duration-200',
+                      'flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border-none transition-all duration-200',
                       quiz.currentQuiz.check
-                        ? 'bg-warning/12 text-warning'
-                        : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
+                        ? 'bg-warning/15 text-warning'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground',
                     )}
+                    title={t('검토')}
                   >
                     <svg
-                      width="14"
-                      height="14"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
                       fill={quiz.currentQuiz.check ? 'currentColor' : 'none'}
                       stroke="currentColor"
@@ -267,22 +270,11 @@ const SolveQuizDesignB: React.FC = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
-                      <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                      <line x1="4" x2="4" y1="22" y2="15" />
                     </svg>
-                    {t('검토')}
                   </button>
                 </div>
-
-                {/* 문제 본문 (코드, 힌트 등) */}
-                {quiz.currentQuiz.title.includes('\n') && (
-                  <div className="p-5 pt-3">
-                    <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                      <MarkdownText>
-                        {quiz.currentQuiz.title.split('\n').slice(1).join('\n')}
-                      </MarkdownText>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* 선택지 리스트 */}
@@ -309,14 +301,6 @@ const SolveQuizDesignB: React.FC = () => {
               </div>
             </>
           )}
-
-          {/* 확인 버튼 */}
-          <button
-            className="mt-auto cursor-pointer rounded-2xl border-none bg-primary py-3.5 text-base font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90 max-md:mt-4 max-md:w-full"
-            onClick={quizActions.handleSubmit}
-          >
-            {t('확인')}
-          </button>
         </section>
 
         {/* 우측 패널: 네비게이션 + 실시간 통계 (col-span-4) — lg 이상에서만 표시 */}
@@ -407,8 +391,27 @@ const SolveQuizDesignB: React.FC = () => {
           )}
         </aside>
       </main>
+
+      {/* V1: 하단 고정 Floating Bottom Bar */}
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1200px] items-center gap-3 px-6 py-3">
+          <button
+            className="flex-1 cursor-pointer rounded-xl border-none bg-primary py-3 text-base font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90"
+            onClick={quizActions.handleSubmit}
+          >
+            {t('확인')}
+          </button>
+          {/* 제출하기 버튼 (모바일) */}
+          <button
+            className="w-auto cursor-pointer rounded-xl border-none bg-primary/90 px-6 py-3 text-sm font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary lg:hidden"
+            onClick={quizActions.handleFinish}
+          >
+            {t('제출하기')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default SolveQuizDesignB;
+export default SolveQuizDesignB_v1;

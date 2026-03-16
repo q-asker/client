@@ -1,5 +1,5 @@
 import { useTranslation } from 'i18nexus';
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { Document, Page } from 'react-pdf';
 import type { DocumentProps } from 'react-pdf';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -11,7 +11,6 @@ import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
 import { MOCK_QUIZZES, MOCK_EXPLANATION, MOCK_UPLOADED_URL } from './mockExplanationData';
 
-/** location.state 타입 */
 interface LocationState {
   quizzes?: Quiz[];
   explanation?: {
@@ -21,10 +20,10 @@ interface LocationState {
 }
 
 /**
- * Navigator Split — 좌측 문제 리스트 사이드바 + 3열 레이아웃.
- * [문제 리스트 | 문제+선택지 | 해설+참조]
+ * Split Flow — 19번(Bottom Nav) 기반, 문제+선택지 좌측 / 해설+참조 우측 분리.
+ * 프로그레스 바 + 하단 고정 dot 네비 유지, 좌우 독립 스크롤.
  */
-const QuizExplanation: React.FC = () => {
+const QuizExplanationMagicQ: React.FC = () => {
   const { t } = useTranslation();
   const { problemSetId } = useParams<{ problemSetId: string }>();
   const navigate = useNavigate();
@@ -50,11 +49,7 @@ const QuizExplanation: React.FC = () => {
   const { quiz: quizActions, pdf: pdfActions, common: commonActions } = actions;
   const refPages = explanation.thisExplanationObj?.referencedPages;
   const total = quiz.showWrongOnly ? quiz.filteredTotalQuestions : quiz.totalQuestions;
-
-  const correctCount = quiz.filteredQuizzes.filter((q) => {
-    const c = q.selections.find((o) => (o as unknown as { correct: boolean }).correct);
-    return q.userAnswer != null && c && Number(q.userAnswer) === Number(c.id);
-  }).length;
+  const progress = (quiz.currentQuestion / total) * 100;
 
   const isQuizCorrect = (q: Quiz) => {
     const c = q.selections.find((o) => (o as unknown as { correct: boolean }).correct);
@@ -69,16 +64,25 @@ const QuizExplanation: React.FC = () => {
     );
 
   return (
-    <div className="flex h-screen bg-background max-lg:h-auto max-lg:min-h-screen max-lg:flex-col">
-      {/* ═══ 좌측 사이드바: 문제 리스트 ═══ */}
-      <aside className="flex w-80 shrink-0 flex-col border-r border-border bg-card max-lg:w-full max-lg:border-b max-lg:border-r-0">
-        {/* 사이드바 헤더 */}
-        <div className="shrink-0 border-b border-border p-5">
-          <h1 className="mb-2 text-lg font-bold">{t('해설')}</h1>
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">
-              {correctCount}/{quiz.filteredQuizzes.length} {t('정답')}
-            </span>
+    <div className="flex h-screen flex-col bg-background max-lg:h-auto max-lg:min-h-screen">
+      {/* ─── 프로그레스 바 — 상단 고정 ─── */}
+      <div className="shrink-0">
+        <div className="h-1.5 bg-muted">
+          <div
+            className="h-full rounded-r-full bg-primary transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {/* ─── 상단 메타 바 ─── */}
+      <div className="shrink-0 border-b border-border px-6 py-3 max-md:px-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-primary">{quiz.currentQuestion}</span>
+            <span className="text-sm text-muted-foreground">/ {total}</span>
+          </div>
+          <div className="flex items-center gap-3">
             <label className="flex cursor-pointer items-center gap-1.5">
               <span className="text-xs text-muted-foreground">{t('오답만')}</span>
               <div className="relative inline-block h-5 w-9">
@@ -92,80 +96,29 @@ const QuizExplanation: React.FC = () => {
                 <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4" />
               </div>
             </label>
+            <button
+              className="text-sm text-muted-foreground hover:text-foreground"
+              onClick={() => commonActions.handleExit('/')}
+            >
+              &times;
+            </button>
           </div>
-          {/* 프로그레스 바 */}
-          <div className="h-2 w-full rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-chart-2 transition-all duration-500"
-              style={{ width: `${(correctCount / quiz.filteredQuizzes.length) * 100}%` }}
-            />
-          </div>
         </div>
+      </div>
 
-        {/* 문제 목록 — 스크롤 가능 */}
-        <div className="flex-1 overflow-y-auto p-3 max-lg:flex max-lg:gap-2 max-lg:overflow-x-auto max-lg:overflow-y-visible">
-          {quiz.filteredQuizzes.map((q, i) => {
-            const cur = quiz.showWrongOnly
-              ? i + 1 === quiz.currentQuestion
-              : q.number === quiz.currentQuestion;
-            const correct = isQuizCorrect(q);
-            return (
-              <button
-                key={q.number}
-                className={cn(
-                  'mb-0.5 flex w-full items-center gap-3 rounded-xl px-4 py-2 text-left transition-all max-lg:mb-0 max-lg:w-auto max-lg:shrink-0 max-lg:px-3 max-lg:py-1.5',
-                  cur ? 'bg-primary/10 shadow-sm' : 'hover:bg-muted/50',
-                )}
-                onClick={() =>
-                  quizActions.handleQuestionClick(quiz.showWrongOnly ? i + 1 : q.number)
-                }
-              >
-                <span
-                  className={cn(
-                    'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-                    cur
-                      ? 'bg-primary text-primary-foreground'
-                      : correct
-                        ? 'bg-chart-2/15 text-chart-2'
-                        : 'bg-destructive/12 text-destructive',
-                  )}
-                >
-                  {q.number}
-                </span>
-                <span
-                  className={cn(
-                    'flex-1 truncate text-sm max-lg:hidden',
-                    cur ? 'font-semibold text-foreground' : 'text-muted-foreground',
-                  )}
-                >
-                  {q.title}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* 사이드바 하단 */}
-        <div className="shrink-0 border-t border-border p-3">
-          <Button size="sm" className="w-full" onClick={() => commonActions.handleExit('/')}>
-            {t('홈으로')}
-          </Button>
-        </div>
-      </aside>
-
-      {/* ═══ 메인: 좌우 분할 ═══ */}
-      <div className="flex flex-1 overflow-hidden max-lg:flex-col max-lg:overflow-auto">
-        {/* ── 중앙: 문제 + 선택지 ── */}
+      {/* ─── 메인: 좌우 분할 ─── */}
+      <div className="flex flex-1 overflow-hidden max-lg:flex-col max-lg:overflow-auto max-lg:pb-20">
+        {/* ── 좌측: 문제 + 선택지 ── */}
         <div className="flex flex-1 flex-col overflow-y-auto border-r border-border max-lg:border-b max-lg:border-r-0">
-          <div className="flex-1 px-8 py-8 max-md:px-5 max-md:py-5">
-            {/* 문제 */}
+          <div className="mx-auto w-full max-w-2xl flex-1 px-8 py-8 max-md:px-5 max-md:py-5">
+            {/* 문제 — 카드 없이 직접 */}
             <BlurFade delay={0.05}>
               <p className="mb-8 whitespace-pre-wrap break-words text-xl font-bold leading-relaxed max-md:text-lg">
                 {quiz.currentQuiz.title}
               </p>
             </BlurFade>
 
-            {/* 선택지 — 밑줄 구분 스타일 */}
+            {/* 선택지 — 밑줄 구분 스타일 (19번 동일) */}
             <div className="divide-y divide-border">
               {quiz.currentQuiz.selections.map((opt, idx) => {
                 const correct = (opt as unknown as { correct: boolean }).correct;
@@ -206,32 +159,12 @@ const QuizExplanation: React.FC = () => {
                 );
               })}
             </div>
-
-            {/* 이전/다음 네비게이션 */}
-            <div className="mt-8 flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={quizActions.handlePrev}
-                disabled={quiz.currentQuestion === 1}
-              >
-                &larr; {t('이전')}
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={quizActions.handleNext}
-                disabled={quiz.currentQuestion === total}
-              >
-                {t('다음')} &rarr;
-              </Button>
-            </div>
           </div>
         </div>
 
         {/* ── 우측: 해설 + 참조 ── */}
         <div className="flex flex-1 flex-col overflow-y-auto bg-muted/15">
-          <div className="flex-1 px-8 py-8 max-md:px-5 max-md:py-5">
+          <div className="mx-auto w-full max-w-2xl flex-1 px-8 py-8 max-md:px-5 max-md:py-5">
             {/* 해설 */}
             <BlurFade delay={0.15}>
               <div className="mb-8 rounded-2xl bg-card p-6 shadow-sm max-md:p-4">
@@ -337,98 +270,58 @@ const QuizExplanation: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* ─── 하단 고정 네비게이션 (19번 동일 스타일) ─── */}
+      <div className="shrink-0 border-t border-border bg-background/90 backdrop-blur-xl max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:right-0 max-lg:z-20">
+        <div className="mx-auto flex max-w-4xl items-center gap-2 px-4 py-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={quizActions.handlePrev}
+            disabled={quiz.currentQuestion === 1}
+          >
+            &larr;
+          </Button>
+          <div className="flex flex-[3] flex-wrap justify-center gap-1">
+            {quiz.filteredQuizzes.map((q, i) => {
+              const cur = quiz.showWrongOnly
+                ? i + 1 === quiz.currentQuestion
+                : q.number === quiz.currentQuestion;
+              return (
+                <button
+                  key={q.number}
+                  className={cn(
+                    'h-2 w-2 rounded-full transition-all',
+                    cur
+                      ? 'scale-150 bg-primary'
+                      : isQuizCorrect(q)
+                        ? 'bg-chart-2/50'
+                        : 'bg-destructive/40',
+                  )}
+                  onClick={() =>
+                    quizActions.handleQuestionClick(quiz.showWrongOnly ? i + 1 : q.number)
+                  }
+                />
+              );
+            })}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={quizActions.handleNext}
+            disabled={quiz.currentQuestion === total}
+          >
+            &rarr;
+          </Button>
+          <Button size="sm" onClick={() => commonActions.handleExit('/')}>
+            {t('홈')}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const QuizExplanationMagicA = lazy(() => import('./QuizExplanationMagicA'));
-const QuizExplanationMagicB = lazy(() => import('./QuizExplanationMagicB'));
-const QuizExplanationMagicC = lazy(() => import('./QuizExplanationMagicC'));
-const QuizExplanationMagicD = lazy(() => import('./QuizExplanationMagicD'));
-const QuizExplanationDesignA = lazy(() => import('./QuizExplanationDesignA'));
-const QuizExplanationDesignB = lazy(() => import('./QuizExplanationDesignB'));
-const QuizExplanationDesignC = lazy(() => import('./QuizExplanationDesignC'));
-const QuizExplanationDesignD = lazy(() => import('./QuizExplanationDesignD'));
-const QuizExplanationDesignE = lazy(() => import('./QuizExplanationDesignE'));
-const QuizExplanationDesignF = lazy(() => import('./QuizExplanationDesignF'));
-const QuizExplanationMagicE = lazy(() => import('./QuizExplanationMagicE'));
-const QuizExplanationMagicF = lazy(() => import('./QuizExplanationMagicF'));
-const QuizExplanationDesignG = lazy(() => import('./QuizExplanationDesignG'));
-const QuizExplanationDesignH = lazy(() => import('./QuizExplanationDesignH'));
-const QuizExplanationMagicG = lazy(() => import('./QuizExplanationMagicG'));
-const QuizExplanationMagicH = lazy(() => import('./QuizExplanationMagicH'));
-const QuizExplanationDesignI = lazy(() => import('./QuizExplanationDesignI'));
-const QuizExplanationDesignJ = lazy(() => import('./QuizExplanationDesignJ'));
-const QuizExplanationMagicI = lazy(() => import('./QuizExplanationMagicI'));
-const QuizExplanationMagicJ = lazy(() => import('./QuizExplanationMagicJ'));
-const QuizExplanationDesignK = lazy(() => import('./QuizExplanationDesignK'));
-const QuizExplanationDesignL = lazy(() => import('./QuizExplanationDesignL'));
-const QuizExplanationMagicK = lazy(() => import('./QuizExplanationMagicK'));
-const QuizExplanationMagicL = lazy(() => import('./QuizExplanationMagicL'));
-const QuizExplanationDesignM = lazy(() => import('./QuizExplanationDesignM'));
-const QuizExplanationDesignN = lazy(() => import('./QuizExplanationDesignN'));
-const QuizExplanationMagicM = lazy(() => import('./QuizExplanationMagicM'));
-const QuizExplanationMagicN = lazy(() => import('./QuizExplanationMagicN'));
-const QuizExplanationDesignO = lazy(() => import('./QuizExplanationDesignO'));
-const QuizExplanationDesignP = lazy(() => import('./QuizExplanationDesignP'));
-const QuizExplanationMagicO = lazy(() => import('./QuizExplanationMagicO'));
-const QuizExplanationMagicP = lazy(() => import('./QuizExplanationMagicP'));
-const QuizExplanationDesignQ = lazy(() => import('./QuizExplanationDesignQ'));
-const QuizExplanationMagicQ = lazy(() => import('./QuizExplanationMagicQ'));
-const QuizExplanationDesignR = lazy(() => import('./QuizExplanationDesignR'));
-
-const QE_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': QuizExplanationMagicA,
-  '2': QuizExplanationMagicB,
-  '3': QuizExplanationDesignA,
-  '4': QuizExplanationDesignB,
-  '5': QuizExplanationMagicC,
-  '6': QuizExplanationMagicD,
-  '7': QuizExplanationDesignC,
-  '8': QuizExplanationDesignD,
-  '9': QuizExplanationDesignE,
-  '10': QuizExplanationDesignF,
-  '11': QuizExplanationMagicE,
-  '12': QuizExplanationMagicF,
-  '13': QuizExplanationDesignG,
-  '14': QuizExplanationDesignH,
-  '15': QuizExplanationMagicG,
-  '16': QuizExplanationMagicH,
-  '17': QuizExplanationDesignI,
-  '18': QuizExplanationDesignJ,
-  '19': QuizExplanationMagicI,
-  '20': QuizExplanationMagicJ,
-  '21': QuizExplanationDesignK,
-  '22': QuizExplanationDesignL,
-  '23': QuizExplanationMagicK,
-  '24': QuizExplanationMagicL,
-  '25': QuizExplanationDesignM,
-  '26': QuizExplanationDesignN,
-  '27': QuizExplanationMagicM,
-  '28': QuizExplanationMagicN,
-  '29': QuizExplanationDesignO,
-  '30': QuizExplanationDesignP,
-  '31': QuizExplanationMagicO,
-  '32': QuizExplanationMagicP,
-  '33': QuizExplanationDesignQ,
-  '34': QuizExplanationMagicQ,
-  '35': QuizExplanationDesignR,
-};
-
-const QuizExplanationWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('qe');
-  const VariantComponent = variant ? QE_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <QuizExplanation />;
-};
-
-export default QuizExplanationWithVariant;
+export default QuizExplanationMagicQ;

@@ -1,5 +1,5 @@
 import { useTranslation } from 'i18nexus';
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { Document, Page } from 'react-pdf';
 import type { DocumentProps } from 'react-pdf';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -11,7 +11,6 @@ import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
 import { MOCK_QUIZZES, MOCK_EXPLANATION, MOCK_UPLOADED_URL } from './mockExplanationData';
 
-/** location.state 타입 */
 interface LocationState {
   quizzes?: Quiz[];
   explanation?: {
@@ -21,10 +20,11 @@ interface LocationState {
 }
 
 /**
- * Navigator Split — 좌측 문제 리스트 사이드바 + 3열 레이아웃.
- * [문제 리스트 | 문제+선택지 | 해설+참조]
+ * Navigator Split — 34번(Split Flow) + 좌측 문제 리스트 사이드바.
+ * [문제 리스트 | 문제+선택지 | 해설+참조] 3열 레이아웃.
+ * 사이드바: 진행률 바 + 정답 통계 + 문제 목록(번호+제목).
  */
-const QuizExplanation: React.FC = () => {
+const QuizExplanationDesignR: React.FC = () => {
   const { t } = useTranslation();
   const { problemSetId } = useParams<{ problemSetId: string }>();
   const navigate = useNavigate();
@@ -153,7 +153,7 @@ const QuizExplanation: React.FC = () => {
         </div>
       </aside>
 
-      {/* ═══ 메인: 좌우 분할 ═══ */}
+      {/* ═══ 메인: 좌우 분할 (34번 구조) ═══ */}
       <div className="flex flex-1 overflow-hidden max-lg:flex-col max-lg:overflow-auto">
         {/* ── 중앙: 문제 + 선택지 ── */}
         <div className="flex flex-1 flex-col overflow-y-auto border-r border-border max-lg:border-b max-lg:border-r-0">
@@ -341,94 +341,4 @@ const QuizExplanation: React.FC = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const QuizExplanationMagicA = lazy(() => import('./QuizExplanationMagicA'));
-const QuizExplanationMagicB = lazy(() => import('./QuizExplanationMagicB'));
-const QuizExplanationMagicC = lazy(() => import('./QuizExplanationMagicC'));
-const QuizExplanationMagicD = lazy(() => import('./QuizExplanationMagicD'));
-const QuizExplanationDesignA = lazy(() => import('./QuizExplanationDesignA'));
-const QuizExplanationDesignB = lazy(() => import('./QuizExplanationDesignB'));
-const QuizExplanationDesignC = lazy(() => import('./QuizExplanationDesignC'));
-const QuizExplanationDesignD = lazy(() => import('./QuizExplanationDesignD'));
-const QuizExplanationDesignE = lazy(() => import('./QuizExplanationDesignE'));
-const QuizExplanationDesignF = lazy(() => import('./QuizExplanationDesignF'));
-const QuizExplanationMagicE = lazy(() => import('./QuizExplanationMagicE'));
-const QuizExplanationMagicF = lazy(() => import('./QuizExplanationMagicF'));
-const QuizExplanationDesignG = lazy(() => import('./QuizExplanationDesignG'));
-const QuizExplanationDesignH = lazy(() => import('./QuizExplanationDesignH'));
-const QuizExplanationMagicG = lazy(() => import('./QuizExplanationMagicG'));
-const QuizExplanationMagicH = lazy(() => import('./QuizExplanationMagicH'));
-const QuizExplanationDesignI = lazy(() => import('./QuizExplanationDesignI'));
-const QuizExplanationDesignJ = lazy(() => import('./QuizExplanationDesignJ'));
-const QuizExplanationMagicI = lazy(() => import('./QuizExplanationMagicI'));
-const QuizExplanationMagicJ = lazy(() => import('./QuizExplanationMagicJ'));
-const QuizExplanationDesignK = lazy(() => import('./QuizExplanationDesignK'));
-const QuizExplanationDesignL = lazy(() => import('./QuizExplanationDesignL'));
-const QuizExplanationMagicK = lazy(() => import('./QuizExplanationMagicK'));
-const QuizExplanationMagicL = lazy(() => import('./QuizExplanationMagicL'));
-const QuizExplanationDesignM = lazy(() => import('./QuizExplanationDesignM'));
-const QuizExplanationDesignN = lazy(() => import('./QuizExplanationDesignN'));
-const QuizExplanationMagicM = lazy(() => import('./QuizExplanationMagicM'));
-const QuizExplanationMagicN = lazy(() => import('./QuizExplanationMagicN'));
-const QuizExplanationDesignO = lazy(() => import('./QuizExplanationDesignO'));
-const QuizExplanationDesignP = lazy(() => import('./QuizExplanationDesignP'));
-const QuizExplanationMagicO = lazy(() => import('./QuizExplanationMagicO'));
-const QuizExplanationMagicP = lazy(() => import('./QuizExplanationMagicP'));
-const QuizExplanationDesignQ = lazy(() => import('./QuizExplanationDesignQ'));
-const QuizExplanationMagicQ = lazy(() => import('./QuizExplanationMagicQ'));
-const QuizExplanationDesignR = lazy(() => import('./QuizExplanationDesignR'));
-
-const QE_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': QuizExplanationMagicA,
-  '2': QuizExplanationMagicB,
-  '3': QuizExplanationDesignA,
-  '4': QuizExplanationDesignB,
-  '5': QuizExplanationMagicC,
-  '6': QuizExplanationMagicD,
-  '7': QuizExplanationDesignC,
-  '8': QuizExplanationDesignD,
-  '9': QuizExplanationDesignE,
-  '10': QuizExplanationDesignF,
-  '11': QuizExplanationMagicE,
-  '12': QuizExplanationMagicF,
-  '13': QuizExplanationDesignG,
-  '14': QuizExplanationDesignH,
-  '15': QuizExplanationMagicG,
-  '16': QuizExplanationMagicH,
-  '17': QuizExplanationDesignI,
-  '18': QuizExplanationDesignJ,
-  '19': QuizExplanationMagicI,
-  '20': QuizExplanationMagicJ,
-  '21': QuizExplanationDesignK,
-  '22': QuizExplanationDesignL,
-  '23': QuizExplanationMagicK,
-  '24': QuizExplanationMagicL,
-  '25': QuizExplanationDesignM,
-  '26': QuizExplanationDesignN,
-  '27': QuizExplanationMagicM,
-  '28': QuizExplanationMagicN,
-  '29': QuizExplanationDesignO,
-  '30': QuizExplanationDesignP,
-  '31': QuizExplanationMagicO,
-  '32': QuizExplanationMagicP,
-  '33': QuizExplanationDesignQ,
-  '34': QuizExplanationMagicQ,
-  '35': QuizExplanationDesignR,
-};
-
-const QuizExplanationWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('qe');
-  const VariantComponent = variant ? QE_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <QuizExplanation />;
-};
-
-export default QuizExplanationWithVariant;
+export default QuizExplanationDesignR;

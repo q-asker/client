@@ -8,8 +8,8 @@ import { useQuizGenerationStore } from '#features/quiz-generation';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 
-/** E안: Split Panel — lg 이상 2컬럼, 우측 네비게이션+통계 패널 */
-const SolveQuizDesignB: React.FC = () => {
+/** V4: Inline Flow — 선택지 흐름 통합, 별(★) 아이콘 검토 토글 */
+const SolveQuizDesignB_v4: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -200,9 +200,9 @@ const SolveQuizDesignB: React.FC = () => {
       )}
 
       {/* 상단 네비게이션 바 */}
-      <header className="relative flex items-center justify-center bg-primary px-6 py-4 text-primary-foreground shadow-card">
+      <header className="flex items-center justify-between bg-primary px-6 py-4 text-primary-foreground shadow-card">
         <button
-          className="absolute left-6 cursor-pointer border-none bg-transparent text-xl text-inherit"
+          className="cursor-pointer border-none bg-transparent text-xl text-inherit"
           onClick={() => navigate('/')}
         >
           x
@@ -241,25 +241,28 @@ const SolveQuizDesignB: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* 문제 영역 — 시각적으로 하나의 카드 */}
-              <div className="w-full overflow-hidden rounded-2xl bg-card shadow-card">
-                {/* 질문 제목 + 검토 배지 */}
-                <div className="flex items-start justify-between gap-3 p-5 pb-0">
+              {/* V4: 질문 + 별(★) 아이콘 검토 토글 — 문제 제목 영역 우측 */}
+              <div className="flex w-full items-center rounded-2xl bg-card p-5 shadow-card max-md:flex-col max-md:items-start max-md:gap-3">
+                <div className="flex-1 pr-4 max-md:w-full max-md:pr-0">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                    <MarkdownText>{quiz.currentQuiz.title.split('\n')[0]}</MarkdownText>
+                    <MarkdownText>{quiz.currentQuiz.title}</MarkdownText>
                   </div>
+                </div>
+                {/* 별(★) 아이콘 토글 */}
+                <div className="border-l border-border pl-4 max-md:self-end max-md:border-l-0 max-md:pl-0">
                   <button
                     onClick={quizActions.handleCheckToggle}
                     className={cn(
-                      'flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-none px-2 py-1 text-xs font-semibold transition-all duration-200',
+                      'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-none transition-all duration-200',
                       quiz.currentQuiz.check
-                        ? 'bg-warning/12 text-warning'
-                        : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
+                        ? 'text-warning'
+                        : 'text-muted-foreground/40 hover:text-warning/60',
                     )}
+                    title={t('검토')}
                   >
                     <svg
-                      width="14"
-                      height="14"
+                      width="20"
+                      height="20"
                       viewBox="0 0 24 24"
                       fill={quiz.currentQuiz.check ? 'currentColor' : 'none'}
                       stroke="currentColor"
@@ -267,22 +270,10 @@ const SolveQuizDesignB: React.FC = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
-                      <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                     </svg>
-                    {t('검토')}
                   </button>
                 </div>
-
-                {/* 문제 본문 (코드, 힌트 등) */}
-                {quiz.currentQuiz.title.includes('\n') && (
-                  <div className="p-5 pt-3">
-                    <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                      <MarkdownText>
-                        {quiz.currentQuiz.title.split('\n').slice(1).join('\n')}
-                      </MarkdownText>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* 선택지 리스트 */}
@@ -306,20 +297,32 @@ const SolveQuizDesignB: React.FC = () => {
                     </span>
                   </div>
                 ))}
+
+                {/* V4: 확인 버튼 — 선택지 리스트 바로 아래 이어지는 넓은 ghost 버튼 */}
+                <button
+                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-transparent py-4 text-base font-medium text-muted-foreground transition-all duration-200 hover:border-primary hover:bg-primary/5 hover:text-primary"
+                  onClick={quizActions.handleSubmit}
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  {t('확인')}
+                </button>
               </div>
             </>
           )}
-
-          {/* 확인 버튼 */}
-          <button
-            className="mt-auto cursor-pointer rounded-2xl border-none bg-primary py-3.5 text-base font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90 max-md:mt-4 max-md:w-full"
-            onClick={quizActions.handleSubmit}
-          >
-            {t('확인')}
-          </button>
         </section>
 
-        {/* 우측 패널: 네비게이션 + 실시간 통계 (col-span-4) — lg 이상에서만 표시 */}
+        {/* 우측 패널: 네비게이션 + 실시간 통계 + 제출하기 (col-span-4) — lg 이상에서만 표시 */}
         <aside className="hidden lg:col-span-4 lg:flex lg:flex-col lg:gap-5">
           {/* 실시간 통계 카드 */}
           <div className="rounded-2xl bg-card p-5 shadow-card">
@@ -386,7 +389,7 @@ const SolveQuizDesignB: React.FC = () => {
           </div>
 
           {/* 문제 번호 네비게이션 카드 */}
-          <div className="sticky top-6 rounded-2xl bg-card p-5 shadow-card">
+          <div className="rounded-2xl bg-card p-5 shadow-card">
             <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
               {t('문제 목록')}
             </h3>
@@ -406,9 +409,19 @@ const SolveQuizDesignB: React.FC = () => {
             renderPendingButton(index, 'bottom-'),
           )}
         </aside>
+
+        {/* V4: 제출하기 — 모바일에서는 문제 목록 아래에 배치 */}
+        <div className="mt-4 lg:hidden">
+          <button
+            className="w-full cursor-pointer rounded-2xl border-none bg-primary py-3.5 text-base font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90"
+            onClick={quizActions.handleFinish}
+          >
+            {t('제출하기')}
+          </button>
+        </div>
       </main>
     </div>
   );
 };
 
-export default SolveQuizDesignB;
+export default SolveQuizDesignB_v4;

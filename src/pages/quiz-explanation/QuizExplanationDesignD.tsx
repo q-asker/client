@@ -132,7 +132,7 @@ const QuizExplanationDesignD: React.FC = () => {
                 <button
                   key={q.number}
                   className={cn(
-                    'flex h-8 w-8 items-center justify-center border font-mono text-xs tabular-nums transition-colors duration-150',
+                    'flex h-8 w-8 items-center justify-center rounded-lg border font-mono text-xs tabular-nums transition-colors duration-150',
                     isCurrent
                       ? 'border-primary bg-primary text-primary-foreground'
                       : isCorrect
@@ -152,7 +152,7 @@ const QuizExplanationDesignD: React.FC = () => {
           </div>
 
           {/* 문제 컨테이너 — 점선 테두리 */}
-          <div className="border border-dashed border-border bg-muted/20 p-5">
+          <div className="rounded-xl border border-dashed border-border bg-muted/20 p-5">
             <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
               <span className="mr-2 font-mono font-medium tabular-nums text-primary">
                 Q{pad(quiz.currentQuiz.number)}.
@@ -176,7 +176,7 @@ const QuizExplanationDesignD: React.FC = () => {
                 <div
                   key={opt.id}
                   className={cn(
-                    'flex items-start gap-3 border px-4 py-2.5 text-sm transition-colors duration-150',
+                    'flex items-start gap-3 rounded-lg border px-4 py-2.5 text-sm transition-colors duration-150',
                     isCorrectOption
                       ? 'border-emerald-500/40 bg-emerald-500/5'
                       : isWrongSelected
@@ -257,7 +257,7 @@ const QuizExplanationDesignD: React.FC = () => {
         {/* 우측 — 해설 + PDF (데스크톱에서 스티키) */}
         <aside className="flex flex-col gap-5 lg:sticky lg:top-6 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
           {/* 해설 패널 */}
-          <div className="border border-border bg-muted/20 p-5">
+          <div className="rounded-xl border border-border bg-muted/20 p-5">
             <div className="mb-3 flex items-center gap-2 border-b border-border pb-2">
               <span className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
                 ANALYSIS
@@ -300,7 +300,7 @@ const QuizExplanationDesignD: React.FC = () => {
           </div>
 
           {/* PDF 섹션 */}
-          <div className="border border-border bg-muted/20 p-5">
+          <div className="rounded-xl border border-border bg-muted/20 p-5">
             <div className="mb-3 flex items-center justify-between border-b border-border pb-2">
               <span className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
                 PDF

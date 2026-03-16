@@ -67,7 +67,7 @@ const QuizExplanationDesignB: React.FC = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* 헤더 */}
-      <header className="flex items-center justify-between border-b border-border px-6 py-4">
+      <header className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
           <h1 className="text-lg font-semibold text-foreground">{t('해설')}</h1>
           <span className="text-sm text-muted-foreground">
@@ -138,7 +138,7 @@ const QuizExplanationDesignB: React.FC = () => {
           </div>
 
           {/* 문제 카드 */}
-          <Card>
+          <Card className="border-0">
             <CardHeader>
               <CardTitle className="whitespace-pre-wrap break-words text-base leading-relaxed">
                 {quiz.currentQuiz.number}. {quiz.currentQuiz.title}
@@ -220,7 +220,7 @@ const QuizExplanationDesignB: React.FC = () => {
         {/* 우측: 해설 + PDF */}
         <div className="flex flex-1 flex-col gap-6">
           {/* 해설 카드 */}
-          <Card>
+          <Card className="border-0">
             <CardHeader>
               <CardTitle className="text-lg">{t('해설')}</CardTitle>
             </CardHeader>
@@ -232,7 +232,7 @@ const QuizExplanationDesignB: React.FC = () => {
           </Card>
 
           {/* 참조 페이지 + PDF 카드 */}
-          <Card>
+          <Card className="border-0">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">{t('참조 자료')}</CardTitle>
