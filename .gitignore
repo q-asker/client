@@ -31,7 +31,7 @@ gcp-credential.json
 *.sw?
 
 # Claude Code
-.playwright-mcp
+docs/.playwright-mcp
 *.png
 !public/*.png
 !src/assets/*.png
