@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import CustomToast from '#shared/toast';
 import { useAuthStore, authService } from '#entities/auth';
 import axiosInstance from '#shared/api';
@@ -9,9 +9,8 @@ import Header, { extractRoleFromToken } from '#widgets/header';
 import { cn } from '@/shared/ui/lib/utils';
 import { Button } from '@/shared/ui/components/button';
 import { Badge } from '@/shared/ui/components/badge';
+import { Card, CardContent, CardHeader } from '@/shared/ui/components/card';
 import { Skeleton } from '@/shared/ui/components/skeleton';
-import { BlurFade } from '@/shared/ui/components/blur-fade';
-import { TextAnimate } from '@/shared/ui/components/text-animate';
 import {
   ArrowLeft,
   Plus,
@@ -26,10 +25,10 @@ import {
   CheckCircle,
   Clock,
   Shield,
+  ChevronDown,
 } from 'lucide-react';
 import { MOCK_BOARD_DETAIL } from './mockBoardDetailData';
 
-/** 댓글을 포함한 게시글 상세 타입 */
 interface BoardDetailPost {
   boardId: string;
   title: string;
@@ -49,7 +48,12 @@ const fadeUp = {
   transition: { duration: 0.35, ease: 'easeOut' as const },
 };
 
-const BoardDetail = () => {
+/**
+ * Variant 7 — Accordion Expandable
+ * 댓글을 아코디언 카드로 표시, 첫 줄 미리보기 + 클릭 확장
+ * Framer Motion AnimatePresence 활용, Shadcn Card/Badge/Button
+ */
+const BoardDetailVariant7 = () => {
   const { t } = useTranslation();
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
@@ -62,6 +66,8 @@ const BoardDetail = () => {
   const [loading, setLoading] = useState(true);
   const [replyContent, setReplyContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
   const { accessToken, clearAuth } = useAuthStore();
 
   const isAdmin = useMemo(() => {
@@ -69,6 +75,29 @@ const BoardDetail = () => {
     const role = extractRoleFromToken(accessToken);
     return role === 'ROLE_ADMIN';
   }, [accessToken, isMock]);
+
+  const toggleReplyExpanded = (index: number) => {
+    setExpandedReplies((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
+  /** 첫 줄만 추출 */
+  const getFirstLine = (text: string): string => {
+    const firstLine = text.split('\n')[0];
+    return firstLine.length > 80 ? firstLine.slice(0, 80) + '…' : firstLine;
+  };
+
+  /** 여러 줄인지 확인 */
+  const isMultiLine = (text: string): boolean => {
+    return text.includes('\n') || text.length > 80;
+  };
 
   const formatDate = (isoString: string | null): string => {
     if (!isoString) return '-';
@@ -156,6 +185,7 @@ const BoardDetail = () => {
       await axiosInstance.post(`/boards/${boardId}/replies`, { content: replyContent });
       CustomToast.success(t('댓글이 등록되었습니다.'));
       setReplyContent('');
+      setShowReplyForm(false);
       fetchPost();
     } catch (error: unknown) {
       const err = error as { response?: { status?: number } };
@@ -265,48 +295,87 @@ const BoardDetail = () => {
         {/* 구분선 */}
         <div className="mb-6 border-t border-border" />
 
-        {/* 댓글 섹션 — 채팅 버블 스타일 */}
+        {/* 댓글 섹션 — 아코디언 확장형 */}
         <motion.div
           {...fadeUp}
           transition={{ duration: 0.35, ease: 'easeOut' as const, delay: 0.15 }}
         >
-          <div className="mb-5 flex items-center gap-2">
-            <MessageCircle className="size-4 text-foreground" />
-            <TextAnimate
-              animation="blurInUp"
-              by="character"
-              className="text-base font-semibold text-foreground"
-            >
-              {`댓글 ${post.replies?.length || 0}건`}
-            </TextAnimate>
-          </div>
+          <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-foreground">
+            <MessageCircle className="size-4" />
+            댓글 {post.replies?.length || 0}건
+          </h3>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             {post.replies && post.replies.length > 0 ? (
-              post.replies.map((reply, index) => (
-                <BlurFade key={index} delay={0.15 + index * 0.1} inView>
-                  <div className="flex items-start gap-3">
-                    {/* 관리자 아바타 */}
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                      <Shield className="size-4 text-primary" />
-                    </div>
+              post.replies.map((reply, index) => {
+                const expanded = expandedReplies.has(index);
+                const hasMore = isMultiLine(reply);
 
-                    {/* 말풍선 */}
-                    <div className="flex-1">
-                      <div className="relative rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-3">
-                        <div className="absolute top-3 -left-1.5 size-3 rotate-45 bg-muted/60" />
-                        <div className="mb-1 text-xs font-semibold text-primary">관리자</div>
-                        <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap">
-                          {reply}
-                        </p>
-                      </div>
-                      <div className="mt-1 pl-2 text-[11px] text-muted-foreground/60">
-                        {formatDate(post.createdAt)}
-                      </div>
-                    </div>
-                  </div>
-                </BlurFade>
-              ))
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + index * 0.06, duration: 0.3 }}
+                  >
+                    <Card
+                      className={cn(
+                        'border-l-2 border-l-primary/20 bg-card transition-colors',
+                        hasMore && 'cursor-pointer hover:bg-accent/30',
+                      )}
+                      onClick={() => hasMore && toggleReplyExpanded(index)}
+                    >
+                      <CardContent className="p-4">
+                        {/* 관리자 뱃지 + 확장 아이콘 */}
+                        <div className="mb-1.5 flex items-center justify-between">
+                          <Badge
+                            variant="secondary"
+                            className="gap-1 bg-primary/10 text-xs text-primary"
+                          >
+                            <Shield className="size-3" />
+                            관리자
+                          </Badge>
+                          {hasMore && (
+                            <motion.div
+                              animate={{ rotate: expanded ? 180 : 0 }}
+                              transition={{ duration: 0.2, ease: 'easeOut' as const }}
+                            >
+                              <ChevronDown className="size-4 text-muted-foreground" />
+                            </motion.div>
+                          )}
+                        </div>
+
+                        {/* 미리보기 (첫 줄) — 항상 표시 */}
+                        {!expanded && (
+                          <p className="text-sm leading-relaxed text-card-foreground/80">
+                            {hasMore ? getFirstLine(reply) : reply}
+                          </p>
+                        )}
+
+                        {/* 확장된 전체 내용 */}
+                        <AnimatePresence initial={false}>
+                          {expanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.25, ease: 'easeOut' as const }}
+                              className="overflow-hidden"
+                            >
+                              <p className="text-sm leading-relaxed text-card-foreground/80 whitespace-pre-wrap">
+                                {reply}
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
+                        {/* 단일 줄이면 그냥 표시 */}
+                        {!hasMore && !expanded && null}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })
             ) : (
               <div className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
                 아직 등록된 댓글이 없습니다.
@@ -315,44 +384,93 @@ const BoardDetail = () => {
           </div>
         </motion.div>
 
-        {/* 관리자 답변 폼 — 플로팅 하단 바 스타일 */}
+        {/* 관리자 답변 폼 — 인라인 확장형 */}
         {isAdmin && (
-          <BlurFade delay={0.3} inView>
-            <div className="sticky bottom-4 z-10 mt-6">
-              <div className="rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur-md">
-                <div className="flex items-center gap-2">
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                    <Shield className="size-3.5 text-primary" />
-                  </div>
-                  <input
-                    type="text"
-                    className="flex-1 rounded-full border border-input bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-                    value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
-                    placeholder="답변을 입력하세요..."
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey && !isSubmitting) {
-                        e.preventDefault();
-                        handleReplySubmit();
-                      }
-                    }}
-                  />
+          <motion.div
+            {...fadeUp}
+            transition={{ duration: 0.35, ease: 'easeOut' as const, delay: 0.25 }}
+            className="mt-6"
+          >
+            <AnimatePresence initial={false}>
+              {!showReplyForm ? (
+                <motion.div
+                  key="reply-trigger"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' as const }}
+                >
                   <Button
-                    size="icon"
-                    onClick={handleReplySubmit}
-                    disabled={isSubmitting}
-                    className="size-9 shrink-0 rounded-full"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowReplyForm(true)}
+                    className="gap-1.5 border-primary/20 text-primary hover:bg-primary/5"
                   >
-                    {isSubmitting ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Send className="size-4" />
-                    )}
+                    <Shield className="size-3.5" />
+                    관리자 답변 작성
                   </Button>
-                </div>
-              </div>
-            </div>
-          </BlurFade>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="reply-form"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' as const }}
+                  className="overflow-hidden"
+                >
+                  <Card className="border-primary/15">
+                    <CardContent className="p-4">
+                      <div className="mb-3 flex items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          className="gap-1 bg-primary/10 text-xs text-primary"
+                        >
+                          <Shield className="size-3" />
+                          관리자
+                        </Badge>
+                        <span className="text-sm font-medium text-foreground">답변 작성</span>
+                      </div>
+                      <textarea
+                        className="w-full resize-y rounded-lg border border-input bg-background p-3 text-sm leading-relaxed text-foreground transition-shadow focus:shadow-md focus:outline-none focus:ring-1 focus:ring-ring"
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        placeholder="사용자 문의에 대한 답변 내용을 입력하세요."
+                        rows={4}
+                        autoFocus
+                      />
+                      <div className="mt-3 flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setShowReplyForm(false);
+                            setReplyContent('');
+                          }}
+                          disabled={isSubmitting}
+                        >
+                          취소
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleReplySubmit}
+                          disabled={isSubmitting}
+                          className="gap-1.5"
+                        >
+                          {isSubmitting ? (
+                            <Loader2 className="size-3.5 animate-spin" />
+                          ) : (
+                            <Send className="size-3.5" />
+                          )}
+                          {isSubmitting ? '등록 중...' : '답변 등록'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         )}
 
         {/* 하단 액션 */}
@@ -365,6 +483,14 @@ const BoardDetail = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate('/boards')} className="gap-1">
               <ArrowLeft className="size-3.5" />
               목록
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/boards/write')}
+              className="gap-1"
+            >
+              <Plus className="size-3.5" />새 문의
             </Button>
           </div>
 
@@ -396,33 +522,4 @@ const BoardDetail = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const BDD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': React.lazy(() => import('./BoardDetailMagicA')),
-  '2': React.lazy(() => import('./BoardDetailMagicB')),
-  '3': React.lazy(() => import('./BoardDetailNormalA')),
-  '4': React.lazy(() => import('./BoardDetailNormalB')),
-  '5': React.lazy(() => import('./BoardDetailVariant5')),
-  '6': React.lazy(() => import('./BoardDetailVariant6')),
-  '7': React.lazy(() => import('./BoardDetailVariant7')),
-  '8': React.lazy(() => import('./BoardDetailVariant8')),
-};
-
-const BoardDetailWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('bdd');
-  const VariantComponent = variant ? BDD_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <React.Suspense
-        fallback={<div className="p-8 text-center text-muted-foreground">로딩 중...</div>}
-      >
-        <VariantComponent />
-      </React.Suspense>
-    );
-  }
-  return <BoardDetail />;
-};
-
-export default BoardDetailWithVariant;
+export default BoardDetailVariant7;

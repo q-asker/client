@@ -9,9 +9,8 @@ import Header, { extractRoleFromToken } from '#widgets/header';
 import { cn } from '@/shared/ui/lib/utils';
 import { Button } from '@/shared/ui/components/button';
 import { Badge } from '@/shared/ui/components/badge';
+import { Card, CardContent, CardHeader } from '@/shared/ui/components/card';
 import { Skeleton } from '@/shared/ui/components/skeleton';
-import { BlurFade } from '@/shared/ui/components/blur-fade';
-import { TextAnimate } from '@/shared/ui/components/text-animate';
 import {
   ArrowLeft,
   Plus,
@@ -25,11 +24,9 @@ import {
   Loader2,
   CheckCircle,
   Clock,
-  Shield,
 } from 'lucide-react';
 import { MOCK_BOARD_DETAIL } from './mockBoardDetailData';
 
-/** 댓글을 포함한 게시글 상세 타입 */
 interface BoardDetailPost {
   boardId: string;
   title: string;
@@ -49,7 +46,12 @@ const fadeUp = {
   transition: { duration: 0.35, ease: 'easeOut' as const },
 };
 
-const BoardDetail = () => {
+/**
+ * Normal A — Minimal Clean
+ * Framer Motion 미니멀 진입, Shadcn Card/Badge/Button,
+ * 보드 목록 페이지와 톤 통일
+ */
+const BoardDetailNormalA = () => {
   const { t } = useTranslation();
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
@@ -236,7 +238,7 @@ const BoardDetail = () => {
         >
           <h1 className="mb-3 text-2xl font-bold text-foreground max-md:text-xl">{post.title}</h1>
 
-          {/* 메타 정보 */}
+          {/* 메타 정보 — 보드 목록과 동일한 밀도 */}
           <div className="mb-6 flex items-center border-b-2 border-border pb-3 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1 pr-4">
               <User className="size-3.5" />
@@ -265,47 +267,34 @@ const BoardDetail = () => {
         {/* 구분선 */}
         <div className="mb-6 border-t border-border" />
 
-        {/* 댓글 섹션 — 채팅 버블 스타일 */}
+        {/* 댓글 섹션 */}
         <motion.div
           {...fadeUp}
           transition={{ duration: 0.35, ease: 'easeOut' as const, delay: 0.15 }}
         >
-          <div className="mb-5 flex items-center gap-2">
-            <MessageCircle className="size-4 text-foreground" />
-            <TextAnimate
-              animation="blurInUp"
-              by="character"
-              className="text-base font-semibold text-foreground"
-            >
-              {`댓글 ${post.replies?.length || 0}건`}
-            </TextAnimate>
-          </div>
+          <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-foreground">
+            <MessageCircle className="size-4" />
+            댓글 {post.replies?.length || 0}건
+          </h3>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             {post.replies && post.replies.length > 0 ? (
               post.replies.map((reply, index) => (
-                <BlurFade key={index} delay={0.15 + index * 0.1} inView>
-                  <div className="flex items-start gap-3">
-                    {/* 관리자 아바타 */}
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                      <Shield className="size-4 text-primary" />
-                    </div>
-
-                    {/* 말풍선 */}
-                    <div className="flex-1">
-                      <div className="relative rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-3">
-                        <div className="absolute top-3 -left-1.5 size-3 rotate-45 bg-muted/60" />
-                        <div className="mb-1 text-xs font-semibold text-primary">관리자</div>
-                        <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap">
-                          {reply}
-                        </p>
-                      </div>
-                      <div className="mt-1 pl-2 text-[11px] text-muted-foreground/60">
-                        {formatDate(post.createdAt)}
-                      </div>
-                    </div>
-                  </div>
-                </BlurFade>
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + index * 0.06, duration: 0.3 }}
+                >
+                  <Card className="border-l-2 border-l-primary bg-card">
+                    <CardContent className="p-4">
+                      <div className="mb-1.5 text-xs font-medium text-primary">관리자</div>
+                      <p className="text-sm leading-relaxed text-card-foreground/80 whitespace-pre-wrap">
+                        {reply}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))
             ) : (
               <div className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
@@ -315,47 +304,45 @@ const BoardDetail = () => {
           </div>
         </motion.div>
 
-        {/* 관리자 답변 폼 — 플로팅 하단 바 스타일 */}
+        {/* 관리자 답변 폼 */}
         {isAdmin && (
-          <BlurFade delay={0.3} inView>
-            <div className="sticky bottom-4 z-10 mt-6">
-              <div className="rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur-md">
-                <div className="flex items-center gap-2">
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                    <Shield className="size-3.5 text-primary" />
-                  </div>
-                  <input
-                    type="text"
-                    className="flex-1 rounded-full border border-input bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-                    value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
-                    placeholder="답변을 입력하세요..."
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey && !isSubmitting) {
-                        e.preventDefault();
-                        handleReplySubmit();
-                      }
-                    }}
-                  />
+          <motion.div
+            {...fadeUp}
+            transition={{ duration: 0.35, ease: 'easeOut' as const, delay: 0.25 }}
+          >
+            <Card className="mt-6 border-primary/15">
+              <CardHeader className="pb-3">
+                <h4 className="text-sm font-semibold text-foreground">관리자 답변 작성</h4>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <textarea
+                  className="w-full resize-y rounded-lg border border-input bg-background p-3 text-sm leading-relaxed text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  value={replyContent}
+                  onChange={(e) => setReplyContent(e.target.value)}
+                  placeholder="사용자 문의에 대한 답변 내용을 입력하세요."
+                  rows={4}
+                />
+                <div className="mt-3 flex justify-end">
                   <Button
-                    size="icon"
+                    size="sm"
                     onClick={handleReplySubmit}
                     disabled={isSubmitting}
-                    className="size-9 shrink-0 rounded-full"
+                    className="gap-1.5"
                   >
                     {isSubmitting ? (
-                      <Loader2 className="size-4 animate-spin" />
+                      <Loader2 className="size-3.5 animate-spin" />
                     ) : (
-                      <Send className="size-4" />
+                      <Send className="size-3.5" />
                     )}
+                    {isSubmitting ? '등록 중...' : '답변 등록'}
                   </Button>
                 </div>
-              </div>
-            </div>
-          </BlurFade>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
 
-        {/* 하단 액션 */}
+        {/* 하단 액션 — 보드 목록과 동일한 간결함 */}
         <motion.div
           {...fadeUp}
           transition={{ duration: 0.35, ease: 'easeOut' as const, delay: 0.3 }}
@@ -365,6 +352,14 @@ const BoardDetail = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate('/boards')} className="gap-1">
               <ArrowLeft className="size-3.5" />
               목록
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/boards/write')}
+              className="gap-1"
+            >
+              <Plus className="size-3.5" />새 문의
             </Button>
           </div>
 
@@ -396,33 +391,4 @@ const BoardDetail = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const BDD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': React.lazy(() => import('./BoardDetailMagicA')),
-  '2': React.lazy(() => import('./BoardDetailMagicB')),
-  '3': React.lazy(() => import('./BoardDetailNormalA')),
-  '4': React.lazy(() => import('./BoardDetailNormalB')),
-  '5': React.lazy(() => import('./BoardDetailVariant5')),
-  '6': React.lazy(() => import('./BoardDetailVariant6')),
-  '7': React.lazy(() => import('./BoardDetailVariant7')),
-  '8': React.lazy(() => import('./BoardDetailVariant8')),
-};
-
-const BoardDetailWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('bdd');
-  const VariantComponent = variant ? BDD_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <React.Suspense
-        fallback={<div className="p-8 text-center text-muted-foreground">로딩 중...</div>}
-      >
-        <VariantComponent />
-      </React.Suspense>
-    );
-  }
-  return <BoardDetail />;
-};
-
-export default BoardDetailWithVariant;
+export default BoardDetailNormalA;
