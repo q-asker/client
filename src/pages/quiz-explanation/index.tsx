@@ -4,6 +4,7 @@ import { Document, Page } from 'react-pdf';
 import type { DocumentProps } from 'react-pdf';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuizExplanation } from '#features/quiz-explanation';
+import { Check, X as XIcon } from 'lucide-react';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Button } from '@/shared/ui/components/button';
@@ -160,9 +161,9 @@ const QuizExplanation: React.FC = () => {
           <div className="flex-1 px-8 py-8 max-md:px-5 max-md:py-5">
             {/* 문제 */}
             <BlurFade delay={0.05}>
-              <p className="mb-8 whitespace-pre-wrap break-words text-xl font-bold leading-relaxed max-md:text-lg">
-                {quiz.currentQuiz.title}
-              </p>
+              <div className="mb-8 text-xl font-bold leading-relaxed max-md:text-lg">
+                <MarkdownText>{quiz.currentQuiz.title}</MarkdownText>
+              </div>
             </BlurFade>
 
             {/* 선택지 — 밑줄 구분 스타일 */}
@@ -191,15 +192,21 @@ const QuizExplanation: React.FC = () => {
                               : 'bg-muted text-muted-foreground',
                         )}
                       >
-                        {correct ? '✓' : wrongSel ? '✗' : idx + 1}
+                        {correct ? (
+                          <Check className="size-4" strokeWidth={3} />
+                        ) : wrongSel ? (
+                          <XIcon className="size-4" strokeWidth={3} />
+                        ) : (
+                          idx + 1
+                        )}
                       </span>
                       <span
                         className={cn(
-                          'flex-1 whitespace-pre-wrap break-words leading-relaxed',
+                          'flex-1 leading-relaxed',
                           wrongSel && 'text-muted-foreground line-through',
                         )}
                       >
-                        {opt.content}
+                        <MarkdownText>{opt.content}</MarkdownText>
                       </span>
                     </div>
                   </BlurFade>
@@ -251,7 +258,7 @@ const QuizExplanation: React.FC = () => {
                 <div className="rounded-2xl bg-card p-6 shadow-sm max-md:p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <h4 className="text-sm font-semibold">{t('참조 자료')}</h4>
-                    <div className="relative inline-block h-5 w-9">
+                    <label className="relative inline-block h-5 w-9 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={pdf.showPdf}
@@ -260,7 +267,7 @@ const QuizExplanation: React.FC = () => {
                       />
                       <span className="absolute inset-0 rounded-full bg-muted transition-colors peer-checked:bg-primary" />
                       <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4" />
-                    </div>
+                    </label>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {refPages.map((page: number, i: number) => (

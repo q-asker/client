@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/shared/ui/components/card';
 import { Badge } from '@/shared/ui/components/badge';
 import { Button } from '@/shared/ui/components/button';
 import { ChevronDown, Trophy, Clock, CheckCircle2, XCircle, Hash } from 'lucide-react';
+import MarkdownText from '@/shared/ui/components/markdown-text';
 
 /** 선택지 타입 */
 interface QuizSelection {
@@ -159,7 +160,7 @@ const QuizResultDesignK = () => {
                       !isOpen && 'truncate',
                     )}
                   >
-                    {q.title}
+                    {isOpen ? <MarkdownText>{q.title}</MarkdownText> : q.title.split('\n')[0]}
                   </span>
                   <Badge
                     variant={isCorrect ? 'default' : 'destructive'}
@@ -193,14 +194,18 @@ const QuizResultDesignK = () => {
                             isCorrect ? 'text-success' : 'text-destructive',
                           )}
                         >
-                          {userAns === 0 ? t('입력 X') : selection.content}
+                          {userAns === 0 ? (
+                            t('입력 X')
+                          ) : (
+                            <MarkdownText>{selection.content}</MarkdownText>
+                          )}
                         </div>
                       </div>
                       {!isCorrect && (
                         <div className="rounded-md border border-success/20 bg-success/5 px-3 py-1.5">
                           <span className="text-[0.65rem] text-success">{t('정답 답안:')}</span>
                           <div className="text-sm font-semibold text-foreground">
-                            {correctSelection.content}
+                            <MarkdownText>{correctSelection.content}</MarkdownText>
                           </div>
                         </div>
                       )}
