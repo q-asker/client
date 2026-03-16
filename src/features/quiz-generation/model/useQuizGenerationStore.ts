@@ -11,6 +11,7 @@ import { authService } from '#entities/auth';
 export interface QuizSelection {
   id: string;
   content: string;
+  correct?: boolean;
 }
 
 export interface Quiz {

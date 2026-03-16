@@ -5,7 +5,7 @@ import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analy
 import Timer from '#shared/lib/timer';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import type { FileInfo } from '#features/quiz-generation';
-import { FileConversionTimeoutError, uploadFileToServer } from '../file-uploader';
+import { uploadFileToServer } from '../file-uploader';
 import { MAX_FILE_SIZE, SUPPORTED_EXTENSIONS } from './constants';
 
 /** 업로드할 파일의 최소 정보 */
@@ -128,11 +128,9 @@ export const usePrepareQuizUpload = ({
         }
 
         const message =
-          error instanceof FileConversionTimeoutError
-            ? t('파일 변환이 지연되고 있어요. 잠시 후 다시 시도해주세요.')
-            : (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-              (error as Error)?.message ||
-              t('파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.');
+          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          (error as Error)?.message ||
+          t('파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.');
 
         CustomToast.error(message);
         console.error('파일 업로드 실패:', error);
