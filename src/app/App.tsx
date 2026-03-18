@@ -11,6 +11,7 @@ import BoardWrite from '#pages/board-write';
 import PrivacyPolicy from '#pages/privacy-policy';
 import QuizExplanation from '#pages/quiz-explanation';
 import QuizHistory from '#pages/quiz-history';
+import QuizHistoryDetail from '#pages/quiz-history-detail';
 import QuizResult from '#pages/quiz-result';
 import SolveQuiz from '#pages/solve-quiz';
 import { I18nProvider, useLanguageSwitcher, useTranslation } from 'i18nexus';
@@ -487,6 +488,7 @@ const App = () => {
           <Route path="/result/:problemSetId" element={<QuizResult />} />
           <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
           <Route path="/history" element={<QuizHistory />} />
+          <Route path="/history/:problemSetId" element={<QuizHistoryDetail />} />
           <Route path="/boards" element={<Board />} />
           <Route path="/boards/:boardId" element={<BoardDetail />} />
           <Route path="/boards/write" element={<BoardWrite />} />

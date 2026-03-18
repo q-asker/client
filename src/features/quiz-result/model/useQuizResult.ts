@@ -44,11 +44,20 @@ export const useQuizResult = ({
   }, [quizzes.length, correctCount]);
 
   useEffect(() => {
-    if (problemSetId && quizzes.length > 0) {
-      trackResultEvents.viewResult(problemSetId, correctCount, quizzes.length, totalTime);
-      trackQuizEvents.completeQuiz(problemSetId, correctCount, quizzes.length, totalTime);
-    }
-  }, [problemSetId, correctCount, quizzes.length, totalTime, scorePercent]);
+    if (!problemSetId || quizzes.length === 0) return;
+
+    trackResultEvents.viewResult(problemSetId, correctCount, quizzes.length, totalTime);
+    trackQuizEvents.completeQuiz(problemSetId, correctCount, quizzes.length, totalTime);
+
+    const userAnswers = quizzes.map((q) => ({
+      number: q.number,
+      userAnswer: q.userAnswer != null ? Number(q.userAnswer) : 0,
+    }));
+
+    axiosInstance
+      .post('/history', { problemSetId, userAnswers, score: correctCount })
+      .catch((err) => console.error('Failed to save quiz history:', err));
+  }, []);
 
   const getQuizExplanation = async (): Promise<void> => {
     trackResultEvents.clickExplanation(problemSetId);
