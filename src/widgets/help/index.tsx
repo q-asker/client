@@ -113,11 +113,11 @@ const Help = () => {
 
   return (
     <div id="help-section" className="px-4 pt-[100px] pb-5 md:px-4 md:pt-[50px]">
-      <div className="mx-auto max-w-3xl">
+      <div className="rounded-2xl border border-border bg-card p-6 md:p-5">
         {/* === 헤더 === */}
         <header className="mb-12 text-center">
           <BlurFade delay={0} inView>
-            <h1 className="mb-4 text-[2.5rem] font-bold text-foreground md:text-[1.8rem]">
+            <h1 className="mb-4 text-[1.5rem] font-bold text-foreground md:text-[2.5rem]">
               {t('Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성')}
             </h1>
           </BlurFade>
