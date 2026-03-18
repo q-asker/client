@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { ThemeProvider } from 'next-themes';
 import { ToastContainer } from 'react-toastify';
 import Maintenance from '#pages/maintenance';
 import LoginSelect from '#pages/login-select';
@@ -463,40 +464,42 @@ const App = () => {
   useInitGA(GA_MEASUREMENT_ID);
 
   return (
-    <I18nProvider
-      translations={translations}
-      initialLanguage={getInitialLanguage()}
-      languageManagerOptions={{ defaultLanguage: 'ko' }}
-    >
-      <BrowserRouter>
-        <LanguageRouteSync />
-        <SeoMetaSync />
-        <PageViewTracker />
-        <ToastContainer />
-        <Routes>
-          {/* 점검 완료 후 아래 라우트로 복원
+    <ThemeProvider attribute="class" defaultTheme="system" storageKey="theme">
+      <I18nProvider
+        translations={translations}
+        initialLanguage={getInitialLanguage()}
+        languageManagerOptions={{ defaultLanguage: 'ko' }}
+      >
+        <BrowserRouter>
+          <LanguageRouteSync />
+          <SeoMetaSync />
+          <PageViewTracker />
+          <ToastContainer />
+          <Routes>
+            {/* 점검 완료 후 아래 라우트로 복원
           <Route path="*" element={<Maintenance />} />
           */}
-          <Route path="/" element={<MakeQuiz />} />
-          <Route path="/ko" element={<MakeQuiz />} />
-          <Route path="/en" element={<MakeQuiz />} />
-          <Route path="/login" element={<LoginSelect />} />
-          <Route path="/login/redirect" element={<LoginRedirect />} />
-          <Route path="/maintenance" element={<Maintenance />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
-          <Route path="/result/:problemSetId" element={<QuizResult />} />
-          <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
-          <Route path="/history" element={<QuizHistory />} />
-          <Route path="/history/:problemSetId" element={<QuizHistoryDetail />} />
-          <Route path="/boards" element={<Board />} />
-          <Route path="/boards/:boardId" element={<BoardDetail />} />
-          <Route path="/boards/write" element={<BoardWrite />} />
-          <Route path="/boards/edit/:boardId" element={<BoardWrite />} />
-          <Route path="/help" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </I18nProvider>
+            <Route path="/" element={<MakeQuiz />} />
+            <Route path="/ko" element={<MakeQuiz />} />
+            <Route path="/en" element={<MakeQuiz />} />
+            <Route path="/login" element={<LoginSelect />} />
+            <Route path="/login/redirect" element={<LoginRedirect />} />
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
+            <Route path="/result/:problemSetId" element={<QuizResult />} />
+            <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
+            <Route path="/history" element={<QuizHistory />} />
+            <Route path="/history/:problemSetId" element={<QuizHistoryDetail />} />
+            <Route path="/boards" element={<Board />} />
+            <Route path="/boards/:boardId" element={<BoardDetail />} />
+            <Route path="/boards/write" element={<BoardWrite />} />
+            <Route path="/boards/edit/:boardId" element={<BoardWrite />} />
+            <Route path="/help" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </I18nProvider>
+    </ThemeProvider>
   );
 };
 
