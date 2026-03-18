@@ -210,6 +210,21 @@ const SolveQuizDesignB: React.FC = () => {
         <div className="font-mono text-sm">{quiz.currentTime}</div>
       </header>
 
+      {/* 문제 번호 네비게이션 (모바일) — 타이머 바로 아래 */}
+      <div className="mx-auto w-[95%] pt-4 lg:hidden">
+        <div className="rounded-2xl bg-card p-4 shadow-card">
+          <h3 className="mb-3 border-b border-border pb-2.5 text-sm font-semibold text-foreground">
+            {t('문제 목록')}
+          </h3>
+          <div className="grid grid-cols-[repeat(auto-fill,2.25rem)] justify-center gap-2">
+            {quiz.quizzes.map((q) => renderQuestionButton(q, 'top-'))}
+            {Array.from({ length: remainingCount }).map((_, index) =>
+              renderPendingButton(index, 'top-'),
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* 메인 콘텐츠 — lg 이상 2컬럼 */}
       <main className="mx-auto flex w-[95%] max-w-[1200px] flex-col py-6 lg:grid lg:grid-cols-12 lg:gap-6">
         {/* 좌측 패널: 문제 + 선택지 (col-span-8) */}
@@ -399,13 +414,72 @@ const SolveQuizDesignB: React.FC = () => {
           </div>
         </aside>
 
-        {/* 하단 문제 번호 패널 (모바일/태블릿) — lg 미만에서만 표시 */}
-        <aside className="mt-4 grid grid-cols-[repeat(auto-fill,2.25rem)] justify-center gap-2 rounded-2xl bg-card p-4 shadow-card lg:hidden">
-          {quiz.quizzes.map((q) => renderQuestionButton(q, 'bottom-'))}
-          {Array.from({ length: remainingCount }).map((_, index) =>
-            renderPendingButton(index, 'bottom-'),
-          )}
-        </aside>
+        {/* 하단 패널 (모바일/태블릿) — lg 미만에서만 표시 */}
+        <div className="mt-4 flex flex-col gap-4 lg:hidden">
+          {/* 진행 현황 카드 */}
+          <div className="rounded-2xl bg-card p-4 shadow-card">
+            <h3 className="mb-3 border-b border-border pb-2.5 text-sm font-semibold text-foreground">
+              {t('진행 현황')}
+            </h3>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{t('전체 문제:')}</span>
+                <span className="rounded-lg bg-muted px-2.5 py-0.5 text-sm font-bold text-foreground">
+                  {quiz.totalQuestions}
+                  {t('개')}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{t('답변한 문제:')}</span>
+                <span className="rounded-lg bg-primary/8 px-2.5 py-0.5 text-sm font-bold text-primary/70">
+                  {quiz.answeredCount}
+                  {t('개')}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{t('안푼 문제:')}</span>
+                <span className="rounded-lg bg-destructive/10 px-2.5 py-0.5 text-sm font-bold text-destructive/80">
+                  {quiz.unansweredCount}
+                  {t('개')}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{t('검토할 문제:')}</span>
+                <span className="rounded-lg bg-warning/10 px-2.5 py-0.5 text-sm font-bold text-warning/80">
+                  {quiz.reviewCount}
+                  {t('개')}
+                </span>
+              </div>
+            </div>
+            {/* 진행률 바 */}
+            <div className="mt-3 pt-2.5">
+              <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
+                <span>{t('진행률')}</span>
+                <span className="font-semibold text-foreground">
+                  {quiz.totalQuestions > 0
+                    ? Math.round((quiz.answeredCount / quiz.totalQuestions) * 100)
+                    : 0}
+                  %
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-300"
+                  style={{
+                    width: `${quiz.totalQuestions > 0 ? (quiz.answeredCount / quiz.totalQuestions) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+            {/* 제출하기 버튼 */}
+            <button
+              className="mt-3 w-full cursor-pointer rounded-xl border-none bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90"
+              onClick={quizActions.handleFinish}
+            >
+              {t('제출하기')}
+            </button>
+          </div>
+        </div>
       </main>
     </div>
   );

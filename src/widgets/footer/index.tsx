@@ -12,7 +12,7 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <footer className="mt-8 border-t border-foreground/20">
+    <footer className="mt-8 border-t border-foreground/20 pb-16 md:pb-0">
       <div className="mx-auto max-w-5xl px-4 py-8 md:px-6">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           {/* 좌측: 브랜드 */}
