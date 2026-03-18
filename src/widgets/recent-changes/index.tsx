@@ -14,7 +14,7 @@ const RecentChanges = () => {
 
   return (
     <div className="mt-7 rounded-2xl border border-border bg-card p-6">
-      <h3 className="mb-5 flex items-center gap-2 text-lg font-semibold text-foreground">
+      <h3 className="mb-5 flex items-center gap-2 text-xl font-semibold text-foreground">
         <Sparkles className="size-5 text-primary" />
         {t('최근 변경사항')}
       </h3>

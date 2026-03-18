@@ -145,7 +145,7 @@ const MakeQuiz: React.FC = () => {
                     {/* 페이지 지정 + PDF 그리드 통합 */}
                     {upload.uploadedUrl && (
                       <div
-                        className="mt-4 rounded-2xl border border-border bg-background p-3 sm:p-5"
+                        className="mt-6 rounded-2xl border border-border bg-background p-6"
                         ref={pages.pdfPreviewRef}
                       >
                         {/* 페이지 선택 툴바 */}
@@ -154,7 +154,7 @@ const MakeQuiz: React.FC = () => {
                           <TextAnimate
                             animation="slideUp"
                             by="word"
-                            className="text-base font-bold tracking-tight sm:text-lg"
+                            className="text-xl font-semibold tracking-tight md:text-xl"
                           >
                             {t('페이지를 지정하세요')}
                           </TextAnimate>
@@ -273,6 +273,14 @@ const MakeQuiz: React.FC = () => {
                             onLoadSuccess={pageActions.onDocumentLoadSuccess}
                             onLoadError={console.error}
                             options={pdfOptions}
+                            loading={
+                              <div className="flex flex-col items-center justify-center py-12">
+                                <div className="mb-3 size-8 animate-spin rounded-full border-3 border-muted-foreground/20 border-t-primary" />
+                                <p className="text-sm font-medium text-muted-foreground">
+                                  {t('PDF 로딩 중...')}
+                                </p>
+                              </div>
+                            }
                           >
                             <div className="relative">
                               <div
@@ -368,7 +376,7 @@ const MakeQuiz: React.FC = () => {
                       <TextAnimate
                         animation="slideUp"
                         by="word"
-                        className="text-2xl font-bold tracking-tight md:text-xl"
+                        className="text-xl font-semibold tracking-tight md:text-xl"
                       >
                         {t('퀴즈 타입을 선택하세요')}
                       </TextAnimate>
@@ -437,7 +445,7 @@ const MakeQuiz: React.FC = () => {
                       <TextAnimate
                         animation="slideUp"
                         by="word"
-                        className="text-2xl font-bold tracking-tight md:text-xl"
+                        className="text-xl font-semibold tracking-tight md:text-xl"
                       >
                         {t('문제 개수를 지정하세요')}
                       </TextAnimate>
@@ -483,7 +491,7 @@ const MakeQuiz: React.FC = () => {
                       <TextAnimate
                         animation="slideUp"
                         by="word"
-                        className="text-2xl font-bold tracking-tight md:text-xl"
+                        className="text-xl font-semibold tracking-tight md:text-xl"
                       >
                         {t('문제를 생성하세요')}
                       </TextAnimate>
@@ -715,7 +723,7 @@ const MakeQuiz: React.FC = () => {
           ) : null}
 
           {/* ─── 생성 중 ─── */}
-          {isWaitingForFirstQuiz && !generation.problemSetId && (
+          {isWaitingForFirstQuiz && !generation.problemSetId && upload.uploadedUrl && (
             <motion.div
               key="generating"
               initial={{ opacity: 0, y: 30 }}
