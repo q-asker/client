@@ -244,7 +244,7 @@ const SolveQuizDesignB: React.FC = () => {
               {/* 문제 영역 — 시각적으로 하나의 카드 */}
               <div className="w-full overflow-hidden rounded-2xl bg-card shadow-card">
                 {/* 질문 제목 + 검토 배지 */}
-                <div className="flex items-start justify-between gap-3 p-5 pb-0">
+                <div className="flex items-start justify-between gap-3 p-5 pb-4">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
                     <MarkdownText>{quiz.currentQuiz.title.split('\n')[0]}</MarkdownText>
                   </div>

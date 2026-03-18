@@ -37,7 +37,7 @@ const LoginSelect = () => {
           {/* 브랜드 헤드라인 — 카드 위 */}
           <div className="hidden flex-col items-center gap-3 text-center text-primary-foreground lg:flex">
             <h1 className="text-3xl leading-tight font-bold">{t('AI가 만드는 나만의 퀴즈')}</h1>
-            <div className="flex flex-wrap justify-center gap-x-5 gap-y-1">
+            <div className="grid grid-cols-3 gap-x-5 gap-y-1">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="size-3.5 shrink-0 text-primary-foreground/60" />
                 <span className="whitespace-nowrap text-xs text-primary-foreground/70">
