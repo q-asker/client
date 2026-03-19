@@ -16,6 +16,7 @@ interface UseHeaderReturn {
     t: (key: string) => string;
     isAuthenticated: boolean;
     user: User | null;
+    currentLanguage: string;
   };
   actions: {
     handleQuizManagement: () => void;
@@ -70,7 +71,7 @@ const extractNicknameFromToken = (token: string | null): string | null => {
 
 export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): UseHeaderReturn => {
   const { changeLanguage } = useLanguageSwitcher();
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -136,7 +137,7 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): U
   };
 
   return {
-    state: { t, isAuthenticated, user: resolvedUser },
+    state: { t, isAuthenticated, user: resolvedUser, currentLanguage },
     actions: {
       handleQuizManagement,
       handleHelp,

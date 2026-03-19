@@ -53,17 +53,27 @@ export const usePrepareQuizUpload = ({
   const storeFileInfo = useQuizGenerationStore((state) => state.fileInfo);
   const setUploadedUrlInStore = useQuizGenerationStore((state) => state.setUploadedUrl);
   const setUploadedFileInfo = useQuizGenerationStore((state) => state.setUploadedFileInfo);
+
+  // 스토어 값을 동기적으로 읽어 초기값으로 사용 (새로고침 시 플래시 방지)
+  const initialStoreState = useQuizGenerationStore.getState();
   const [file, setFile] = useState<UploadedFileInfo | null>(
-    isMock ? { name: 'sample-document.pdf', size: 2.5 * 1024 * 1024 } : null,
+    isMock
+      ? { name: 'sample-document.pdf', size: 2.5 * 1024 * 1024 }
+      : initialStoreState.fileInfo
+        ? { name: initialStoreState.fileInfo.name, size: initialStoreState.fileInfo.size }
+        : null,
   );
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(
-    isMock ? 'mock://sample.pdf' : null,
+    isMock ? 'mock://sample.pdf' : (initialStoreState.uploadedUrl ?? null),
   );
   const [isDragging, setIsDragging] = useState(false);
   const [uploadElapsedTime, setUploadElapsedTime] = useState(0);
-  const [fileExtension, setFileExtension] = useState<string | null>(null);
+  const [fileExtension, setFileExtension] = useState<string | null>(
+    initialStoreState.fileInfo?.extension ?? null,
+  );
   const uploadTimerRef = useRef<Timer | null>(null);
 
+  // 스토어가 뒤늦게 hydration되는 경우 대비
   useEffect(() => {
     if (!uploadedUrl && storeUploadedUrl) {
       setUploadedUrl(storeUploadedUrl);

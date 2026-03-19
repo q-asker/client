@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import CustomToast from '#shared/toast';
 import { useAuthStore, authService } from '#entities/auth';
 import axiosInstance from '#shared/api';
@@ -10,8 +9,6 @@ import { cn } from '@/shared/ui/lib/utils';
 import { Button } from '@/shared/ui/components/button';
 import { Badge } from '@/shared/ui/components/badge';
 import { Skeleton } from '@/shared/ui/components/skeleton';
-import { BlurFade } from '@/shared/ui/components/blur-fade';
-import { TextAnimate } from '@/shared/ui/components/text-animate';
 import {
   ArrowLeft,
   Plus,
@@ -41,13 +38,6 @@ interface BoardDetailPost {
   replies: string[];
   isWriter: boolean;
 }
-
-/** Framer Motion 트랜지션 */
-const fadeUp = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.35, ease: 'easeOut' as const },
-};
 
 const BoardDetail = () => {
   const { t } = useTranslation();
@@ -200,7 +190,7 @@ const BoardDetail = () => {
 
       <div className="mx-auto max-w-3xl px-6 py-6 max-md:px-4">
         {/* 상단 브레드크럼 스타일 */}
-        <motion.div {...fadeUp} className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <button
               onClick={() => navigate('/boards')}
@@ -227,13 +217,10 @@ const BoardDetail = () => {
             )}
             {post.status === 'ANSWERED' ? '답변완료' : '대기중'}
           </Badge>
-        </motion.div>
+        </div>
 
         {/* 제목 영역 */}
-        <motion.div
-          {...fadeUp}
-          transition={{ duration: 0.35, ease: 'easeOut' as const, delay: 0.05 }}
-        >
+        <div>
           <h1 className="mb-3 text-2xl font-bold text-foreground max-md:text-xl">{post.title}</h1>
 
           {/* 메타 정보 */}
@@ -251,40 +238,29 @@ const BoardDetail = () => {
               {post.viewCount || 0}
             </span>
           </div>
-        </motion.div>
+        </div>
 
         {/* 본문 */}
-        <motion.div
-          {...fadeUp}
-          transition={{ duration: 0.35, ease: 'easeOut' as const, delay: 0.1 }}
-          className="mb-8 min-h-[180px] text-base leading-[1.85] text-foreground/85 whitespace-pre-wrap"
-        >
+        <div className="mb-8 min-h-[180px] text-base leading-[1.85] text-foreground/85 whitespace-pre-wrap">
           {post.content}
-        </motion.div>
+        </div>
 
         {/* 구분선 */}
         <div className="mb-6 border-t border-border" />
 
         {/* 댓글 섹션 — 채팅 버블 스타일 */}
-        <motion.div
-          {...fadeUp}
-          transition={{ duration: 0.35, ease: 'easeOut' as const, delay: 0.15 }}
-        >
+        <div>
           <div className="mb-5 flex items-center gap-2">
             <MessageCircle className="size-4 text-foreground" />
-            <TextAnimate
-              animation="blurInUp"
-              by="character"
-              className="text-base font-semibold text-foreground"
-            >
+            <span className="text-base font-semibold text-foreground">
               {`댓글 ${post.replies?.length || 0}건`}
-            </TextAnimate>
+            </span>
           </div>
 
           <div className="space-y-4">
             {post.replies && post.replies.length > 0 ? (
               post.replies.map((reply, index) => (
-                <BlurFade key={index} delay={0.15 + index * 0.1} inView>
+                <div key={index}>
                   <div className="flex items-start gap-3">
                     {/* 관리자 아바타 */}
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15">
@@ -305,7 +281,7 @@ const BoardDetail = () => {
                       </div>
                     </div>
                   </div>
-                </BlurFade>
+                </div>
               ))
             ) : (
               <div className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
@@ -313,54 +289,48 @@ const BoardDetail = () => {
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* 관리자 답변 폼 — 플로팅 하단 바 스타일 */}
         {isAdmin && (
-          <BlurFade delay={0.3} inView>
-            <div className="sticky bottom-4 z-10 mt-6">
-              <div className="rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur-md">
-                <div className="flex items-center gap-2">
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                    <Shield className="size-3.5 text-primary" />
-                  </div>
-                  <input
-                    type="text"
-                    className="flex-1 rounded-full border border-input bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-                    value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
-                    placeholder="답변을 입력하세요..."
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey && !isSubmitting) {
-                        e.preventDefault();
-                        handleReplySubmit();
-                      }
-                    }}
-                  />
-                  <Button
-                    size="icon"
-                    onClick={handleReplySubmit}
-                    disabled={isSubmitting}
-                    className="size-9 shrink-0 rounded-full"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Send className="size-4" />
-                    )}
-                  </Button>
+          <div className="sticky bottom-4 z-10 mt-6">
+            <div className="rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur-md">
+              <div className="flex items-center gap-2">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15">
+                  <Shield className="size-3.5 text-primary" />
                 </div>
+                <input
+                  type="text"
+                  className="flex-1 rounded-full border border-input bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  value={replyContent}
+                  onChange={(e) => setReplyContent(e.target.value)}
+                  placeholder="답변을 입력하세요..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && !isSubmitting) {
+                      e.preventDefault();
+                      handleReplySubmit();
+                    }
+                  }}
+                />
+                <Button
+                  size="icon"
+                  onClick={handleReplySubmit}
+                  disabled={isSubmitting}
+                  className="size-9 shrink-0 rounded-full"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Send className="size-4" />
+                  )}
+                </Button>
               </div>
             </div>
-          </BlurFade>
+          </div>
         )}
 
         {/* 하단 액션 */}
-        <motion.div
-          {...fadeUp}
-          transition={{ duration: 0.35, ease: 'easeOut' as const, delay: 0.3 }}
-          className="mt-8 flex items-center justify-between border-t border-border pt-5 pb-10 max-md:flex-col max-md:gap-3"
-        >
+        <div className="mt-8 flex items-center justify-between border-t border-border pt-5 pb-10 max-md:flex-col max-md:gap-3">
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate('/boards')} className="gap-1">
               <ArrowLeft className="size-3.5" />
@@ -390,7 +360,7 @@ const BoardDetail = () => {
               </Button>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
   );
