@@ -5,6 +5,7 @@ const pathMap: Record<string, string> = {
   '/result': '퀴즈 결과',
   '/explanation': '퀴즈 해설',
   '/history': '퀴즈 기록',
+  '/history/': '퀴즈 기록 상세',
   '/privacy-policy': '개인정보 처리방침',
   '/': '퀴즈 생성',
 };
