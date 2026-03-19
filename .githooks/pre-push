@@ -1,0 +1,11 @@
+#!/bin/sh
+# 포맷 검증 (Prettier) — 위반 시 push 차단
+# rebase, merge, cherry-pick 등으로 pre-commit을 우회한 커밋 방지용 안전망
+echo "push 전 포맷 검증 중 (npx prettier --check .)..."
+npx prettier --check . 2>/dev/null
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "포맷 위반이 발견되었습니다."
+  echo "npx prettier --write . 를 실행한 뒤 다시 push하세요."
+  exit 1
+fi
