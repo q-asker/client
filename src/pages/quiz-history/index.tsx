@@ -18,6 +18,7 @@ import {
   Plus,
   Info,
   ChevronRight,
+  LogIn,
 } from 'lucide-react';
 
 const QUIZ_TYPE_LABEL: Record<'MULTIPLE' | 'BLANK' | 'OX', string> = {
@@ -31,7 +32,7 @@ const QuizHistory = () => {
   const navigate = useNavigate();
 
   const {
-    state: { quizHistory, loading, isSidebarOpen, stats },
+    state: { quizHistory, loading, isSidebarOpen, isAuthenticated, stats },
     actions: {
       toggleSidebar,
       setIsSidebarOpen,
@@ -83,7 +84,7 @@ const QuizHistory = () => {
                   {t('지금까지 만들고 푼 퀴즈들을 확인해보세요')}
                 </p>
               </div>
-              {quizHistory.length > 0 && (
+              {isAuthenticated && quizHistory.length > 0 && (
                 <Button variant="destructive" size="sm" onClick={clearAllHistory}>
                   <Trash2 className="mr-1 size-3.5" />
                   {t('전체 삭제')}
@@ -92,8 +93,27 @@ const QuizHistory = () => {
             </div>
           </BlurFade>
 
+          {/* 비로그인 안내 */}
+          {!isAuthenticated && (
+            <BlurFade delay={0.2}>
+              <div className="flex flex-col items-center py-20 text-center">
+                <LogIn className="mb-4 size-10 text-muted-foreground opacity-40" />
+                <h3 className="mb-1 text-lg font-semibold text-foreground">
+                  {t('로그인이 필요한 서비스입니다')}
+                </h3>
+                <p className="mb-6 text-sm text-muted-foreground">
+                  {t('퀴즈 기록은 로그인 후에 확인할 수 있습니다.')}
+                </p>
+                <Button size="sm" onClick={() => navigate('/login')}>
+                  <LogIn className="mr-1 size-3.5" />
+                  {t('로그인하기')}
+                </Button>
+              </div>
+            </BlurFade>
+          )}
+
           {/* 인라인 통계 바 */}
-          {quizHistory.length > 0 && (
+          {isAuthenticated && quizHistory.length > 0 && (
             <BlurFade delay={0.2}>
               <div className="mb-6 flex items-center gap-6 rounded-lg border border-border bg-card px-5 py-3 text-sm max-md:flex-wrap max-md:gap-3">
                 <div className="flex items-center gap-1.5">
@@ -126,8 +146,8 @@ const QuizHistory = () => {
             </BlurFade>
           )}
 
-          {/* 빈 상태 */}
-          {quizHistory.length === 0 ? (
+          {/* 빈 상태 / 목록 */}
+          {isAuthenticated && (quizHistory.length === 0 ? (
             <BlurFade delay={0.2}>
               <div className="flex flex-col items-center py-20 text-center">
                 <FileText className="mb-4 size-10 text-muted-foreground opacity-40" />
@@ -270,7 +290,7 @@ const QuizHistory = () => {
                 ))}
               </div>
             </BlurFade>
-          )}
+          ))}
         </div>
       </div>
     </>

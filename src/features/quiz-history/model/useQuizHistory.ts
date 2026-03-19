@@ -3,6 +3,7 @@ import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { trackQuizHistoryEvents } from '#shared/lib/analytics';
 import { useClickOutside } from '#shared/lib/useClickOutside';
+import { useAuthStore } from '#entities/auth';
 
 // ── 타입 정의 ──
 
@@ -36,6 +37,7 @@ interface UseQuizHistoryReturn {
     quizHistory: HistoryItem[];
     loading: boolean;
     isSidebarOpen: boolean;
+    isAuthenticated: boolean;
     stats: QuizStats;
   };
   actions: {
@@ -57,8 +59,10 @@ export const useQuizHistory = ({
   navigate,
   currentLanguage,
 }: UseQuizHistoryParams): UseQuizHistoryReturn => {
+  const { accessToken } = useAuthStore();
+  const isAuthenticated = !!accessToken;
   const [quizHistory, setQuizHistory] = useState<HistoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isAuthenticated);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const startTimeRef = useRef(Date.now());
 
@@ -68,9 +72,7 @@ export const useQuizHistory = ({
       setQuizHistory(response.data);
     } catch (error) {
       const status = (error as { response?: { status?: number } }).response?.status;
-      if (status === 401) {
-        navigate('/login');
-      } else {
+      if (status !== 401) {
         console.error(t('퀴즈 기록 불러오기 실패:'), error);
         CustomToast.error(t('기록을 불러오는데 실패했습니다.'));
       }
@@ -82,7 +84,9 @@ export const useQuizHistory = ({
   const toggleSidebar = (): void => setIsSidebarOpen((prev) => !prev);
 
   useEffect(() => {
-    loadQuizHistory();
+    if (isAuthenticated) {
+      loadQuizHistory();
+    }
   }, []);
 
   useClickOutside({
@@ -136,9 +140,9 @@ export const useQuizHistory = ({
 
     try {
       await Promise.all(
-        quizHistory.map((item) => axiosInstance.delete(`/history/${item.problemSetId}`)),
+        completed.map((item) => axiosInstance.delete(`/history/${item.problemSetId}`)),
       );
-      setQuizHistory([]);
+      setQuizHistory((prev) => prev.filter((item) => !item.completed));
       CustomToast.success(t('모든 기록이 삭제되었습니다.'));
     } catch (error) {
       console.error(t('전체 기록 삭제 실패:'), error);
@@ -214,6 +218,7 @@ export const useQuizHistory = ({
       quizHistory,
       loading,
       isSidebarOpen,
+      isAuthenticated,
       stats,
     },
     actions: {
