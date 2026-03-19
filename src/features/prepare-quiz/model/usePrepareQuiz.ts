@@ -113,6 +113,7 @@ export const usePrepareQuiz = ({ t, navigate }: UsePrepareQuizParams): PrepareQu
     generationActions.generateQuestions({
       t,
       uploadedUrl: upload.state.uploadedUrl,
+      fileName: upload.state.file?.name ?? '',
       questionType: options.state.questionType,
       questionCount: options.state.questionCount,
       quizLevel: options.state.quizLevel,
@@ -126,6 +127,7 @@ export const usePrepareQuiz = ({ t, navigate }: UsePrepareQuizParams): PrepareQu
     pages.state.selectedPages,
     t,
     upload.state.uploadedUrl,
+    upload.state.file?.name,
   ]);
 
   const handleNavigateToQuiz = useCallback(() => {

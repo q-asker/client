@@ -10,6 +10,8 @@ import { useAuthStore } from '#entities/auth';
 /** 서버 히스토리 응답 항목 */
 export interface HistoryItem {
   problemSetId: string;
+  title: string;
+  createdAt: string;
   historyId: string | null;
   quizType: 'MULTIPLE' | 'BLANK' | 'OX';
   totalCount: number;
@@ -46,6 +48,7 @@ interface UseQuizHistoryReturn {
     navigateToDetail: (record: HistoryItem) => void;
     navigateToQuiz: (record: HistoryItem) => void;
     deleteQuizRecord: (problemSetId: string) => Promise<void>;
+    changeTitle: (problemSetId: string, newTitle: string) => Promise<void>;
     clearAllHistory: () => Promise<void>;
     formatDate: (dateString: string) => string;
     handleCreateFromEmpty: () => void;
@@ -112,6 +115,31 @@ export const useQuizHistory = ({
     navigate(`/quiz/${record.problemSetId}`);
   };
 
+  const changeTitle = async (problemSetId: string, newTitle: string): Promise<void> => {
+    const trimmed = newTitle.trim();
+    if (!trimmed) return;
+    if (trimmed.length > 100) {
+      CustomToast.error(t('제목은 100자 이하여야 합니다.'));
+      return;
+    }
+
+    try {
+      const { data } = await axiosInstance.patch<{ title: string }>(
+        `/problem-set/${problemSetId}/title`,
+        { title: trimmed },
+      );
+      setQuizHistory((prev) =>
+        prev.map((item) =>
+          item.problemSetId === problemSetId ? { ...item, title: data.title } : item,
+        ),
+      );
+      CustomToast.success(t('제목이 변경되었습니다.'));
+    } catch (error) {
+      console.error(t('제목 변경 실패:'), error);
+      CustomToast.error(t('제목 변경에 실패했습니다.'));
+    }
+  };
+
   const deleteQuizRecord = async (problemSetId: string): Promise<void> => {
     if (!window.confirm(t('이 기록을 삭제하시겠습니까?'))) return;
 
@@ -158,9 +186,8 @@ export const useQuizHistory = ({
         ? 'ko-KR'
         : 'ko-KR';
     return date.toLocaleDateString(locale, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -227,6 +254,7 @@ export const useQuizHistory = ({
       navigateToDetail,
       navigateToQuiz,
       deleteQuizRecord,
+      changeTitle,
       clearAllHistory,
       formatDate,
       handleCreateFromEmpty,
