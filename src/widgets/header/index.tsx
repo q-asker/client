@@ -56,6 +56,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
   const { theme, setTheme } = useTheme();
   const { presets, currentPresetId, applyPreset } = useThemePreset();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isThemeOpen, setIsThemeOpen] = useState(false);
   const [showNavTooltip, setShowNavTooltip] = useState(false);
 
   const displayName = useMemo(() => {
@@ -79,6 +80,13 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
     triggerId: ['profileButton', 'mobileProfileButton'],
     onOutsideClick: () => setIsProfileOpen(false),
     isEnabled: isProfileOpen,
+  });
+
+  useClickOutside({
+    containerId: ['themeDropdown', 'mobileThemeDropdown'],
+    triggerId: ['themeButton', 'mobileThemeButton'],
+    onOutsideClick: () => setIsThemeOpen(false),
+    isEnabled: isThemeOpen,
   });
 
   useEffect(() => {
@@ -124,6 +132,74 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
             </Link>
           </div>
 
+          {/* 모바일 프로필/로그인 버튼 */}
+          <div className="flex items-center md:hidden">
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  id="mobileProfileButton"
+                  className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-primary/30 bg-primary/10 p-0 text-sm font-bold text-primary transition-colors duration-200 hover:bg-primary/20"
+                  onClick={() => setIsProfileOpen((prev) => !prev)}
+                  aria-expanded={isProfileOpen}
+                  aria-haspopup="true"
+                  title={displayName}
+                  type="button"
+                >
+                  {profileInitial}
+                </button>
+                <AnimatePresence>
+                  {isProfileOpen && (
+                    <motion.div
+                      id="mobileProfileDropdown"
+                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                      transition={{ duration: 0.15, ease: 'easeOut' }}
+                      className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[240px] overflow-hidden rounded-xl border border-border bg-card shadow-lg"
+                    >
+                      {/* 프로필 정보 */}
+                      <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                          {profileInitial}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {displayName}
+                          </p>
+                          {user?.email && (
+                            <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                          )}
+                        </div>
+                      </div>
+                      {/* 로그아웃 */}
+                      <div className="p-1.5">
+                        <button
+                          className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                          type="button"
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            handleLogout();
+                          }}
+                        >
+                          <LogOut className="size-4" />
+                          {t('로그아웃')}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link
+                className="inline-flex items-center whitespace-nowrap rounded px-2.5 py-1.5 text-sm text-primary no-underline transition-all duration-200 hover:bg-primary/5"
+                to="/login"
+              >
+                <LogIn className="mr-1 size-4" />
+                <strong>{t('로그인')}</strong>
+              </Link>
+            )}
+          </div>
+
           {/* 네비게이션 링크 - 데스크톱에서만 표시 */}
           <div className="hidden items-center gap-1 md:flex md:gap-3">
             <Link
@@ -133,6 +209,106 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               <MessageSquare className="mr-1.5 size-4" />
               <strong>{t('문의하기')}</strong>
             </Link>
+
+            {/* 구분선 */}
+            <div className="h-5 w-px bg-border mx-1" />
+
+            {/* 테마 버튼 */}
+            <div className="relative">
+              <button
+                id="themeButton"
+                type="button"
+                className="inline-flex cursor-pointer items-center whitespace-nowrap border-none bg-transparent px-3 py-2 text-sm text-foreground transition-all duration-200 hover:bg-primary/5 hover:text-primary md:text-base"
+                onClick={() => setIsThemeOpen((prev) => !prev)}
+                aria-expanded={isThemeOpen}
+                aria-haspopup="true"
+                title={t('테마 설정')}
+              >
+                <Palette className="mr-1.5 size-4" />
+                <strong>{t('테마 설정')}</strong>
+              </button>
+              <AnimatePresence>
+                {isThemeOpen && (
+                  <motion.div
+                    id="themeDropdown"
+                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    className="absolute right-0 top-[calc(100%+8px)] z-[1001] min-w-[220px] overflow-hidden rounded-xl border border-border bg-card shadow-lg"
+                  >
+                    {/* 모드 토글 */}
+                    <div className="border-b border-border px-3 py-2">
+                      <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+                        {t('모드')}
+                      </p>
+                      <div className="flex gap-0.5 rounded-full bg-muted p-0.5">
+                        {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
+                          <button
+                            key={value}
+                            type="button"
+                            className={cn(
+                              'flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border-none px-2 py-1 text-xs font-medium transition-colors',
+                              theme === value
+                                ? 'bg-background text-foreground shadow-sm'
+                                : 'bg-transparent text-muted-foreground hover:text-foreground',
+                            )}
+                            onClick={() => {
+                              setTheme(value);
+                              logEvent('theme_mode_change', { mode: value });
+                            }}
+                          >
+                            <Icon className="size-3" />
+                            {t(label)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {/* 테마 프리셋 */}
+                    <div className="px-3 py-2">
+                      <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+                        {t('테마')}
+                      </p>
+                      <div className="grid grid-cols-1 gap-1">
+                        {presets.map((preset) => (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            className={cn(
+                              'flex w-full cursor-pointer items-center gap-2 rounded-lg border-none px-2 py-1.5 text-left text-xs transition-colors',
+                              currentPresetId === preset.id
+                                ? 'bg-primary/10 text-primary font-medium'
+                                : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
+                            )}
+                            onClick={() => {
+                              applyPreset(preset);
+                              logEvent('theme_preset_change', { preset: preset.id });
+                            }}
+                          >
+                            <div className="flex shrink-0 gap-0.5">
+                              <span
+                                className="inline-block size-3 rounded-full border border-border/40"
+                                style={{ background: preset.colors.primary }}
+                              />
+                              <span
+                                className="inline-block size-3 rounded-full border border-border/40"
+                                style={{ background: preset.colors.background }}
+                              />
+                              <span
+                                className="inline-block size-3 rounded-full border border-border/40"
+                                style={{ background: preset.colors.accent }}
+                              />
+                            </div>
+                            <span className="flex-1 truncate">{preset.name}</span>
+                            {currentPresetId === preset.id && <Check className="size-3 shrink-0" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* 구분선 */}
             <div className="h-5 w-px bg-border mx-1" />
@@ -148,12 +324,11 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               </Link>
               {!isAuthenticated && showNavTooltip && (
                 <span
-                  className="absolute left-1/2 top-[calc(100%+6px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-1.5 pl-2.5 text-xs shadow-lg max-sm:hidden before:absolute before:left-1/2 before:top-[-4px] before:-translate-x-1/2 before:border-x-[6px] before:border-b-[6px] before:border-t-0 before:border-solid before:border-transparent before:content-['']"
+                  className="absolute left-1/2 top-[calc(100%+8px)] z-[2] inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-1.5 pl-2.5 text-xs shadow-lg max-sm:hidden before:absolute before:left-1/2 before:top-[-6px] before:-translate-x-1/2 before:border-x-[8px] before:border-b-[8px] before:border-t-0 before:border-solid before:border-transparent before:border-b-primary before:content-['']"
                   style={{
                     backgroundColor: 'var(--primary)',
                     color: 'var(--primary-foreground)',
                     borderColor: 'var(--primary)',
-                    borderBottomColor: 'var(--primary)',
                   }}
                   role="status"
                 >
@@ -226,110 +401,18 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                             {t('로그아웃')}
                           </button>
                         </div>
-                        {/* 테마 모드 토글 */}
-                        <div className="border-b border-border px-3 py-2">
-                          <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-                            {t('모드')}
-                          </p>
-                          <div className="flex gap-0.5 rounded-full bg-muted p-0.5">
-                            {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
-                              <button
-                                key={value}
-                                type="button"
-                                className={cn(
-                                  'flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border-none px-2 py-1 text-xs font-medium transition-colors',
-                                  theme === value
-                                    ? 'bg-background text-foreground shadow-sm'
-                                    : 'bg-transparent text-muted-foreground hover:text-foreground',
-                                )}
-                                onClick={() => {
-                                  setTheme(value);
-                                  logEvent('theme_mode_change', { mode: value });
-                                }}
-                              >
-                                <Icon className="size-3" />
-                                {t(label)}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        {/* 테마 프리셋 선택 */}
-                        <div className="px-3 py-2">
-                          <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-                            {t('테마')}
-                          </p>
-                          <div className="grid grid-cols-1 gap-1">
-                            {presets.map((preset) => (
-                              <button
-                                key={preset.id}
-                                type="button"
-                                className={cn(
-                                  'flex w-full cursor-pointer items-center gap-2 rounded-lg border-none px-2 py-1.5 text-left text-xs transition-colors',
-                                  currentPresetId === preset.id
-                                    ? 'bg-primary/10 text-primary font-medium'
-                                    : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
-                                )}
-                                onClick={() => {
-                                  applyPreset(preset);
-                                  logEvent('theme_preset_change', { preset: preset.id });
-                                }}
-                              >
-                                <div className="flex shrink-0 gap-0.5">
-                                  <span
-                                    className="inline-block size-3 rounded-full border border-border/40"
-                                    style={{ background: preset.colors.primary }}
-                                  />
-                                  <span
-                                    className="inline-block size-3 rounded-full border border-border/40"
-                                    style={{ background: preset.colors.background }}
-                                  />
-                                  <span
-                                    className="inline-block size-3 rounded-full border border-border/40"
-                                    style={{ background: preset.colors.accent }}
-                                  />
-                                </div>
-                                <span className="flex-1 truncate">{preset.name}</span>
-                                {currentPresetId === preset.id && (
-                                  <Check className="size-3 shrink-0" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
               ) : (
-                <div className="flex items-center gap-1">
-                  {/* 비로그인 테마 토글 */}
-                  <button
-                    type="button"
-                    className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:size-9"
-                    onClick={() => {
-                      const next =
-                        theme === 'dark' ? 'light' : theme === 'light' ? 'system' : 'dark';
-                      setTheme(next);
-                      logEvent('theme_mode_change', { mode: next });
-                    }}
-                    title={t('테마 전환')}
-                  >
-                    {theme === 'dark' ? (
-                      <Moon className="size-4" />
-                    ) : theme === 'light' ? (
-                      <Sun className="size-4" />
-                    ) : (
-                      <Monitor className="size-4" />
-                    )}
-                  </button>
-                  <Link
-                    className="inline-flex items-center whitespace-nowrap text-sm text-primary no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary px-3 py-2 rounded md:text-base"
-                    to="/login"
-                  >
-                    <LogIn className="mr-1.5 size-4" />
-                    <strong>{t('로그인')}</strong>
-                  </Link>
-                </div>
+                <Link
+                  className="inline-flex items-center whitespace-nowrap text-sm text-primary no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary px-3 py-2 rounded md:text-base"
+                  to="/login"
+                >
+                  <LogIn className="mr-1.5 size-4" />
+                  <strong>{t('로그인')}</strong>
+                </Link>
               )}
             </div>
           </div>
@@ -417,93 +500,6 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                     </div>
                   </motion.div>
 
-                  {/* 테마 모드 토글 (사이드바) */}
-                  <motion.div
-                    className="flex cursor-default items-center justify-between rounded-lg px-4 py-3.5 text-sm text-muted-foreground"
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1, type: 'spring', damping: 20, stiffness: 300 }}
-                  >
-                    <span className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.15em]">
-                      {theme === 'dark' ? (
-                        <Moon className="size-4" />
-                      ) : theme === 'light' ? (
-                        <Sun className="size-4" />
-                      ) : (
-                        <Monitor className="size-4" />
-                      )}
-                      {t('모드')}
-                    </span>
-                    <div className="flex gap-0.5 rounded-full bg-muted p-0.5">
-                      {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
-                        <button
-                          key={value}
-                          className={cn(
-                            'cursor-pointer rounded-full border-none px-2.5 py-1 text-xs font-bold transition-colors',
-                            theme === value
-                              ? 'bg-background text-foreground shadow-sm'
-                              : 'bg-transparent text-muted-foreground hover:bg-background/50 hover:text-foreground',
-                          )}
-                          onClick={() => {
-                            setTheme(value);
-                            logEvent('theme_mode_change', { mode: value });
-                          }}
-                          title={t(label)}
-                        >
-                          <Icon className="size-3" />
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-
-                  {/* 테마 프리셋 선택 (사이드바) */}
-                  <motion.div
-                    className="rounded-lg px-4 py-2"
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.15, type: 'spring', damping: 20, stiffness: 300 }}
-                  >
-                    <span className="mb-1.5 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
-                      <Palette className="size-4" />
-                      {t('테마')}
-                    </span>
-                    <div className="mt-1.5 grid grid-cols-1 gap-0.5">
-                      {presets.map((preset) => (
-                        <button
-                          key={preset.id}
-                          type="button"
-                          className={cn(
-                            'flex w-full cursor-pointer items-center gap-2 rounded-lg border-none px-2 py-1.5 text-left text-xs transition-colors',
-                            currentPresetId === preset.id
-                              ? 'bg-primary/10 text-primary font-medium'
-                              : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
-                          )}
-                          onClick={() => {
-                            applyPreset(preset);
-                            logEvent('theme_preset_change', { preset: preset.id });
-                          }}
-                        >
-                          <div className="flex shrink-0 gap-0.5">
-                            <span
-                              className="inline-block size-3 rounded-full border border-border/40"
-                              style={{ background: preset.colors.primary }}
-                            />
-                            <span
-                              className="inline-block size-3 rounded-full border border-border/40"
-                              style={{ background: preset.colors.background }}
-                            />
-                            <span
-                              className="inline-block size-3 rounded-full border border-border/40"
-                              style={{ background: preset.colors.accent }}
-                            />
-                          </div>
-                          <span className="flex-1 truncate">{preset.name}</span>
-                          {currentPresetId === preset.id && <Check className="size-3 shrink-0" />}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-
                   {/* 구분선 + 지원 그룹 소제목 */}
                   <div className="mx-4 my-1 border-t border-border/60" />
                   <div className="px-4 pb-1 pt-3">
@@ -540,164 +536,127 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
           <span className="text-[10px] font-semibold">{t('문의하기')}</span>
         </Link>
 
-        <Link
-          to="/history"
-          className="flex flex-1 flex-col items-center justify-center gap-0.5 border-r border-border py-2.5 text-muted-foreground no-underline transition-colors active:text-primary"
-          onClick={handleQuizManagement}
-        >
-          <ClipboardList className="size-5" />
-          <span className="text-[10px] font-semibold">{t('퀴즈 기록')}</span>
-        </Link>
-
-        {isAuthenticated ? (
-          <div className="relative flex flex-1">
-            <button
-              id="mobileProfileButton"
-              type="button"
-              className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 border-none bg-transparent py-2.5 text-muted-foreground transition-colors active:text-primary"
-              onClick={() => setIsProfileOpen((prev) => !prev)}
-            >
-              <div className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                {profileInitial}
-              </div>
-              <span className="text-[10px] font-semibold">{displayName}</span>
-            </button>
-            <AnimatePresence>
-              {isProfileOpen && (
-                <motion.div
-                  id="mobileProfileDropdown"
-                  initial={{ opacity: 0, scale: 0.95, y: 4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 4 }}
-                  transition={{ duration: 0.15, ease: 'easeOut' }}
-                  className="absolute bottom-full right-0 z-[1001] mb-2 min-w-[240px] overflow-hidden rounded-xl border border-border bg-card shadow-lg dark:bg-card"
-                >
-                  {/* 프로필 정보 */}
-                  <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                      {profileInitial}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-foreground">
-                        {displayName}
-                      </p>
-                      {user?.email && (
-                        <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-                      )}
-                    </div>
-                  </div>
-                  {/* 메뉴 */}
-                  <div className="border-b border-border p-1.5">
-                    <button
-                      className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                      type="button"
-                      onClick={() => {
-                        setIsProfileOpen(false);
-                        handleLogout();
-                      }}
-                    >
-                      <LogOut className="size-4" />
-                      {t('로그아웃')}
-                    </button>
-                  </div>
-                  {/* 테마 모드 토글 */}
-                  <div className="border-b border-border px-3 py-2">
-                    <p className="mb-1.5 text-xs font-medium text-muted-foreground">{t('모드')}</p>
-                    <div className="flex gap-0.5 rounded-full bg-muted p-0.5">
-                      {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
-                        <button
-                          key={value}
-                          type="button"
-                          className={cn(
-                            'flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border-none px-2 py-1 text-xs font-medium transition-colors',
-                            theme === value
-                              ? 'bg-background text-foreground shadow-sm'
-                              : 'bg-transparent text-muted-foreground hover:text-foreground',
-                          )}
-                          onClick={() => {
-                            setTheme(value);
-                            logEvent('theme_mode_change', { mode: value });
-                          }}
-                        >
-                          <Icon className="size-3" />
-                          {t(label)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  {/* 테마 프리셋 선택 */}
-                  <div className="px-3 py-2">
-                    <p className="mb-1.5 text-xs font-medium text-muted-foreground">{t('테마')}</p>
-                    <div className="grid grid-cols-1 gap-1">
-                      {presets.map((preset) => (
-                        <button
-                          key={preset.id}
-                          type="button"
-                          className={cn(
-                            'flex w-full cursor-pointer items-center gap-2 rounded-lg border-none px-2 py-1.5 text-left text-xs transition-colors',
-                            currentPresetId === preset.id
-                              ? 'bg-primary/10 text-primary font-medium'
-                              : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
-                          )}
-                          onClick={() => {
-                            applyPreset(preset);
-                            logEvent('theme_preset_change', { preset: preset.id });
-                          }}
-                        >
-                          <div className="flex shrink-0 gap-0.5">
-                            <span
-                              className="inline-block size-3 rounded-full border border-border/40"
-                              style={{ background: preset.colors.primary }}
-                            />
-                            <span
-                              className="inline-block size-3 rounded-full border border-border/40"
-                              style={{ background: preset.colors.background }}
-                            />
-                            <span
-                              className="inline-block size-3 rounded-full border border-border/40"
-                              style={{ background: preset.colors.accent }}
-                            />
-                          </div>
-                          <span className="flex-1 truncate">{preset.name}</span>
-                          {currentPresetId === preset.id && <Check className="size-3 shrink-0" />}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <>
-            {/* 모바일 비로그인 테마 토글 */}
-            <button
-              type="button"
-              className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 border-r border-border border-none bg-transparent py-2.5 text-muted-foreground transition-colors active:text-primary"
-              onClick={() => {
-                const next = theme === 'dark' ? 'light' : theme === 'light' ? 'system' : 'dark';
-                setTheme(next);
-                logEvent('theme_mode_change', { mode: next });
+        <div className="relative flex flex-1 border-r border-border">
+          <Link
+            to="/history"
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2.5 text-muted-foreground no-underline transition-colors active:text-primary"
+            onClick={handleQuizManagement}
+          >
+            <ClipboardList className="size-5" />
+            <span className="text-[10px] font-semibold">{t('퀴즈 기록')}</span>
+          </Link>
+          {!isAuthenticated && showNavTooltip && (
+            <span
+              className="absolute bottom-full left-1/2 z-[2] mb-2.5 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1.5 text-[11px] shadow-lg before:absolute before:left-1/2 before:top-full before:-translate-x-1/2 before:border-x-[8px] before:border-t-[8px] before:border-b-0 before:border-solid before:border-transparent before:border-t-primary before:content-['']"
+              style={{
+                backgroundColor: 'var(--primary)',
+                color: 'var(--primary-foreground)',
+                borderColor: 'var(--primary)',
               }}
+              role="status"
             >
-              {theme === 'dark' ? (
-                <Moon className="size-5" />
-              ) : theme === 'light' ? (
-                <Sun className="size-5" />
-              ) : (
-                <Monitor className="size-5" />
-              )}
-              <span className="text-[10px] font-semibold">{t('테마')}</span>
-            </button>
-            <Link
-              to="/login"
-              className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2.5 text-primary no-underline transition-colors active:text-primary/80"
-            >
-              <LogIn className="size-5" />
-              <span className="text-[10px] font-semibold">{t('로그인')}</span>
-            </Link>
-          </>
-        )}
+              {t('로그인하고, 퀴즈기록을 저장해보세요')}
+              <button
+                type="button"
+                className="cursor-pointer border-none bg-transparent p-0.5 px-1 text-[11px] leading-none text-inherit hover:opacity-80"
+                aria-label={t('닫기')}
+                onClick={handleNavTooltipClose}
+              >
+                <X className="size-3" />
+              </button>
+            </span>
+          )}
+        </div>
+
+        {/* 모바일 테마 버튼 */}
+        <div className="relative flex flex-1">
+          <button
+            id="mobileThemeButton"
+            type="button"
+            className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 border-r border-border border-none bg-transparent py-2.5 text-muted-foreground transition-colors active:text-primary"
+            onClick={() => setIsThemeOpen((prev) => !prev)}
+          >
+            <Palette className="size-5" />
+            <span className="text-[10px] font-semibold">{t('테마')}</span>
+          </button>
+          <AnimatePresence>
+            {isThemeOpen && (
+              <motion.div
+                id="mobileThemeDropdown"
+                initial={{ opacity: 0, scale: 0.95, y: 4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 4 }}
+                transition={{ duration: 0.15, ease: 'easeOut' }}
+                className="absolute bottom-full right-0 z-[1001] mb-2 min-w-[220px] overflow-hidden rounded-xl border border-border bg-card shadow-lg"
+              >
+                {/* 모드 토글 */}
+                <div className="border-b border-border px-3 py-2">
+                  <p className="mb-1.5 text-xs font-medium text-muted-foreground">{t('모드')}</p>
+                  <div className="flex gap-0.5 rounded-full bg-muted p-0.5">
+                    {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        className={cn(
+                          'flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border-none px-2 py-1 text-xs font-medium transition-colors',
+                          theme === value
+                            ? 'bg-background text-foreground shadow-sm'
+                            : 'bg-transparent text-muted-foreground hover:text-foreground',
+                        )}
+                        onClick={() => {
+                          setTheme(value);
+                          logEvent('theme_mode_change', { mode: value });
+                        }}
+                      >
+                        <Icon className="size-3" />
+                        {t(label)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* 테마 프리셋 */}
+                <div className="px-3 py-2">
+                  <p className="mb-1.5 text-xs font-medium text-muted-foreground">{t('테마')}</p>
+                  <div className="grid grid-cols-1 gap-1">
+                    {presets.map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        className={cn(
+                          'flex w-full cursor-pointer items-center gap-2 rounded-lg border-none px-2 py-1.5 text-left text-xs transition-colors',
+                          currentPresetId === preset.id
+                            ? 'bg-primary/10 text-primary font-medium'
+                            : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
+                        )}
+                        onClick={() => {
+                          applyPreset(preset);
+                          logEvent('theme_preset_change', { preset: preset.id });
+                        }}
+                      >
+                        <div className="flex shrink-0 gap-0.5">
+                          <span
+                            className="inline-block size-3 rounded-full border border-border/40"
+                            style={{ background: preset.colors.primary }}
+                          />
+                          <span
+                            className="inline-block size-3 rounded-full border border-border/40"
+                            style={{ background: preset.colors.background }}
+                          />
+                          <span
+                            className="inline-block size-3 rounded-full border border-border/40"
+                            style={{ background: preset.colors.accent }}
+                          />
+                        </div>
+                        <span className="flex-1 truncate">{preset.name}</span>
+                        {currentPresetId === preset.id && <Check className="size-3 shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </nav>
     </>
   );

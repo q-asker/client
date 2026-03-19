@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
@@ -13,6 +13,9 @@ import {
   SUPPORTED_EXTENSIONS,
 } from '#features/prepare-quiz';
 import { useQuizGenerationStore } from '#features/quiz-generation';
+import axiosInstance from '#shared/api';
+import CustomToast from '#shared/toast';
+import { useAuthStore } from '#entities/auth';
 import { Document, Page } from 'react-pdf';
 import MockPageGrid from './MockPageGrid';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -39,6 +42,9 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
 import { Badge } from '@/shared/ui/components/badge';
+import { Button } from '@/shared/ui/components/button';
+import InlineEdit from '@/shared/ui/components/inline-edit';
+import { Skeleton } from '@/shared/ui/components/skeleton';
 import { TextAnimate } from '@/shared/ui/components/text-animate';
 import { BorderBeam } from '@/shared/ui/components/border-beam';
 
@@ -60,9 +66,37 @@ const MakeQuiz: React.FC = () => {
   const { state, actions } = usePrepareQuiz({ t, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
+  const isAuthenticated = !!useAuthStore((state) => state.accessToken);
   const generatedQuizCount = useQuizGenerationStore((state) => state.quizzes.length);
   const safeFileName: string = upload.file?.name || storedFileInfo?.name || t('업로드된 파일');
   const safeFileSize: number | undefined = upload.file?.size ?? storedFileInfo?.size;
+
+  // 생성 완료 후 서버에서 ProblemSet 정보 조회
+  interface ProblemSetSummary {
+    title: string;
+    quizType: 'MULTIPLE' | 'BLANK' | 'OX';
+    totalCount: number;
+  }
+  const [problemSetInfo, setProblemSetInfo] = useState<ProblemSetSummary | null>(null);
+
+  useEffect(() => {
+    if (!generation.problemSetId) {
+      setProblemSetInfo(null);
+      return;
+    }
+    let cancelled = false;
+    axiosInstance
+      .get<ProblemSetSummary>(`/problem-set/${generation.problemSetId}`)
+      .then(({ data }) => {
+        if (!cancelled) setProblemSetInfo(data);
+      })
+      .catch(() => {
+        // 조회 실패 시 무시 — 클라이언트 정보 폴백
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [generation.problemSetId]);
   const {
     upload: uploadActions,
     options: optionActions,
@@ -71,6 +105,25 @@ const MakeQuiz: React.FC = () => {
     ui: uiActions,
     common: commonActions,
   } = actions;
+
+  // 제목 인라인 편집
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  const submitTitleEdit = async (trimmed: string) => {
+    if (!generation.problemSetId) return;
+    try {
+      const { data } = await axiosInstance.patch<{ title: string }>(
+        `/problem-set/${generation.problemSetId}/title`,
+        { title: trimmed },
+      );
+      // 서버 응답으로 로컬 상태 즉시 반영
+      setProblemSetInfo((prev) => (prev ? { ...prev, title: data.title } : prev));
+      CustomToast.success(t('제목이 변경되었습니다.'));
+    } catch (error) {
+      console.error(t('제목 변경 실패:'), error);
+      CustomToast.error(t('제목 변경에 실패했습니다.'));
+    }
+  };
 
   const quizTypes: QuizTypeOption[] = [
     { key: 'MULTIPLE', label: t('객관식'), icon: ListChecks },
@@ -569,7 +622,7 @@ const MakeQuiz: React.FC = () => {
                 </Card>
               </div>
             </motion.div>
-          ) : !upload.uploadedUrl ? (
+          ) : !upload.uploadedUrl && !generation.problemSetId ? (
             /* 파일 미업로드 상태: 풀폭 드래그 영역 */
             <div
               className={cn(
@@ -766,28 +819,47 @@ const MakeQuiz: React.FC = () => {
               <Card className="mx-auto mt-4 max-w-lg overflow-hidden rounded-2xl border border-border sm:mt-8">
                 {/* 히어로 영역: 파일명 + 유형 + 문제 수 */}
                 <div className="flex flex-col items-center gap-2 px-4 pt-5 sm:px-6 sm:pt-6">
-                  {/* 파일명 */}
-                  <div className="flex items-center gap-2 text-foreground">
-                    <FileText className="size-5 shrink-0" />
-                    <span className="max-w-[260px] truncate text-base font-bold sm:max-w-[360px] sm:text-lg">
-                      {safeFileName}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
-                      <ListChecks className="size-3.5" />
-                      <span className="text-sm font-medium">
-                        {quizTypes.find((qt) => qt.key === options.questionType)?.label ||
-                          t('객관식')}
-                      </span>
-                    </Badge>
-                  </div>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-black tabular-nums text-primary sm:text-3xl">
-                      {options.questionCount}
-                    </span>
-                    <span className="text-sm font-medium text-muted-foreground">{t('문제')}</span>
-                  </div>
+                  {problemSetInfo ? (
+                    <>
+                      {/* 파일명 — 서버 응답 */}
+                      <div className="flex w-full max-w-[360px] items-center justify-center gap-2 text-foreground">
+                        {!isEditingTitle && <FileText className="size-5 shrink-0" />}
+                        <InlineEdit
+                          value={problemSetInfo.title}
+                          editing={isEditingTitle}
+                          onStartEdit={() => setIsEditingTitle(true)}
+                          onCancel={() => setIsEditingTitle(false)}
+                          onSubmit={submitTitleEdit}
+                          size="md"
+                          textClassName="max-w-[260px] truncate text-base font-bold sm:max-w-[360px] sm:text-lg"
+                          hideEditButton={!isAuthenticated}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
+                          <ListChecks className="size-3.5" />
+                          <span className="text-sm font-medium">
+                            {quizTypes.find((qt) => qt.key === problemSetInfo.quizType)?.label ||
+                              t('객관식')}
+                          </span>
+                        </Badge>
+                      </div>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-2xl font-black tabular-nums text-primary sm:text-3xl">
+                          {problemSetInfo.totalCount}
+                        </span>
+                        <span className="text-sm font-medium text-muted-foreground">
+                          {t('문제')}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Skeleton className="h-7 w-48 rounded-md" />
+                      <Skeleton className="h-7 w-20 rounded-full" />
+                      <Skeleton className="h-9 w-24 rounded-md" />
+                    </>
+                  )}
                 </div>
 
                 {/* CTA */}
@@ -803,13 +875,29 @@ const MakeQuiz: React.FC = () => {
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <button
                       className="cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
-                      onClick={commonActions.handleReCreate}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            String(t('현재 생성된 퀴즈가 사라집니다. 계속하시겠습니까?')),
+                          )
+                        ) {
+                          commonActions.handleReCreate();
+                        }
+                      }}
                     >
                       {t('다른 문제 생성')}
                     </button>
                     <button
                       className="cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-destructive/70 transition-colors duration-200 hover:bg-muted hover:text-destructive"
-                      onClick={commonActions.handleRemoveFile}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            String(t('현재 생성된 퀴즈가 사라집니다. 계속하시겠습니까?')),
+                          )
+                        ) {
+                          commonActions.handleRemoveFile();
+                        }
+                      }}
                     >
                       {t('다른 파일 넣기')}
                     </button>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +8,7 @@ import { Badge } from '@/shared/ui/components/badge';
 import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
+import InlineEdit from '@/shared/ui/components/inline-edit';
 import {
   FileText,
   Trophy,
@@ -16,7 +18,6 @@ import {
   Play,
   RotateCcw,
   Plus,
-  Info,
   ChevronRight,
   LogIn,
 } from 'lucide-react';
@@ -39,11 +40,15 @@ const QuizHistory = () => {
       navigateToDetail,
       navigateToQuiz,
       deleteQuizRecord,
+      changeTitle,
       clearAllHistory,
       formatDate,
       handleCreateFromEmpty,
     },
   } = useQuizHistory({ t, navigate, currentLanguage });
+
+  // 인라인 제목 편집 상태
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -115,7 +120,7 @@ const QuizHistory = () => {
           {/* 인라인 통계 바 */}
           {isAuthenticated && quizHistory.length > 0 && (
             <BlurFade delay={0.2}>
-              <div className="mb-6 flex items-center gap-6 rounded-lg border border-border bg-card px-5 py-3 text-sm max-md:flex-wrap max-md:gap-3">
+              <div className="mb-6 flex items-center gap-6 rounded-lg border border-border bg-card px-5 py-3 text-sm max-md:grid max-md:grid-cols-2 max-md:gap-3 max-md:px-4 max-md:py-3">
                 <div className="flex items-center gap-1.5">
                   <FileText className="size-4 text-primary" />
                   <span className="text-muted-foreground">{t('총 퀴즈 수')}</span>
@@ -123,7 +128,7 @@ const QuizHistory = () => {
                 </div>
                 <div className="hidden h-4 border-l border-border md:block" />
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle className="size-4 text-success" />
+                  <CheckCircle className="size-4 text-chart-2" />
                   <span className="text-muted-foreground">{t('완료한 퀴즈')}</span>
                   <span className="font-bold text-foreground">{stats.completedQuizzes}</span>
                 </div>
@@ -135,7 +140,7 @@ const QuizHistory = () => {
                 </div>
                 <div className="hidden h-4 border-l border-border md:block" />
                 <div className="flex items-center gap-1.5">
-                  <Trophy className="size-4 text-warning" />
+                  <Trophy className="size-4 text-chart-3" />
                   <span className="text-muted-foreground">{t('평균 점수')}</span>
                   <span className="font-bold text-foreground">
                     {stats.averageScore}
@@ -169,10 +174,12 @@ const QuizHistory = () => {
               <BlurFade delay={0.4}>
                 <div className="overflow-hidden rounded-lg border border-border bg-card">
                   {/* 테이블 헤더 */}
-                  <div className="hidden border-b border-border bg-muted/50 px-5 py-2.5 text-xs font-medium text-muted-foreground md:grid md:grid-cols-[1fr_80px_100px_120px_120px]">
+                  <div className="hidden border-b border-border bg-muted/50 px-5 py-2.5 text-xs font-medium text-muted-foreground md:grid md:grid-cols-[1.5fr_150px_64px_56px_120px_120px_72px] md:gap-2">
+                    <span>{t('제목')}</span>
                     <span>{t('퀴즈 유형')}</span>
                     <span className="text-center">{t('상태')}</span>
                     <span className="text-center">{t('점수')}</span>
+                    <span className="text-center">{t('생성일')}</span>
                     <span className="text-center">{t('완료일')}</span>
                     <span className="text-right">{t('액션')}</span>
                   </div>
@@ -180,32 +187,46 @@ const QuizHistory = () => {
                   {/* 행 목록 */}
                   {quizHistory.map((record, index) => (
                     <BlurFade key={record.problemSetId} delay={0.5 + index * 0.08}>
+                      {/* 데스크톱: 테이블 행 */}
                       <div
                         className={cn(
-                          'flex flex-col gap-3 border-b border-border px-5 py-3 last:border-b-0',
-                          'md:grid md:grid-cols-[1fr_80px_100px_120px_120px] md:items-center md:gap-2',
+                          'group/row hidden border-b border-border px-5 py-3 last:border-b-0',
+                          'md:grid md:grid-cols-[1.5fr_150px_64px_56px_120px_120px_72px] md:items-center md:gap-2',
                           record.completed &&
                             'cursor-pointer transition-colors duration-150 hover:bg-muted/30',
                         )}
                         onClick={() => record.completed && navigateToDetail(record)}
                       >
+                        {/* 제목 */}
+                        <div
+                          className="flex items-center gap-2 min-w-0"
+                          onClick={(e) => editingId === record.problemSetId && e.stopPropagation()}
+                        >
+                          <FileText className="size-4 shrink-0 text-muted-foreground" />
+                          <InlineEdit
+                            value={record.title}
+                            editing={editingId === record.problemSetId}
+                            onStartEdit={() => setEditingId(record.problemSetId)}
+                            onCancel={() => setEditingId(null)}
+                            onSubmit={(v) => changeTitle(record.problemSetId, v)}
+                            size="sm"
+                            editButtonClassName="opacity-0 group-hover/row:opacity-100 transition-opacity"
+                          />
+                        </div>
+
                         {/* 퀴즈 유형 */}
                         <div className="flex items-center gap-2 min-w-0">
-                          <FileText className="size-4 shrink-0 text-muted-foreground" />
-                          <span className="truncate text-sm font-medium text-foreground">
+                          <span className="truncate text-sm text-muted-foreground">
                             {QUIZ_TYPE_LABEL[record.quizType]}
                           </span>
                           <Badge variant="outline" className="shrink-0 text-[0.65rem]">
                             {record.totalCount}
                             {t('문제')}
                           </Badge>
-                          {record.completed && (
-                            <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground md:hidden" />
-                          )}
                         </div>
 
                         {/* 상태 */}
-                        <div className="text-center max-md:hidden">
+                        <div className="text-center">
                           <Badge
                             variant={record.completed ? 'default' : 'secondary'}
                             className="text-[0.65rem]"
@@ -215,7 +236,7 @@ const QuizHistory = () => {
                         </div>
 
                         {/* 점수 */}
-                        <div className="text-center text-sm font-semibold max-md:hidden">
+                        <div className="text-center text-sm font-semibold">
                           {record.completed && record.score !== null ? (
                             <span className="text-foreground">
                               {Math.round((record.score / record.totalCount) * 100)}
@@ -226,26 +247,14 @@ const QuizHistory = () => {
                           )}
                         </div>
 
-                        {/* 완료일 */}
-                        <div className="text-center text-xs text-muted-foreground max-md:hidden">
-                          {record.takenAt ? formatDate(record.takenAt) : '-'}
+                        {/* 생성일 */}
+                        <div className="text-center text-xs text-muted-foreground">
+                          {record.createdAt ? formatDate(record.createdAt) : '-'}
                         </div>
 
-                        {/* 모바일 메타 정보 */}
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground md:hidden">
-                          <Badge
-                            variant={record.completed ? 'default' : 'secondary'}
-                            className="text-[0.6rem]"
-                          >
-                            {record.completed ? t('완료') : t('미완료')}
-                          </Badge>
-                          {record.completed && record.score !== null && (
-                            <span className="flex items-center gap-1 font-medium text-foreground">
-                              <Trophy className="size-3" />
-                              {Math.round((record.score / record.totalCount) * 100)}
-                              {t('점')}
-                            </span>
-                          )}
+                        {/* 완료일 */}
+                        <div className="text-center text-xs text-muted-foreground">
+                          {record.takenAt ? formatDate(record.takenAt) : '-'}
                         </div>
 
                         {/* 액션 */}
@@ -285,6 +294,90 @@ const QuizHistory = () => {
                               <Trash2 className="size-3.5" />
                             </Button>
                           )}
+                        </div>
+                      </div>
+
+                      {/* 모바일: 카드형 */}
+                      <div
+                        className={cn(
+                          'group/row border-b border-border px-4 py-3 last:border-b-0 md:hidden',
+                          record.completed &&
+                            'cursor-pointer transition-colors duration-150 active:bg-muted/30',
+                        )}
+                        onClick={() => record.completed && navigateToDetail(record)}
+                      >
+                        {/* 상단: 제목 + 점수/상태 */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div
+                            className="flex min-w-0 flex-1 items-start gap-2"
+                            onClick={(e) =>
+                              editingId === record.problemSetId && e.stopPropagation()
+                            }
+                          >
+                            <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                            <InlineEdit
+                              value={record.title}
+                              editing={editingId === record.problemSetId}
+                              onStartEdit={() => setEditingId(record.problemSetId)}
+                              onCancel={() => setEditingId(null)}
+                              onSubmit={(v) => changeTitle(record.problemSetId, v)}
+                              size="sm"
+                              editButtonClassName="opacity-100"
+                            />
+                          </div>
+                          {record.completed && record.score !== null ? (
+                            <span className="shrink-0 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                              {Math.round((record.score / record.totalCount) * 100)}
+                              {t('점')}
+                            </span>
+                          ) : (
+                            <Badge variant="secondary" className="shrink-0 text-[0.65rem]">
+                              {t('미완료')}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* 하단: 메타 + 액션 */}
+                        <div className="mt-2 flex items-center justify-between pl-6">
+                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                            <span>{QUIZ_TYPE_LABEL[record.quizType]}</span>
+                            <span className="text-border">·</span>
+                            <span>
+                              {record.totalCount}
+                              {t('문제')}
+                            </span>
+                            <span className="text-border">·</span>
+                            <span>{record.createdAt ? formatDate(record.createdAt) : '-'}</span>
+                          </div>
+                          <div
+                            className="flex items-center gap-0.5"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7"
+                              onClick={() => navigateToQuiz(record)}
+                              title={String(record.completed ? t('다시 풀기') : t('퀴즈 풀기'))}
+                            >
+                              {record.completed ? (
+                                <RotateCcw className="size-3.5" />
+                              ) : (
+                                <Play className="size-3.5" />
+                              )}
+                            </Button>
+                            {record.completed && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-7 text-destructive hover:text-destructive"
+                                onClick={() => deleteQuizRecord(record.problemSetId)}
+                                title={String(t('삭제'))}
+                              >
+                                <Trash2 className="size-3.5" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </BlurFade>

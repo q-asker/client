@@ -37,6 +37,7 @@ interface ProblemSetInfo {
 interface GenerateQuestionsParams {
   t: (key: string) => string;
   uploadedUrl: string | null;
+  fileName: string;
   questionType: string;
   questionCount: number;
   quizLevel: string;
@@ -46,6 +47,7 @@ interface GenerateQuestionsParams {
 interface StartGenerationParams {
   requestData: {
     uploadedUrl: string | null;
+    title: string;
     quizCount: number;
     quizType: string;
     difficultyType: string;
@@ -332,6 +334,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
       generateQuestions: async ({
         t,
         uploadedUrl,
+        fileName,
         questionType,
         questionCount,
         quizLevel,
@@ -359,6 +362,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
           await useQuizGenerationStore.getState().startGeneration({
             requestData: {
               uploadedUrl,
+              title: fileName,
               quizCount: questionCount,
               quizType: questionType,
               difficultyType: quizLevel,
