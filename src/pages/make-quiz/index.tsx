@@ -766,7 +766,8 @@ const MakeQuiz: React.FC = () => {
                     </div>
                     <p className="mt-3 text-center text-[10px] leading-relaxed text-muted-foreground/70">
                       {t('파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.')}
-                      {' · '}
+                      <span className="hidden sm:inline">{' · '}</span>
+                      <br className="sm:hidden" />
                       {t('24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.')}
                     </p>
                   </div>
