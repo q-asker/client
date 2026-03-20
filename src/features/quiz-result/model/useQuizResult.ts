@@ -55,7 +55,7 @@ export const useQuizResult = ({
     }));
 
     axiosInstance
-      .post('/history', { problemSetId, userAnswers, score: correctCount })
+      .post('/history', { problemSetId, userAnswers, score: correctCount, totalTime })
       .catch((err) => console.error('Failed to save quiz history:', err));
   }, []);
 
