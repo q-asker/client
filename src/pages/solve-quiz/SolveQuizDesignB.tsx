@@ -259,7 +259,7 @@ const SolveQuizDesignB: React.FC = () => {
               {/* 문제 영역 — 시각적으로 하나의 카드 */}
               <div className="w-full overflow-hidden rounded-2xl bg-card shadow-card">
                 {/* 질문 제목 + 검토 배지 */}
-                <div className="flex items-start justify-between gap-3 p-5 pb-4">
+                <div className="flex items-start justify-between gap-3 p-5 pb-4 max-md:flex-col max-md:gap-2">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
                     <MarkdownText>{quiz.currentQuiz.title.split('\n')[0]}</MarkdownText>
                   </div>
@@ -267,6 +267,7 @@ const SolveQuizDesignB: React.FC = () => {
                     onClick={quizActions.handleCheckToggle}
                     className={cn(
                       'flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-none px-2 py-1 text-xs font-semibold transition-all duration-200',
+                      'max-md:self-end',
                       quiz.currentQuiz.check
                         ? 'bg-warning/12 text-warning'
                         : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
