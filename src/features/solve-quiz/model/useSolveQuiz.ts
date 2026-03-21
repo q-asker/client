@@ -29,6 +29,7 @@ interface UseSolveQuizReturn {
       reviewCount: number;
       answeredCount: number;
       currentQuiz: Quiz;
+      title: string;
     };
   };
   actions: {
@@ -43,6 +44,7 @@ interface UseSolveQuizReturn {
       handleConfirmSubmit: () => void;
       handleCancelSubmit: () => void;
       handleOverlayClick: (e: React.MouseEvent<HTMLDivElement>) => void;
+      changeTitle: (newTitle: string) => Promise<void>;
     };
   };
 }
@@ -59,6 +61,8 @@ export const useSolveQuiz = ({
     quizzes: solveQuizzes,
     setQuizzes: setSolveQuizzes,
     isLoading,
+    title,
+    changeTitle,
   } = useSolveQuizData({
     problemSetId,
     quizzes,
@@ -108,12 +112,14 @@ export const useSolveQuiz = ({
         reviewCount,
         answeredCount,
         currentQuiz: question.state.currentQuiz,
+        title,
       },
     },
     actions: {
       quiz: {
         ...question.actions,
         ...submit.actions,
+        changeTitle,
       },
     },
   };

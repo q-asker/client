@@ -38,7 +38,7 @@ interface HistoryDetail {
 
 const QuizHistoryDetail = () => {
   const { t, currentLanguage } = useTranslation();
-  const { problemSetId } = useParams<{ problemSetId: string }>();
+  const { historyId } = useParams<{ historyId: string }>();
   const navigate = useNavigate();
   const [detail, setDetail] = useState<HistoryDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,9 +46,9 @@ const QuizHistoryDetail = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!problemSetId) return;
+    if (!historyId) return;
     axiosInstance
-      .get<HistoryDetail>(`/history/${problemSetId}`)
+      .get<HistoryDetail>(`/history/${historyId}`)
       .then((res) => setDetail(res.data))
       .catch((err: { response?: { status?: number } }) => {
         if (err.response?.status === 401) {
@@ -58,7 +58,7 @@ const QuizHistoryDetail = () => {
         }
       })
       .finally(() => setLoading(false));
-  }, [problemSetId]);
+  }, [historyId]);
 
   const formatDate = (dateString: string) => {
     const locale = currentLanguage?.startsWith('en') ? 'en-US' : 'ko-KR';
