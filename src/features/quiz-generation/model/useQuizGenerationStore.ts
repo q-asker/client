@@ -316,7 +316,10 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
 
         generationEventSource.onopen = () => {
           axiosInstance
-            .post(`/generation`, { ...requestData, sessionId })
+            .post(`/generation`, { ...requestData, sessionId }, { skipErrorToast: true } as Record<
+              string,
+              unknown
+            >)
             .then(() => {})
             .catch((error: unknown) => {
               finalizeGeneration(set, generationEventSource);
@@ -370,6 +373,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
             },
             onSuccess: () => {},
             onError: (errorMessage: unknown) => {
+              // EventSource 에러는 인터셉터를 거치지 않으므로 직접 토스트 처리
               const err = errorMessage as {
                 response?: { data?: { message?: string } };
                 message?: string;
@@ -378,14 +382,11 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
                 err?.response?.data?.message ||
                 err?.message ||
                 (typeof errorMessage === 'string' ? errorMessage : null) ||
-                t('퀴즈 생성에 실패했습니다.');
+                t('알 수 없는 오류가 발생했습니다.');
               CustomToast.error(message as string);
             },
           });
-        } catch (error: unknown) {
-          const message =
-            (error as { message?: string })?.message || t('퀴즈 생성에 실패했습니다.');
-          CustomToast.error(message);
+        } catch {
           finalizeGeneration(set);
         }
       },
