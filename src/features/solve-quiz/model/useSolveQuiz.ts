@@ -82,6 +82,7 @@ export const useSolveQuiz = ({
     problemSetId,
     currentTime,
     uploadedUrl,
+    title,
     navigate,
   });
 

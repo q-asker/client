@@ -5,6 +5,7 @@ import { MOCK_RESULT_QUIZZES, MOCK_TOTAL_TIME, MOCK_UPLOADED_URL } from './mockR
 import { Button } from '@/shared/ui/components/button';
 import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
 import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
+import { Home } from 'lucide-react';
 
 /** 선택지 타입 */
 interface QuizSelection {
@@ -26,6 +27,7 @@ interface QuizResultLocationState {
   quizzes?: QuizItem[];
   totalTime?: string;
   uploadedUrl?: string;
+  title?: string;
 }
 
 const QuizResultDesignK = () => {
@@ -39,6 +41,7 @@ const QuizResultDesignK = () => {
     quizzes = [],
     totalTime = '00:00:00',
     uploadedUrl,
+    title = '',
   } = isMock
     ? { quizzes: MOCK_RESULT_QUIZZES, totalTime: MOCK_TOTAL_TIME, uploadedUrl: MOCK_UPLOADED_URL }
     : state || {};
@@ -51,6 +54,7 @@ const QuizResultDesignK = () => {
     quizzes,
     totalTime,
     uploadedUrl: uploadedUrl ?? '',
+    title,
   });
 
   // 공통 컴포넌트용 데이터 변환
@@ -72,9 +76,19 @@ const QuizResultDesignK = () => {
       correctCount={correctCount}
       totalTime={totalTime}
       actionButton={
-        <Button size="lg" className="w-full text-base" onClick={getQuizExplanation}>
-          {t('해설 보기')}
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button size="lg" className="w-full text-base" onClick={getQuizExplanation}>
+            {t('해설 보기')}
+          </Button>
+          <button
+            type="button"
+            className="group mx-auto flex items-center gap-1.5 pt-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            onClick={() => navigate('/')}
+          >
+            <Home className="size-3.5 transition-transform group-hover:-translate-y-0.5" />
+            {t('홈으로')}
+          </button>
+        </div>
       }
       problems={problems}
     />
