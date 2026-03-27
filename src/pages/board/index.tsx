@@ -264,18 +264,4 @@ const Board = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const BD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const BoardWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('bd');
-  const VariantComponent = variant ? BD_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return <VariantComponent />;
-  }
-  return <Board />;
-};
-
-export default BoardWithVariant;
+export default Board;

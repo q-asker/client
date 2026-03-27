@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import CustomToast from '#shared/toast';
 import { useAuthStore, authService } from '#entities/auth';
@@ -350,34 +350,4 @@ const BoardDetail = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const BDD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '1': React.lazy(() => import('./BoardDetailMagicA')),
-  '2': React.lazy(() => import('./BoardDetailMagicB')),
-  '3': React.lazy(() => import('./BoardDetailNormalA')),
-  '4': React.lazy(() => import('./BoardDetailNormalB')),
-  '5': React.lazy(() => import('./BoardDetailVariant5')),
-  '6': React.lazy(() => import('./BoardDetailVariant6')),
-  '7': React.lazy(() => import('./BoardDetailVariant7')),
-  '8': React.lazy(() => import('./BoardDetailVariant8')),
-};
-
-const BoardDetailWithVariant = () => {
-  const { t } = useTranslation('board-detail');
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('bdd');
-  const VariantComponent = variant ? BDD_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <React.Suspense
-        fallback={<div className="p-8 text-center text-muted-foreground">{t('로딩 중...')}</div>}
-      >
-        <VariantComponent />
-      </React.Suspense>
-    );
-  }
-  return <BoardDetail />;
-};
-
-export default BoardDetailWithVariant;
+export default BoardDetail;

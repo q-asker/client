@@ -922,18 +922,4 @@ const MakeQuiz: React.FC = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const MQ_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const MakeQuizWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('mq');
-  const VariantComponent = variant ? MQ_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return <VariantComponent />;
-  }
-  return <MakeQuiz />;
-};
-
-export default MakeQuizWithVariant;
+export default MakeQuiz;

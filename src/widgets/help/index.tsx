@@ -437,22 +437,4 @@ const Help = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const HELP_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const HelpWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('help');
-  const VariantComponent = variant ? HELP_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <Help />;
-};
-
-export default HelpWithVariant;
+export default Help;
