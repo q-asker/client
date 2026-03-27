@@ -30,7 +30,7 @@ interface TimelineStep {
 }
 
 const Help = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const {
     actions: { handleSectionHover },
   } = useHelp();
@@ -38,75 +38,84 @@ const Help = () => {
   const steps: TimelineStep[] = [
     {
       number: 1,
-      titleKey: '1단계: 파일 업로드',
+      titleKey: t('1단계: 파일 업로드'),
       items: [
-        { icon: FileText, labelKey: '지원 형식: ', textKey: '학습 자료 파일' },
-        { icon: Upload, labelKey: '업로드 ', textKey: '파일을 드래그하거나 버튼 클릭' },
+        { icon: FileText, labelKey: t('지원 형식: '), textKey: t('학습 자료 파일') },
+        { icon: Upload, labelKey: t('업로드 '), textKey: t('파일을 드래그하거나 버튼 클릭') },
         {
           icon: Lightbulb,
-          labelKey: '팁: ',
-          textKey: '원하는 페이지를 지정하면 AI 퀴즈 생성시 더 좋은 퀴즈를 만들 수 있습니다.',
+          labelKey: t('팁: '),
+          textKey: t('원하는 페이지를 지정하면 AI 퀴즈 생성시 더 좋은 퀴즈를 만들 수 있습니다.'),
         },
       ],
     },
     {
       number: 2,
-      titleKey: '2단계: 퀴즈 옵션 설정',
+      titleKey: t('2단계: 퀴즈 옵션 설정'),
       items: [
-        { icon: FileText, labelKey: '문제 수량: ', textKey: '5 ~ 25개 (5개 단위)' },
-        { icon: FileText, labelKey: '페이지 범위: ', textKey: '전체 또는 특정 페이지 지정' },
-        { icon: Target, labelKey: '문제 유형: ', textKey: '빈칸 채우기, OX, 객관식 중 선택' },
+        { icon: FileText, labelKey: t('문제 수량: '), textKey: t('5 ~ 25개 (5개 단위)') },
+        { icon: FileText, labelKey: t('페이지 범위: '), textKey: t('전체 또는 특정 페이지 지정') },
+        { icon: Target, labelKey: t('문제 유형: '), textKey: t('빈칸 채우기, OX, 객관식 중 선택') },
       ],
     },
     {
       number: 3,
-      titleKey: '3단계: AI 문제 생성',
+      titleKey: t('3단계: AI 문제 생성'),
       items: [
         {
           icon: FileText,
-          labelKey: 'AI 분석: ',
-          textKey: '업로드된 문서를 AI가 분석하여 문제 생성',
+          labelKey: t('AI 분석: '),
+          textKey: t('업로드된 문서를 AI가 분석하여 문제 생성'),
         },
         {
           icon: Timer,
-          labelKey: '소요 시간: ',
-          textKey: '보통 10초 ~ 30초 (문서 길이에 따라 다름)',
+          labelKey: t('소요 시간: '),
+          textKey: t('보통 10초 ~ 30초 (문서 길이에 따라 다름)'),
         },
       ],
+
       extraBold: {
-        beforeKey: '"문제 풀기" 버튼으로',
-        boldKey: 'AI 퀴즈 생성',
-        afterKey: '완료!',
+        beforeKey: t('"문제 풀기" 버튼으로'),
+        boldKey: t('AI 퀴즈 생성'),
+        afterKey: t('완료!'),
       },
     },
     {
       number: 4,
-      titleKey: '4단계: 퀴즈 풀기',
+      titleKey: t('4단계: 퀴즈 풀기'),
       items: [
-        { icon: FileText, labelKey: '문제 풀이: ', textKey: '생성된 객관식 문제를 순서대로 풀이' },
-        { icon: Search, labelKey: '검토 기능: ', textKey: '나중에 다시 볼 문제에 체크 표시' },
-        { icon: BarChart3, labelKey: '네비게이션: ', textKey: '좌측 번호판으로 빠른 이동' },
+        {
+          icon: FileText,
+          labelKey: t('문제 풀이: '),
+          textKey: t('생성된 객관식 문제를 순서대로 풀이'),
+        },
+        { icon: Search, labelKey: t('검토 기능: '), textKey: t('나중에 다시 볼 문제에 체크 표시') },
+        { icon: BarChart3, labelKey: t('네비게이션: '), textKey: t('좌측 번호판으로 빠른 이동') },
       ],
     },
     {
       number: 5,
-      titleKey: '5단계: 결과 및 해설 확인',
+      titleKey: t('5단계: 결과 및 해설 확인'),
       items: [
-        { icon: TrendingUp, labelKey: '성과 확인: ', textKey: '점수, 소요시간 등 결과 확인' },
-        { icon: FileText, labelKey: '반복 학습: ', textKey: '틀린 문제 중심 재학습 가능' },
+        { icon: TrendingUp, labelKey: t('성과 확인: '), textKey: t('점수, 소요시간 등 결과 확인') },
+        { icon: FileText, labelKey: t('반복 학습: '), textKey: t('틀린 문제 중심 재학습 가능') },
       ],
     },
     {
       number: 6,
-      titleKey: '6단계: 퀴즈 기록 관리',
+      titleKey: t('6단계: 퀴즈 기록 관리'),
       items: [
         {
           icon: ClipboardList,
-          labelKey: '자동 저장: ',
-          textKey: '만든 퀴즈가 퀴즈 기록에 자동 저장',
+          labelKey: t('자동 저장: '),
+          textKey: t('만든 퀴즈가 퀴즈 기록에 자동 저장'),
         },
-        { icon: BarChart3, labelKey: '결과 확인: ', textKey: '총 퀴즈 수, 평균 점수 등 확인' },
-        { icon: Target, labelKey: '복습: ', textKey: '언제든 이어서 풀거나 해설 다시 보기' },
+        {
+          icon: BarChart3,
+          labelKey: t('결과 확인: '),
+          textKey: t('총 퀴즈 수, 평균 점수 등 확인'),
+        },
+        { icon: Target, labelKey: t('복습: '), textKey: t('언제든 이어서 풀거나 해설 다시 보기') },
       ],
     },
   ];
@@ -301,20 +310,26 @@ const Help = () => {
             <div className="space-y-3">
               {[
                 {
-                  q: 'Q. Q-Asker는 정말 무료인가요?',
-                  a: '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.',
+                  q: t('Q. Q-Asker는 정말 무료인가요?'),
+                  a: t(
+                    '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.',
+                  ),
                 },
                 {
-                  q: 'Q. 업로드한 제 파일은 안전하게 관리되나요?',
-                  a: '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.',
+                  q: t('Q. 업로드한 제 파일은 안전하게 관리되나요?'),
+                  a: t(
+                    '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.',
+                  ),
                 },
                 {
-                  q: 'Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?',
-                  a: 'AI는 높은 정확도로 문서를 분석하지만, 100% 완벽하지 않을 수 있습니다. 생성된 문제는 학습 참고용이며, 중요한 정보는 반드시 원본과 교차 확인해주세요.',
+                  q: t('Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?'),
+                  a: t(
+                    'AI는 높은 정확도로 문서를 분석하지만, 100% 완벽하지 않을 수 있습니다. 생성된 문제는 학습 참고용이며, 중요한 정보는 반드시 원본과 교차 확인해주세요.',
+                  ),
                 },
                 {
-                  q: 'Q. 이미지로 된 파일도 퀴즈로 만들 수 있나요?',
-                  a: '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.',
+                  q: t('Q. 이미지로 된 파일도 퀴즈로 만들 수 있나요?'),
+                  a: t('네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.'),
                 },
               ].map((faq, index) => (
                 <BlurFade key={index} delay={index * 0.1} inView>

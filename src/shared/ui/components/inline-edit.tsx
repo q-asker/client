@@ -50,7 +50,7 @@ const InlineEdit = ({
   hideEditButton = false,
   readSuffix,
 }: InlineEditProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
   const s = sizeConfig[size];

@@ -31,7 +31,7 @@ interface QuizResultLocationState {
 }
 
 const QuizResultDesignK = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const { state } = useLocation() as { state: QuizResultLocationState | null };
   const navigate = useNavigate();
   const { problemSetId } = useParams<{ problemSetId: string }>();

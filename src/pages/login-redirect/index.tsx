@@ -7,7 +7,7 @@ import { TextAnimate } from '@/shared/ui/components/text-animate';
 
 /** MagicB: TextAnimate 글자 단위 + BlurFade + 오픈 레이아웃 + 그래디언트 배경 */
 const LoginRedirect = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
   useLoginRedirect({ navigate });
 

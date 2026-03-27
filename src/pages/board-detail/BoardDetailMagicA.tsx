@@ -46,7 +46,7 @@ interface BoardDetailPost {
  * BlurFade 순차 진입, TextAnimate 타이틀, MagicCard 게시글 카드
  */
 const BoardDetailMagicA = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
@@ -119,7 +119,7 @@ const BoardDetailMagicA = () => {
   }, [fetchPost]);
 
   const handleDelete = async () => {
-    if (!window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
+    if (!window.confirm(t('정말로 이 게시글을 삭제하시겠습니까?'))) return;
     try {
       await axiosInstance.delete(`/boards/${boardId}`);
       CustomToast.success(t('게시글이 삭제되었습니다.'));
@@ -155,6 +155,7 @@ const BoardDetailMagicA = () => {
           toggleSidebar={toggleSidebar}
           setIsSidebarOpen={setIsSidebarOpen}
         />
+
         <div className="min-h-screen bg-background p-8">
           <div className="mx-auto max-w-3xl space-y-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -191,7 +192,7 @@ const BoardDetailMagicA = () => {
               className="gap-1.5 text-muted-foreground"
             >
               <ArrowLeft className="size-4" />
-              목록으로
+              {t('목록으로')}
             </Button>
             <Badge
               variant="outline"
@@ -207,7 +208,7 @@ const BoardDetailMagicA = () => {
               ) : (
                 <Clock className="mr-1 size-3" />
               )}
-              {post.status === 'ANSWERED' ? '답변완료' : '대기중'}
+              {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
             </Badge>
           </div>
         </BlurFade>
@@ -217,7 +218,7 @@ const BoardDetailMagicA = () => {
           <MagicCard className="mb-6 rounded-2xl border border-border bg-card p-8 shadow-card max-md:p-5">
             {/* 카테고리 */}
             <span className="mb-3 inline-block text-sm font-semibold text-primary">
-              문의 게시판
+              {t('문의 게시판')}
             </span>
 
             {/* 제목 — TextAnimate */}
@@ -258,7 +259,8 @@ const BoardDetailMagicA = () => {
           <div className="mb-8">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
               <MessageCircle className="size-5 text-primary" />
-              댓글
+              {t('댓글')}
+
               <span className="text-base text-primary">{post.replies?.length || 0}</span>
             </h3>
 
@@ -269,7 +271,7 @@ const BoardDetailMagicA = () => {
                     <Card className="border border-border bg-card p-5 shadow-sm">
                       <div className="mb-2 flex items-center gap-2">
                         <Badge variant="secondary" className="text-xs">
-                          관리자
+                          {t('관리자')}
                         </Badge>
                       </div>
                       <p className="text-sm leading-relaxed text-card-foreground/80 whitespace-pre-wrap">
@@ -280,7 +282,7 @@ const BoardDetailMagicA = () => {
                 ))
               ) : (
                 <div className="rounded-xl border border-dashed border-border bg-muted/30 py-10 text-center text-sm text-muted-foreground">
-                  아직 등록된 댓글이 없습니다.
+                  {t('아직 등록된 댓글이 없습니다.')}
                 </div>
               )}
             </div>
@@ -291,14 +293,15 @@ const BoardDetailMagicA = () => {
         {isAdmin && (
           <BlurFade delay={0.35}>
             <Card className="mb-8 border border-primary/20 bg-primary/5 p-6">
-              <h4 className="mb-4 text-base font-bold text-foreground">관리자 답변 작성</h4>
+              <h4 className="mb-4 text-base font-bold text-foreground">{t('관리자 답변 작성')}</h4>
               <textarea
                 className="w-full resize-y rounded-xl border border-border bg-card p-4 text-sm leading-relaxed text-card-foreground transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="사용자 문의에 대한 답변 내용을 입력하세요."
+                placeholder={t('사용자 문의에 대한 답변 내용을 입력하세요.')}
                 rows={4}
               />
+
               <div className="mt-4 flex justify-end">
                 <Button onClick={handleReplySubmit} disabled={isSubmitting} className="gap-1.5">
                   {isSubmitting ? (
@@ -306,7 +309,7 @@ const BoardDetailMagicA = () => {
                   ) : (
                     <Send className="size-4" />
                   )}
-                  {isSubmitting ? '등록 중...' : '답변 등록'}
+                  {isSubmitting ? t('등록 중...') : t('답변 등록')}
                 </Button>
               </div>
             </Card>
@@ -317,7 +320,8 @@ const BoardDetailMagicA = () => {
         <BlurFade delay={0.4}>
           <div className="flex items-center justify-between pb-10 max-md:flex-col max-md:gap-3">
             <Button variant="outline" onClick={() => navigate('/boards/write')} className="gap-1.5">
-              <Plus className="size-4" />새 문의하기
+              <Plus className="size-4" />
+              {t('새 문의하기')}
             </Button>
 
             {post.isWriter && (
@@ -328,7 +332,7 @@ const BoardDetailMagicA = () => {
                   className="gap-1.5 max-md:flex-1"
                 >
                   <Pencil className="size-4" />
-                  수정
+                  {t('수정')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -336,7 +340,7 @@ const BoardDetailMagicA = () => {
                   className="gap-1.5 max-md:flex-1"
                 >
                   <Trash2 className="size-4" />
-                  삭제
+                  {t('삭제')}
                 </Button>
               </div>
             )}

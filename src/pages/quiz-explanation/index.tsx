@@ -26,7 +26,7 @@ interface LocationState {
  * [문제 리스트 | 문제+선택지 | 해설+참조]
  */
 const QuizExplanation: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const { problemSetId } = useParams<{ problemSetId: string }>();
   const navigate = useNavigate();
   const { state: locationState } = useLocation();

@@ -59,7 +59,7 @@ const getRelativeTime = (index: number): string => {
  * 관리자 답변 폼은 좌측 가이드라인 + 우측 입력 분할 레이아웃
  */
 const BoardDetailVariant8 = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
@@ -132,7 +132,7 @@ const BoardDetailVariant8 = () => {
   }, [fetchPost]);
 
   const handleDelete = async () => {
-    if (!window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
+    if (!window.confirm(t('정말로 이 게시글을 삭제하시겠습니까?'))) return;
     try {
       await axiosInstance.delete(`/boards/${boardId}`);
       CustomToast.success(t('게시글이 삭제되었습니다.'));
@@ -168,6 +168,7 @@ const BoardDetailVariant8 = () => {
           toggleSidebar={toggleSidebar}
           setIsSidebarOpen={setIsSidebarOpen}
         />
+
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-3xl space-y-4">
             <Skeleton className="h-8 w-24 rounded-lg" />
@@ -197,10 +198,10 @@ const BoardDetailVariant8 = () => {
               onClick={() => navigate('/boards')}
               className="transition-colors hover:text-foreground"
             >
-              문의 게시판
+              {t('문의 게시판')}
             </button>
             <span>/</span>
-            <span className="text-foreground">상세</span>
+            <span className="text-foreground">{t('상세')}</span>
           </div>
           <Badge
             variant="outline"
@@ -216,7 +217,7 @@ const BoardDetailVariant8 = () => {
             ) : (
               <Clock className="mr-0.5 size-3" />
             )}
-            {post.status === 'ANSWERED' ? '답변완료' : '대기중'}
+            {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
           </Badge>
         </motion.div>
 
@@ -263,7 +264,9 @@ const BoardDetailVariant8 = () => {
         >
           <h3 className="mb-5 flex items-center gap-2 text-base font-semibold text-foreground">
             <MessageCircle className="size-4" />
-            댓글 {post.replies?.length || 0}건
+            {t('댓글')}
+            {post.replies?.length || 0}
+            {t('건')}
           </h3>
 
           <div className="space-y-3">
@@ -296,7 +299,7 @@ const BoardDetailVariant8 = () => {
                             className="gap-1 bg-primary/10 text-xs text-primary"
                           >
                             <Shield className="size-3" />
-                            관리자
+                            {t('관리자')}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
                             {getRelativeTime(index)}
@@ -325,7 +328,7 @@ const BoardDetailVariant8 = () => {
               ))
             ) : (
               <div className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
-                아직 등록된 댓글이 없습니다.
+                {t('아직 등록된 댓글이 없습니다.')}
               </div>
             )}
           </div>
@@ -344,20 +347,20 @@ const BoardDetailVariant8 = () => {
                   <div className="flex flex-col justify-center gap-3 border-r border-border bg-muted/30 p-5 max-md:border-b max-md:border-r-0">
                     <h4 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                       <Shield className="size-4 text-primary" />
-                      관리자 답변 작성
+                      {t('관리자 답변 작성')}
                     </h4>
                     <ul className="space-y-1.5 text-xs leading-relaxed text-muted-foreground">
                       <li className="flex items-start gap-1.5">
                         <span className="mt-0.5 size-1 shrink-0 rounded-full bg-primary/40" />
-                        정확하고 친절한 답변을 작성해 주세요.
+                        {t('정확하고 친절한 답변을 작성해 주세요.')}
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="mt-0.5 size-1 shrink-0 rounded-full bg-primary/40" />
-                        답변 등록 후 사용자에게 알림이 전송됩니다.
+                        {t('답변 등록 후 사용자에게 알림이 전송됩니다.')}
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="mt-0.5 size-1 shrink-0 rounded-full bg-primary/40" />
-                        개인정보가 포함되지 않도록 주의하세요.
+                        {t('개인정보가 포함되지 않도록 주의하세요.')}
                       </li>
                     </ul>
                   </div>
@@ -368,9 +371,10 @@ const BoardDetailVariant8 = () => {
                       className="w-full flex-1 resize-y rounded-lg border border-input bg-background p-3 text-sm leading-relaxed text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
-                      placeholder="사용자 문의에 대한 답변 내용을 입력하세요."
+                      placeholder={t('사용자 문의에 대한 답변 내용을 입력하세요.')}
                       rows={4}
                     />
+
                     <div className="flex justify-end">
                       <Button
                         size="sm"
@@ -383,7 +387,7 @@ const BoardDetailVariant8 = () => {
                         ) : (
                           <Send className="size-3.5" />
                         )}
-                        {isSubmitting ? '등록 중...' : '답변 등록'}
+                        {isSubmitting ? t('등록 중...') : t('답변 등록')}
                       </Button>
                     </div>
                   </div>
@@ -402,7 +406,7 @@ const BoardDetailVariant8 = () => {
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate('/boards')} className="gap-1">
               <ArrowLeft className="size-3.5" />
-              목록
+              {t('목록')}
             </Button>
             <Button
               variant="outline"
@@ -410,7 +414,8 @@ const BoardDetailVariant8 = () => {
               onClick={() => navigate('/boards/write')}
               className="gap-1"
             >
-              <Plus className="size-3.5" />새 문의
+              <Plus className="size-3.5" />
+              {t('새 문의')}
             </Button>
           </div>
 
@@ -423,7 +428,7 @@ const BoardDetailVariant8 = () => {
                 className="gap-1 max-md:flex-1"
               >
                 <Pencil className="size-3.5" />
-                수정
+                {t('수정')}
               </Button>
               <Button
                 variant="destructive"
@@ -432,7 +437,7 @@ const BoardDetailVariant8 = () => {
                 className="gap-1 max-md:flex-1"
               >
                 <Trash2 className="size-3.5" />
-                삭제
+                {t('삭제')}
               </Button>
             </div>
           )}

@@ -40,7 +40,7 @@ interface BoardDetailPost {
 }
 
 const BoardDetail = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
@@ -113,7 +113,7 @@ const BoardDetail = () => {
   }, [fetchPost]);
 
   const handleDelete = async () => {
-    if (!window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
+    if (!window.confirm(t('정말로 이 게시글을 삭제하시겠습니까?'))) return;
     try {
       await axiosInstance.delete(`/boards/${boardId}`);
       CustomToast.success(t('게시글이 삭제되었습니다.'));
@@ -149,6 +149,7 @@ const BoardDetail = () => {
           toggleSidebar={toggleSidebar}
           setIsSidebarOpen={setIsSidebarOpen}
         />
+
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-3xl space-y-4">
             <Skeleton className="h-8 w-24 rounded-lg" />
@@ -178,10 +179,10 @@ const BoardDetail = () => {
               onClick={() => navigate('/boards')}
               className="transition-colors hover:text-foreground"
             >
-              문의 게시판
+              {t('문의 게시판')}
             </button>
             <span>/</span>
-            <span className="text-foreground">상세</span>
+            <span className="text-foreground">{t('상세')}</span>
           </div>
           <Badge
             variant="outline"
@@ -197,7 +198,7 @@ const BoardDetail = () => {
             ) : (
               <Clock className="mr-0.5 size-3" />
             )}
-            {post.status === 'ANSWERED' ? '답변완료' : '대기중'}
+            {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
           </Badge>
         </div>
 
@@ -235,7 +236,7 @@ const BoardDetail = () => {
           <div className="mb-5 flex items-center gap-2">
             <MessageCircle className="size-4 text-foreground" />
             <span className="text-base font-semibold text-foreground">
-              {`댓글 ${post.replies?.length || 0}건`}
+              {t('댓글 {{expr0}}건', { expr0: post.replies?.length || 0 })}
             </span>
           </div>
 
@@ -253,7 +254,7 @@ const BoardDetail = () => {
                     <div className="flex-1">
                       <div className="relative rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-3">
                         <div className="absolute top-3 -left-1.5 size-3 rotate-45 bg-muted/60" />
-                        <div className="mb-1 text-xs font-semibold text-primary">관리자</div>
+                        <div className="mb-1 text-xs font-semibold text-primary">{t('관리자')}</div>
                         <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap">
                           {reply}
                         </p>
@@ -267,7 +268,7 @@ const BoardDetail = () => {
               ))
             ) : (
               <div className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
-                아직 등록된 댓글이 없습니다.
+                {t('아직 등록된 댓글이 없습니다.')}
               </div>
             )}
           </div>
@@ -286,7 +287,7 @@ const BoardDetail = () => {
                   className="flex-1 rounded-full border border-input bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
-                  placeholder="답변을 입력하세요..."
+                  placeholder={t('답변을 입력하세요...')}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey && !isSubmitting) {
                       e.preventDefault();
@@ -294,6 +295,7 @@ const BoardDetail = () => {
                     }
                   }}
                 />
+
                 <Button
                   size="icon"
                   onClick={handleReplySubmit}
@@ -316,7 +318,7 @@ const BoardDetail = () => {
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate('/boards')} className="gap-1">
               <ArrowLeft className="size-3.5" />
-              목록
+              {t('목록')}
             </Button>
           </div>
 
@@ -329,7 +331,7 @@ const BoardDetail = () => {
                 className="gap-1 max-md:flex-1"
               >
                 <Pencil className="size-3.5" />
-                수정
+                {t('수정')}
               </Button>
               <Button
                 variant="destructive"
@@ -338,7 +340,7 @@ const BoardDetail = () => {
                 className="gap-1 max-md:flex-1"
               >
                 <Trash2 className="size-3.5" />
-                삭제
+                {t('삭제')}
               </Button>
             </div>
           )}
@@ -361,6 +363,7 @@ const BDD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType
 };
 
 const BoardDetailWithVariant = () => {
+  const { t } = useTranslation('common');
   const [searchParams] = useSearchParams();
   const variant = searchParams.get('bdd');
   const VariantComponent = variant ? BDD_VARIANTS[variant] : null;
@@ -368,7 +371,7 @@ const BoardDetailWithVariant = () => {
   if (VariantComponent) {
     return (
       <React.Suspense
-        fallback={<div className="p-8 text-center text-muted-foreground">로딩 중...</div>}
+        fallback={<div className="p-8 text-center text-muted-foreground">{t('로딩 중...')}</div>}
       >
         <VariantComponent />
       </React.Suspense>

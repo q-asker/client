@@ -4,6 +4,8 @@
   "localesDir": "./src/shared/i18n",
   "sourcePattern": "src/**/*.{js,jsx,ts,tsx}",
   "translationImportSource": "i18nexus",
+  "fallbackNamespace": "common",
+  "namespaceLocation": "./src/__i18n_namespace_base__",
   "googleSheets": {
     "spreadsheetId": "1ADaghU0BIZvaAVqPSj3bYAUlyIWpzotS8pRmHRvdadQ",
     "credentialsPath": "./gcp-credential.json",
