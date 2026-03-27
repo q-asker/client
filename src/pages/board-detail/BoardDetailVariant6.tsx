@@ -53,7 +53,7 @@ const fadeUp = {
  * 타임라인 스레드 형태의 댓글 섹션, MagicCard + BlurFade 활용
  */
 const BoardDetailVariant6 = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';

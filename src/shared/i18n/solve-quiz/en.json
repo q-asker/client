@@ -1,0 +1,22 @@
+{
+  "{{quizItem_userAnswer}}번": "{{quizItem_userAnswer}}번",
+  "개": "개",
+  "검토": "Review",
+  "검토할 문제:": "Questions to review:",
+  "다음": "Next",
+  "답변한 문제:": "Answered questions:",
+  "문제 로딩 중…": "Loading questions…",
+  "문제 목록": "Question List",
+  "미선택": "Not Selected",
+  "번:": "No.:",
+  "선택한 답안": "Selected Answer",
+  "안푼 문제:": "Unanswered questions:",
+  "이전": "Previous",
+  "전체 문제:": "Total questions:",
+  "제출 확인": "Confirm Submission",
+  "제출하기": "Submit",
+  "진행 현황": "Progress",
+  "진행률": "Progress",
+  "취소": "Cancel",
+  "확인": "Confirm"
+}

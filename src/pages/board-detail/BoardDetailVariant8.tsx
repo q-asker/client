@@ -59,7 +59,7 @@ const getRelativeTime = (index: number): string => {
  * 관리자 답변 폼은 좌측 가이드라인 + 우측 입력 분할 레이아웃
  */
 const BoardDetailVariant8 = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';

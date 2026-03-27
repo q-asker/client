@@ -52,7 +52,7 @@ const fadeUp = {
  * 보드 목록 페이지와 톤 통일
  */
 const BoardDetailNormalA = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';

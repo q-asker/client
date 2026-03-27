@@ -54,7 +54,7 @@ const fadeUp = {
  * Framer Motion AnimatePresence 활용, Shadcn Card/Badge/Button
  */
 const BoardDetailVariant7 = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';

@@ -46,7 +46,7 @@ interface BoardDetailPost {
  * BlurFade 순차 진입, TextAnimate 타이틀, MagicCard 게시글 카드
  */
 const BoardDetailMagicA = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';

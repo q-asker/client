@@ -46,7 +46,7 @@ interface BoardDetailPost {
  * BorderBeam 카드 장식, ShineBorder 댓글, ShimmerButton CTA
  */
 const BoardDetailMagicB = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';

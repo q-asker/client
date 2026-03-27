@@ -16,7 +16,107 @@
  *
  * @example "home" | "about" | "common"
  */
-declare type TranslationNamespace = 'common';
+declare type TranslationNamespace =
+  | 'board'
+  | 'board-detail'
+  | 'board-write'
+  | 'common'
+  | 'login-redirect'
+  | 'login-select'
+  | 'maintenance'
+  | 'make-quiz'
+  | 'privacy-policy'
+  | 'quiz-explanation'
+  | 'quiz-history'
+  | 'quiz-history-detail'
+  | 'quiz-result'
+  | 'solve-quiz';
+
+declare type BoardKeys =
+  | '건'
+  | '게시글 목록을 불러올 수 없습니다.'
+  | '답변완료'
+  | '대기중'
+  | '데이터를 불러오는데 실패했습니다.'
+  | '로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?'
+  | '문의 게시판'
+  | '문의 작성하기'
+  | '문의하기'
+  | '상태'
+  | '아직 등록된 문의가 없습니다'
+  | '작성일'
+  | '작성자'
+  | '제목'
+  | '조회'
+  | '총';
+
+declare type BoardDetailKeys =
+  | '개인정보가 포함되지 않도록 주의하세요.'
+  | '건'
+  | '게시글이 삭제되었습니다.'
+  | '관리자'
+  | '관리자 답변'
+  | '관리자 답변 작성'
+  | '글 내용을 입력해주세요.'
+  | '답변 #'
+  | '답변 ('
+  | '답변 내용을 입력하세요.'
+  | '답변 등록'
+  | '답변 등록 후 사용자에게 알림이 전송됩니다.'
+  | '답변 작성'
+  | '답변완료'
+  | '답변을 입력하세요...'
+  | '대기중'
+  | '댓글'
+  | '댓글 {{expr0}}건'
+  | '댓글이 등록되었습니다.'
+  | '등록'
+  | '등록 중...'
+  | '로딩 중...'
+  | '목록'
+  | '목록으로'
+  | '문의 게시판'
+  | '사용자 문의에 대한 답변 내용을 입력하세요.'
+  | '삭제'
+  | '삭제하기'
+  | '상세'
+  | '상태'
+  | '새 문의'
+  | '새 문의하기'
+  | '수정'
+  | '수정하기'
+  | '아직 등록된 답변이 없습니다.'
+  | '아직 등록된 댓글이 없습니다.'
+  | '작성일'
+  | '작성자'
+  | '정말로 이 게시글을 삭제하시겠습니까?'
+  | '정확하고 친절한 답변을 작성해 주세요.'
+  | '조회'
+  | '조회수'
+  | '취소';
+
+/** Interpolation variables for "board-detail" namespace keys */
+declare type BoardDetailKeyVariables = {
+  '댓글 {{expr0}}건': 'expr0';
+};
+
+declare type BoardWriteKeys =
+  | '내용'
+  | '등록'
+  | '등록 중...'
+  | '등록하기'
+  | '로그인이 필요합니다.'
+  | '문의 내용을 상세히 적어주세요.'
+  | '문의 수정'
+  | '새 문의 작성'
+  | '수정'
+  | '수정 권한이 없습니다.'
+  | '수정 중...'
+  | '수정완료'
+  | '제목'
+  | '제목과 내용을 모두 입력해주세요.'
+  | '제목을 입력해주세요'
+  | '취소';
 
 declare type CommonKeys =
   | '"문제 풀기" 버튼으로'
@@ -394,11 +494,201 @@ declare type CommonKeyVariables = {
   '파일 크기는 {{expr0}}MB를 초과할 수 없습니다.': 'expr0';
 };
 
+/** Translation keys for "login-redirect" namespace */
+declare type LoginRedirectKeys = '로그인 처리 중...';
+
+/** Translation keys for "login-select" namespace */
+declare type LoginSelectKeys =
+  | 'AI 기반 자동 퀴즈 생성'
+  | 'AI가 만드는 나만의 퀴즈'
+  | '구글 로그인'
+  | '다양한 파일 형식 지원'
+  | '로그인'
+  | '로그인 시 서비스 이용약관에 동의하게 됩니다.'
+  | '소셜 계정으로 간편하게 시작하세요'
+  | '즉시 풀고 결과 확인'
+  | '카카오 로그인';
+
+/** Translation keys for "maintenance" namespace */
+declare type MaintenanceKeys =
+  | '더 나은 서비스를 위해 시스템을 점검하고 있습니다.'
+  | '빠른 시일 내에 다시 찾아뵙겠습니다.'
+  | '새로고침'
+  | '서비스 점검 중입니다';
+
+declare type MakeQuizKeys =
+  | '(최대'
+  | '24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.'
+  | 'OX 퀴즈'
+  | 'PDF 로딩 중...'
+  | '객관식'
+  | '다른 문제 생성'
+  | '다른 파일 넣기'
+  | '더 많은 페이지 로딩 중... ('
+  | '또는'
+  | '문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.'
+  | '문제'
+  | '문제 개수를 지정하세요'
+  | '문제 생성 중...'
+  | '문제 생성하기'
+  | '문제 풀기'
+  | '문제를 생성하세요'
+  | '미리보기 끄기'
+  | '미리보기 켜기'
+  | '범위 지정:'
+  | '빈칸 넣기'
+  | '생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.'
+  | '선택된 페이지 수:'
+  | '업로드된 파일'
+  | '잠시만 기다려 주세요'
+  | '적용'
+  | '전체 선택'
+  | '전체 해제'
+  | '제목 변경 실패:'
+  | '제목이 변경되었습니다.'
+  | '지원하는 파일'
+  | '초'
+  | '퀴즈 타입을 선택하세요'
+  | '크기 제한'
+  | '파일 변환 중'
+  | '파일 삭제'
+  | '파일 선택하기'
+  | '파일 업로드 중'
+  | '파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.'
+  | '파일을 PDF로 변환하고 있어요'
+  | '파일을 업로드하세요'
+  | '파일을 여기에 드래그하세요'
+  | '페이지'
+  | '페이지 정보를 불러오는 중입니다. 잠시만 기다려주세요.'
+  | '페이지를 지정하세요'
+  | '현재 생성된 퀴즈가 사라집니다. 계속하시겠습니까?'
+  | '현재 생성중입니다 조금만 더 기다려주세요!';
+
+declare type PrivacyPolicyKeys =
+  | '1. 수집하는 개인정보'
+  | '2. 개인정보의 이용 목적'
+  | '3. 보관 및 이용 기간'
+  | '4. 제3자 제공'
+  | '5. 개인정보 처리 위탁'
+  | '6. 이용자 권리'
+  | '7. 문의처'
+  | 'Q-Asker(이하 "서비스")는 이용자의 개인정보를 소중히 보호하며 관련 법령을 준수합니다.'
+  | '개인정보 열람, 정정, 삭제를 요청할 수 있습니다.'
+  | '개인정보 처리방침'
+  | '그 외 정보는 목적 달성 시 지체 없이 파기합니다.'
+  | '다만, 법령에 따라 요청되는 경우 제공될 수 있습니다.'
+  | '목차'
+  | '문의 및 고객지원 대응'
+  | '문의 시: 이메일 주소, 문의 내용'
+  | '문의는 아래 연락처로 접수됩니다.'
+  | '보안 및 부정 이용 방지'
+  | '본 방침은 서비스 개선에 따라 변경될 수 있으며, 변경 시 공지합니다.'
+  | '서비스 운영에 필요한 범위 내에서 일부 업무를 위탁할 수 있습니다.'
+  | '서비스 이용 시 자동 수집: IP 주소, 브라우저 정보, 접속 로그'
+  | '서비스 제공 및 기능 개선'
+  | '시행일: 2026-01-30'
+  | '업로드한 파일: 퀴즈 생성 목적의 처리 과정에서 일시적으로 저장'
+  | '업로드한 파일은 처리 후 24시간 이내 자동 삭제됩니다.'
+  | '원칙적으로 제3자에게 제공하지 않습니다.'
+  | '위탁 시 관련 법령에 따라 관리·감독합니다.'
+  | '이메일: inhapj01@gmail.com'
+  | '홈으로';
+
+declare type QuizExplanationKeys =
+  | 'PDF 로딩 중...'
+  | '다음'
+  | '슬라이드의'
+  | '오답만'
+  | '이전'
+  | '정답'
+  | '참조 자료'
+  | '파일 링크가 만료되었습니다.'
+  | '파일이 존재하지 않습니다.'
+  | '페이지'
+  | '해설'
+  | '현재는 pdf 파일만 지원합니다.'
+  | '홈으로';
+
+declare type QuizHistoryKeys =
+  | '내 퀴즈 기록'
+  | '다시 풀기'
+  | '로그인이 필요한 서비스입니다'
+  | '로그인하기'
+  | '문제'
+  | '미완료'
+  | '삭제'
+  | '상태'
+  | '생성일'
+  | '아직 만든 퀴즈가 없습니다'
+  | '액션'
+  | '완료'
+  | '완료율'
+  | '완료일'
+  | '완료한 퀴즈'
+  | '전체 삭제'
+  | '점'
+  | '점수'
+  | '제목'
+  | '지금까지 만들고 푼 퀴즈들을 확인해보세요'
+  | '총 퀴즈 수'
+  | '퀴즈 기록은 로그인 후에 확인할 수 있습니다.'
+  | '퀴즈 만들기'
+  | '퀴즈 유형'
+  | '퀴즈 풀기'
+  | '퀴즈를 만들어서 문제를 풀어보세요!'
+  | '평균 점수';
+
+/** Translation keys for "quiz-history-detail" namespace */
+declare type QuizHistoryDetailKeys = '기록을 불러오는데 실패했습니다.' | '목록으로' | '해설 보기';
+
+/** Translation keys for "quiz-result" namespace */
+declare type QuizResultKeys = '해설 보기' | '홈으로';
+
+declare type SolveQuizKeys =
+  | '{{quizItem_userAnswer}}번'
+  | '개'
+  | '검토'
+  | '검토할 문제:'
+  | '다음'
+  | '답변한 문제:'
+  | '문제 로딩 중…'
+  | '문제 목록'
+  | '미선택'
+  | '번:'
+  | '선택한 답안'
+  | '안푼 문제:'
+  | '이전'
+  | '전체 문제:'
+  | '제출 확인'
+  | '제출하기'
+  | '진행 현황'
+  | '진행률'
+  | '취소'
+  | '확인';
+
+/** Interpolation variables for "solve-quiz" namespace keys */
+declare type SolveQuizKeyVariables = {
+  '{{quizItem_userAnswer}}번': 'quizItem_userAnswer';
+};
+
 /**
  * Maps namespace names to their translation keys
  */
 declare type TranslationKeys = {
+  board: BoardKeys;
+  'board-detail': BoardDetailKeys;
+  'board-write': BoardWriteKeys;
   common: CommonKeys;
+  'login-redirect': LoginRedirectKeys;
+  'login-select': LoginSelectKeys;
+  maintenance: MaintenanceKeys;
+  'make-quiz': MakeQuizKeys;
+  'privacy-policy': PrivacyPolicyKeys;
+  'quiz-explanation': QuizExplanationKeys;
+  'quiz-history': QuizHistoryKeys;
+  'quiz-history-detail': QuizHistoryDetailKeys;
+  'quiz-result': QuizResultKeys;
+  'solve-quiz': SolveQuizKeys;
 };
 
 // ============================================
@@ -479,7 +769,20 @@ declare module 'i18nexus' {
   >(props: I18nProviderProps<TTranslations>): React.ReactElement;
 
   // Individual namespace key types (for use in constants and type definitions)
+  export type BoardKeys = TranslationKeys['board'];
+  export type BoardDetailKeys = TranslationKeys['board-detail'];
+  export type BoardWriteKeys = TranslationKeys['board-write'];
   export type CommonKeys = TranslationKeys['common'];
+  export type LoginRedirectKeys = TranslationKeys['login-redirect'];
+  export type LoginSelectKeys = TranslationKeys['login-select'];
+  export type MaintenanceKeys = TranslationKeys['maintenance'];
+  export type MakeQuizKeys = TranslationKeys['make-quiz'];
+  export type PrivacyPolicyKeys = TranslationKeys['privacy-policy'];
+  export type QuizExplanationKeys = TranslationKeys['quiz-explanation'];
+  export type QuizHistoryKeys = TranslationKeys['quiz-history'];
+  export type QuizHistoryDetailKeys = TranslationKeys['quiz-history-detail'];
+  export type QuizResultKeys = TranslationKeys['quiz-result'];
+  export type SolveQuizKeys = TranslationKeys['solve-quiz'];
 }
 
 declare module 'i18nexus/server' {

@@ -46,7 +46,7 @@ interface BoardDetailPost {
  * 명확한 섹션 구분, 사이드 메타 패널, Shadcn 컴포넌트 전면 활용
  */
 const BoardDetailNormalB = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';

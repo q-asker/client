@@ -40,7 +40,7 @@ interface BoardDetailPost {
 }
 
 const BoardDetail = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
@@ -363,7 +363,7 @@ const BDD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType
 };
 
 const BoardDetailWithVariant = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const [searchParams] = useSearchParams();
   const variant = searchParams.get('bdd');
   const VariantComponent = variant ? BDD_VARIANTS[variant] : null;

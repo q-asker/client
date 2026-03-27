@@ -11,7 +11,7 @@ import MarkdownText from '@/shared/ui/components/markdown-text';
 
 /** E안: Split Panel — lg 이상 2컬럼, 우측 네비게이션+통계 패널 */
 const SolveQuizDesignB: React.FC = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('solve-quiz');
   const navigate = useNavigate();
   const location = useLocation();
   const { problemSetId } = useParams<{ problemSetId: string }>();

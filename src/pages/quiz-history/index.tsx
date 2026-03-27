@@ -29,7 +29,7 @@ const QUIZ_TYPE_LABEL: Record<'MULTIPLE' | 'BLANK' | 'OX', string> = {
 };
 
 const QuizHistory = () => {
-  const { t, currentLanguage } = useTranslation('common');
+  const { t, currentLanguage } = useTranslation('quiz-history');
   const navigate = useNavigate();
 
   const {

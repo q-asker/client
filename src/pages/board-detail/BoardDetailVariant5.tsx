@@ -55,7 +55,7 @@ const fadeUp = {
  * MagicUI BlurFade/TextAnimate 활용
  */
 const BoardDetailVariant5 = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';

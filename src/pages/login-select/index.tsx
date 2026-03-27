@@ -14,7 +14,7 @@ import { LogIn, Sparkles, BookOpen, Zap } from 'lucide-react';
 
 /** 전면 브랜드 배경 + 정중앙 글래스 로그인 카드 */
 const LoginSelect = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('login-select');
   const baseUrl = (import.meta.env.VITE_BASE_URL as string) || '';
   const kakaoLoginUrl = `${baseUrl}/oauth2/authorization/kakao`;
   const googleLoginUrl = `${baseUrl}/oauth2/authorization/google`;

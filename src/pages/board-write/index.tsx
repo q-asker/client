@@ -22,7 +22,7 @@ interface BoardEditData {
 
 /** Slide Form — BlurFade 섹션별 순차 등장 */
 const BoardWrite = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board-write');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 

@@ -57,7 +57,7 @@ interface QuizTypeOption {
 
 /** Sidebar Wizard 디자인 — 스텝 인디케이터 + 카드 컨텐츠 */
 const MakeQuiz: React.FC = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('make-quiz');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';

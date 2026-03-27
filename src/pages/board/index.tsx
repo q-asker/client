@@ -23,7 +23,7 @@ const PAGE_SIZE = 10;
 
 /** Compact Table — 밀집 테이블 뷰, 정보 밀도 극대화 */
 const Board = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('board');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
