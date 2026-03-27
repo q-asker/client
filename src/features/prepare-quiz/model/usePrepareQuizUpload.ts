@@ -137,12 +137,6 @@ export const usePrepareQuizUpload = ({
           uploadTimerRef.current.stop();
         }
 
-        const message =
-          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-          (error as Error)?.message ||
-          t('파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.');
-
-        CustomToast.error(message);
         console.error('파일 업로드 실패:', error);
         setUploadedUrlInStore(null);
         setUploadedFileInfo(null);

@@ -10,6 +10,7 @@ interface UseSolveQuizSubmitParams {
   problemSetId: string;
   currentTime: string;
   uploadedUrl: string;
+  title: string;
   navigate: NavigateFunction;
 }
 
@@ -31,6 +32,7 @@ export const useSolveQuizSubmit = ({
   problemSetId,
   currentTime,
   uploadedUrl,
+  title,
   navigate,
 }: UseSolveQuizSubmitParams): UseSolveQuizSubmitReturn => {
   const [showSubmitDialog, setShowSubmitDialog] = useState<boolean>(false);
@@ -50,9 +52,9 @@ export const useSolveQuizSubmit = ({
     trackQuizEvents.submitQuiz(problemSetId, answeredCount, safeQuizzes.length, reviewCount);
 
     navigate(`/result/${problemSetId}`, {
-      state: { quizzes: safeQuizzes, totalTime: currentTime, uploadedUrl },
+      state: { quizzes: safeQuizzes, totalTime: currentTime, uploadedUrl, title },
     });
-  }, [quizzes, problemSetId, currentTime, uploadedUrl, navigate]);
+  }, [quizzes, problemSetId, currentTime, uploadedUrl, title, navigate]);
 
   const handleCancelSubmit = useCallback((): void => {
     setShowSubmitDialog(false);

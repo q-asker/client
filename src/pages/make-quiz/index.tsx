@@ -121,7 +121,6 @@ const MakeQuiz: React.FC = () => {
       CustomToast.success(t('제목이 변경되었습니다.'));
     } catch (error) {
       console.error(t('제목 변경 실패:'), error);
-      CustomToast.error(t('제목 변경에 실패했습니다.'));
     }
   };
 

@@ -6,6 +6,7 @@ import axiosInstance from '#shared/api';
 import { trackQuizEvents } from '#shared/lib/analytics';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import type { Quiz } from '#features/quiz-generation';
+import { useAuthStore } from '#entities/auth';
 
 /** API 응답 데이터 타입 */
 interface ProblemSetResponse {
@@ -13,6 +14,7 @@ interface ProblemSetResponse {
   quiz: Quiz[];
   totalCount: number;
   sessionId: string;
+  title: string;
   isStreaming?: boolean;
 }
 
@@ -22,10 +24,20 @@ interface UseSolveQuizDataParams {
   navigate: NavigateFunction;
 }
 
+/** Shadow Copy 확인 응답 */
+interface HistoryCheckResponse {
+  exists: boolean;
+  historyId: string;
+  title: string;
+}
+
 interface UseSolveQuizDataReturn {
   quizzes: Quiz[];
   setQuizzes: Dispatch<SetStateAction<Quiz[]>>;
   isLoading: boolean;
+  title: string;
+  historyId: string | null;
+  changeTitle: (newTitle: string) => Promise<void>;
 }
 
 /** 퀴즈 데이터를 서버에서 불러오고 스트리밍 상태를 관리하는 훅 */
@@ -36,10 +48,20 @@ export const useSolveQuizData = ({
 }: UseSolveQuizDataParams): UseSolveQuizDataReturn => {
   const [localQuizzes, setLocalQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [title, setTitle] = useState<string>('');
+  const [historyId, setHistoryId] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
   const reconnectStream = useQuizGenerationStore((state) => state.reconnectStream);
   const setProblemSetInfo = useQuizGenerationStore((state) => state.setProblemSetInfo);
+  const accessToken = useAuthStore((state) => state.accessToken);
+
+  /** 퀴즈 제목 수정 */
+  const changeTitle = async (newTitle: string): Promise<void> => {
+    if (!historyId) return;
+    await axiosInstance.patch(`/history/${historyId}/title`, { title: newTitle });
+    setTitle(newTitle);
+  };
 
   useEffect(() => {
     /* mock 모드: API 호출 없이 mock 데이터 사용 */
@@ -56,6 +78,39 @@ export const useSolveQuizData = ({
         trackQuizEvents.startQuiz(problemSetId);
         const res = await axiosInstance.get<ProblemSetResponse>(`/problem-set/${problemSetId}`);
         const status = res.data.generationStatus;
+
+        // Shadow Copy 확인: 로그인 사용자면 히스토리 제목 우선, 없으면 problemSet 제목
+        let quizTitle = res.data.title;
+        let resolvedHistoryId: string | null = null;
+        if (accessToken) {
+          try {
+            const { data } = await axiosInstance.get<HistoryCheckResponse>(
+              `/history/check/${problemSetId}`,
+            );
+            if (data.exists) {
+              resolvedHistoryId = data.historyId;
+              if (data.title) {
+                quizTitle = data.title;
+              }
+            }
+          } catch {
+            // 히스토리 확인 실패 시 problemSet 제목 사용
+          }
+          // 히스토리가 없으면 초기화
+          if (!resolvedHistoryId) {
+            try {
+              const { data } = await axiosInstance.post<{ historyId: string }>('/history/init', {
+                problemSetId,
+                title: quizTitle,
+              });
+              resolvedHistoryId = data.historyId;
+            } catch {
+              // 히스토리 초기화 실패 시 무시
+            }
+          }
+          setHistoryId(resolvedHistoryId);
+        }
+        setTitle(quizTitle);
 
         if (status === 'COMPLETED') {
           setLocalQuizzes(res.data.quiz);
@@ -97,5 +152,8 @@ export const useSolveQuizData = ({
     quizzes: localQuizzes,
     setQuizzes: setLocalQuizzes,
     isLoading,
+    title,
+    historyId,
+    changeTitle,
   };
 };

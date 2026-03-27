@@ -1,10 +1,11 @@
 import { useTranslation } from 'i18nexus';
-
-import React, { useEffect } from 'react';
+import InlineEdit from '@/shared/ui/components/inline-edit';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
+import { useAuthStore } from '#entities/auth';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 
@@ -20,6 +21,7 @@ const SolveQuizDesignB: React.FC = () => {
   const streamIsStreaming = useQuizGenerationStore((state) => state.isStreaming);
   const streamTotalCount = useQuizGenerationStore((state) => state.totalCount);
   const resetQuizGeneration = useQuizGenerationStore((state) => state.resetStreamingState);
+  const isAuthenticated = !!useAuthStore((state) => state.accessToken);
 
   const isSameProblemSet = String(storeProblemSetId ?? '') === String(problemSetId ?? '');
   const quizzes = isSameProblemSet ? streamQuizzes : [];
@@ -39,6 +41,9 @@ const SolveQuizDesignB: React.FC = () => {
 
   const remainingCount =
     isStreaming && totalCount > 0 ? Math.max(0, totalCount - quiz.totalQuestions) : 0;
+
+  // 제목 편집 상태
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -210,6 +215,23 @@ const SolveQuizDesignB: React.FC = () => {
         <div className="font-mono text-sm">{quiz.currentTime}</div>
       </header>
 
+      {/* 퀴즈 제목 */}
+      {quiz.title && (
+        <div className="group mx-auto flex w-[95%] max-w-[1200px] items-center gap-1 pt-5">
+          <InlineEdit
+            value={quiz.title}
+            onSubmit={quizActions.changeTitle}
+            editing={isEditingTitle}
+            onStartEdit={() => setIsEditingTitle(true)}
+            onCancel={() => setIsEditingTitle(false)}
+            size="md"
+            textClassName="text-lg font-semibold"
+            hideEditButton={!isAuthenticated}
+            editButtonClassName="opacity-0 group-hover:opacity-100 transition-opacity"
+          />
+        </div>
+      )}
+
       {/* 문제 번호 네비게이션 (모바일) — 타이머 바로 아래 */}
       <div className="mx-auto w-[95%] pt-4 lg:hidden">
         <div className="rounded-2xl bg-card p-4 shadow-card">
@@ -259,7 +281,7 @@ const SolveQuizDesignB: React.FC = () => {
               {/* 문제 영역 — 시각적으로 하나의 카드 */}
               <div className="w-full overflow-hidden rounded-2xl bg-card shadow-card">
                 {/* 질문 제목 + 검토 배지 */}
-                <div className="flex items-start justify-between gap-3 p-5 pb-4">
+                <div className="flex items-start justify-between gap-3 p-5 pb-4 max-md:flex-col max-md:gap-2">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
                     <MarkdownText>{quiz.currentQuiz.title.split('\n')[0]}</MarkdownText>
                   </div>
@@ -267,6 +289,7 @@ const SolveQuizDesignB: React.FC = () => {
                     onClick={quizActions.handleCheckToggle}
                     className={cn(
                       'flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-none px-2 py-1 text-xs font-semibold transition-all duration-200',
+                      'max-md:self-end',
                       quiz.currentQuiz.check
                         ? 'bg-warning/12 text-warning'
                         : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',

@@ -11,6 +11,7 @@ interface UseQuizResultParams {
   quizzes: Quiz[];
   totalTime: number;
   uploadedUrl: string;
+  title: string;
 }
 
 interface UseQuizResultReturn {
@@ -31,6 +32,7 @@ export const useQuizResult = ({
   quizzes,
   totalTime,
   uploadedUrl,
+  title,
 }: UseQuizResultParams): UseQuizResultReturn => {
   const correctCount = useMemo(() => {
     return quizzes.reduce((count, q) => {
@@ -55,7 +57,7 @@ export const useQuizResult = ({
     }));
 
     axiosInstance
-      .post('/history', { problemSetId, userAnswers, score: correctCount })
+      .post('/history', { problemSetId, title, userAnswers, score: correctCount, totalTime })
       .catch((err) => console.error('Failed to save quiz history:', err));
   }, []);
 

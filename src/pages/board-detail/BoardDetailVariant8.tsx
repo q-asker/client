@@ -102,7 +102,10 @@ const BoardDetailVariant8 = () => {
       /* 무시 */
     }
     try {
-      const response = await axiosInstance.get(`/boards/${boardId}`);
+      const response = await axiosInstance.get(`/boards/${boardId}`, {
+        skipAuthRefresh: true,
+        skipErrorToast: true,
+      } as Record<string, unknown>);
       setPost(response.data);
     } catch (error: unknown) {
       const err = error as { response?: { status?: number } };
@@ -114,11 +117,9 @@ const BoardDetailVariant8 = () => {
           } as Record<string, unknown>);
           setPost(fallbackResponse.data);
         } catch {
-          CustomToast.error(t('게시글을 불러올 권한이 없거나 삭제된 게시글입니다.'));
           navigate('/boards');
         }
       } else {
-        CustomToast.error(t('서버와 통신 중 문제가 발생했습니다.'));
         navigate('/boards');
       }
     } finally {
@@ -136,22 +137,8 @@ const BoardDetailVariant8 = () => {
       await axiosInstance.delete(`/boards/${boardId}`);
       CustomToast.success(t('게시글이 삭제되었습니다.'));
       navigate('/boards', { replace: true });
-    } catch (error: unknown) {
-      const err = error as { response?: { status?: number; data?: { message?: string } } };
-      if (err.response?.status === 401) {
-        CustomToast.error(t('다시 로그인해주세요.'));
-        clearAuth();
-        navigate('/login', { replace: true });
-      } else if (err.response?.status === 403) {
-        CustomToast.error(
-          t(
-            err.response.data?.message ||
-              '삭제 권한이 없거나 이미 답변이 달린 글은 삭제할 수 없습니다.',
-          ),
-        );
-      } else {
-        CustomToast.error(t('게시글 삭제 중 오류가 발생했습니다.'));
-      }
+    } catch {
+      // 인터셉터에서 에러 토스트 처리
     }
   };
 
@@ -166,13 +153,8 @@ const BoardDetailVariant8 = () => {
       CustomToast.success(t('댓글이 등록되었습니다.'));
       setReplyContent('');
       fetchPost();
-    } catch (error: unknown) {
-      const err = error as { response?: { status?: number } };
-      if (err.response?.status === 403) {
-        CustomToast.error(t('댓글을 작성할 권한이 없습니다.'));
-      } else {
-        CustomToast.error(t('댓글 등록 중 오류가 발생했습니다.'));
-      }
+    } catch {
+      // 인터셉터에서 에러 토스트 처리
     } finally {
       setIsSubmitting(false);
     }
