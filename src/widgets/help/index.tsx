@@ -30,7 +30,7 @@ interface TimelineStep {
 }
 
 const Help = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('make-quiz');
   const {
     actions: { handleSectionHover },
   } = useHelp();

@@ -6,7 +6,7 @@ import { Sparkles } from 'lucide-react';
 
 /** DesignK — 3열 그리드 미니멀 칩 스타일 */
 const RecentChanges = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('make-quiz');
   const {
     state: { changes },
     actions: { formatDate },

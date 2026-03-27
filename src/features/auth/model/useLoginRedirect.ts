@@ -22,7 +22,7 @@ const refreshOnce = async (): Promise<AxiosResponse> => {
 };
 
 export const useLoginRedirect = ({ navigate }: UseLoginRedirectParams) => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('login-redirect');
   useEffect(() => {
     let isMounted = true;
 
