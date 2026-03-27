@@ -31,11 +31,9 @@ gcp-credential.json
 *.sw?
 
 # Claude Code
-docs/.playwright-mcp
+docs
 !src/assets/*.png
 CLAUDE.md
 shrimp-rules.md
 .mcp.json
 .claude
-shrimp_data
-docs

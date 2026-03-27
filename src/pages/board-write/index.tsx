@@ -58,7 +58,6 @@ const BoardWrite = () => {
         setTitle(data.title);
         setContent(data.content);
       } catch {
-        CustomToast.error(t('게시글 정보를 확인할 수 없습니다.'));
         navigate('/boards', { replace: true });
       } finally {
         setIsCheckingAccess(false);
@@ -100,23 +99,8 @@ const BoardWrite = () => {
       }
       CustomToast.success(t(`게시글이 성공적으로 ${isEditMode ? '수정' : '등록'}되었습니다.`));
       navigate(isEditMode ? `/boards/${boardId}` : '/boards', { replace: true });
-    } catch (error: unknown) {
-      const err = error as { response?: { status?: number; data?: { message?: string } } };
-      const status = err?.response?.status;
-      if (status === 401) {
-        CustomToast.error(t('다시 로그인해주세요.'));
-        clearAuth();
-        navigate('/login', { replace: true });
-      } else if (status === 403) {
-        CustomToast.error(
-          t(
-            err?.response?.data?.message ||
-              '수정 권한이 없거나 이미 답변이 달린 글은 수정할 수 없습니다.',
-          ),
-        );
-      } else {
-        CustomToast.error(t('오류가 발생했습니다. 다시 시도해주세요.'));
-      }
+    } catch {
+      // 인터셉터에서 에러 토스트 처리
     } finally {
       setIsSubmitting(false);
     }

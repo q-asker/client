@@ -43,7 +43,9 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => {
-    CustomToast.error(error.message);
+    const message =
+      (error?.response?.data as { message?: string })?.message || '알 수 없는 오류가 발생했습니다.';
+    CustomToast.error(message);
     return Promise.reject(error);
   },
 );
@@ -75,21 +77,31 @@ axiosInstance.interceptors.response.use(
           originalRequest!.headers.Authorization = `Bearer ${newAccessToken}`;
           return axiosInstance(originalRequest!);
         } catch (refreshError) {
+          const message =
+            (error?.response?.data as { message?: string })?.message ||
+            '알 수 없는 오류가 발생했습니다.';
+          CustomToast.error(message);
           clearAuth();
-          // window.location.assign('/login'); 코드는 확실히 제거된 상태여야 합니다.
-          return Promise.reject(refreshError);
+          // never-settling promise: 호출부의 .then()/.catch() 모두 실행되지 않아 중복 토스트 방지
+          return new Promise(() => {});
         }
       }
+
+      // refresh 후 재요청에서도 401 → 로그아웃
+      const message =
+        (error?.response?.data as { message?: string })?.message ||
+        '알 수 없는 오류가 발생했습니다.';
+      CustomToast.error(message);
+      clearAuth();
+      // never-settling promise: 호출부의 .then()/.catch() 모두 실행되지 않아 중복 토스트 방지
+      return new Promise(() => {});
     }
 
-    if (!skipErrorToast && status !== 401) {
-      // 401은 위에서 처리했으므로 중복 토스트 방지
-      const message = (error?.response?.data as { message?: string })?.message || error?.message;
-      if (message) {
-        CustomToast.error(message);
-      } else {
-        CustomToast.error('알 수 없는 오류가 발생했습니다.');
-      }
+    if (!skipErrorToast) {
+      const message =
+        (error?.response?.data as { message?: string })?.message ||
+        '알 수 없는 오류가 발생했습니다.';
+      CustomToast.error(message);
     }
 
     return Promise.reject(error);

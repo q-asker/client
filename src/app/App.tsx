@@ -490,7 +490,7 @@ const App = () => {
             <Route path="/result/:problemSetId" element={<QuizResult />} />
             <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
             <Route path="/history" element={<QuizHistory />} />
-            <Route path="/history/:problemSetId" element={<QuizHistoryDetail />} />
+            <Route path="/history/:historyId" element={<QuizHistoryDetail />} />
             <Route path="/boards" element={<Board />} />
             <Route path="/boards/:boardId" element={<BoardDetail />} />
             <Route path="/boards/write" element={<BoardWrite />} />

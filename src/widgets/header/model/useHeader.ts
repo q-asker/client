@@ -118,7 +118,7 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): U
       await authService.logout();
       CustomToast.info(t('로그아웃되었습니다.'));
     } catch {
-      CustomToast.error(t('로그아웃에 실패했습니다.'));
+      // 인터셉터에서 에러 토스트 처리
     }
   };
 

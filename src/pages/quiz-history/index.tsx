@@ -283,17 +283,15 @@ const QuizHistory = () => {
                               <Play className="size-3.5" />
                             </Button>
                           )}
-                          {record.completed && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-7 text-destructive hover:text-destructive"
-                              onClick={() => deleteQuizRecord(record.problemSetId)}
-                              title={String(t('삭제'))}
-                            >
-                              <Trash2 className="size-3.5" />
-                            </Button>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7 text-destructive hover:text-destructive"
+                            onClick={() => deleteQuizRecord(record.problemSetId)}
+                            title={String(t('삭제'))}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
                         </div>
                       </div>
 
@@ -366,17 +364,15 @@ const QuizHistory = () => {
                                 <Play className="size-3.5" />
                               )}
                             </Button>
-                            {record.completed && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-7 text-destructive hover:text-destructive"
-                                onClick={() => deleteQuizRecord(record.problemSetId)}
-                                title={String(t('삭제'))}
-                              >
-                                <Trash2 className="size-3.5" />
-                              </Button>
-                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7 text-destructive hover:text-destructive"
+                              onClick={() => deleteQuizRecord(record.problemSetId)}
+                              title={String(t('삭제'))}
+                            >
+                              <Trash2 className="size-3.5" />
+                            </Button>
                           </div>
                         </div>
                       </div>

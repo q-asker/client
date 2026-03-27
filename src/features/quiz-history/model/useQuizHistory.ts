@@ -74,11 +74,7 @@ export const useQuizHistory = ({
       const response = await axiosInstance.get<HistoryItem[]>('/history');
       setQuizHistory(response.data);
     } catch (error) {
-      const status = (error as { response?: { status?: number } }).response?.status;
-      if (status !== 401) {
-        console.error(t('퀴즈 기록 불러오기 실패:'), error);
-        CustomToast.error(t('기록을 불러오는데 실패했습니다.'));
-      }
+      console.error(t('퀴즈 기록 불러오기 실패:'), error);
     } finally {
       setLoading(false);
     }
@@ -99,7 +95,8 @@ export const useQuizHistory = ({
   });
 
   const navigateToDetail = (record: HistoryItem): void => {
-    navigate(`/history/${record.problemSetId}`);
+    if (!record.historyId) return;
+    navigate(`/history/${record.historyId}`);
   };
 
   const navigateToQuiz = (record: HistoryItem): void => {
@@ -123,20 +120,19 @@ export const useQuizHistory = ({
       return;
     }
 
+    const item = quizHistory.find((h) => h.problemSetId === problemSetId);
+    if (!item?.historyId) return;
+
     try {
-      const { data } = await axiosInstance.patch<{ title: string }>(
-        `/problem-set/${problemSetId}/title`,
-        { title: trimmed },
-      );
+      await axiosInstance.patch(`/history/${item.historyId}/title`, { title: trimmed });
       setQuizHistory((prev) =>
         prev.map((item) =>
-          item.problemSetId === problemSetId ? { ...item, title: data.title } : item,
+          item.problemSetId === problemSetId ? { ...item, title: trimmed } : item,
         ),
       );
       CustomToast.success(t('제목이 변경되었습니다.'));
     } catch (error) {
       console.error(t('제목 변경 실패:'), error);
-      CustomToast.error(t('제목 변경에 실패했습니다.'));
     }
   };
 
@@ -144,6 +140,7 @@ export const useQuizHistory = ({
     if (!window.confirm(t('이 기록을 삭제하시겠습니까?'))) return;
 
     const record = quizHistory.find((item) => item.problemSetId === problemSetId);
+    if (!record?.historyId) return;
     trackQuizHistoryEvents.deleteQuizRecord(
       problemSetId,
       record?.completed ? 'completed' : 'in-progress',
@@ -151,30 +148,25 @@ export const useQuizHistory = ({
     );
 
     try {
-      await axiosInstance.delete(`/history/${problemSetId}`);
+      await axiosInstance.delete(`/history/${record.historyId}`);
       setQuizHistory((prev) => prev.filter((item) => item.problemSetId !== problemSetId));
       CustomToast.success(t('기록이 삭제되었습니다.'));
     } catch (error) {
       console.error(t('기록 삭제 실패:'), error);
-      CustomToast.error(t('기록 삭제에 실패했습니다.'));
     }
   };
 
   const clearAllHistory = async (): Promise<void> => {
     if (!window.confirm(t('모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.'))) return;
 
-    const completed = quizHistory.filter((item) => item.completed);
-    trackQuizHistoryEvents.clearAllHistory(quizHistory.length, completed.length);
+    trackQuizHistoryEvents.clearAllHistory(quizHistory.length, quizHistory.length);
 
     try {
-      await Promise.all(
-        completed.map((item) => axiosInstance.delete(`/history/${item.problemSetId}`)),
-      );
-      setQuizHistory((prev) => prev.filter((item) => !item.completed));
+      await axiosInstance.delete('/history/all');
+      setQuizHistory([]);
       CustomToast.success(t('모든 기록이 삭제되었습니다.'));
     } catch (error) {
       console.error(t('전체 기록 삭제 실패:'), error);
-      CustomToast.error(t('기록 삭제에 실패했습니다.'));
     }
   };
 
