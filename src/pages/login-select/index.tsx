@@ -130,18 +130,4 @@ const LoginSelect = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const LS_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const LoginSelectWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('ls');
-  const VariantComponent = variant ? LS_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return <VariantComponent />;
-  }
-  return <LoginSelect />;
-};
-
-export default LoginSelectWithVariant;
+export default LoginSelect;

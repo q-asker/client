@@ -63,25 +63,4 @@ const Footer = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-import React, { Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
-
-const FOOTER_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const FooterWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('footer');
-  const VariantComponent = variant ? FOOTER_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <Footer />;
-};
-
-export default FooterWithVariant;
+export default Footer;
