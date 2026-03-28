@@ -71,7 +71,7 @@ const extractNicknameFromToken = (token: string | null): string | null => {
 
 export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): UseHeaderReturn => {
   const { changeLanguage } = useLanguageSwitcher();
-  const { t, currentLanguage } = useTranslation();
+  const { t, currentLanguage } = useTranslation('common');
   const location = useLocation();
   const navigate = useNavigate();
   const accessToken = useAuthStore((state) => state.accessToken);

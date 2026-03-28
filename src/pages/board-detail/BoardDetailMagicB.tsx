@@ -46,7 +46,7 @@ interface BoardDetailPost {
  * BorderBeam 카드 장식, ShineBorder 댓글, ShimmerButton CTA
  */
 const BoardDetailMagicB = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
@@ -119,7 +119,7 @@ const BoardDetailMagicB = () => {
   }, [fetchPost]);
 
   const handleDelete = async () => {
-    if (!window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
+    if (!window.confirm(t('정말로 이 게시글을 삭제하시겠습니까?'))) return;
     try {
       await axiosInstance.delete(`/boards/${boardId}`);
       CustomToast.success(t('게시글이 삭제되었습니다.'));
@@ -155,6 +155,7 @@ const BoardDetailMagicB = () => {
           toggleSidebar={toggleSidebar}
           setIsSidebarOpen={setIsSidebarOpen}
         />
+
         <div className="min-h-screen bg-background p-8">
           <div className="mx-auto max-w-3xl space-y-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -190,7 +191,7 @@ const BoardDetailMagicB = () => {
             className="mb-5 gap-1.5 text-muted-foreground"
           >
             <ArrowLeft className="size-4" />
-            목록으로
+            {t('목록으로')}
           </Button>
         </BlurFade>
 
@@ -203,7 +204,7 @@ const BoardDetailMagicB = () => {
             <div className="mb-6 flex items-start justify-between gap-4 max-md:flex-col">
               <div className="flex-1">
                 <div className="mb-2 flex items-center gap-2">
-                  <span className="text-sm font-semibold text-primary">문의 게시판</span>
+                  <span className="text-sm font-semibold text-primary">{t('문의 게시판')}</span>
                   <Badge
                     variant="outline"
                     className={cn(
@@ -218,7 +219,7 @@ const BoardDetailMagicB = () => {
                     ) : (
                       <Clock className="mr-0.5 size-3" />
                     )}
-                    {post.status === 'ANSWERED' ? '답변완료' : '대기중'}
+                    {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
                   </Badge>
                 </div>
                 <h1 className="text-2xl font-extrabold leading-tight text-card-foreground max-md:text-xl">
@@ -241,7 +242,8 @@ const BoardDetailMagicB = () => {
               <span className="text-border">·</span>
               <span className="inline-flex items-center gap-1.5 pl-3">
                 <Eye className="size-3.5" />
-                조회 {post.viewCount || 0}
+                {t('조회')}
+                {post.viewCount || 0}
               </span>
             </div>
 
@@ -257,7 +259,8 @@ const BoardDetailMagicB = () => {
           <div className="mb-8">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
               <MessageCircle className="size-5 text-primary" />
-              댓글
+              {t('댓글')}
+
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-sm font-semibold text-primary">
                 {post.replies?.length || 0}
               </span>
@@ -273,9 +276,12 @@ const BoardDetailMagicB = () => {
                         borderWidth={1.5}
                         duration={10}
                       />
+
                       <div className="mb-2 flex items-center gap-2">
                         <Shield className="size-3.5 text-primary" />
-                        <span className="text-xs font-semibold text-primary">관리자 답변</span>
+                        <span className="text-xs font-semibold text-primary">
+                          {t('관리자 답변')}
+                        </span>
                       </div>
                       <p className="text-sm leading-relaxed text-card-foreground/80 whitespace-pre-wrap">
                         {reply}
@@ -286,7 +292,7 @@ const BoardDetailMagicB = () => {
               ) : (
                 <div className="rounded-xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
                   <MessageCircle className="mx-auto mb-2 size-8 opacity-30" />
-                  아직 등록된 댓글이 없습니다.
+                  {t('아직 등록된 댓글이 없습니다.')}
                 </div>
               )}
             </div>
@@ -299,15 +305,16 @@ const BoardDetailMagicB = () => {
             <div className="mb-8 rounded-xl border border-primary/20 bg-primary/5 p-6">
               <h4 className="mb-4 flex items-center gap-2 text-base font-bold text-foreground">
                 <Shield className="size-4 text-primary" />
-                관리자 답변 작성
+                {t('관리자 답변 작성')}
               </h4>
               <textarea
                 className="w-full resize-y rounded-lg border border-border bg-card p-4 text-sm leading-relaxed text-card-foreground transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="사용자 문의에 대한 답변 내용을 입력하세요."
+                placeholder={t('사용자 문의에 대한 답변 내용을 입력하세요.')}
                 rows={4}
               />
+
               <div className="mt-4 flex justify-end">
                 <ShimmerButton
                   onClick={handleReplySubmit}
@@ -321,7 +328,7 @@ const BoardDetailMagicB = () => {
                     ) : (
                       <Send className="size-4" />
                     )}
-                    {isSubmitting ? '등록 중...' : '답변 등록'}
+                    {isSubmitting ? t('등록 중...') : t('답변 등록')}
                   </span>
                 </ShimmerButton>
               </div>
@@ -333,7 +340,8 @@ const BoardDetailMagicB = () => {
         <BlurFade delay={0.4}>
           <div className="flex items-center justify-between pb-10 max-md:flex-col max-md:gap-3">
             <Button variant="outline" onClick={() => navigate('/boards/write')} className="gap-1.5">
-              <Plus className="size-4" />새 문의하기
+              <Plus className="size-4" />
+              {t('새 문의하기')}
             </Button>
 
             {post.isWriter && (
@@ -344,7 +352,7 @@ const BoardDetailMagicB = () => {
                   className="gap-1.5 max-md:flex-1"
                 >
                   <Pencil className="size-4" />
-                  수정
+                  {t('수정')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -352,7 +360,7 @@ const BoardDetailMagicB = () => {
                   className="gap-1.5 max-md:flex-1"
                 >
                   <Trash2 className="size-4" />
-                  삭제
+                  {t('삭제')}
                 </Button>
               </div>
             )}

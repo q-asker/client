@@ -57,7 +57,7 @@ interface QuizTypeOption {
 
 /** Sidebar Wizard 디자인 — 스텝 인디케이터 + 카드 컨텐츠 */
 const MakeQuiz: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('make-quiz');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
@@ -231,6 +231,7 @@ const MakeQuiz: React.FC = () => {
                                 disabled={!pages.numPages}
                                 className="w-12 border-none bg-transparent text-center text-sm font-bold tabular-nums text-foreground outline-none disabled:cursor-not-allowed disabled:text-muted-foreground"
                               />
+
                               <span className="select-none px-1 text-sm font-medium text-muted-foreground">
                                 –
                               </span>
@@ -248,6 +249,7 @@ const MakeQuiz: React.FC = () => {
                                 disabled={!pages.numPages}
                                 className="w-12 border-none bg-transparent text-center text-sm font-bold tabular-nums text-foreground outline-none disabled:cursor-not-allowed disabled:text-muted-foreground"
                               />
+
                               <button
                                 type="button"
                                 className="cursor-pointer self-stretch border-l border-border bg-primary px-3 text-xs font-semibold text-primary-foreground transition-opacity duration-150 hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground sm:px-4"
@@ -310,7 +312,8 @@ const MakeQuiz: React.FC = () => {
                             {pages.selectedPages.length}
                           </span>
                           <span className="text-xs text-muted-foreground/60">
-                            (최대 {MAX_SELECT_PAGES})
+                            {t('(최대')}
+                            {MAX_SELECT_PAGES})
                           </span>
                         </div>
                         {isMock ? (
@@ -524,6 +527,7 @@ const MakeQuiz: React.FC = () => {
                           }}
                           className="h-1.5 w-full accent-primary md:h-1"
                         />
+
                         <div className="mt-2 flex justify-between text-xs text-muted-foreground">
                           <span>5</span>
                           <span>10</span>
@@ -657,6 +661,7 @@ const MakeQuiz: React.FC = () => {
                         className="stroke-muted"
                         strokeWidth="4"
                       />
+
                       <circle
                         cx="32"
                         cy="32"
@@ -677,7 +682,7 @@ const MakeQuiz: React.FC = () => {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-lg font-bold text-primary tabular-nums">
                         {Math.floor(upload.uploadElapsedTime / 1000)}
-                        <span className="text-xs font-normal text-muted-foreground">초</span>
+                        <span className="text-xs font-normal text-muted-foreground">{t('초')}</span>
                       </span>
                     </div>
                   </div>

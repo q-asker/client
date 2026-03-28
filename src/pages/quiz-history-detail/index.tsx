@@ -37,7 +37,7 @@ interface HistoryDetail {
 // ── 컴포넌트 ──
 
 const QuizHistoryDetail = () => {
-  const { t, currentLanguage } = useTranslation();
+  const { t, currentLanguage } = useTranslation('quiz-history-detail');
   const { historyId } = useParams<{ historyId: string }>();
   const navigate = useNavigate();
   const [detail, setDetail] = useState<HistoryDetail | null>(null);

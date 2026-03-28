@@ -11,7 +11,7 @@ import MarkdownText from '@/shared/ui/components/markdown-text';
 
 /** E안: Split Panel — lg 이상 2컬럼, 우측 네비게이션+통계 패널 */
 const SolveQuizDesignB: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('solve-quiz');
   const navigate = useNavigate();
   const location = useLocation();
   const { problemSetId } = useParams<{ problemSetId: string }>();
@@ -153,7 +153,10 @@ const SolveQuizDesignB: React.FC = () => {
                     const selectedAnswer = unanswered
                       ? t('미선택')
                       : quizItem.selections?.find((sel) => sel.id === quizItem.userAnswer)
-                          ?.content || `${quizItem.userAnswer}번`;
+                          ?.content ||
+                        t('{{quizItem_userAnswer}}번', {
+                          quizItem_userAnswer: quizItem.userAnswer,
+                        });
 
                     return (
                       <div

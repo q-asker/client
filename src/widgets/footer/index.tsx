@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
  * - 모노톤 색상 (브랜드 색 최소 사용)
  */
 const Footer = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('make-quiz');
 
   return (
     <footer className="mt-8 border-t border-foreground/20 pb-16 md:pb-0">

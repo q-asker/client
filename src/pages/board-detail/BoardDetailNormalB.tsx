@@ -46,7 +46,7 @@ interface BoardDetailPost {
  * 명확한 섹션 구분, 사이드 메타 패널, Shadcn 컴포넌트 전면 활용
  */
 const BoardDetailNormalB = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
@@ -128,7 +128,7 @@ const BoardDetailNormalB = () => {
   }, [fetchPost]);
 
   const handleDelete = async () => {
-    if (!window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
+    if (!window.confirm(t('정말로 이 게시글을 삭제하시겠습니까?'))) return;
     try {
       await axiosInstance.delete(`/boards/${boardId}`);
       CustomToast.success(t('게시글이 삭제되었습니다.'));
@@ -164,6 +164,7 @@ const BoardDetailNormalB = () => {
           toggleSidebar={toggleSidebar}
           setIsSidebarOpen={setIsSidebarOpen}
         />
+
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-4xl">
             <Skeleton className="mb-4 h-6 w-32" />
@@ -204,7 +205,7 @@ const BoardDetailNormalB = () => {
             className="gap-1 text-muted-foreground"
           >
             <ArrowLeft className="size-4" />
-            목록
+            {t('목록')}
           </Button>
           <span className="text-sm text-border">/</span>
           <span className="text-sm text-muted-foreground">#{boardId}</span>
@@ -237,7 +238,8 @@ const BoardDetailNormalB = () => {
               <div className="mb-3 flex items-center gap-2">
                 <MessageSquare className="size-4 text-muted-foreground" />
                 <h3 className="text-base font-semibold text-foreground">
-                  답변 ({post.replies?.length || 0})
+                  {t('답변 (')}
+                  {post.replies?.length || 0})
                 </h3>
               </div>
 
@@ -257,7 +259,7 @@ const BoardDetailNormalB = () => {
                               <CornerDownRight className="size-3.5 text-muted-foreground" />
                               <Badge variant="secondary" className="text-xs">
                                 <Shield className="mr-0.5 size-2.5" />
-                                관리자
+                                {t('관리자')}
                               </Badge>
                             </div>
                             <p className="pl-5 text-sm leading-relaxed text-card-foreground/80 whitespace-pre-wrap">
@@ -269,7 +271,7 @@ const BoardDetailNormalB = () => {
                     ))
                   ) : (
                     <div className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
-                      아직 등록된 답변이 없습니다.
+                      {t('아직 등록된 답변이 없습니다.')}
                     </div>
                   )}
                 </div>
@@ -287,15 +289,16 @@ const BoardDetailNormalB = () => {
                   <CardContent className="p-5">
                     <h4 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-foreground">
                       <Shield className="size-4 text-primary" />
-                      답변 작성
+                      {t('답변 작성')}
                     </h4>
                     <textarea
                       className="w-full resize-y rounded-lg border border-input bg-background p-3 text-sm leading-relaxed text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
-                      placeholder="답변 내용을 입력하세요."
+                      placeholder={t('답변 내용을 입력하세요.')}
                       rows={4}
                     />
+
                     <div className="mt-3 flex justify-end">
                       <Button
                         size="sm"
@@ -308,7 +311,7 @@ const BoardDetailNormalB = () => {
                         ) : (
                           <Send className="size-3.5" />
                         )}
-                        {isSubmitting ? '등록 중...' : '등록'}
+                        {isSubmitting ? t('등록 중...') : t('등록')}
                       </Button>
                     </div>
                   </CardContent>
@@ -331,7 +334,7 @@ const BoardDetailNormalB = () => {
                   {/* 상태 */}
                   <div>
                     <span className="mb-1.5 block text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      상태
+                      {t('상태')}
                     </span>
                     <Badge
                       variant="outline"
@@ -347,7 +350,7 @@ const BoardDetailNormalB = () => {
                       ) : (
                         <Clock4 className="mr-0.5 size-3" />
                       )}
-                      {post.status === 'ANSWERED' ? '답변완료' : '대기중'}
+                      {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
                     </Badge>
                   </div>
 
@@ -356,7 +359,7 @@ const BoardDetailNormalB = () => {
                   {/* 작성자 */}
                   <div>
                     <span className="mb-1 block text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      작성자
+                      {t('작성자')}
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-sm text-foreground">
                       <UserCircle className="size-4 text-muted-foreground" />
@@ -367,7 +370,7 @@ const BoardDetailNormalB = () => {
                   {/* 작성일 */}
                   <div>
                     <span className="mb-1 block text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      작성일
+                      {t('작성일')}
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-sm text-foreground">
                       <Calendar className="size-4 text-muted-foreground" />
@@ -378,7 +381,7 @@ const BoardDetailNormalB = () => {
                   {/* 조회수 */}
                   <div>
                     <span className="mb-1 block text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      조회수
+                      {t('조회수')}
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-sm text-foreground">
                       <Eye className="size-4 text-muted-foreground" />
@@ -397,7 +400,8 @@ const BoardDetailNormalB = () => {
                     className="w-full justify-start gap-1.5"
                     onClick={() => navigate('/boards/write')}
                   >
-                    <Plus className="size-3.5" />새 문의하기
+                    <Plus className="size-3.5" />
+                    {t('새 문의하기')}
                   </Button>
 
                   {post.isWriter && (
@@ -409,7 +413,7 @@ const BoardDetailNormalB = () => {
                         onClick={() => navigate(`/boards/edit/${boardId}`)}
                       >
                         <Pencil className="size-3.5" />
-                        수정하기
+                        {t('수정하기')}
                       </Button>
                       <Button
                         variant="destructive"
@@ -418,7 +422,7 @@ const BoardDetailNormalB = () => {
                         onClick={handleDelete}
                       >
                         <Trash2 className="size-3.5" />
-                        삭제하기
+                        {t('삭제하기')}
                       </Button>
                     </>
                   )}

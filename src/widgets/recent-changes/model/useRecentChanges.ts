@@ -60,7 +60,7 @@ const formatDate = (isoString: string): string => {
 };
 
 export const useRecentChanges = (): UseRecentChangesReturn => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('make-quiz');
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
   const [changes, setChanges] = useState<UpdateLog[]>(isMock ? MOCK_CHANGES : []);
@@ -79,7 +79,7 @@ export const useRecentChanges = (): UseRecentChangesReturn => {
     };
 
     fetchUpdates();
-  }, [isMock]);
+  }, [isMock, t]);
 
   return {
     state: { changes },
