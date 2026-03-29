@@ -9,6 +9,22 @@ let getAccessToken: () => string | null = () => null;
 let clearAuth: () => void = () => {};
 let refreshAuthToken: () => Promise<void> = async () => {}; // 💡 토큰 재발급 로직 주입을 위한 변수 추가
 
+// 퀴즈 생성 페이지(비로그인 허용)에서는 로그인 리디렉션을 하지 않는다
+const SKIP_REDIRECT_PATHS = ['/', '/ko', '/en'];
+
+const clearAuthAndRedirect = (errorMessage?: string): void => {
+  clearAuth();
+  const currentPath = window.location.pathname;
+  const shouldSkip = SKIP_REDIRECT_PATHS.includes(currentPath);
+  if (shouldSkip) {
+    // 퀴즈 생성 페이지: 리디렉션 없이 토스트만 표시
+    if (errorMessage) CustomToast.error(errorMessage);
+  } else {
+    // 그 외 페이지: 로그인 페이지로 즉시 이동 (토스트는 로그인 페이지에서 표시)
+    window.location.href = '/login?reason=session-expired';
+  }
+};
+
 // App.jsx나 최상위 index.js에서 설정할 때 authService.refresh도 같이 넘겨줍니다.
 export const configureAuth = ({
   getAccessToken: getToken,
@@ -80,8 +96,7 @@ axiosInstance.interceptors.response.use(
           const message =
             (error?.response?.data as { message?: string })?.message ||
             '알 수 없는 오류가 발생했습니다.';
-          CustomToast.error(message);
-          clearAuth();
+          clearAuthAndRedirect(message);
           // never-settling promise: 호출부의 .then()/.catch() 모두 실행되지 않아 중복 토스트 방지
           return new Promise(() => {});
         }
@@ -91,8 +106,7 @@ axiosInstance.interceptors.response.use(
       const message =
         (error?.response?.data as { message?: string })?.message ||
         '알 수 없는 오류가 발생했습니다.';
-      CustomToast.error(message);
-      clearAuth();
+      clearAuthAndRedirect(message);
       // never-settling promise: 호출부의 .then()/.catch() 모두 실행되지 않아 중복 토스트 방지
       return new Promise(() => {});
     }

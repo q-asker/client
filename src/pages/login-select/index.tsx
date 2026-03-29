@@ -1,6 +1,7 @@
 import { useTranslation } from 'i18nexus';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import CustomToast from '#shared/toast';
 import Logo from '#shared/ui/logo';
 import { Button } from '@/shared/ui/components/button';
 import {
@@ -15,9 +16,16 @@ import { LogIn, Sparkles, BookOpen, Zap } from 'lucide-react';
 /** 전면 브랜드 배경 + 정중앙 글래스 로그인 카드 */
 const LoginSelect = () => {
   const { t } = useTranslation('login-select');
+  const [searchParams] = useSearchParams();
   const baseUrl = (import.meta.env.VITE_BASE_URL as string) || '';
   const kakaoLoginUrl = `${baseUrl}/oauth2/authorization/kakao`;
   const googleLoginUrl = `${baseUrl}/oauth2/authorization/google`;
+
+  useEffect(() => {
+    if (searchParams.get('reason') === 'session-expired') {
+      CustomToast.info(t('로그인이 필요합니다.'));
+    }
+  }, [searchParams, t]);
 
   return (
     <div className="relative flex min-h-screen flex-col bg-primary/80">
