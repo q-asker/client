@@ -57,13 +57,14 @@ interface QuizTypeOption {
 
 /** Sidebar Wizard 디자인 — 스텝 인디케이터 + 카드 컨텐츠 */
 const MakeQuiz: React.FC = () => {
-  const { t } = useTranslation('make-quiz');
+  const { t, currentLanguage } = useTranslation('make-quiz');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
-  const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const levelDescriptions = useMemo(() => getLevelDescriptions(t), []);
   const acceptExtensions: string = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
-  const { state, actions } = usePrepareQuiz({ t, navigate });
+  const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
   const isAuthenticated = !!useAuthStore((state) => state.accessToken);
