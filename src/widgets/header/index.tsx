@@ -68,7 +68,8 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
       (u?.email as string) ||
       '';
     return name.trim() || t('사용자');
-  }, [t, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const profileInitial = useMemo(
     () => displayName?.trim().slice(0, 1).toUpperCase() || '?',

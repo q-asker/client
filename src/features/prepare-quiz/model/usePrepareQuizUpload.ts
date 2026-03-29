@@ -151,7 +151,8 @@ export const usePrepareQuizUpload = ({
         setUploadElapsedTime(0);
       }
     },
-    [setIsWaitingForFirstQuiz, setUploadedFileInfo, setUploadedUrlInStore, t],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [setIsWaitingForFirstQuiz, setUploadedFileInfo, setUploadedUrlInStore],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLElement>) => {

@@ -79,7 +79,8 @@ const Board = () => {
         setLoading(false);
       }
     },
-    [isMock, t],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isMock],
   );
 
   useEffect(() => {

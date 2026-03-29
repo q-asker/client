@@ -225,7 +225,8 @@ export const usePrepareQuizPages = ({
     setPageRangeStart(String(start));
     setPageRangeEnd(String(end));
     setSelectedPages(Array.from({ length: end - start + 1 }, (_, i) => start + i));
-  }, [numPages, pageMode, pageRangeEnd, pageRangeStart, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [numPages, pageMode, pageRangeEnd, pageRangeStart]);
 
   useEffect(() => {
     localStorage.setItem(
