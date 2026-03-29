@@ -25,7 +25,8 @@ const LoginSelect = () => {
     if (searchParams.get('reason') === 'session-expired') {
       CustomToast.info(t('로그인이 필요합니다.'));
     }
-  }, [searchParams, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   return (
     <div className="relative flex min-h-screen flex-col bg-primary/80">

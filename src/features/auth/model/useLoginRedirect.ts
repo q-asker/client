@@ -54,7 +54,8 @@ export const useLoginRedirect = ({ navigate }: UseLoginRedirectParams) => {
     return () => {
       isMounted = false;
     };
-  }, [navigate, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]);
 
   return {
     actions: {},
