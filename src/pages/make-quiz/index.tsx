@@ -17,6 +17,7 @@ import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { useAuthStore } from '#entities/auth';
 import { Document, Page } from 'react-pdf';
+import MarkdownText from '@/shared/ui/components/markdown-text';
 import MockPageGrid from './MockPageGrid';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -470,9 +471,9 @@ const MakeQuiz: React.FC = () => {
                         {currentLevel?.title}
                       </div>
                       <div className="rounded-xl bg-background p-4">
-                        <p className="m-0 whitespace-pre-wrap break-keep text-sm leading-relaxed text-foreground md:break-words">
-                          {currentLevel?.question}
-                        </p>
+                        <MarkdownText className="break-keep text-sm leading-relaxed text-foreground md:break-words">
+                          {currentLevel?.question ?? ''}
+                        </MarkdownText>
                       </div>
                       {currentLevel?.options && currentLevel.options.length > 0 && (
                         <div className="mt-4 flex flex-col gap-2">
