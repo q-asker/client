@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
@@ -71,6 +71,25 @@ const MakeQuiz: React.FC = () => {
   const generatedQuizCount = useQuizGenerationStore((state) => state.quizzes.length);
   const safeFileName: string = upload.file?.name || storedFileInfo?.name || t('업로드된 파일');
   const safeFileSize: number | undefined = upload.file?.size ?? storedFileInfo?.size;
+
+  // PDF 썸네일 그리드 셀 너비 측정
+  const [pageThumbWidth, setPageThumbWidth] = useState(150);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const measureCellWidth = useCallback(() => {
+    if (!gridRef.current) return;
+    const firstCell = gridRef.current.querySelector<HTMLElement>('[data-pdf-cell]');
+    if (firstCell) {
+      const cellWidth = firstCell.clientWidth;
+      if (cellWidth > 0) setPageThumbWidth(cellWidth);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!gridRef.current) return;
+    const observer = new ResizeObserver(measureCellWidth);
+    observer.observe(gridRef.current);
+    return () => observer.disconnect();
+  }, [measureCellWidth]);
 
   // 생성 완료 후 서버에서 ProblemSet 정보 조회
   interface ProblemSetSummary {
@@ -340,6 +359,7 @@ const MakeQuiz: React.FC = () => {
                           >
                             <div className="relative">
                               <div
+                                ref={gridRef}
                                 className="grid max-h-[360px] grid-cols-2 gap-2 overflow-y-auto p-1 sm:grid-cols-3 sm:gap-3 sm:p-1.5"
                                 onMouseLeave={pageActions.handlePageMouseLeave}
                               >
@@ -355,6 +375,7 @@ const MakeQuiz: React.FC = () => {
                                     return (
                                       <div
                                         key={`page_${pageNumber}`}
+                                        data-pdf-cell
                                         className={cn(
                                           'relative cursor-pointer overflow-hidden rounded-none border-2 border-transparent bg-muted text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
                                           isSelected && 'border-primary',
@@ -369,7 +390,7 @@ const MakeQuiz: React.FC = () => {
                                       >
                                         <Page
                                           pageNumber={pageNumber}
-                                          width={150}
+                                          width={pageThumbWidth}
                                           renderTextLayer={false}
                                           renderAnnotationLayer={false}
                                         />
@@ -725,12 +746,12 @@ const MakeQuiz: React.FC = () => {
                     {/* 모바일: "파일을 업로드하세요", 데스크톱: "파일을 여기에 드래그하세요" */}
                     <h2 className="mb-1.5 text-lg font-bold tracking-tight text-foreground sm:mb-2 sm:text-xl">
                       <span className="hidden sm:inline">
-                        <TextAnimate animation="slideUp" by="word">
+                        <TextAnimate animation="slideUp" by="word" startOnView={false}>
                           {t('파일을 여기에 드래그하세요')}
                         </TextAnimate>
                       </span>
                       <span className="sm:hidden">
-                        <TextAnimate animation="slideUp" by="word">
+                        <TextAnimate animation="slideUp" by="word" startOnView={false}>
                           {t('파일을 업로드하세요')}
                         </TextAnimate>
                       </span>
