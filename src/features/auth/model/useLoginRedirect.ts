@@ -1,3 +1,4 @@
+import { useTranslation } from 'i18nexus';
 import { useEffect } from 'react';
 import type { AxiosResponse } from 'axios';
 import { authService } from '#entities/auth';
@@ -21,6 +22,7 @@ const refreshOnce = async (): Promise<AxiosResponse> => {
 };
 
 export const useLoginRedirect = ({ navigate }: UseLoginRedirectParams) => {
+  const { t } = useTranslation('login-redirect');
   useEffect(() => {
     let isMounted = true;
 
@@ -30,7 +32,7 @@ export const useLoginRedirect = ({ navigate }: UseLoginRedirectParams) => {
         await refreshOnce();
       } catch (error) {
         refreshSucceeded = false;
-        console.error('로그인 리다이렉트 실패:', error);
+        console.error(t('로그인 리다이렉트 실패:'), error);
       }
 
       if (!refreshSucceeded) {
@@ -52,6 +54,7 @@ export const useLoginRedirect = ({ navigate }: UseLoginRedirectParams) => {
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   return {

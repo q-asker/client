@@ -46,7 +46,7 @@ const QuizScoreBoard = ({
   actionButton,
   problems,
 }: QuizScoreBoardProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const wrongCount = totalCount - correctCount;
   const [openSet, setOpenSet] = useState<Set<number>>(() => new Set(problems.map((p) => p.number)));
 
@@ -121,9 +121,11 @@ const QuizScoreBoard = ({
                   onClick={() =>
                     setOpenSet((prev) => {
                       const next = new Set(prev);
-                      next.has(problem.number)
-                        ? next.delete(problem.number)
-                        : next.add(problem.number);
+                      if (next.has(problem.number)) {
+                        next.delete(problem.number);
+                      } else {
+                        next.add(problem.number);
+                      }
                       return next;
                     })
                   }

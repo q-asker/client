@@ -5,7 +5,7 @@ import { Button } from '@/shared/ui/components/button';
 
 /** 풀스크린 muted 배경 + 대형 아이콘 + animate-pulse 진행 바 */
 const Maintenance = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('maintenance');
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted p-8 text-center">

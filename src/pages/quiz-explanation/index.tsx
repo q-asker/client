@@ -26,7 +26,7 @@ interface LocationState {
  * [문제 리스트 | 문제+선택지 | 해설+참조]
  */
 const QuizExplanation: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('quiz-explanation');
   const { problemSetId } = useParams<{ problemSetId: string }>();
   const navigate = useNavigate();
   const { state: locationState } = useLocation();
@@ -348,21 +348,4 @@ const QuizExplanation: React.FC = () => {
   );
 };
 
-const QE_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const QuizExplanationWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('qe');
-  const VariantComponent = variant ? QE_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <QuizExplanation />;
-};
-
-export default QuizExplanationWithVariant;
+export default QuizExplanation;

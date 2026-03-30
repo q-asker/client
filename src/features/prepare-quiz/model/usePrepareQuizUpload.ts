@@ -96,7 +96,11 @@ export const usePrepareQuizUpload = ({
       }
 
       if (nextFile.size > MAX_FILE_SIZE) {
-        CustomToast.error(`파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`);
+        CustomToast.error(
+          t('파일 크기는 {{expr0}}MB를 초과할 수 없습니다.', {
+            expr0: MAX_FILE_SIZE / 1024 / 1024,
+          }),
+        );
         return;
       }
 
@@ -137,7 +141,7 @@ export const usePrepareQuizUpload = ({
           uploadTimerRef.current.stop();
         }
 
-        console.error('파일 업로드 실패:', error);
+        console.error(t('파일 업로드 실패:'), error);
         setUploadedUrlInStore(null);
         setUploadedFileInfo(null);
         return;
@@ -147,7 +151,8 @@ export const usePrepareQuizUpload = ({
         setUploadElapsedTime(0);
       }
     },
-    [setIsWaitingForFirstQuiz, setUploadedFileInfo, setUploadedUrlInStore, t],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [setIsWaitingForFirstQuiz, setUploadedFileInfo, setUploadedUrlInStore],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLElement>) => {

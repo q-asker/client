@@ -10,13 +10,14 @@ import Board from '#pages/board';
 import BoardDetail from '#pages/board-detail';
 import BoardWrite from '#pages/board-write';
 import PrivacyPolicy from '#pages/privacy-policy';
+import TermsOfService from '#pages/terms-of-service';
 import QuizExplanation from '#pages/quiz-explanation';
 import QuizHistory from '#pages/quiz-history';
 import QuizHistoryDetail from '#pages/quiz-history-detail';
 import QuizResult from '#pages/quiz-result';
 import SolveQuiz from '#pages/solve-quiz';
 import { I18nProvider, useLanguageSwitcher, useTranslation } from 'i18nexus';
-import { translations } from '#shared/i18n';
+import { loadNamespace } from '#shared/i18n';
 import PageViewTracker from '#app/ui/PageViewTracker';
 import { useInitGA } from '#app/model/useInitGA';
 import { configureAuth } from '#shared/api';
@@ -377,7 +378,7 @@ configureAuth({
 });
 
 const SeoMetaSync = () => {
-  const { currentLanguage } = useTranslation();
+  const { currentLanguage } = useTranslation('common');
   const location = useLocation();
 
   useEffect(() => {
@@ -423,7 +424,7 @@ const SeoMetaSync = () => {
 
 const LanguageRouteSync = () => {
   const { changeLanguage } = useLanguageSwitcher();
-  const { currentLanguage } = useTranslation();
+  const { currentLanguage } = useTranslation('common');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -466,7 +467,9 @@ const App = () => {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" storageKey="theme">
       <I18nProvider
-        translations={translations}
+        loadNamespace={loadNamespace}
+        fallbackNamespace="common"
+        preloadNamespaces={['common']}
         initialLanguage={getInitialLanguage()}
         languageManagerOptions={{ defaultLanguage: 'ko' }}
       >
@@ -486,6 +489,7 @@ const App = () => {
             <Route path="/login/redirect" element={<LoginRedirect />} />
             <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
             <Route path="/result/:problemSetId" element={<QuizResult />} />
             <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />

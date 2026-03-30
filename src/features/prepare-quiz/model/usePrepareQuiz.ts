@@ -64,10 +64,15 @@ export interface PrepareQuizReturn {
 
 interface UsePrepareQuizParams {
   t: (key: string) => string;
+  currentLanguage: string;
   navigate: (to: string, options?: { state?: Record<string, unknown> }) => void;
 }
 
-export const usePrepareQuiz = ({ t, navigate }: UsePrepareQuizParams): PrepareQuizReturn => {
+export const usePrepareQuiz = ({
+  t,
+  currentLanguage,
+  navigate,
+}: UsePrepareQuizParams): PrepareQuizReturn => {
   const ui = usePrepareQuizUi();
   const upload = usePrepareQuizUpload({ t });
   const options = usePrepareQuizOptions();
@@ -112,6 +117,7 @@ export const usePrepareQuiz = ({ t, navigate }: UsePrepareQuizParams): PrepareQu
   const generateQuestions = useCallback(() => {
     generationActions.generateQuestions({
       t,
+      currentLanguage,
       uploadedUrl: upload.state.uploadedUrl,
       fileName: upload.state.file?.name ?? '',
       questionType: options.state.questionType,
@@ -121,6 +127,7 @@ export const usePrepareQuiz = ({ t, navigate }: UsePrepareQuizParams): PrepareQu
     });
   }, [
     generationActions,
+    currentLanguage,
     options.state.questionCount,
     options.state.questionType,
     options.state.quizLevel,

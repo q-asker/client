@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 /** DesignB: 좌우 분할 — sticky 목차 + 본문 스크롤 */
 const PrivacyPolicy = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('privacy-policy');
 
   /** 목차 데이터 */
   const tocItems = [

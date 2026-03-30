@@ -184,7 +184,8 @@ export const useQuizExplanation = ({
       setIsLoading(false);
       trackQuizEvents.viewExplanation(problemSetId, currentQuestion);
     }
-  }, [problemSetId, initialQuizzes.length, navigate, currentQuestion, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [problemSetId, initialQuizzes.length, navigate, currentQuestion]);
 
   useEffect(() => {
     const calculatePdfWidth = (): void => {
@@ -225,7 +226,8 @@ export const useQuizExplanation = ({
         setCurrentQuestion(1);
       }
     }
-  }, [showWrongOnly, filteredTotalQuestions, currentQuestion, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showWrongOnly, filteredTotalQuestions, currentQuestion]);
 
   const handlePrev = (): void => {
     if (currentQuestion > 1) {

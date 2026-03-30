@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
  * - 모노톤 색상 (브랜드 색 최소 사용)
  */
 const Footer = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('make-quiz');
 
   return (
     <footer className="mt-8 border-t border-foreground/20 pb-16 md:pb-0">
@@ -51,6 +51,12 @@ const Footer = () => {
               Legal
             </span>
             <Link
+              to="/terms-of-service"
+              className="text-sm text-foreground no-underline transition-colors duration-200 hover:underline"
+            >
+              {t('서비스 이용약관')}
+            </Link>
+            <Link
               to="/privacy-policy"
               className="text-sm text-foreground no-underline transition-colors duration-200 hover:underline"
             >
@@ -63,25 +69,4 @@ const Footer = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-import React, { Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
-
-const FOOTER_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const FooterWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('footer');
-  const VariantComponent = variant ? FOOTER_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <Footer />;
-};
-
-export default FooterWithVariant;
+export default Footer;

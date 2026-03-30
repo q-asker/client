@@ -1,3 +1,4 @@
+import { useTranslation } from 'i18nexus';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '#entities/auth';
@@ -22,6 +23,7 @@ const PAGE_SIZE = 10;
 
 /** Compact Table — 밀집 테이블 뷰, 정보 밀도 극대화 */
 const Board = () => {
+  const { t } = useTranslation('board');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
@@ -66,17 +68,18 @@ const Board = () => {
           `${getBaseUrl()}/boards?page=${page}&size=${PAGE_SIZE}&sort=createdAt,desc`,
           { method: 'GET', headers: { 'Content-Type': 'application/json' } },
         );
-        if (!response.ok) throw new Error('데이터를 불러오는데 실패했습니다.');
+        if (!response.ok) throw new Error(t('데이터를 불러오는데 실패했습니다.'));
         const data = await response.json();
         setPosts(data.posts || []);
         setTotalPages(data.totalPages || 0);
         setTotalElements(data.totalElements || 0);
       } catch {
-        setError('게시글 목록을 불러올 수 없습니다.');
+        setError(t('게시글 목록을 불러올 수 없습니다.'));
       } finally {
         setLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isMock],
   );
 
@@ -86,7 +89,7 @@ const Board = () => {
 
   const handleWriteClick = () => {
     if (!accessToken) {
-      if (window.confirm('로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?')) {
+      if (window.confirm(t('로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?'))) {
         navigate('/login');
       }
       return;
@@ -102,6 +105,7 @@ const Board = () => {
           toggleSidebar={toggleSidebar}
           setIsSidebarOpen={setIsSidebarOpen}
         />
+
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-5xl">
             <Skeleton className="mb-4 h-10 rounded-lg" />
@@ -127,13 +131,17 @@ const Board = () => {
           {/* 헤더 */}
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-foreground">문의 게시판</h1>
-              <span className="text-base text-muted-foreground">총 {totalElements}건</span>
+              <h1 className="text-2xl font-bold text-foreground">{t('문의 게시판')}</h1>
+              <span className="text-base text-muted-foreground">
+                {t('총')}
+                {totalElements}
+                {t('건')}
+              </span>
             </div>
             {posts.length > 0 && (
               <Button size="sm" onClick={handleWriteClick}>
                 <Plus className="mr-1 size-3" />
-                문의하기
+                {t('문의하기')}
               </Button>
             )}
           </div>
@@ -149,10 +157,10 @@ const Board = () => {
           {posts.length === 0 && !error ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-muted-foreground">
               <MessageSquare className="mb-3 size-10 opacity-50" />
-              <p className="mb-4 text-base">아직 등록된 문의가 없습니다</p>
+              <p className="mb-4 text-base">{t('아직 등록된 문의가 없습니다')}</p>
               <Button size="sm" onClick={handleWriteClick}>
                 <Plus className="mr-1 size-3" />
-                문의 작성하기
+                {t('문의 작성하기')}
               </Button>
             </div>
           ) : (
@@ -160,11 +168,11 @@ const Board = () => {
               {/* 테이블 헤더 */}
               <div className="flex items-center border-b-2 border-border px-3 py-2.5 text-sm font-semibold text-muted-foreground max-md:hidden">
                 <span className="w-[6%] text-center">#</span>
-                <span className="flex-1 pl-2">제목</span>
-                <span className="w-[12%] text-center">작성자</span>
-                <span className="w-[12%] text-center">작성일</span>
-                <span className="w-[8%] text-center">조회</span>
-                <span className="w-[10%] text-center">상태</span>
+                <span className="flex-1 pl-2">{t('제목')}</span>
+                <span className="w-[12%] text-center">{t('작성자')}</span>
+                <span className="w-[12%] text-center">{t('작성일')}</span>
+                <span className="w-[8%] text-center">{t('조회')}</span>
+                <span className="w-[10%] text-center">{t('상태')}</span>
               </div>
 
               {/* 게시글 행 */}
@@ -220,7 +228,7 @@ const Board = () => {
                         ) : (
                           <Clock className="mr-0.5 size-2.5" />
                         )}
-                        {post.status === 'ANSWERED' ? '답변완료' : '대기중'}
+                        {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
                       </Badge>
                     </span>
                   </div>
@@ -257,18 +265,4 @@ const Board = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const BD_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const BoardWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('bd');
-  const VariantComponent = variant ? BD_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return <VariantComponent />;
-  }
-  return <Board />;
-};
-
-export default BoardWithVariant;
+export default Board;

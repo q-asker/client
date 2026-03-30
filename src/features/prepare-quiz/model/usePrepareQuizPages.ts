@@ -225,7 +225,8 @@ export const usePrepareQuizPages = ({
     setPageRangeStart(String(start));
     setPageRangeEnd(String(end));
     setSelectedPages(Array.from({ length: end - start + 1 }, (_, i) => start + i));
-  }, [numPages, pageMode, pageRangeEnd, pageRangeStart, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [numPages, pageMode, pageRangeEnd, pageRangeStart]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -245,28 +246,15 @@ export const usePrepareQuizPages = ({
       if (!pdfPreviewRef.current) return;
 
       const containerRect = pdfPreviewRef.current.getBoundingClientRect();
-      const itemRect = e.currentTarget.getBoundingClientRect();
-      const itemWidth = itemRect.width;
-      const midpoint = containerRect.left + containerRect.width / 2;
 
       const PREVIEW_WIDTH = 660;
       const GAP = 10;
 
-      let top = itemRect.top - containerRect.top - 100;
-      if (top < 0) {
-        top = 0;
-      }
-
       const style: CSSProperties = {
-        top: `${top}px`,
+        bottom: '0px',
+        left: `${containerRect.width + GAP}px`,
         width: `${PREVIEW_WIDTH}px`,
       };
-
-      if (itemRect.left < midpoint) {
-        style.left = `${itemRect.left - containerRect.left + itemWidth + GAP}px`;
-      } else {
-        style.left = `${itemRect.left - containerRect.left - PREVIEW_WIDTH - GAP}px`;
-      }
 
       setHoveredPage({ pageNumber, style });
     },

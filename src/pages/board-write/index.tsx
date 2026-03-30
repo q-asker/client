@@ -22,7 +22,7 @@ interface BoardEditData {
 
 /** Slide Form — BlurFade 섹션별 순차 등장 */
 const BoardWrite = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('board-write');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
@@ -97,7 +97,9 @@ const BoardWrite = () => {
       } else {
         await axiosInstance.post('/boards', { title, content });
       }
-      CustomToast.success(t(`게시글이 성공적으로 ${isEditMode ? '수정' : '등록'}되었습니다.`));
+      CustomToast.success(
+        t(`게시글이 성공적으로 ${isEditMode ? t('수정') : t('등록')}되었습니다.`),
+      );
       navigate(isEditMode ? `/boards/${boardId}` : '/boards', { replace: true });
     } catch {
       // 인터셉터에서 에러 토스트 처리
@@ -114,6 +116,7 @@ const BoardWrite = () => {
           toggleSidebar={toggleSidebar}
           setIsSidebarOpen={setIsSidebarOpen}
         />
+
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-4xl space-y-4">
             <Skeleton className="h-12 rounded" />
@@ -136,7 +139,7 @@ const BoardWrite = () => {
         <div className="mx-auto max-w-4xl px-6 py-10 max-md:px-4">
           <BlurFade delay={0.05}>
             <h1 className="mb-8 border-l-4 border-primary/40 pl-4 text-4xl font-bold text-foreground max-md:text-2xl">
-              {isEditMode ? '문의 수정' : '새 문의 작성'}
+              {isEditMode ? t('문의 수정') : t('새 문의 작성')}
             </h1>
           </BlurFade>
 
@@ -147,13 +150,13 @@ const BoardWrite = () => {
                   htmlFor="title"
                   className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
                 >
-                  제목
+                  {t('제목')}
                 </label>
                 <Input
                   type="text"
                   id="title"
                   className="h-14 text-lg"
-                  placeholder="제목을 입력해주세요"
+                  placeholder={t('제목을 입력해주세요')}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   disabled={isSubmitting}
@@ -167,12 +170,12 @@ const BoardWrite = () => {
                   htmlFor="content"
                   className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
                 >
-                  내용
+                  {t('내용')}
                 </label>
                 <textarea
                   id="content"
                   className="min-h-[400px] w-full resize-y rounded-lg border border-input bg-background p-5 text-base leading-relaxed transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-muted"
-                  placeholder="문의 내용을 상세히 적어주세요."
+                  placeholder={t('문의 내용을 상세히 적어주세요.')}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   disabled={isSubmitting}
@@ -189,7 +192,7 @@ const BoardWrite = () => {
                     onClick={() => navigate(isEditMode ? `/boards/${boardId}` : '/boards')}
                   >
                     <X className="mr-1 size-4" />
-                    취소
+                    {t('취소')}
                   </Button>
                   <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? (
@@ -199,11 +202,11 @@ const BoardWrite = () => {
                     )}
                     {isSubmitting
                       ? isEditMode
-                        ? '수정 중...'
-                        : '등록 중...'
+                        ? t('수정 중...')
+                        : t('등록 중...')
                       : isEditMode
-                        ? '수정완료'
-                        : '등록하기'}
+                        ? t('수정완료')
+                        : t('등록하기')}
                   </Button>
                 </div>
               </div>
