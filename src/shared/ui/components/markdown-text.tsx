@@ -2,7 +2,9 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeHighlight from 'rehype-highlight';
 import 'katex/dist/katex.min.css';
+import 'highlight.js/styles/github-dark.min.css';
 import { cn } from '@/shared/ui/lib/utils';
 
 interface MarkdownTextProps {
@@ -19,7 +21,7 @@ const MarkdownText = ({ children, className }: MarkdownTextProps) => {
     <div className={cn('markdown-text', className)}>
       <Markdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[rehypeKatex, rehypeHighlight]}
         components={{
           // 블록 요소를 인라인 맥락에서도 안전하게 렌더링
           p: ({ children }) => <span className="block">{children}</span>,
