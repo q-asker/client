@@ -1,6 +1,6 @@
 import { useTranslation } from 'i18nexus';
 import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import CustomToast from '#shared/toast';
 import Logo from '#shared/ui/logo';
 import { Button } from '@/shared/ui/components/button';
@@ -127,7 +127,21 @@ const LoginSelect = () => {
           {/* 하단 안내 + 저작권 */}
           <div className="flex flex-col items-center gap-2">
             <p className="text-center text-xs text-primary-foreground/60">
-              {t('로그인 시 서비스 이용약관에 동의하게 됩니다.')}
+              {t('로그인 시')}{' '}
+              <Link
+                to="/terms-of-service"
+                className="text-primary-foreground/80 underline hover:text-primary-foreground"
+              >
+                {t('서비스 이용약관')}
+              </Link>{' '}
+              {t('및')}{' '}
+              <Link
+                to="/privacy-policy"
+                className="text-primary-foreground/80 underline hover:text-primary-foreground"
+              >
+                {t('개인정보 처리방침')}
+              </Link>
+              {t('에 동의하게 됩니다.')}
             </p>
             <p className="hidden text-center text-xs text-primary-foreground/40 lg:block">
               &copy; 2025 Q-Asker. All rights reserved.

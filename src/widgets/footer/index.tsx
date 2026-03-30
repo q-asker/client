@@ -51,6 +51,12 @@ const Footer = () => {
               Legal
             </span>
             <Link
+              to="/terms-of-service"
+              className="text-sm text-foreground no-underline transition-colors duration-200 hover:underline"
+            >
+              {t('서비스 이용약관')}
+            </Link>
+            <Link
               to="/privacy-policy"
               className="text-sm text-foreground no-underline transition-colors duration-200 hover:underline"
             >
