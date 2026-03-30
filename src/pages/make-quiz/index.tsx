@@ -17,6 +17,7 @@ import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { useAuthStore } from '#entities/auth';
 import { Document, Page } from 'react-pdf';
+import MarkdownText from '@/shared/ui/components/markdown-text';
 import MockPageGrid from './MockPageGrid';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -57,13 +58,14 @@ interface QuizTypeOption {
 
 /** Sidebar Wizard 디자인 — 스텝 인디케이터 + 카드 컨텐츠 */
 const MakeQuiz: React.FC = () => {
-  const { t } = useTranslation('make-quiz');
+  const { t, currentLanguage } = useTranslation('make-quiz');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
-  const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const levelDescriptions = useMemo(() => getLevelDescriptions(t), []);
   const acceptExtensions: string = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
-  const { state, actions } = usePrepareQuiz({ t, navigate });
+  const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
   const isAuthenticated = !!useAuthStore((state) => state.accessToken);
@@ -368,9 +370,10 @@ const MakeQuiz: React.FC = () => {
                                       >
                                         <Page
                                           pageNumber={pageNumber}
-                                          width={150}
+                                          width={300}
                                           renderTextLayer={false}
                                           renderAnnotationLayer={false}
+                                          className="[&_canvas]:!h-auto [&_canvas]:!w-full"
                                         />
 
                                         <p
@@ -468,9 +471,9 @@ const MakeQuiz: React.FC = () => {
                         {currentLevel?.title}
                       </div>
                       <div className="rounded-xl bg-background p-4">
-                        <p className="m-0 whitespace-pre-wrap break-keep text-sm leading-relaxed text-foreground md:break-words">
-                          {currentLevel?.question}
-                        </p>
+                        <MarkdownText className="break-keep text-sm leading-relaxed text-foreground md:break-words">
+                          {currentLevel?.question ?? ''}
+                        </MarkdownText>
                       </div>
                       {currentLevel?.options && currentLevel.options.length > 0 && (
                         <div className="mt-4 flex flex-col gap-2">
@@ -570,8 +573,10 @@ const MakeQuiz: React.FC = () => {
                             {Math.floor(generation.generationElapsedTime / 1000)}
                             {t('초')}
                             <br />
-                            <span className="mt-1.5 inline-block text-xs text-muted-foreground">
+                            <span className="mt-1.5 inline-block text-xs text-muted-foreground/60">
                               {t('생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.')}
+                              <br />
+                              {t('AI는 실수를 할 수 있습니다. 학습 보조 도구로 활용해 주세요.')}
                             </span>
                           </p>
                           {generation.showWaitMessage && (
@@ -724,12 +729,12 @@ const MakeQuiz: React.FC = () => {
                     {/* 모바일: "파일을 업로드하세요", 데스크톱: "파일을 여기에 드래그하세요" */}
                     <h2 className="mb-1.5 text-lg font-bold tracking-tight text-foreground sm:mb-2 sm:text-xl">
                       <span className="hidden sm:inline">
-                        <TextAnimate animation="slideUp" by="word">
+                        <TextAnimate animation="slideUp" by="word" startOnView={false}>
                           {t('파일을 여기에 드래그하세요')}
                         </TextAnimate>
                       </span>
                       <span className="sm:hidden">
-                        <TextAnimate animation="slideUp" by="word">
+                        <TextAnimate animation="slideUp" by="word" startOnView={false}>
                           {t('파일을 업로드하세요')}
                         </TextAnimate>
                       </span>
@@ -797,8 +802,10 @@ const MakeQuiz: React.FC = () => {
                     {Math.floor(generation.generationElapsedTime / 1000)}
                     {t('초')}
                   </p>
-                  <p className="mt-2 text-sm text-muted-foreground">
+                  <p className="mt-2 text-xs text-muted-foreground/60">
                     {t('생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.')}
+                    <br />
+                    {t('AI는 실수를 할 수 있습니다. 학습 보조 도구로 활용해 주세요.')}
                   </p>
                   <p
                     className={cn(
@@ -922,18 +929,4 @@ const MakeQuiz: React.FC = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const MQ_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const MakeQuizWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('mq');
-  const VariantComponent = variant ? MQ_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return <VariantComponent />;
-  }
-  return <MakeQuiz />;
-};
-
-export default MakeQuizWithVariant;
+export default MakeQuiz;

@@ -348,21 +348,4 @@ const QuizExplanation: React.FC = () => {
   );
 };
 
-const QE_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const QuizExplanationWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('qe');
-  const VariantComponent = variant ? QE_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <QuizExplanation />;
-};
-
-export default QuizExplanationWithVariant;
+export default QuizExplanation;

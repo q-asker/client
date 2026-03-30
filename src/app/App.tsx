@@ -10,6 +10,7 @@ import Board from '#pages/board';
 import BoardDetail from '#pages/board-detail';
 import BoardWrite from '#pages/board-write';
 import PrivacyPolicy from '#pages/privacy-policy';
+import TermsOfService from '#pages/terms-of-service';
 import QuizExplanation from '#pages/quiz-explanation';
 import QuizHistory from '#pages/quiz-history';
 import QuizHistoryDetail from '#pages/quiz-history-detail';
@@ -488,6 +489,7 @@ const App = () => {
             <Route path="/login/redirect" element={<LoginRedirect />} />
             <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
             <Route path="/result/:problemSetId" element={<QuizResult />} />
             <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />

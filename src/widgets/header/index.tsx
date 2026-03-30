@@ -68,7 +68,8 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
       (u?.email as string) ||
       '';
     return name.trim() || t('사용자');
-  }, [t, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const profileInitial = useMemo(
     () => displayName?.trim().slice(0, 1).toUpperCase() || '?',
@@ -663,28 +664,4 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
 };
 export { extractRoleFromToken } from './model/useHeader';
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-import { Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
-
-const HEADER_VARIANTS: Record<
-  string,
-  React.LazyExoticComponent<React.ComponentType<HeaderProps>>
-> = {};
-
-const HeaderWithVariant = (props: HeaderProps) => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('header');
-  const VariantComponent = variant ? HEADER_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent {...props} />
-      </Suspense>
-    );
-  }
-  return <Header {...props} />;
-};
-
-export default HeaderWithVariant;
+export default Header;

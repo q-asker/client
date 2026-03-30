@@ -102,7 +102,8 @@ export const useSolveQuizQuestion = ({
     const nextQuestion = currentQuestion + 1;
     trackQuizEvents.navigateQuestion(problemSetId, currentQuestion, nextQuestion);
     setCurrentQuestion(nextQuestion);
-  }, [currentQuestion, problemSetId, t, totalQuestions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestion, problemSetId, totalQuestions]);
 
   const handleCheckToggle = useCallback((): void => {
     const currentQuiz = quizzes[currentQuestion - 1];

@@ -1,6 +1,7 @@
 import { useTranslation } from 'i18nexus';
-import React from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import CustomToast from '#shared/toast';
 import Logo from '#shared/ui/logo';
 import { Button } from '@/shared/ui/components/button';
 import {
@@ -15,9 +16,17 @@ import { LogIn, Sparkles, BookOpen, Zap } from 'lucide-react';
 /** 전면 브랜드 배경 + 정중앙 글래스 로그인 카드 */
 const LoginSelect = () => {
   const { t } = useTranslation('login-select');
+  const [searchParams] = useSearchParams();
   const baseUrl = (import.meta.env.VITE_BASE_URL as string) || '';
   const kakaoLoginUrl = `${baseUrl}/oauth2/authorization/kakao`;
   const googleLoginUrl = `${baseUrl}/oauth2/authorization/google`;
+
+  useEffect(() => {
+    if (searchParams.get('reason') === 'session-expired') {
+      CustomToast.info(t('로그인이 필요합니다.'));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   return (
     <div className="relative flex min-h-screen flex-col bg-primary/80">
@@ -118,7 +127,21 @@ const LoginSelect = () => {
           {/* 하단 안내 + 저작권 */}
           <div className="flex flex-col items-center gap-2">
             <p className="text-center text-xs text-primary-foreground/60">
-              {t('로그인 시 서비스 이용약관에 동의하게 됩니다.')}
+              {t('로그인 시')}{' '}
+              <Link
+                to="/terms-of-service"
+                className="text-primary-foreground/80 underline hover:text-primary-foreground"
+              >
+                {t('서비스 이용약관')}
+              </Link>{' '}
+              {t('및')}{' '}
+              <Link
+                to="/privacy-policy"
+                className="text-primary-foreground/80 underline hover:text-primary-foreground"
+              >
+                {t('개인정보 처리방침')}
+              </Link>
+              {t('에 동의하게 됩니다.')}
             </p>
             <p className="hidden text-center text-xs text-primary-foreground/40 lg:block">
               &copy; 2025 Q-Asker. All rights reserved.
@@ -130,18 +153,4 @@ const LoginSelect = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 (compare/mix 페이지용) */
-const LS_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const LoginSelectWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('ls');
-  const VariantComponent = variant ? LS_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return <VariantComponent />;
-  }
-  return <LoginSelect />;
-};
-
-export default LoginSelectWithVariant;
+export default LoginSelect;

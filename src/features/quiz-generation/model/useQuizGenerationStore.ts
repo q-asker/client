@@ -36,6 +36,7 @@ interface ProblemSetInfo {
 
 interface GenerateQuestionsParams {
   t: (key: string) => string;
+  currentLanguage: string;
   uploadedUrl: string | null;
   fileName: string;
   questionType: string;
@@ -52,6 +53,7 @@ interface StartGenerationParams {
     quizType: string;
     difficultyType: string;
     pageNumbers: number[];
+    language?: string;
   };
   onSuccess?: () => void;
   onError?: (error: unknown) => void;
@@ -336,6 +338,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
 
       generateQuestions: async ({
         t,
+        currentLanguage,
         uploadedUrl,
         fileName,
         questionType,
@@ -370,6 +373,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
               quizType: questionType,
               difficultyType: quizLevel,
               pageNumbers: selectedPages,
+              ...(currentLanguage === 'en' ? { language: 'EN' } : {}),
             },
             onSuccess: () => {},
             onError: (errorMessage: unknown) => {

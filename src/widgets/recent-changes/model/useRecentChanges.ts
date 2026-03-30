@@ -79,7 +79,8 @@ export const useRecentChanges = (): UseRecentChangesReturn => {
     };
 
     fetchUpdates();
-  }, [isMock, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMock]);
 
   return {
     state: { changes },

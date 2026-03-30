@@ -1,5 +1,3 @@
-import React, { Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import { useRecentChanges } from './model/useRecentChanges';
 import { Sparkles } from 'lucide-react';
@@ -37,22 +35,4 @@ const RecentChanges = () => {
   );
 };
 
-/* 쿼리 파라미터 기반 변형 스위칭 */
-const RC_VARIANTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
-
-const RecentChangesWithVariant = () => {
-  const [searchParams] = useSearchParams();
-  const variant = searchParams.get('rc');
-  const VariantComponent = variant ? RC_VARIANTS[variant] : null;
-
-  if (VariantComponent) {
-    return (
-      <Suspense fallback={null}>
-        <VariantComponent />
-      </Suspense>
-    );
-  }
-  return <RecentChanges />;
-};
-
-export default RecentChangesWithVariant;
+export default RecentChanges;
