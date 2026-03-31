@@ -328,7 +328,18 @@ const MakeQuiz: React.FC = () => {
                           <Document
                             file={upload.uploadedUrl}
                             onLoadSuccess={pageActions.onDocumentLoadSuccess}
-                            onLoadError={console.error}
+                            onLoadError={(error: Error & { status?: number }) => {
+                              // 404 → MissingPDFException (status 없음), 그 외 4xx → UnexpectedResponseException (status 있음)
+                              if (
+                                error.name === 'MissingPDFException' ||
+                                (error.status && error.status >= 400 && error.status < 500)
+                              ) {
+                                CustomToast.error(t('파일이 삭제되었습니다. 다시 업로드해주세요.'));
+                                commonActions.handleRemoveFile();
+                              } else {
+                                console.error(error);
+                              }
+                            }}
                             options={pdfOptions}
                             loading={
                               <div className="flex flex-col items-center justify-center py-12">
