@@ -432,7 +432,7 @@ const LanguageRouteSync = () => {
     if (location.pathname === '/') {
       const userAgent = window.navigator?.userAgent ?? '';
       const isBot =
-        /bot|crawler|spider|googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkshare|w3c_validator/i.test(
+        /bot|crawler|spider|googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkshare|w3c_validator|HeadlessChrome/i.test(
           userAgent,
         );
       if (isBot) {
