@@ -1,0 +1,23 @@
+# Q-Asker
+
+> AI-powered quiz generator from PDF, PPT, and Word documents.
+
+Q-Asker is a free web service that automatically generates quizzes from uploaded study materials. Users can create fill-in-the-blank, true/false, and multiple-choice questions without signing up.
+
+## Features
+
+- Upload PDF, PPT, or Word files
+- AI analyzes documents and generates quizzes automatically
+- Three question types: fill-in-the-blank, true/false, multiple-choice
+- Detailed explanations with document page references
+- Quiz history management
+- OCR support for scanned documents
+- Multilingual support (Korean, English)
+
+## Links
+
+- Homepage: https://www.q-asker.com
+- Korean: https://www.q-asker.com/ko
+- English: https://www.q-asker.com/en
+- Privacy Policy: https://www.q-asker.com/privacy-policy
+- Terms of Service: https://www.q-asker.com/terms-of-service
