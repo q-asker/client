@@ -10,20 +10,11 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const require = createRequire(import.meta.url);
-const vitePrerender = require('vite-plugin-prerender');
-
 export default defineConfig(({ command }) => {
   const proxyTarget = loadEnv('prod', process.cwd(), '').VITE_BASE_URL;
-  const isBuild = command === 'build';
-  const prerenderPlugin = isBuild
-    ? vitePrerender({
-        staticDir: path.resolve('dist'),
-        routes: ['/', '/ko', '/en'],
-      })
-    : null;
 
   return {
-    plugins: [react(), tailwindcss(), prerenderPlugin].filter(Boolean),
+    plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
