@@ -1017,7 +1017,7 @@ const SeoContent: React.FC<{ t: (key: string) => string }> = ({ t }) => {
       {/* 서비스 소개 */}
       <div className="text-center">
         <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          {t('Q-Asker로 AI 퀴즈 만들기')}
+          {t('Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성')}
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
           {t(
