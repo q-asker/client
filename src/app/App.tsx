@@ -1,21 +1,23 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import { ToastContainer } from 'react-toastify';
-import Maintenance from '#pages/maintenance';
-import LoginSelect from '#pages/login-select';
-import LoginRedirect from '#pages/login-redirect';
 import MakeQuiz from '#pages/make-quiz';
-import Board from '#pages/board';
-import BoardDetail from '#pages/board-detail';
-import BoardWrite from '#pages/board-write';
-import PrivacyPolicy from '#pages/privacy-policy';
-import TermsOfService from '#pages/terms-of-service';
-import QuizExplanation from '#pages/quiz-explanation';
-import QuizHistory from '#pages/quiz-history';
-import QuizHistoryDetail from '#pages/quiz-history-detail';
-import QuizResult from '#pages/quiz-result';
-import SolveQuiz from '#pages/solve-quiz';
+
+// 코드 스플리팅: 홈페이지 외 페이지는 lazy load
+const Maintenance = lazy(() => import('#pages/maintenance'));
+const LoginSelect = lazy(() => import('#pages/login-select'));
+const LoginRedirect = lazy(() => import('#pages/login-redirect'));
+const Board = lazy(() => import('#pages/board'));
+const BoardDetail = lazy(() => import('#pages/board-detail'));
+const BoardWrite = lazy(() => import('#pages/board-write'));
+const PrivacyPolicy = lazy(() => import('#pages/privacy-policy'));
+const TermsOfService = lazy(() => import('#pages/terms-of-service'));
+const QuizExplanation = lazy(() => import('#pages/quiz-explanation'));
+const QuizHistory = lazy(() => import('#pages/quiz-history'));
+const QuizHistoryDetail = lazy(() => import('#pages/quiz-history-detail'));
+const QuizResult = lazy(() => import('#pages/quiz-result'));
+const SolveQuiz = lazy(() => import('#pages/solve-quiz'));
 import { I18nProvider, useLanguageSwitcher, useTranslation } from 'i18nexus';
 import { loadNamespace } from '#shared/i18n';
 import PageViewTracker from '#app/ui/PageViewTracker';
@@ -483,29 +485,31 @@ const App = () => {
           <SeoMetaSync />
           <PageViewTracker />
           <ToastContainer />
-          <Routes>
-            {/* 점검 완료 후 아래 라우트로 복원
-          <Route path="*" element={<Maintenance />} />
-          */}
-            <Route path="/" element={<MakeQuiz />} />
-            <Route path="/ko" element={<MakeQuiz />} />
-            <Route path="/en" element={<MakeQuiz />} />
-            <Route path="/login" element={<LoginSelect />} />
-            <Route path="/login/redirect" element={<LoginRedirect />} />
-            <Route path="/maintenance" element={<Maintenance />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
-            <Route path="/result/:problemSetId" element={<QuizResult />} />
-            <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
-            <Route path="/history" element={<QuizHistory />} />
-            <Route path="/history/:historyId" element={<QuizHistoryDetail />} />
-            <Route path="/boards" element={<Board />} />
-            <Route path="/boards/:boardId" element={<BoardDetail />} />
-            <Route path="/boards/write" element={<BoardWrite />} />
-            <Route path="/boards/edit/:boardId" element={<BoardWrite />} />
-            <Route path="/help" element={<Navigate to="/" replace />} />
-          </Routes>
+          <Suspense>
+            <Routes>
+              {/* 점검 완료 후 아래 라우트로 복원
+            <Route path="*" element={<Maintenance />} />
+            */}
+              <Route path="/" element={<MakeQuiz />} />
+              <Route path="/ko" element={<MakeQuiz />} />
+              <Route path="/en" element={<MakeQuiz />} />
+              <Route path="/login" element={<LoginSelect />} />
+              <Route path="/login/redirect" element={<LoginRedirect />} />
+              <Route path="/maintenance" element={<Maintenance />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
+              <Route path="/result/:problemSetId" element={<QuizResult />} />
+              <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
+              <Route path="/history" element={<QuizHistory />} />
+              <Route path="/history/:historyId" element={<QuizHistoryDetail />} />
+              <Route path="/boards" element={<Board />} />
+              <Route path="/boards/:boardId" element={<BoardDetail />} />
+              <Route path="/boards/write" element={<BoardWrite />} />
+              <Route path="/boards/edit/:boardId" element={<BoardWrite />} />
+              <Route path="/help" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </I18nProvider>
     </ThemeProvider>
