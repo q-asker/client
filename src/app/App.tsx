@@ -39,49 +39,60 @@ const SEO_CONFIG = {
       ogImageAlt: 'Q-Asker AI 퀴즈 생성 서비스 소개 이미지',
       twitterImageAlt: 'Q-Asker AI 퀴즈 생성 서비스 소개 이미지',
       jsonLd: {
-        howto: {
+        itemlist: {
           '@context': 'https://schema.org',
-          '@type': 'HowTo',
-          name: '학습 자료로 퀴즈를 생성하는 방법',
-          description:
-            'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.',
-          inLanguage: 'ko',
-          step: [
+          '@type': 'ItemList',
+          name: 'AI 퀴즈 생성 6단계 가이드',
+          description: 'PDF, PPT, Word 파일로 AI 퀴즈를 만드는 방법',
+          url: 'https://www.q-asker.com/#how-to-use',
+          numberOfItems: 6,
+          itemListElement: [
             {
-              '@type': 'HowToStep',
-              name: '1단계: 학습 자료 파일 업로드',
-              text: 'AI 퀴즈 생성을 위해 PDF, PPT, Word 등 학습 자료 파일을 업로드합니다. 원하는 페이지를 지정하면 AI 퀴즈 생성시 더 좋은 퀴즈를 만들 수 있습니다.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 1,
+              name: '학습 자료 파일 업로드',
+              description:
+                'AI 퀴즈 생성을 위해 PDF, PPT, Word 등 학습 자료 파일을 업로드합니다. 원하는 페이지를 지정하면 AI 퀴즈 생성시 더 좋은 퀴즈를 만들 수 있습니다.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: '2단계: AI 퀴즈 옵션 설정',
-              text: '자동으로 생성할 문제 수량, 페이지 범위, 그리고 퀴즈 유형(빈칸, OX, 객관식)을 선택하여 맞춤형 AI 퀴즈 생성을 준비합니다.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 2,
+              name: 'AI 퀴즈 옵션 설정',
+              description:
+                '자동으로 생성할 문제 수량, 페이지 범위, 그리고 퀴즈 유형(빈칸, OX, 객관식)을 선택하여 맞춤형 AI 퀴즈 생성을 준비합니다.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: '3단계: AI 퀴즈 자동 생성',
-              text: '설정이 끝나면 AI가 문서 내용을 분석하여 퀴즈를 자동으로 생성합니다.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 3,
+              name: 'AI 퀴즈 자동 생성',
+              description: '설정이 끝나면 AI가 문서 내용을 분석하여 퀴즈를 자동으로 생성합니다.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: '4단계: 생성된 퀴즈 풀기',
-              text: 'AI가 만든 퀴즈를 풀어보며 학습 내용을 점검합니다. 나중에 다시 볼 문제는 체크 표시를 하여 효율적인 복습이 가능합니다.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 4,
+              name: '생성된 퀴즈 풀기',
+              description:
+                'AI가 만든 퀴즈를 풀어보며 학습 내용을 점검합니다. 나중에 다시 볼 문제는 체크 표시를 하여 효율적인 복습이 가능합니다.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: '5단계: 결과 확인 및 해설 학습',
-              text: '채점 결과와 함께 모든 문제에 대한 상세한 해설을 제공합니다. 참조한 페이지 미리보기를 통해 내용을 다시 확인하며 깊이 있는 학습을 할 수 있습니다.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 5,
+              name: '결과 확인 및 해설 학습',
+              description:
+                '채점 결과와 함께 모든 문제에 대한 상세한 해설을 제공합니다. 참조한 페이지 미리보기를 통해 내용을 다시 확인하며 깊이 있는 학습을 할 수 있습니다.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: '6단계: 퀴즈 히스토리 관리',
-              text: '생성했던 모든 AI 퀴즈 기록이 자동으로 저장됩니다. 언제든지 다시 방문하여 복습하거나 이어서 문제를 풀 수 있습니다.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 6,
+              name: '퀴즈 히스토리 관리',
+              description:
+                '생성했던 모든 AI 퀴즈 기록이 자동으로 저장됩니다. 언제든지 다시 방문하여 복습하거나 이어서 문제를 풀 수 있습니다.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
           ],
         },
@@ -104,7 +115,17 @@ const SEO_CONFIG = {
           '@type': 'Organization',
           name: 'Q-Asker',
           url: 'https://www.q-asker.com',
-          logo: 'https://www.q-asker.com/icons/favicon-512x512.png',
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://www.q-asker.com/icons/favicon-512x512.png',
+            width: 512,
+            height: 512,
+          },
+          contactPoint: {
+            '@type': 'ContactPoint',
+            email: 'inhapj01@gmail.com',
+            contactType: 'customer support',
+          },
         },
         faq: {
           '@context': 'https://schema.org',
@@ -112,7 +133,7 @@ const SEO_CONFIG = {
           mainEntity: [
             {
               '@type': 'Question',
-              name: 'Q. Q-Asker는 정말 무료인가요?',
+              name: 'Q-Asker는 정말 무료인가요?',
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.',
@@ -120,7 +141,7 @@ const SEO_CONFIG = {
             },
             {
               '@type': 'Question',
-              name: 'Q. 업로드한 제 파일은 안전하게 관리되나요?',
+              name: '업로드한 제 파일은 안전하게 관리되나요?',
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.',
@@ -128,7 +149,7 @@ const SEO_CONFIG = {
             },
             {
               '@type': 'Question',
-              name: 'Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?',
+              name: 'AI가 만든 퀴즈의 정확도는 어느 정도인가요?',
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: 'AI는 높은 정확도로 문서를 분석하지만, 100% 완벽하지 않을 수 있습니다. 생성된 문제는 학습 참고용이며, 중요한 정보는 반드시 원본과 교차 확인해주세요.',
@@ -136,12 +157,32 @@ const SEO_CONFIG = {
             },
             {
               '@type': 'Question',
-              name: 'Q. 이미지로 된 파일도 퀴즈로 만들 수 있나요?',
+              name: '이미지로 된 파일도 퀴즈로 만들 수 있나요?',
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.',
               },
             },
+          ],
+        },
+        software: {
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: 'Q-Asker',
+          url: 'https://www.q-asker.com',
+          applicationCategory: 'EducationalApplication',
+          operatingSystem: 'Web Browser',
+          description:
+            'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 자동 생성합니다. 빈칸, OX, 객관식 문제로 시험에 완벽 대비하세요.',
+          inLanguage: ['ko', 'en'],
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'KRW' },
+          featureList: [
+            'PDF 퀴즈 자동 생성',
+            'PPT 퀴즈 만들기',
+            'Word 퀴즈 변환',
+            'OCR 지원',
+            '빈칸/OX/객관식 문제 유형',
+            '퀴즈 히스토리 관리',
           ],
         },
       },
@@ -198,49 +239,61 @@ const SEO_CONFIG = {
       ogImageAlt: 'Q-Asker AI quiz generator preview',
       twitterImageAlt: 'Q-Asker AI quiz generator preview',
       jsonLd: {
-        howto: {
+        itemlist: {
           '@context': 'https://schema.org',
-          '@type': 'HowTo',
-          name: 'How to generate quizzes from study materials',
-          description:
-            'Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare perfectly for exams with Fill-in-the-blank, True/False, and Multiple-choice questions. Start for free now without signing up.',
-          inLanguage: 'en',
-          step: [
+          '@type': 'ItemList',
+          name: 'How to Generate AI Quizzes in 6 Steps',
+          description: 'How to create AI quizzes from PDF, PPT, and Word files',
+          url: 'https://www.q-asker.com/#how-to-use',
+          numberOfItems: 6,
+          itemListElement: [
             {
-              '@type': 'HowToStep',
-              name: 'Step 1: Upload your study file',
-              text: 'Upload a PDF, PPT, or Word file to generate AI quizzes. Selecting specific pages helps create better questions.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Upload your study file',
+              description:
+                'Upload a PDF, PPT, or Word file to generate AI quizzes. Selecting specific pages helps create better questions.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: 'Step 2: Configure quiz options',
-              text: 'Choose the number of questions, page range, and quiz types (fill-in-the-blank, true/false, multiple choice).',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Configure quiz options',
+              description:
+                'Choose the number of questions, page range, and quiz types (fill-in-the-blank, true/false, multiple choice).',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: 'Step 3: Generate quizzes',
-              text: 'Once set, the AI analyzes the document and generates quizzes automatically.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 3,
+              name: 'Generate quizzes',
+              description:
+                'Once set, the AI analyzes the document and generates quizzes automatically.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: 'Step 4: Solve the quizzes',
-              text: 'Practice with AI-generated quizzes and check your understanding. Mark questions to review later.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 4,
+              name: 'Solve the quizzes',
+              description:
+                'Practice with AI-generated quizzes and check your understanding. Mark questions to review later.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: 'Step 5: Review results and explanations',
-              text: 'See scores and detailed explanations for every question. Preview the referenced pages to study in depth.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 5,
+              name: 'Review results and explanations',
+              description:
+                'See scores and detailed explanations for every question. Preview the referenced pages to study in depth.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
             {
-              '@type': 'HowToStep',
-              name: 'Step 6: Manage quiz history',
-              text: 'All generated quizzes are saved automatically. Revisit anytime to review or continue solving.',
-              url: 'https://www.q-asker.com#how-to-use',
+              '@type': 'ListItem',
+              position: 6,
+              name: 'Manage quiz history',
+              description:
+                'All generated quizzes are saved automatically. Revisit anytime to review or continue solving.',
+              url: 'https://www.q-asker.com/#how-to-use',
             },
           ],
         },
@@ -263,7 +316,17 @@ const SEO_CONFIG = {
           '@type': 'Organization',
           name: 'Q-Asker',
           url: 'https://www.q-asker.com',
-          logo: 'https://www.q-asker.com/icons/favicon-512x512.png',
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://www.q-asker.com/icons/favicon-512x512.png',
+            width: 512,
+            height: 512,
+          },
+          contactPoint: {
+            '@type': 'ContactPoint',
+            email: 'inhapj01@gmail.com',
+            contactType: 'customer support',
+          },
         },
         faq: {
           '@context': 'https://schema.org',
@@ -301,6 +364,26 @@ const SEO_CONFIG = {
                 text: 'Yes. OCR is supported, so scans and photo-based documents can be analyzed too.',
               },
             },
+          ],
+        },
+        software: {
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: 'Q-Asker',
+          url: 'https://www.q-asker.com',
+          applicationCategory: 'EducationalApplication',
+          operatingSystem: 'Web Browser',
+          description:
+            'Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare for exams with fill-in-the-blank, true/false, and multiple-choice questions.',
+          inLanguage: ['ko', 'en'],
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+          featureList: [
+            'AI Quiz Generation from PDF',
+            'PPT Quiz Creator',
+            'Word Document Quiz Converter',
+            'OCR Support',
+            'Fill-in-the-blank / True-False / Multiple-choice',
+            'Quiz History Management',
           ],
         },
       },
@@ -404,17 +487,20 @@ const SeoMetaSync = () => {
     updateMetaContent('meta[name="twitter:image:alt"]', config.twitterImageAlt);
 
     const canonicalBase = 'https://www.q-asker.com';
-    const canonicalPath = location.pathname === '/' ? '/' : location.pathname;
+    const canonicalPath = location.pathname.endsWith('/')
+      ? location.pathname
+      : `${location.pathname}/`;
     const canonical = `${canonicalBase}${canonicalPath}`;
     updateLinkHref('link[rel="canonical"]', canonical);
     updateMetaContent('meta[property="og:url"]', canonical);
 
     // JSON-LD 업데이트
     if (config.jsonLd) {
-      updateJsonLd('ld-howto', config.jsonLd.howto);
+      updateJsonLd('ld-itemlist', config.jsonLd.itemlist);
       updateJsonLd('ld-website', config.jsonLd.website);
       updateJsonLd('ld-organization', config.jsonLd.organization);
       updateJsonLd('ld-faq', config.jsonLd.faq);
+      updateJsonLd('ld-software', config.jsonLd.software);
 
       // Breadcrumb는 index.html에 기본 태그가 없으므로 동적으로 생성/관리 필요
       // 여기서는 기존 구조를 유지하며 단순화

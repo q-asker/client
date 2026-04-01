@@ -139,12 +139,7 @@ const Help = () => {
 
         <main>
           {/* === 단계별 가이드 섹션 (타임라인 레이아웃) === */}
-          <section
-            className="mb-12"
-            onMouseEnter={() => handleSectionHover('usage_guide')}
-            itemScope
-            itemType="https://schema.org/HowTo"
-          >
+          <section className="mb-12" onMouseEnter={() => handleSectionHover('usage_guide')}>
             <h2
               id="how-to-use"
               className="mb-8 text-[1.8rem] font-bold text-foreground md:text-2xl"
@@ -164,7 +159,7 @@ const Help = () => {
                   inView
                   className="relative mb-10 last:mb-0"
                 >
-                  <article itemProp="step" itemScope itemType="https://schema.org/HowToStep">
+                  <article>
                     {/* 번호 원 */}
                     <div className="absolute -left-[calc(2rem+13px)] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground md:-left-[calc(1.5rem+13px)]">
                       {step.number}
@@ -172,10 +167,10 @@ const Help = () => {
 
                     {/* 카드 */}
                     <div className="rounded-lg border border-border bg-muted p-6 transition-colors duration-200 hover:border-primary md:p-5">
-                      <h3 itemProp="name" className="mb-3 text-xl font-semibold text-primary">
+                      <h3 className="mb-3 text-xl font-semibold text-primary">
                         {t(step.titleKey)}
                       </h3>
-                      <div itemProp="text">
+                      <div>
                         <ul className="m-0 list-none pl-0">
                           {step.items.map((item, i) => (
                             <li
@@ -294,12 +289,7 @@ const Help = () => {
           </section>
 
           {/* === FAQ 섹션 (아코디언 비주얼, 단일 컬럼) === */}
-          <section
-            className="mb-12"
-            onMouseEnter={() => handleSectionHover('faq')}
-            itemScope
-            itemType="https://schema.org/FAQPage"
-          >
+          <section className="mb-12" onMouseEnter={() => handleSectionHover('faq')}>
             <h2 id="faq" className="mb-6 text-[1.8rem] font-bold text-foreground md:text-2xl">
               <CircleHelp className="inline size-5" />{' '}
               <TextAnimate animation="fadeIn" by="word" as="span">
@@ -333,19 +323,10 @@ const Help = () => {
                 },
               ].map((faq, index) => (
                 <BlurFade key={index} delay={index * 0.1} inView>
-                  <div
-                    className="rounded-lg border border-border bg-muted p-5 transition-colors duration-200 hover:border-primary"
-                    itemProp="mainEntity"
-                    itemScope
-                    itemType="https://schema.org/Question"
-                  >
-                    <h4 itemProp="name" className="mb-2 text-lg font-bold text-foreground">
-                      {t(faq.q)}
-                    </h4>
-                    <div itemProp="acceptedAnswer" itemScope itemType="https://schema.org/Answer">
-                      <p itemProp="text" className="leading-relaxed text-muted-foreground">
-                        {t(faq.a)}
-                      </p>
+                  <div className="rounded-lg border border-border bg-muted p-5 transition-colors duration-200 hover:border-primary">
+                    <h4 className="mb-2 text-lg font-bold text-foreground">{t(faq.q)}</h4>
+                    <div>
+                      <p className="leading-relaxed text-muted-foreground">{t(faq.a)}</p>
                     </div>
                   </div>
                 </BlurFade>
