@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --mode dev",
     "remote": "vite --mode remote",
-    "build": "vite build --mode prod",
+    "build": "vite build --mode prod && node scripts/prerender.cjs",
     "lint": "eslint .",
     "preview": "vite preview --port 5173",
     "i18n:wrap": "i18n-wrapper -p \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -16,6 +16,8 @@
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
+    "@prerenderer/prerenderer": "^1.2.5",
+    "@prerenderer/renderer-puppeteer": "^1.2.4",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -26,6 +28,7 @@
     "motion": "^12.36.0",
     "next-themes": "^0.4.6",
     "pdfjs-dist": "^4.8.69",
+    "puppeteer": "^24.40.0",
     "radix-ui": "^1.4.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

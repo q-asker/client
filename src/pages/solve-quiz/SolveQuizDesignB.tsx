@@ -45,6 +45,16 @@ const SolveQuizDesignB: React.FC = () => {
   // 제목 편집 상태
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
+  // 퀴즈 제목을 브라우저 탭 타이틀에 반영
+  useEffect(() => {
+    if (quiz.title) {
+      document.title = `${quiz.title} | Q-Asker`;
+    }
+    return () => {
+      document.title = 'Q-Asker';
+    };
+  }, [quiz.title]);
+
   useEffect(() => {
     return () => {
       resetQuizGeneration();

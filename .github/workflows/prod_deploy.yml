@@ -1,4 +1,4 @@
-name: S3에 업로드 및 CLOUDFRONT 초기화
+name: Cloudflare Pages 배포
 
 on:
   push:
@@ -10,14 +10,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    # 1. 모든 시크릿을 환경 변수(env)로 매핑 (_PROD 제거)
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      S3_NAME: ${{ secrets.S3_NAME }}
-      CLOUDFRONT_ID: ${{ secrets.CLOUDFRONT_ID }}
-      ENV: ${{ secrets.ENV_PROD }}
+      ENV: ${{ secrets.ENV }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
     steps:
       - name: 소스 코드 체크아웃
@@ -32,22 +28,8 @@ jobs:
       - name: 의존성 설치 및 빌드
         run: |
           npm install
-          # env 컨텍스트를 사용하여 .env 파일 생성 (변수명 ENV_PROD -> ENV 로 변경됨)
           echo "${{ env.ENV }}" > .env.prod
           npm run build
 
-      - name: AWS 자격 증명 설정
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          # 상단에 선언한 env 변수를 참조 (변수명 변경 반영)
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: S3 배포
-        # env.S3_URL 참조
-        run: aws s3 sync ./dist s3://${{ env.S3_NAME }} --delete
-
-      - name: CloudFront 캐시 무효화
-        # env.CLOUDFRONT_ID 참조
-        run: aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_ID }} --paths "/*"
+      - name: Cloudflare Pages 배포
+        run: npx wrangler pages deploy dist --project-name=q-asker --branch=main
