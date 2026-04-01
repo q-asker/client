@@ -487,9 +487,7 @@ const SeoMetaSync = () => {
     updateMetaContent('meta[name="twitter:image:alt"]', config.twitterImageAlt);
 
     const canonicalBase = 'https://www.q-asker.com';
-    const canonicalPath = location.pathname.endsWith('/')
-      ? location.pathname
-      : `${location.pathname}/`;
+    const canonicalPath = location.pathname === '/' ? '' : location.pathname;
     const canonical = `${canonicalBase}${canonicalPath}`;
     updateLinkHref('link[rel="canonical"]', canonical);
     updateMetaContent('meta[property="og:url"]', canonical);
