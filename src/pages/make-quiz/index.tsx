@@ -945,7 +945,7 @@ const MakeQuiz: React.FC = () => {
       {/* ─── SEO 콘텐츠 섹션: 파일 미업로드 & 퀴즈 미생성 시에만 표시 ─── */}
       {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
         <div className="mx-auto w-full px-4 md:w-[90%] lg:w-[85%] xl:w-[80%]">
-          <SeoContent t={t} />
+          <SeoContent t={t} currentLanguage={currentLanguage} />
         </div>
       )}
 
@@ -1011,13 +1011,18 @@ const FAQ_ITEMS = [
 ] as const;
 
 /** 메인 페이지 하단 SEO 콘텐츠 — 서비스 소개, 가이드, 팁, 신뢰, FAQ */
-const SeoContent: React.FC<{ t: (key: string) => string }> = ({ t }) => {
+const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string }> = ({
+  t,
+  currentLanguage,
+}) => {
   return (
     <section id="how-to-use" className="mt-8 space-y-6 pb-4 sm:mt-12 sm:space-y-8">
       {/* 서비스 소개 */}
       <div className="text-center">
         <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          {t('Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성')}
+          {currentLanguage === 'en'
+            ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
+            : 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성'}
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
           {t(
