@@ -940,12 +940,14 @@ const MakeQuiz: React.FC = () => {
         </AnimatePresence>
 
         <RecentChanges />
-
-        {/* ─── SEO 콘텐츠 섹션: 파일 미업로드 & 퀴즈 미생성 시에만 표시 ─── */}
-        {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
-          <SeoContent t={t} />
-        )}
       </div>
+
+      {/* ─── SEO 콘텐츠 섹션: 파일 미업로드 & 퀴즈 미생성 시에만 표시 ─── */}
+      {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
+        <div className="mx-auto w-full px-4 md:w-[90%] lg:w-[85%] xl:w-[80%]">
+          <SeoContent t={t} />
+        </div>
+      )}
 
       <Footer />
     </div>
