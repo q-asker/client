@@ -1017,7 +1017,7 @@ const SeoContent: React.FC<{ t: (key: string) => string }> = ({ t }) => {
       {/* 서비스 소개 */}
       <div className="text-center">
         <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          {t('AI 퀴즈 생성')}
+          {t('Q-Asker로 AI 퀴즈 만들기')}
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
           {t(
@@ -1038,7 +1038,7 @@ const SeoContent: React.FC<{ t: (key: string) => string }> = ({ t }) => {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {GUIDE_STEPS.map((step, i) => (
               <div
                 key={step.stepKey}
