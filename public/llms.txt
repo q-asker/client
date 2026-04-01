@@ -39,3 +39,8 @@ PDF, PPT, PPTX, DOC, DOCX
 - English: https://www.q-asker.com/en/
 - Privacy Policy: https://www.q-asker.com/privacy-policy/
 - Terms of Service: https://www.q-asker.com/terms-of-service/
+
+## License
+
+Content on this site is available for AI search indexing and citation.
+Attribution to Q-Asker (https://www.q-asker.com) is required when citing.
