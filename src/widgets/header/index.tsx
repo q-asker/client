@@ -8,7 +8,6 @@ import {
   Menu,
   X,
   Globe,
-  HelpCircle,
   LogOut,
   User,
   Sun,
@@ -502,24 +501,6 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   </motion.div>
 
                   {/* 구분선 + 지원 그룹 소제목 */}
-                  <div className="mx-4 my-1 border-t border-border/60" />
-                  <div className="px-4 pb-1 pt-3">
-                    <span className="text-xs uppercase tracking-wider text-muted-foreground">
-                      {t('지원')}
-                    </span>
-                  </div>
-
-                  <motion.button
-                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg border-none bg-transparent px-4 py-3.5 text-left text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
-                    type="button"
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.08, type: 'spring', damping: 20, stiffness: 300 }}
-                    onClick={handleHelp}
-                  >
-                    <HelpCircle className="size-4" />
-                    {t('도움말 보기')}
-                  </motion.button>
                 </nav>
               </motion.aside>
             </>
