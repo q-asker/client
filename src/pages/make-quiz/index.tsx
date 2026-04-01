@@ -148,7 +148,11 @@ const MakeQuiz: React.FC = () => {
       />
 
       <div className="mx-auto mt-4 w-full flex-1 px-4 sm:mt-6 md:mt-8 md:w-[90%] lg:w-[85%] xl:w-[80%]">
-        <h1 className="sr-only">{t('PDF, PPT, Word로 무료 AI 퀴즈 생성')}</h1>
+        <h1 className="sr-only">
+          {currentLanguage === 'en'
+            ? 'Free AI Quiz Generator for PDF, PPT, Word'
+            : 'PDF, PPT, Word로 무료 AI 퀴즈 생성'}
+        </h1>
         <AnimatePresence mode="wait">
           {/* 2컬럼 레이아웃 (업로드 완료 후, 생성 전, 생성 중 아닐 때) */}
           {upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz ? (
