@@ -30,7 +30,7 @@ const SUPPORTED_LANGUAGES = new Set(['ko', 'en']);
 const SEO_CONFIG = {
   ko: {
     '/': {
-      title: 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성',
+      title: '[한국어 특화] Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성',
       description:
         'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.',
       ogLocale: 'ko_KR',
@@ -463,6 +463,11 @@ const getInitialLanguage = (): string => {
 
 const App = () => {
   useInitGA(GA_MEASUREMENT_ID);
+
+  // 프리렌더링: React 마운트 완료 시 이벤트 발행
+  useEffect(() => {
+    document.dispatchEvent(new Event('prerender-ready'));
+  }, []);
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" storageKey="theme">

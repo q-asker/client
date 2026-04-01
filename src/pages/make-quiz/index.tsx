@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
-import Help from '#widgets/help';
 import Footer from '#widgets/footer';
 import {
   usePrepareQuiz,
@@ -39,6 +38,11 @@ import {
   EyeOff,
   CheckSquare,
   XSquare,
+  BookOpen,
+  Shield,
+  Lightbulb,
+  HelpCircle,
+  ChevronDown,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
@@ -141,10 +145,14 @@ const MakeQuiz: React.FC = () => {
         isSidebarOpen={ui.isSidebarOpen}
         toggleSidebar={uiActions.toggleSidebar}
         setIsSidebarOpen={uiActions.setIsSidebarOpen}
-        setShowHelp={uiActions.setShowHelp}
       />
 
       <div className="mx-auto mt-4 w-full flex-1 px-4 sm:mt-6 md:mt-8 md:w-[90%] lg:w-[85%] xl:w-[80%]">
+        <h1 className="sr-only">
+          {currentLanguage === 'en'
+            ? 'Free AI Quiz Generator for PDF, PPT, Word'
+            : 'PDF, PPT, Word로 무료 AI 퀴즈 생성'}
+        </h1>
         <AnimatePresence mode="wait">
           {/* 2컬럼 레이아웃 (업로드 완료 후, 생성 전, 생성 중 아닐 때) */}
           {upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz ? (
@@ -932,7 +940,11 @@ const MakeQuiz: React.FC = () => {
         </AnimatePresence>
 
         <RecentChanges />
-        {ui.showHelp && <Help />}
+
+        {/* ─── SEO 콘텐츠 섹션: 파일 미업로드 & 퀴즈 미생성 시에만 표시 ─── */}
+        {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
+          <SeoContent t={t} />
+        )}
       </div>
 
       <Footer />
@@ -941,3 +953,194 @@ const MakeQuiz: React.FC = () => {
 };
 
 export default MakeQuiz;
+
+/* ─── SEO 콘텐츠 컴포넌트 ─── */
+
+/** FAQ 아코디언 아이템 */
+const FaqItem: React.FC<{ question: string; answer: string }> = ({ question, answer }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        className="flex w-full cursor-pointer items-center justify-between bg-transparent px-0 py-4 text-left text-sm font-semibold text-foreground"
+        onClick={() => setOpen(!open)}
+      >
+        {question}
+        <ChevronDown
+          className={cn(
+            'size-4 shrink-0 text-muted-foreground transition-transform duration-200',
+            open && 'rotate-180',
+          )}
+        />
+      </button>
+      {open && <p className="mt-0 mb-4 text-sm leading-relaxed text-muted-foreground">{answer}</p>}
+    </div>
+  );
+};
+
+/** 6단계 가이드 스텝 데이터 */
+const GUIDE_STEPS = [
+  { stepKey: '1단계: 파일 업로드', descKey: '파일을 드래그하거나 버튼 클릭' },
+  { stepKey: '2단계: 퀴즈 옵션 설정', descKey: '빈칸 채우기, OX, 객관식 중 선택' },
+  { stepKey: '3단계: AI 문제 생성', descKey: '업로드된 문서를 AI가 분석하여 문제 생성' },
+  { stepKey: '4단계: 퀴즈 풀기', descKey: '생성된 객관식 문제를 순서대로 풀이' },
+  { stepKey: '5단계: 결과 및 해설 확인', descKey: '점수, 소요시간 등 결과 확인' },
+  { stepKey: '6단계: 퀴즈 기록 관리', descKey: '만든 퀴즈가 퀴즈 기록에 자동 저장' },
+] as const;
+
+/** FAQ 데이터 */
+const FAQ_ITEMS = [
+  {
+    qKey: 'Q. Q-Asker는 정말 무료인가요?',
+    aKey: '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.',
+  },
+  {
+    qKey: 'Q. 업로드한 제 파일은 안전하게 관리되나요?',
+    aKey: '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.',
+  },
+  {
+    qKey: 'Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?',
+    aKey: 'AI는 높은 정확도로 문서를 분석하지만, 100% 완벽하지 않을 수 있습니다. 생성된 문제는 학습 참고용이며, 중요한 정보는 반드시 원본과 교차 확인해주세요.',
+  },
+  {
+    qKey: 'Q. 이미지로 된 파일도 퀴즈로 만들 수 있나요?',
+    aKey: '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.',
+  },
+] as const;
+
+/** 메인 페이지 하단 SEO 콘텐츠 — 서비스 소개, 가이드, 팁, 신뢰, FAQ */
+const SeoContent: React.FC<{ t: (key: string) => string }> = ({ t }) => {
+  return (
+    <section id="how-to-use" className="mt-8 space-y-6 pb-4 sm:mt-12 sm:space-y-8">
+      {/* 서비스 소개 */}
+      <div className="text-center">
+        <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+          {t('AI 퀴즈 생성')}
+        </h2>
+        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          {t(
+            'PDF, PPT, Word 공부 자료로 퀴즈를 만들어 보세요. 핵심 개념을 빠르게 암기하고 시험 대비에 효과적입니다.',
+          )}
+        </p>
+      </div>
+
+      {/* 6단계 가이드 */}
+      <Card className="rounded-2xl border border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg font-bold">
+            <BookOpen className="size-5 text-primary" />
+            {t('AI 퀴즈 만들기 6단계 가이드')}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {t('가지고 계신 학습 자료로 AI 퀴즈를 만드는 가장 쉬운 방법을 알려드립니다.')}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {GUIDE_STEPS.map((step, i) => (
+              <div
+                key={step.stepKey}
+                className="flex items-start gap-3 rounded-xl border border-border bg-muted/50 p-4"
+              >
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                  {i + 1}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{t(step.stepKey)}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {t(step.descKey)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 활용 팁 + 신뢰 이유 — 2컬럼 */}
+      <div className="grid gap-6 sm:grid-cols-2">
+        {/* 활용 팁 */}
+        <Card className="rounded-2xl border border-border">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-bold">
+              <Lightbulb className="size-5 text-chart-3" />
+              {t('AI 퀴즈 활용 200% 팁')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3">
+              <li className="text-sm leading-relaxed text-muted-foreground">
+                {t('1. 빈칸 채우기로 핵심 개념을 정리하세요.')}
+              </li>
+              <li className="text-sm leading-relaxed text-muted-foreground">
+                {t('2. OX로 빠르게 개념을 점검하세요.')}
+              </li>
+              <li className="text-sm leading-relaxed text-muted-foreground">
+                {t('3. 객관식으로 개념을 응용해 보세요.')}
+              </li>
+            </ul>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              {t(
+                '빈칸, OX, 객관식 유형을 번갈아 풀어보며 개념 이해와 기억을 균형 있게 강화하세요.',
+              )}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* 신뢰 이유 */}
+        <Card className="rounded-2xl border border-border">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-bold">
+              <Shield className="size-5 text-chart-2" />
+              {t('Q-Asker를 신뢰할 수 있는 이유')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
+                {t('자료 보호')} — {t('모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다')}
+              </li>
+              <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
+                {t('명확한 문제 생성 기준')} — {t('문제 유형별 기준에 맞춰 퀴즈를 생성합니다.')}
+              </li>
+              <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
+                {t('파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.')}
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 주의사항 */}
+      <Card className="rounded-2xl border border-border">
+        <CardContent className="pt-6">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            <span className="font-semibold text-foreground">{t('꼭 읽어주세요: 주의사항')}</span>
+            <br />
+            {t(
+              '생성된 문제는 학습 참고용이며, 사실관계가 100% 정확하지 않을 수 있습니다. 중요한 정보는 반드시 원본과 교차 확인하세요.',
+            )}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* FAQ */}
+      <Card className="rounded-2xl border border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg font-bold">
+            <HelpCircle className="size-5 text-primary" />
+            {t('자주 묻는 질문 (FAQ)')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {FAQ_ITEMS.map((item) => (
+            <FaqItem key={item.qKey} question={t(item.qKey)} answer={t(item.aKey)} />
+          ))}
+        </CardContent>
+      </Card>
+    </section>
+  );
+};
