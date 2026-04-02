@@ -124,6 +124,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
               id="menuButton"
               className="mr-3 cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
               onClick={toggleSidebar}
+              aria-label={t('메뉴 열기')}
             >
               <Menu className="size-5" />
             </button>
@@ -450,6 +451,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
                   <button
                     className="cursor-pointer border-none bg-transparent p-1.5 text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     onClick={closeSidebar}
+                    aria-label={t('메뉴 닫기')}
                   >
                     <X className="size-5" />
                   </button>

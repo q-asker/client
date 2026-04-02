@@ -1,0 +1,85 @@
+# Q-Asker — Full Documentation for AI Systems
+
+> Free AI quiz generator that creates fill-in-the-blank, true/false, and
+> multiple-choice questions from uploaded PDF, PPT, and Word files.
+
+## What is Q-Asker?
+
+Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5-25), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. The service supports OCR for scanned documents and image-based files. All uploaded files are permanently deleted from servers within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with references to the source page, and all generated quizzes are saved in the user's history for later review.
+
+## How It Works
+
+1. Upload a PDF, PPT, or Word file (up to 30MB)
+2. Select the page range and number of questions (5-25)
+3. Choose a question type: fill-in-the-blank, true/false, or multiple-choice
+4. AI analyzes the document and generates quiz questions
+5. Solve the quiz and review detailed explanations with source page references
+6. Access quiz history anytime for review and continued practice
+
+## Supported File Formats
+
+- PDF (.pdf)
+- PowerPoint (.ppt, .pptx)
+- Word (.doc, .docx)
+
+## Question Types
+
+- Fill-in-the-blank: Key terms and concepts are removed from sentences for active recall practice
+- True/False (OX): Statements derived from the document that users verify as correct or incorrect
+- Multiple-choice: Questions with four answer options generated from document content
+
+## Key Features
+
+- No account required — start generating quizzes immediately
+- OCR support for scanned documents and image-based files
+- Page-range selection for targeted quiz generation from specific sections
+- Detailed explanations for every question with source page preview
+- Quiz history management for long-term spaced review
+- Multilingual interface (Korean and English)
+- File security: all uploads deleted within 24 hours, never used for training
+
+## Use Cases
+
+- University students preparing for exams from lecture slide PDFs
+- Corporate trainers creating assessment quizzes from policy documents
+- Language learners generating vocabulary questions from textbook PDFs
+- Educators building practice tests from course materials
+- Self-learners testing comprehension of technical documentation
+
+## Statistics
+
+- Maximum file size: 30MB per upload
+- Questions per session: 5, 10, 15, 20, or 25
+- Question types: 3 (fill-in-the-blank, true/false, multiple-choice)
+- Supported formats: 5 (.pdf, .ppt, .pptx, .doc, .docx)
+- File auto-deletion: within 24 hours
+- Supported languages: 2 (Korean, English)
+- Price: completely free, no signup required
+
+## Technical Details
+
+- Built with React 19 + TypeScript + Vite
+- Supports Korean and English (i18n)
+- Progressive Web App (PWA) capable
+- Responsive design for mobile, tablet, and desktop
+
+## Links
+
+- Homepage: https://www.q-asker.com
+- Korean: https://www.q-asker.com/ko
+- English: https://www.q-asker.com/en
+- Privacy Policy: https://www.q-asker.com/privacy-policy
+- Terms of Service: https://www.q-asker.com/terms-of-service
+- GitHub: https://github.com/q-asker
+
+## Contact
+
+- Email: contact@q-asker.com
+
+## Last Updated
+
+2026-04-02
+
+## License
+
+RSL-1.0: Content available for AI search citation with attribution to Q-Asker (https://www.q-asker.com).
