@@ -15,6 +15,7 @@ interface UseHeaderReturn {
   state: {
     t: (key: string) => string;
     isAuthenticated: boolean;
+    hasHydrated: boolean;
     user: User | null;
     currentLanguage: string;
   };
@@ -76,7 +77,8 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): U
   const navigate = useNavigate();
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
-  const isAuthenticated = Boolean(accessToken);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const isAuthenticated = hasHydrated && Boolean(accessToken);
   const nicknameFromToken = useMemo(() => extractNicknameFromToken(accessToken), [accessToken]);
   const resolvedUser = useMemo((): User | null => {
     if (!nicknameFromToken) return user;
@@ -137,7 +139,7 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): U
   };
 
   return {
-    state: { t, isAuthenticated, user: resolvedUser, currentLanguage },
+    state: { t, isAuthenticated, hasHydrated, user: resolvedUser, currentLanguage },
     actions: {
       handleQuizManagement,
       handleHelp,

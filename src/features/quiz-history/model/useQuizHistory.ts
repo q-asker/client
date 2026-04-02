@@ -62,10 +62,10 @@ export const useQuizHistory = ({
   navigate,
   currentLanguage,
 }: UseQuizHistoryParams): UseQuizHistoryReturn => {
-  const { accessToken } = useAuthStore();
+  const { accessToken, hasHydrated } = useAuthStore();
   const isAuthenticated = !!accessToken;
   const [quizHistory, setQuizHistory] = useState<HistoryItem[]>([]);
-  const [loading, setLoading] = useState(isAuthenticated);
+  const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const startTimeRef = useRef(Date.now());
 
@@ -83,10 +83,13 @@ export const useQuizHistory = ({
   const toggleSidebar = (): void => setIsSidebarOpen((prev) => !prev);
 
   useEffect(() => {
+    if (!hasHydrated) return;
     if (isAuthenticated) {
       loadQuizHistory();
+    } else {
+      setLoading(false);
     }
-  }, []);
+  }, [hasHydrated]);
 
   useClickOutside({
     containerId: 'sidebar',

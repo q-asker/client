@@ -10,8 +10,10 @@ export interface User {
 export interface AuthState {
   accessToken: string | null;
   user: User | null;
+  hasHydrated: boolean;
   setAuth: (params: { accessToken?: string | null; user?: User | null }) => void;
   clearAuth: () => void;
+  setHasHydrated: (v: boolean) => void;
 }
 
 // API 인증 응답 데이터

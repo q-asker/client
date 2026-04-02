@@ -8,6 +8,7 @@ import { Check, X as XIcon } from 'lucide-react';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Button } from '@/shared/ui/components/button';
+import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
 import { MOCK_QUIZZES, MOCK_EXPLANATION, MOCK_UPLOADED_URL } from './mockExplanationData';
@@ -64,8 +65,22 @@ const QuizExplanation: React.FC = () => {
 
   if (ui.isLoading)
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-muted border-t-primary" />
+      <div className="flex h-screen bg-background max-lg:h-auto max-lg:min-h-screen max-lg:flex-col">
+        <aside className="flex w-80 shrink-0 flex-col border-r border-border bg-card p-5 max-lg:w-full max-lg:border-b max-lg:border-r-0">
+          <Skeleton className="mb-2 h-6 w-16 rounded" />
+          <Skeleton className="mb-4 h-4 w-24 rounded" />
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full rounded-lg" />
+            ))}
+          </div>
+        </aside>
+        <div className="flex-1 p-8">
+          <Skeleton className="mb-4 h-6 w-48 rounded" />
+          <Skeleton className="mb-2 h-4 w-full rounded" />
+          <Skeleton className="mb-2 h-4 w-3/4 rounded" />
+          <Skeleton className="h-40 w-full rounded-xl" />
+        </div>
       </div>
     );
 
