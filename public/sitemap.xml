@@ -27,18 +27,22 @@
   </url>
   <url>
     <loc>https://www.q-asker.com/history</loc>
-    <lastmod>2026-02-06</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/history" />
+    <lastmod>2026-03-28</lastmod>
   </url>
   <url>
     <loc>https://www.q-asker.com/privacy-policy</loc>
-    <lastmod>2026-02-06</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/privacy-policy" />
+    <lastmod>2026-03-28</lastmod>
   </url>
   <url>
     <loc>https://www.q-asker.com/terms-of-service</loc>
-    <lastmod>2026-02-06</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/terms-of-service" />
+    <lastmod>2026-03-30</lastmod>
   </url>
   <url>
     <loc>https://www.q-asker.com/boards</loc>
-    <lastmod>2026-02-06</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/boards" />
+    <lastmod>2026-03-30</lastmod>
   </url>
 </urlset>
