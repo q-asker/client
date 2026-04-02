@@ -34,13 +34,20 @@ PDF, PPT, PPTX, DOC, DOCX
 
 ## Links
 
-- Homepage: https://www.q-asker.com/
-- Korean: https://www.q-asker.com/ko/
-- English: https://www.q-asker.com/en/
-- Privacy Policy: https://www.q-asker.com/privacy-policy/
-- Terms of Service: https://www.q-asker.com/terms-of-service/
+- Homepage: https://www.q-asker.com
+- Korean: https://www.q-asker.com/ko
+- English: https://www.q-asker.com/en
+- Privacy Policy: https://www.q-asker.com/privacy-policy
+- Terms of Service: https://www.q-asker.com/terms-of-service
+
+## Last Updated
+
+2026-04-02
 
 ## License
 
-Content on this site is available for AI search indexing and citation.
-Attribution to Q-Asker (https://www.q-asker.com) is required when citing.
+RSL-1.0: Content available for AI search citation with attribution to Q-Asker (https://www.q-asker.com).
+
+## Full Documentation
+
+For detailed documentation, see https://www.q-asker.com/llms-full.txt

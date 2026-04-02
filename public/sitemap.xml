@@ -6,39 +6,39 @@
                             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
     <loc>https://www.q-asker.com/</loc>
-    <xhtml:link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.q-asker.com/en/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.q-asker.com/en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/" />
     <lastmod>2026-04-02</lastmod>
   </url>
   <url>
-    <loc>https://www.q-asker.com/ko/</loc>
-    <xhtml:link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.q-asker.com/en/" />
+    <loc>https://www.q-asker.com/ko</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.q-asker.com/en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/" />
     <lastmod>2026-04-02</lastmod>
   </url>
   <url>
-    <loc>https://www.q-asker.com/en/</loc>
-    <xhtml:link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.q-asker.com/en/" />
+    <loc>https://www.q-asker.com/en</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.q-asker.com/en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/" />
     <lastmod>2026-04-02</lastmod>
   </url>
   <url>
-    <loc>https://www.q-asker.com/history/</loc>
+    <loc>https://www.q-asker.com/history</loc>
     <lastmod>2026-02-06</lastmod>
   </url>
   <url>
-    <loc>https://www.q-asker.com/privacy-policy/</loc>
+    <loc>https://www.q-asker.com/privacy-policy</loc>
     <lastmod>2026-02-06</lastmod>
   </url>
   <url>
-    <loc>https://www.q-asker.com/terms-of-service/</loc>
+    <loc>https://www.q-asker.com/terms-of-service</loc>
     <lastmod>2026-02-06</lastmod>
   </url>
   <url>
-    <loc>https://www.q-asker.com/boards/</loc>
+    <loc>https://www.q-asker.com/boards</loc>
     <lastmod>2026-02-06</lastmod>
   </url>
 </urlset>

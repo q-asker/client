@@ -5,7 +5,7 @@ const fs = require('fs');
 const Prerenderer = require('@prerenderer/prerenderer');
 const PuppeteerRenderer = require('@prerenderer/renderer-puppeteer');
 
-const ROUTES = ['/', '/ko', '/en'];
+const ROUTES = ['/', '/ko', '/en', '/history', '/boards'];
 const DIST_DIR = path.resolve(__dirname, '..', 'dist');
 
 async function prerender() {

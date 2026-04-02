@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --mode dev",
     "remote": "vite --mode remote",
-    "build": "vite build --mode prod && node scripts/prerender.cjs",
+    "build": "vite build --mode prod && node scripts/prerender.cjs && node scripts/generate-sitemap.cjs",
     "lint": "eslint .",
     "preview": "vite preview --port 5173",
     "i18n:wrap": "i18n-wrapper -p \"src/**/*.{js,jsx,ts,tsx}\"",

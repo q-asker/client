@@ -51,47 +51,36 @@ const SEO_CONFIG = {
               '@type': 'ListItem',
               position: 1,
               name: '학습 자료 파일 업로드',
-              description:
-                'AI 퀴즈 생성을 위해 PDF, PPT, Word 등 학습 자료 파일을 업로드합니다. 원하는 페이지를 지정하면 AI 퀴즈 생성시 더 좋은 퀴즈를 만들 수 있습니다.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 2,
               name: 'AI 퀴즈 옵션 설정',
-              description:
-                '자동으로 생성할 문제 수량, 페이지 범위, 그리고 퀴즈 유형(빈칸, OX, 객관식)을 선택하여 맞춤형 AI 퀴즈 생성을 준비합니다.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 3,
               name: 'AI 퀴즈 자동 생성',
-              description: '설정이 끝나면 AI가 문서 내용을 분석하여 퀴즈를 자동으로 생성합니다.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 4,
               name: '생성된 퀴즈 풀기',
-              description:
-                'AI가 만든 퀴즈를 풀어보며 학습 내용을 점검합니다. 나중에 다시 볼 문제는 체크 표시를 하여 효율적인 복습이 가능합니다.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 5,
               name: '결과 확인 및 해설 학습',
-              description:
-                '채점 결과와 함께 모든 문제에 대한 상세한 해설을 제공합니다. 참조한 페이지 미리보기를 통해 내용을 다시 확인하며 깊이 있는 학습을 할 수 있습니다.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 6,
               name: '퀴즈 히스토리 관리',
-              description:
-                '생성했던 모든 AI 퀴즈 기록이 자동으로 저장됩니다. 언제든지 다시 방문하여 복습하거나 이어서 문제를 풀 수 있습니다.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
           ],
@@ -125,7 +114,10 @@ const SEO_CONFIG = {
             '@type': 'ContactPoint',
             email: 'inhapj01@gmail.com',
             contactType: 'customer support',
+            availableLanguage: ['Korean', 'English'],
           },
+          sameAs: ['https://github.com/q-asker'],
+          foundingDate: '2025',
         },
         faq: {
           '@context': 'https://schema.org',
@@ -163,6 +155,22 @@ const SEO_CONFIG = {
                 text: '네, OCR(광학 문자 인식) 기술을 지원합니다. 스캔본이나 사진으로 촬영한 문서도 텍스트를 자동 추출하여 퀴즈를 생성할 수 있습니다. PDF, PPT, Word 형식의 이미지 기반 파일을 그대로 업로드하면 됩니다.',
               },
             },
+            {
+              '@type': 'Question',
+              name: '한 번에 몇 문제까지 생성할 수 있나요?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: '한 번에 5개, 10개, 15개, 20개, 25개 중 선택하여 생성할 수 있습니다. 페이지 범위를 지정하면 특정 구간의 내용에 집중한 문제를 생성할 수 있어 더 효율적인 학습이 가능합니다.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '생성된 퀴즈는 저장되나요?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: '네, 로그인한 상태에서 생성한 퀴즈는 퀴즈 기록 페이지에 자동 저장됩니다. 언제든지 다시 방문하여 복습하거나 이어서 문제를 풀 수 있습니다. 비로그인 상태에서도 24시간 동안 브라우저에 임시 저장됩니다.',
+              },
+            },
           ],
         },
         software: {
@@ -175,7 +183,15 @@ const SEO_CONFIG = {
           description:
             'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 자동 생성합니다. 빈칸, OX, 객관식 문제로 시험에 완벽 대비하세요.',
           inLanguage: ['ko', 'en'],
-          offers: { '@type': 'Offer', price: '0', priceCurrency: 'KRW' },
+          image: 'https://www.q-asker.com/background.png',
+          screenshot: 'https://www.q-asker.com/background.png',
+          softwareVersion: '1.0',
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'KRW',
+            availability: 'https://schema.org/InStock',
+          },
           featureList: [
             'PDF 퀴즈 자동 생성',
             'PPT 퀴즈 만들기',
@@ -251,48 +267,36 @@ const SEO_CONFIG = {
               '@type': 'ListItem',
               position: 1,
               name: 'Upload your study file',
-              description:
-                'Upload a PDF, PPT, or Word file to generate AI quizzes. Selecting specific pages helps create better questions.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 2,
               name: 'Configure quiz options',
-              description:
-                'Choose the number of questions, page range, and quiz types (fill-in-the-blank, true/false, multiple choice).',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 3,
               name: 'Generate quizzes',
-              description:
-                'Once set, the AI analyzes the document and generates quizzes automatically.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 4,
               name: 'Solve the quizzes',
-              description:
-                'Practice with AI-generated quizzes and check your understanding. Mark questions to review later.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 5,
               name: 'Review results and explanations',
-              description:
-                'See scores and detailed explanations for every question. Preview the referenced pages to study in depth.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 6,
               name: 'Manage quiz history',
-              description:
-                'All generated quizzes are saved automatically. Revisit anytime to review or continue solving.',
               url: 'https://www.q-asker.com/#how-to-use',
             },
           ],
@@ -326,7 +330,10 @@ const SEO_CONFIG = {
             '@type': 'ContactPoint',
             email: 'inhapj01@gmail.com',
             contactType: 'customer support',
+            availableLanguage: ['Korean', 'English'],
           },
+          sameAs: ['https://github.com/q-asker'],
+          foundingDate: '2025',
         },
         faq: {
           '@context': 'https://schema.org',
@@ -364,6 +371,22 @@ const SEO_CONFIG = {
                 text: 'Yes, OCR (Optical Character Recognition) is fully supported. Scanned documents and photos are automatically processed to extract text for quiz generation. Simply upload image-based PDF, PPT, or Word files as-is.',
               },
             },
+            {
+              '@type': 'Question',
+              name: 'How many questions can I generate at once?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'You can choose to generate 5, 10, 15, 20, or 25 questions per session. Specifying a page range focuses the AI on specific sections, producing more targeted and accurate questions for efficient studying.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Are my generated quizzes saved?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Yes, quizzes generated while logged in are automatically saved to your Quiz History page. You can revisit anytime to review or continue solving. Even without an account, quizzes are temporarily stored in your browser for 24 hours.',
+              },
+            },
           ],
         },
         software: {
@@ -376,7 +399,15 @@ const SEO_CONFIG = {
           description:
             'Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare for exams with fill-in-the-blank, true/false, and multiple-choice questions.',
           inLanguage: ['ko', 'en'],
-          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+          image: 'https://www.q-asker.com/background.png',
+          screenshot: 'https://www.q-asker.com/background.png',
+          softwareVersion: '1.0',
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock',
+          },
           featureList: [
             'AI Quiz Generation from PDF',
             'PPT Quiz Creator',
@@ -500,8 +531,20 @@ const SeoMetaSync = () => {
       updateJsonLd('ld-faq', config.jsonLd.faq);
       updateJsonLd('ld-software', config.jsonLd.software);
 
-      // Breadcrumb는 index.html에 기본 태그가 없으므로 동적으로 생성/관리 필요
-      // 여기서는 기존 구조를 유지하며 단순화
+      // Breadcrumb 동적 삽입 (index.html에 기본 태그가 없으므로 동적 생성)
+      const breadcrumbData = (config.jsonLd as Record<string, unknown>).breadcrumb;
+      let breadcrumbEl = document.head.querySelector('#ld-breadcrumb');
+      if (breadcrumbData) {
+        if (!breadcrumbEl) {
+          breadcrumbEl = document.createElement('script');
+          breadcrumbEl.id = 'ld-breadcrumb';
+          breadcrumbEl.setAttribute('type', 'application/ld+json');
+          document.head.appendChild(breadcrumbEl);
+        }
+        breadcrumbEl.textContent = JSON.stringify(breadcrumbData);
+      } else if (breadcrumbEl) {
+        breadcrumbEl.textContent = '';
+      }
     }
   }, [currentLanguage, location.pathname]);
 
