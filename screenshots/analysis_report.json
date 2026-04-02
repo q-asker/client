@@ -1,0 +1,1042 @@
+{
+  "ko": {
+    "desktop": {
+      "atf": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/ko_desktop_atf.png",
+      "full": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/ko_desktop_full.png",
+      "metrics": {
+        "pageTitle": "[한국어 특화] Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "metaDescription": "PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.",
+        "viewportMeta": "width=device-width, initial-scale=1.0",
+        "h1Text": "PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "h1AboveFold": true,
+        "h1Top": 95,
+        "visibleButtonCount": 7,
+        "topCTAs": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32,
+            "top": 16
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35,
+            "top": 15
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          }
+        ],
+        "smallTouchTargets": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 20,
+            "h": 16
+          },
+          {
+            "tag": "A",
+            "text": "로그인",
+            "w": 87,
+            "h": 40
+          }
+        ],
+        "smallTouchTargetCount": 7,
+        "smallFontCount": 18,
+        "smallFontSamples": [
+          {
+            "tag": "SPAN",
+            "text": "로그인하고, 퀴즈기록을 저장해보세요",
+            "fs": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "크기 제한",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "지원하는 파일",
+            "fs": 12
+          },
+          {
+            "tag": "P",
+            "text": "파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다. · 24시간",
+            "fs": 10
+          }
+        ],
+        "hasHorizontalScroll": false,
+        "scrollWidth": 1920,
+        "innerWidth": 1920,
+        "visibleImages": [
+          {
+            "src": "favicon-256x256.png",
+            "alt": "Q-Asker",
+            "w": 28,
+            "h": 28
+          }
+        ]
+      }
+    },
+    "laptop": {
+      "atf": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/ko_laptop_atf.png",
+      "full": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/ko_laptop_full.png",
+      "metrics": {
+        "pageTitle": "[한국어 특화] Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "metaDescription": "PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.",
+        "viewportMeta": "width=device-width, initial-scale=1.0",
+        "h1Text": "PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "h1AboveFold": true,
+        "h1Top": 95,
+        "visibleButtonCount": 7,
+        "topCTAs": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32,
+            "top": 16
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35,
+            "top": 15
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          }
+        ],
+        "smallTouchTargets": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 20,
+            "h": 16
+          },
+          {
+            "tag": "A",
+            "text": "로그인",
+            "w": 87,
+            "h": 40
+          }
+        ],
+        "smallTouchTargetCount": 7,
+        "smallFontCount": 12,
+        "smallFontSamples": [
+          {
+            "tag": "SPAN",
+            "text": "로그인하고, 퀴즈기록을 저장해보세요",
+            "fs": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "크기 제한",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "지원하는 파일",
+            "fs": 12
+          },
+          {
+            "tag": "P",
+            "text": "파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다. · 24시간",
+            "fs": 10
+          }
+        ],
+        "hasHorizontalScroll": false,
+        "scrollWidth": 1366,
+        "innerWidth": 1366,
+        "visibleImages": [
+          {
+            "src": "favicon-256x256.png",
+            "alt": "Q-Asker",
+            "w": 28,
+            "h": 28
+          }
+        ]
+      }
+    },
+    "tablet": {
+      "atf": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/ko_tablet_atf.png",
+      "full": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/ko_tablet_full.png",
+      "metrics": {
+        "pageTitle": "Q-Asker: Free AI Quiz Generator for PDF, PPT, Word",
+        "metaDescription": "Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare perfectly for exams with Fill-in-the-blank, True/False, and Multiple-choice questions. Start for free now without signing up.",
+        "viewportMeta": "width=device-width, initial-scale=1.0",
+        "h1Text": "Free AI Quiz Generator for PDF, PPT, Word",
+        "h1AboveFold": true,
+        "h1Top": 95,
+        "visibleButtonCount": 7,
+        "topCTAs": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32,
+            "top": 16
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 103,
+            "h": 35,
+            "top": 15
+          },
+          {
+            "tag": "A",
+            "text": "Contact Us",
+            "w": 130,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "Theme Settings",
+            "w": 165,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "Quiz History",
+            "w": 139,
+            "h": 40,
+            "top": 12
+          }
+        ],
+        "smallTouchTargets": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 103,
+            "h": 35
+          },
+          {
+            "tag": "A",
+            "text": "Contact Us",
+            "w": 130,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "Theme Settings",
+            "w": 165,
+            "h": 40
+          },
+          {
+            "tag": "A",
+            "text": "Quiz History",
+            "w": 139,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 20,
+            "h": 16
+          },
+          {
+            "tag": "A",
+            "text": "Log In",
+            "w": 91,
+            "h": 40
+          }
+        ],
+        "smallTouchTargetCount": 7,
+        "smallFontCount": 14,
+        "smallFontSamples": [
+          {
+            "tag": "SPAN",
+            "text": "Log in to save your quiz history",
+            "fs": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "Size Limit",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "Supported Files",
+            "fs": 12
+          },
+          {
+            "tag": "P",
+            "text": "Files are not used for commercial purpos",
+            "fs": 10
+          }
+        ],
+        "hasHorizontalScroll": false,
+        "scrollWidth": 795,
+        "innerWidth": 795,
+        "visibleImages": [
+          {
+            "src": "favicon-256x256.png",
+            "alt": "Q-Asker",
+            "w": 28,
+            "h": 28
+          }
+        ]
+      }
+    },
+    "mobile": {
+      "atf": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/ko_mobile_atf.png",
+      "full": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/ko_mobile_full.png",
+      "metrics": {
+        "pageTitle": "Q-Asker: Free AI Quiz Generator for PDF, PPT, Word",
+        "metaDescription": "Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare perfectly for exams with Fill-in-the-blank, True/False, and Multiple-choice questions. Start for free now without signing up.",
+        "viewportMeta": "width=device-width, initial-scale=1.0",
+        "h1Text": "Free AI Quiz Generator for PDF, PPT, Word",
+        "h1AboveFold": true,
+        "h1Top": 71,
+        "visibleButtonCount": 7,
+        "topCTAs": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 99,
+            "h": 31,
+            "top": 13
+          },
+          {
+            "tag": "A",
+            "text": "Log In",
+            "w": 80,
+            "h": 32,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "Contact Us",
+            "w": 125,
+            "h": 57,
+            "top": 755
+          },
+          {
+            "tag": "A",
+            "text": "Quiz History",
+            "w": 124,
+            "h": 57,
+            "top": 755
+          }
+        ],
+        "smallTouchTargets": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 99,
+            "h": 31
+          },
+          {
+            "tag": "A",
+            "text": "Log In",
+            "w": 80,
+            "h": 32
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 20,
+            "h": 16
+          }
+        ],
+        "smallTouchTargetCount": 4,
+        "smallFontCount": 14,
+        "smallFontSamples": [
+          {
+            "tag": "SPAN",
+            "text": "Contact Us",
+            "fs": 10
+          },
+          {
+            "tag": "SPAN",
+            "text": "Quiz History",
+            "fs": 10
+          },
+          {
+            "tag": "SPAN",
+            "text": "Log in to save your quiz history",
+            "fs": 11
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "fs": 11
+          },
+          {
+            "tag": "SPAN",
+            "text": "Theme",
+            "fs": 10
+          }
+        ],
+        "hasHorizontalScroll": false,
+        "scrollWidth": 375,
+        "innerWidth": 375,
+        "visibleImages": [
+          {
+            "src": "favicon-256x256.png",
+            "alt": "Q-Asker",
+            "w": 22,
+            "h": 22
+          }
+        ]
+      }
+    }
+  },
+  "en": {
+    "desktop": {
+      "atf": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/en_desktop_atf.png",
+      "full": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/en_desktop_full.png",
+      "metrics": {
+        "pageTitle": "[한국어 특화] Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "metaDescription": "PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.",
+        "viewportMeta": "width=device-width, initial-scale=1.0",
+        "h1Text": "PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "h1AboveFold": true,
+        "h1Top": 95,
+        "visibleButtonCount": 7,
+        "topCTAs": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32,
+            "top": 16
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35,
+            "top": 15
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          }
+        ],
+        "smallTouchTargets": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 20,
+            "h": 16
+          },
+          {
+            "tag": "A",
+            "text": "로그인",
+            "w": 87,
+            "h": 40
+          }
+        ],
+        "smallTouchTargetCount": 7,
+        "smallFontCount": 18,
+        "smallFontSamples": [
+          {
+            "tag": "SPAN",
+            "text": "로그인하고, 퀴즈기록을 저장해보세요",
+            "fs": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "크기 제한",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "지원하는 파일",
+            "fs": 12
+          },
+          {
+            "tag": "P",
+            "text": "파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다. · 24시간",
+            "fs": 10
+          }
+        ],
+        "hasHorizontalScroll": false,
+        "scrollWidth": 1920,
+        "innerWidth": 1920,
+        "visibleImages": [
+          {
+            "src": "favicon-256x256.png",
+            "alt": "Q-Asker",
+            "w": 28,
+            "h": 28
+          }
+        ]
+      }
+    },
+    "laptop": {
+      "atf": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/en_laptop_atf.png",
+      "full": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/en_laptop_full.png",
+      "metrics": {
+        "pageTitle": "[한국어 특화] Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "metaDescription": "PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.",
+        "viewportMeta": "width=device-width, initial-scale=1.0",
+        "h1Text": "PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "h1AboveFold": true,
+        "h1Top": 95,
+        "visibleButtonCount": 7,
+        "topCTAs": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32,
+            "top": 16
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35,
+            "top": 15
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          }
+        ],
+        "smallTouchTargets": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 20,
+            "h": 16
+          },
+          {
+            "tag": "A",
+            "text": "로그인",
+            "w": 87,
+            "h": 40
+          }
+        ],
+        "smallTouchTargetCount": 7,
+        "smallFontCount": 12,
+        "smallFontSamples": [
+          {
+            "tag": "SPAN",
+            "text": "로그인하고, 퀴즈기록을 저장해보세요",
+            "fs": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "크기 제한",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "지원하는 파일",
+            "fs": 12
+          },
+          {
+            "tag": "P",
+            "text": "파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다. · 24시간",
+            "fs": 10
+          }
+        ],
+        "hasHorizontalScroll": false,
+        "scrollWidth": 1366,
+        "innerWidth": 1366,
+        "visibleImages": [
+          {
+            "src": "favicon-256x256.png",
+            "alt": "Q-Asker",
+            "w": 28,
+            "h": 28
+          }
+        ]
+      }
+    },
+    "tablet": {
+      "atf": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/en_tablet_atf.png",
+      "full": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/en_tablet_full.png",
+      "metrics": {
+        "pageTitle": "[한국어 특화] Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "metaDescription": "PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.",
+        "viewportMeta": "width=device-width, initial-scale=1.0",
+        "h1Text": "PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "h1AboveFold": true,
+        "h1Top": 95,
+        "visibleButtonCount": 7,
+        "topCTAs": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32,
+            "top": 16
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35,
+            "top": 15
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40,
+            "top": 12
+          }
+        ],
+        "smallTouchTargets": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 131,
+            "h": 35
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 101,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "테마 설정",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 105,
+            "h": 40
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 20,
+            "h": 16
+          },
+          {
+            "tag": "A",
+            "text": "로그인",
+            "w": 87,
+            "h": 40
+          }
+        ],
+        "smallTouchTargetCount": 7,
+        "smallFontCount": 14,
+        "smallFontSamples": [
+          {
+            "tag": "SPAN",
+            "text": "로그인하고, 퀴즈기록을 저장해보세요",
+            "fs": 12
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "크기 제한",
+            "fs": 12
+          },
+          {
+            "tag": "SPAN",
+            "text": "지원하는 파일",
+            "fs": 12
+          },
+          {
+            "tag": "P",
+            "text": "파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다. · 24시간",
+            "fs": 10
+          }
+        ],
+        "hasHorizontalScroll": false,
+        "scrollWidth": 768,
+        "innerWidth": 768,
+        "visibleImages": [
+          {
+            "src": "favicon-256x256.png",
+            "alt": "Q-Asker",
+            "w": 28,
+            "h": 28
+          }
+        ]
+      }
+    },
+    "mobile": {
+      "atf": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/en_mobile_atf.png",
+      "full": "/Users/ohyoungje/Desktop/Project/q-asker/client/screenshots/en_mobile_full.png",
+      "metrics": {
+        "pageTitle": "[한국어 특화] Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "metaDescription": "PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.",
+        "viewportMeta": "width=device-width, initial-scale=1.0",
+        "h1Text": "PDF, PPT, Word로 무료 AI 퀴즈 생성",
+        "h1AboveFold": true,
+        "h1Top": 71,
+        "visibleButtonCount": 7,
+        "topCTAs": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 99,
+            "h": 31,
+            "top": 13
+          },
+          {
+            "tag": "A",
+            "text": "로그인",
+            "w": 76,
+            "h": 32,
+            "top": 12
+          },
+          {
+            "tag": "A",
+            "text": "문의하기",
+            "w": 125,
+            "h": 57,
+            "top": 755
+          },
+          {
+            "tag": "A",
+            "text": "퀴즈 기록",
+            "w": 124,
+            "h": 57,
+            "top": 755
+          }
+        ],
+        "smallTouchTargets": [
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 32,
+            "h": 32
+          },
+          {
+            "tag": "A",
+            "text": "Q-Asker",
+            "w": 99,
+            "h": 31
+          },
+          {
+            "tag": "A",
+            "text": "로그인",
+            "w": 76,
+            "h": 32
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "w": 20,
+            "h": 16
+          }
+        ],
+        "smallTouchTargetCount": 4,
+        "smallFontCount": 14,
+        "smallFontSamples": [
+          {
+            "tag": "SPAN",
+            "text": "문의하기",
+            "fs": 10
+          },
+          {
+            "tag": "SPAN",
+            "text": "퀴즈 기록",
+            "fs": 10
+          },
+          {
+            "tag": "SPAN",
+            "text": "로그인하고, 퀴즈기록을 저장해보세요",
+            "fs": 11
+          },
+          {
+            "tag": "BUTTON",
+            "text": "",
+            "fs": 11
+          },
+          {
+            "tag": "SPAN",
+            "text": "테마",
+            "fs": 10
+          }
+        ],
+        "hasHorizontalScroll": false,
+        "scrollWidth": 375,
+        "innerWidth": 375,
+        "visibleImages": [
+          {
+            "src": "favicon-256x256.png",
+            "alt": "Q-Asker",
+            "w": 22,
+            "h": 22
+          }
+        ]
+      }
+    }
+  }
+}
