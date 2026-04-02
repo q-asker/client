@@ -3,7 +3,7 @@ name: Cloudflare Pages 배포
 on:
   push:
     branches:
-      - ICC-305-seo
+      - main
   workflow_dispatch:
 
 jobs:
