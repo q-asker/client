@@ -5,7 +5,20 @@ interface MarkdownTextProps {
   className?: string;
 }
 
-const MarkdownTextImpl = lazy(() => import('./markdown-text-impl'));
+const markdownImport = () => import('./markdown-text-impl');
+const MarkdownTextImpl = lazy(markdownImport);
+
+/** 페이지 idle 시 마크다운 청크 백그라운드 프리로드 */
+if (typeof window !== 'undefined') {
+  window.requestIdleCallback(() => markdownImport());
+}
+
+/** 마크다운 로딩 중 스켈레톤 — raw 텍스트 FOUC 방지 */
+const MarkdownSkeleton = ({ className }: { className?: string }) => (
+  <span className={className}>
+    <span className="inline-block h-4 w-3/4 animate-pulse rounded bg-muted" />
+  </span>
+);
 
 /**
  * MarkdownText lazy wrapper — katex(581KB), highlight.js(376KB)를 초기 번들에서 제외.
@@ -13,7 +26,7 @@ const MarkdownTextImpl = lazy(() => import('./markdown-text-impl'));
  */
 const MarkdownText = ({ children, className }: MarkdownTextProps) => {
   return (
-    <Suspense fallback={<span className={className}>{children}</span>}>
+    <Suspense fallback={<MarkdownSkeleton className={className} />}>
       <MarkdownTextImpl className={className}>{children}</MarkdownTextImpl>
     </Suspense>
   );
