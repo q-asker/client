@@ -402,11 +402,11 @@ const Help = () => {
                 <p>
                   <strong className="text-foreground">{t('이메일:')}</strong>{' '}
                   <a
-                    href="mailto:inhapj01@gmail.com"
+                    href="mailto:contact@q-asker.com"
                     aria-label={t('Q-Asker 이메일 문의')}
                     className="text-primary no-underline hover:underline"
                   >
-                    inhapj01@gmail.com
+                    contact@q-asker.com
                   </a>
                 </p>
               </div>

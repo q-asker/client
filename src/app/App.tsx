@@ -112,7 +112,7 @@ const SEO_CONFIG = {
           },
           contactPoint: {
             '@type': 'ContactPoint',
-            email: 'inhapj01@gmail.com',
+            email: 'contact@q-asker.com',
             contactType: 'customer support',
             availableLanguage: ['Korean', 'English'],
           },
@@ -190,7 +190,6 @@ const SEO_CONFIG = {
             '@type': 'Offer',
             price: '0',
             priceCurrency: 'KRW',
-            availability: 'https://schema.org/InStock',
           },
           featureList: [
             'PDF 퀴즈 자동 생성',
@@ -260,44 +259,44 @@ const SEO_CONFIG = {
           '@type': 'ItemList',
           name: 'How to Generate AI Quizzes in 6 Steps',
           description: 'How to create AI quizzes from PDF, PPT, and Word files',
-          url: 'https://www.q-asker.com/#how-to-use',
+          url: 'https://www.q-asker.com/en#how-to-use',
           numberOfItems: 6,
           itemListElement: [
             {
               '@type': 'ListItem',
               position: 1,
               name: 'Upload your study file',
-              url: 'https://www.q-asker.com/#how-to-use',
+              url: 'https://www.q-asker.com/en#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 2,
               name: 'Configure quiz options',
-              url: 'https://www.q-asker.com/#how-to-use',
+              url: 'https://www.q-asker.com/en#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 3,
               name: 'Generate quizzes',
-              url: 'https://www.q-asker.com/#how-to-use',
+              url: 'https://www.q-asker.com/en#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 4,
               name: 'Solve the quizzes',
-              url: 'https://www.q-asker.com/#how-to-use',
+              url: 'https://www.q-asker.com/en#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 5,
               name: 'Review results and explanations',
-              url: 'https://www.q-asker.com/#how-to-use',
+              url: 'https://www.q-asker.com/en#how-to-use',
             },
             {
               '@type': 'ListItem',
               position: 6,
               name: 'Manage quiz history',
-              url: 'https://www.q-asker.com/#how-to-use',
+              url: 'https://www.q-asker.com/en#how-to-use',
             },
           ],
         },
@@ -328,7 +327,7 @@ const SEO_CONFIG = {
           },
           contactPoint: {
             '@type': 'ContactPoint',
-            email: 'inhapj01@gmail.com',
+            email: 'contact@q-asker.com',
             contactType: 'customer support',
             availableLanguage: ['Korean', 'English'],
           },
@@ -405,8 +404,7 @@ const SEO_CONFIG = {
           offers: {
             '@type': 'Offer',
             price: '0',
-            priceCurrency: 'USD',
-            availability: 'https://schema.org/InStock',
+            priceCurrency: 'KRW',
           },
           featureList: [
             'AI Quiz Generation from PDF',
@@ -612,31 +610,33 @@ const App = () => {
           <SeoMetaSync />
           <PageViewTracker />
           <ToastContainer />
-          <Suspense>
-            <Routes>
-              {/* 점검 완료 후 아래 라우트로 복원
+          <main>
+            <Suspense>
+              <Routes>
+                {/* 점검 완료 후 아래 라우트로 복원
             <Route path="*" element={<Maintenance />} />
             */}
-              <Route path="/" element={<MakeQuiz />} />
-              <Route path="/ko" element={<MakeQuiz />} />
-              <Route path="/en" element={<MakeQuiz />} />
-              <Route path="/login" element={<LoginSelect />} />
-              <Route path="/login/redirect" element={<LoginRedirect />} />
-              <Route path="/maintenance" element={<Maintenance />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
-              <Route path="/result/:problemSetId" element={<QuizResult />} />
-              <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
-              <Route path="/history" element={<QuizHistory />} />
-              <Route path="/history/:historyId" element={<QuizHistoryDetail />} />
-              <Route path="/boards" element={<Board />} />
-              <Route path="/boards/:boardId" element={<BoardDetail />} />
-              <Route path="/boards/write" element={<BoardWrite />} />
-              <Route path="/boards/edit/:boardId" element={<BoardWrite />} />
-              <Route path="/help" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
+                <Route path="/" element={<MakeQuiz />} />
+                <Route path="/ko" element={<MakeQuiz />} />
+                <Route path="/en" element={<MakeQuiz />} />
+                <Route path="/login" element={<LoginSelect />} />
+                <Route path="/login/redirect" element={<LoginRedirect />} />
+                <Route path="/maintenance" element={<Maintenance />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/quiz/:problemSetId" element={<SolveQuiz />} />
+                <Route path="/result/:problemSetId" element={<QuizResult />} />
+                <Route path="/explanation/:problemSetId" element={<QuizExplanation />} />
+                <Route path="/history" element={<QuizHistory />} />
+                <Route path="/history/:historyId" element={<QuizHistoryDetail />} />
+                <Route path="/boards" element={<Board />} />
+                <Route path="/boards/:boardId" element={<BoardDetail />} />
+                <Route path="/boards/write" element={<BoardWrite />} />
+                <Route path="/boards/edit/:boardId" element={<BoardWrite />} />
+                <Route path="/help" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </main>
         </BrowserRouter>
       </I18nProvider>
     </ThemeProvider>

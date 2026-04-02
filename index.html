@@ -42,6 +42,23 @@
     <meta name="format-detection" content="telephone=no" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 폰트 프리로드 (LCP 최적화) -->
+    <link
+      rel="preload"
+      href="/fonts/Pretendard-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/Pretendard-Bold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
     <title>[한국어 특화] Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성</title>
 
     <!-- SEO 메타 태그 -->
@@ -60,8 +77,8 @@
       content="pdf 퀴즈 생성, ppt 퀴즈 만들기, word 퀴즈 생성, ai 퀴즈 생성, 시험 문제 자동 생성, 문서 퀴즈 변환, ocr 퀴즈, 온라인 퀴즈 만들기, Q-Asker"
     />
     <link rel="canonical" href="https://www.q-asker.com" />
-    <link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko/" />
-    <link rel="alternate" hreflang="en" href="https://www.q-asker.com/en/" />
+    <link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko" />
+    <link rel="alternate" hreflang="en" href="https://www.q-asker.com/en" />
     <link rel="alternate" hreflang="x-default" href="https://www.q-asker.com" />
 
     <!-- Open Graph (소셜 미디어 공유용) -->
@@ -74,11 +91,11 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.q-asker.com" />
-    <meta property="og:image" content="https://www.q-asker.com/background.png" />
-    <meta property="og:image:secure_url" content="https://www.q-asker.com/background.png" />
+    <meta property="og:image" content="https://www.q-asker.com/og-image.png" />
+    <meta property="og:image:secure_url" content="https://www.q-asker.com/og-image.png" />
     <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="683" />
-    <meta property="og:image:height" content="341" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Q-Asker AI 퀴즈 생성 서비스 소개 이미지" />
     <meta property="og:site_name" content="Q-Asker" />
 
@@ -92,7 +109,7 @@
       name="twitter:description"
       content="PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요."
     />
-    <meta name="twitter:image" content="https://www.q-asker.com/background.png" />
+    <meta name="twitter:image" content="https://www.q-asker.com/og-image.png" />
     <meta name="twitter:domain" content="www.q-asker.com" />
     <meta name="twitter:image:alt" content="Q-Asker AI 퀴즈 생성 서비스 소개 이미지" />
 
@@ -175,7 +192,7 @@
         },
         "contactPoint": {
           "@type": "ContactPoint",
-          "email": "inhapj01@gmail.com",
+          "email": "contact@q-asker.com",
           "contactType": "customer support",
           "availableLanguage": ["Korean", "English"]
         },
@@ -199,8 +216,7 @@
         "offers": {
           "@type": "Offer",
           "price": "0",
-          "priceCurrency": "KRW",
-          "availability": "https://schema.org/InStock"
+          "priceCurrency": "KRW"
         },
         "featureList": [
           "PDF 퀴즈 자동 생성",
@@ -268,6 +284,7 @@
         ]
       }
     </script>
+    <script id="ld-breadcrumb" type="application/ld+json"></script>
   </head>
   <body>
     <div id="root"></div>

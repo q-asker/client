@@ -386,7 +386,7 @@ declare type CommonKeys =
   | '유효한 퀴즈 정보가 없습니다. 홈으로 이동합니다.'
   | '이 기록을 삭제하시겠습니까?'
   | '이메일:'
-  | '이메일: inhapj01@gmail.com'
+  | '이메일: contact@q-asker.com'
   | '이전'
   | '입력 X'
   | '자동 저장: '
@@ -640,7 +640,7 @@ declare type MakeQuizKeys =
   | '파일 삭제'
   | '파일 선택하기'
   | '파일 업로드 중'
-  | '파일이 삭제되었습니다. 다시 업로드해주세요.'
+  | '파일이 존재하지 않습니다. 다시 업로드해주세요.'
   | '파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.'
   | '파일을 PDF로 변환하고 있어요'
   | '파일을 드래그하거나 버튼 클릭'
@@ -681,7 +681,7 @@ declare type PrivacyPolicyKeys =
   | '업로드한 파일은 처리 후 24시간 이내 자동 삭제됩니다.'
   | '원칙적으로 제3자에게 제공하지 않습니다.'
   | '위탁 시 관련 법령에 따라 관리·감독합니다.'
-  | '이메일: inhapj01@gmail.com'
+  | '이메일: contact@q-asker.com'
   | '홈으로';
 
 declare type QuizExplanationKeys =

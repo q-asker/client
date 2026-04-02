@@ -64,7 +64,7 @@ Q-Asker is a free, no-signup-required web tool that automatically generates quiz
 
 ## Contact
 
-- Email: inhapj01@gmail.com
+- Email: contact@q-asker.com
 
 ## Last Updated
 
