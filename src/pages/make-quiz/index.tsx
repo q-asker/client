@@ -704,7 +704,10 @@ const MakeQuiz: React.FC = () => {
                       <div className="absolute -inset-2 animate-pulse rounded-full border border-primary/20" />
                     </div>
 
-                    {/* 모바일: "파일을 업로드하세요", 데스크톱: "파일을 여기에 드래그하세요" */}
+                    {/* "퀴즈를 생성하기 위해" + 모바일: "파일을 업로드하세요", 데스크톱: "파일을 여기에 드래그하세요" */}
+                    <p className="mb-1 text-sm font-medium text-muted-foreground sm:text-base">
+                      {t('퀴즈를 생성하기 위해')}
+                    </p>
                     <h2 className="mb-1.5 text-lg font-bold tracking-tight text-foreground sm:mb-2 sm:text-xl">
                       <span className="hidden sm:inline">
                         <TextAnimate animation="slideUp" by="word" startOnView={false}>
@@ -984,141 +987,150 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
   currentLanguage,
 }) => {
   return (
-    <section id="how-to-use" className="mt-8 space-y-6 pb-4 sm:mt-12 sm:space-y-8">
-      {/* 서비스 소개 */}
-      <div className="text-center">
-        <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          {currentLanguage === 'en'
-            ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
-            : 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성'}
-        </h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          {t(
-            'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.',
-          )}
-        </p>
-        <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground/80">
-          {currentLanguage === 'en'
-            ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5–25), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
-            : 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 30MB 파일을 업로드하고 페이지 범위와 문제 수(5~25개)를 선택하면 수 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.'}
-        </p>
-      </div>
-
-      {/* 6단계 가이드 */}
+    <section id="how-to-use" className="mt-8 pb-4 sm:mt-12">
+      {/* 서비스 소개 — 상위 카드 */}
       <Card className="rounded-2xl border border-border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg font-bold">
-            <BookOpen className="size-5 text-primary" />
-            {t('AI 퀴즈 만들기 6단계 가이드')}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {t('가지고 계신 학습 자료로 AI 퀴즈를 만드는 가장 쉬운 방법을 알려드립니다.')}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {GUIDE_STEPS.map((step, i) => (
-              <div
-                key={step.stepKey}
-                className="flex items-start gap-3 rounded-xl border border-border bg-muted/50 p-4"
-              >
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                  {i + 1}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t(step.stepKey)}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {t(step.descKey)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 활용 팁 + 신뢰 이유 — 2컬럼 */}
-      <div className="grid gap-6 sm:grid-cols-2">
-        {/* 활용 팁 */}
-        <Card className="rounded-2xl border border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold">
-              <Lightbulb className="size-5 text-chart-3" />
-              {t('AI 퀴즈 활용 200% 팁')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              <li className="text-sm leading-relaxed text-muted-foreground">
-                {t('1. 빈칸 채우기로 핵심 개념을 정리하세요.')}
-              </li>
-              <li className="text-sm leading-relaxed text-muted-foreground">
-                {t('2. OX로 빠르게 개념을 점검하세요.')}
-              </li>
-              <li className="text-sm leading-relaxed text-muted-foreground">
-                {t('3. 객관식으로 개념을 응용해 보세요.')}
-              </li>
-            </ul>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        <CardContent className="space-y-6 pt-6 sm:space-y-8">
+          {/* 타이틀 + 설명 */}
+          <div className="text-center">
+            <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              {currentLanguage === 'en'
+                ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
+                : 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성'}
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
               {t(
-                '빈칸, OX, 객관식 유형을 번갈아 풀어보며 개념 이해와 기억을 균형 있게 강화하세요.',
+                'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요.',
               )}
+              <br />
+              {t('지금 회원가입 없이 무료로 시작하세요.')}
             </p>
-          </CardContent>
-        </Card>
+            <p className="sr-only">
+              {currentLanguage === 'en'
+                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5–25), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
+                : 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 30MB 파일을 업로드하고 페이지 범위와 문제 수(5~25개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.'}
+            </p>
+          </div>
 
-        {/* 신뢰 이유 */}
-        <Card className="rounded-2xl border border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold">
-              <Shield className="size-5 text-chart-2" />
-              {t('Q-Asker를 신뢰할 수 있는 이유')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
-                <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
-                {t('자료 보호')} — {t('모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다')}
-              </li>
-              <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
-                <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
-                {t('명확한 문제 생성 기준')} — {t('문제 유형별 기준에 맞춰 퀴즈를 생성합니다.')}
-              </li>
-              <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
-                <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
-                {t('파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.')}
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
+          {/* 6단계 가이드 — 하위 카드 */}
+          <Card className="rounded-xl border border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                <BookOpen className="size-5 text-primary" />
+                {t('AI 퀴즈 만들기 6단계 가이드')}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {t('가지고 계신 학습 자료로 AI 퀴즈를 만드는 가장 쉬운 방법을 알려드립니다.')}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {GUIDE_STEPS.map((step, i) => (
+                  <div
+                    key={step.stepKey}
+                    className="flex items-start gap-3 rounded-xl border border-border bg-muted/50 p-4"
+                  >
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{t(step.stepKey)}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {t(step.descKey)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* 주의사항 */}
-      <Card className="rounded-2xl border border-border">
-        <CardContent className="pt-6">
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            <span className="font-semibold text-foreground">{t('꼭 읽어주세요: 주의사항')}</span>
-            <br />
-            {t(
-              '생성된 문제는 학습 참고용이며, 사실관계가 100% 정확하지 않을 수 있습니다. 중요한 정보는 반드시 원본과 교차 확인하세요.',
-            )}
-          </p>
-        </CardContent>
-      </Card>
+          {/* 활용 팁 + 신뢰 이유 — 하위 카드 2컬럼 */}
+          <div className="grid gap-6 sm:grid-cols-2">
+            {/* 활용 팁 */}
+            <Card className="rounded-xl border border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                  <Lightbulb className="size-5 text-chart-3" />
+                  {t('AI 퀴즈 활용 200% 팁')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="text-sm leading-relaxed text-muted-foreground">
+                    {t('1. 빈칸 채우기로 핵심 개념을 정리하세요.')}
+                  </li>
+                  <li className="text-sm leading-relaxed text-muted-foreground">
+                    {t('2. OX로 빠르게 개념을 점검하세요.')}
+                  </li>
+                  <li className="text-sm leading-relaxed text-muted-foreground">
+                    {t('3. 객관식으로 개념을 응용해 보세요.')}
+                  </li>
+                </ul>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  {t(
+                    '빈칸, OX, 객관식 유형을 번갈아 풀어보며 개념 이해와 기억을 균형 있게 강화하세요.',
+                  )}
+                </p>
+              </CardContent>
+            </Card>
 
-      {/* FAQ */}
-      <Card className="rounded-2xl border border-border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg font-bold">
-            <HelpCircle className="size-5 text-primary" />
-            {t('자주 묻는 질문 (FAQ)')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {FAQ_ITEMS.map((item) => (
-            <FaqItem key={item.qKey} question={t(item.qKey)} answer={t(item.aKey)} />
-          ))}
+            {/* 신뢰 이유 */}
+            <Card className="rounded-xl border border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                  <Shield className="size-5 text-chart-2" />
+                  {t('Q-Asker를 신뢰할 수 있는 이유')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                    <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
+                    {t('자료 보호')} — {t('모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다')}
+                  </li>
+                  <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                    <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
+                    {t('명확한 문제 생성 기준')} — {t('문제 유형별 기준에 맞춰 퀴즈를 생성합니다.')}
+                  </li>
+                  <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                    <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
+                    {t('파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.')}
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 주의사항 — 하위 카드 */}
+          <Card className="rounded-xl border border-border">
+            <CardContent className="pt-6">
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                <span className="font-semibold text-foreground">
+                  {t('꼭 읽어주세요: 주의사항')}
+                </span>
+                <br />
+                {t(
+                  '생성된 문제는 학습 참고용이며, 사실관계가 100% 정확하지 않을 수 있습니다. 중요한 정보는 반드시 원본과 교차 확인하세요.',
+                )}
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* FAQ — 하위 카드 */}
+          <Card className="rounded-xl border border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                <HelpCircle className="size-5 text-primary" />
+                {t('자주 묻는 질문 (FAQ)')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {FAQ_ITEMS.map((item) => (
+                <FaqItem key={item.qKey} question={t(item.qKey)} answer={t(item.aKey)} />
+              ))}
+            </CardContent>
+          </Card>
         </CardContent>
       </Card>
     </section>
