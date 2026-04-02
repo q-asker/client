@@ -72,6 +72,15 @@ const MakeQuiz: React.FC = () => {
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
+
+  // Zustand persist hydration 완료 전까지 빈 화면 → 퀴즈 화면 플래싱 방지
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => {
+    const unsub = useQuizGenerationStore.persist.onFinishHydration(() => setIsHydrated(true));
+    // 이미 hydration이 완료된 경우
+    if (useQuizGenerationStore.persist.hasHydrated()) setIsHydrated(true);
+    return unsub;
+  }, []);
   const isAuthenticated = !!useAuthStore((state) => state.accessToken);
   const generatedQuizCount = useQuizGenerationStore((state) => state.quizzes.length);
   const safeFileName: string = upload.file?.name || storedFileInfo?.name || t('업로드된 파일');
@@ -138,6 +147,19 @@ const MakeQuiz: React.FC = () => {
 
   const currentLevel: { title: string; question: string; options: string[] } | undefined =
     levelDescriptions[options.quizLevel as QuizLevel];
+
+  // Hydration 완료 전 — 레이아웃만 표시하여 업로드↔퀴즈 화면 플래싱 방지
+  if (!isHydrated) {
+    return (
+      <div className="flex min-h-screen flex-col bg-muted">
+        <Header
+          isSidebarOpen={ui.isSidebarOpen}
+          toggleSidebar={uiActions.toggleSidebar}
+          setIsSidebarOpen={uiActions.setIsSidebarOpen}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-muted">
@@ -239,6 +261,7 @@ const MakeQuiz: React.FC = () => {
                                   if (e.key === 'Enter') pageActions.handleApplyPageRange();
                                 }}
                                 disabled={!pages.numPages}
+                                aria-label={t('시작 페이지')}
                                 className="w-12 border-none bg-transparent text-center text-sm font-bold tabular-nums text-foreground outline-none disabled:cursor-not-allowed disabled:text-muted-foreground"
                               />
 
@@ -257,6 +280,7 @@ const MakeQuiz: React.FC = () => {
                                   if (e.key === 'Enter') pageActions.handleApplyPageRange();
                                 }}
                                 disabled={!pages.numPages}
+                                aria-label={t('끝 페이지')}
                                 className="w-12 border-none bg-transparent text-center text-sm font-bold tabular-nums text-foreground outline-none disabled:cursor-not-allowed disabled:text-muted-foreground"
                               />
 
@@ -547,6 +571,7 @@ const MakeQuiz: React.FC = () => {
                             const newCount: number = +e.target.value;
                             optionActions.handleQuestionCountChange(newCount);
                           }}
+                          aria-label={t('문제 수')}
                           className="h-1.5 w-full accent-primary md:h-1"
                         />
 
@@ -769,6 +794,7 @@ const MakeQuiz: React.FC = () => {
                         type="file"
                         accept={acceptExtensions}
                         onChange={uploadActions.handleFileInput}
+                        aria-label={t('파일 선택하기')}
                         className="absolute inset-0 cursor-pointer opacity-0"
                       />
                     </div>
@@ -1008,6 +1034,14 @@ const FAQ_ITEMS = [
     qKey: 'Q. 이미지로 된 파일도 퀴즈로 만들 수 있나요?',
     aKey: '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.',
   },
+  {
+    qKey: 'Q. 한 번에 몇 문제까지 생성할 수 있나요?',
+    aKey: '5개, 10개, 15개, 20개, 25개 중 선택할 수 있습니다. 페이지 범위를 지정하면 특정 구간에 집중한 문제를 생성할 수 있습니다.',
+  },
+  {
+    qKey: 'Q. 생성된 퀴즈는 저장되나요?',
+    aKey: '네. 로그인 시 퀴즈 기록에 자동 저장되며, 비로그인 시에도 24시간 동안 브라우저에 임시 저장됩니다.',
+  },
 ] as const;
 
 /** 메인 페이지 하단 SEO 콘텐츠 — 서비스 소개, 가이드, 팁, 신뢰, FAQ */
@@ -1028,6 +1062,11 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
           {t(
             'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.',
           )}
+        </p>
+        <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground/80">
+          {currentLanguage === 'en'
+            ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5–25), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
+            : 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 30MB 파일을 업로드하고 페이지 범위와 문제 수(5~25개)를 선택하면 수 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.'}
         </p>
       </div>
 
