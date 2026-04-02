@@ -8,6 +8,7 @@ import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
+import { Skeleton } from '@/shared/ui/components/skeleton';
 
 /** E안: Split Panel — lg 이상 2컬럼, 우측 네비게이션+통계 패널 */
 const SolveQuizDesignB: React.FC = () => {
@@ -285,9 +286,18 @@ const SolveQuizDesignB: React.FC = () => {
 
           {/* 문제 영역 */}
           {quiz.isLoading ? (
-            <div className="flex h-screen flex-col items-center justify-center">
-              <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-muted border-t-primary" />
-              <p className="text-sm text-muted-foreground">{t('문제 로딩 중…')}</p>
+            <div className="w-full space-y-4">
+              <div className="w-full overflow-hidden rounded-2xl bg-card p-6 shadow-card">
+                <Skeleton className="mb-3 h-4 w-24 rounded" />
+                <Skeleton className="mb-2 h-5 w-full rounded" />
+                <Skeleton className="mb-2 h-5 w-3/4 rounded" />
+                <Skeleton className="h-32 w-full rounded-lg" />
+              </div>
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14 w-full rounded-xl" />
+                ))}
+              </div>
             </div>
           ) : (
             <>

@@ -49,7 +49,7 @@ const THEME_OPTIONS = [
 
 const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }: HeaderProps) => {
   const {
-    state: { t, isAuthenticated, user, currentLanguage },
+    state: { t, isAuthenticated, hasHydrated, user, currentLanguage },
     actions: { handleQuizManagement, handleHelp, handleLogout, handleLanguageChange, closeSidebar },
   } = useHeader({ setIsSidebarOpen, setShowHelp });
   const { theme, setTheme } = useTheme();
@@ -90,6 +90,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
   });
 
   useEffect(() => {
+    if (!hasHydrated) return;
     if (!isAuthenticated) {
       try {
         const today = new Date().toISOString().slice(0, 10);
@@ -102,7 +103,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
     }
     setShowNavTooltip(false);
     return undefined;
-  }, [isAuthenticated]);
+  }, [isAuthenticated, hasHydrated]);
 
   const handleNavTooltipClose = () => {
     try {
@@ -135,7 +136,9 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
 
           {/* 모바일 프로필/로그인 버튼 */}
           <div className="flex items-center md:hidden">
-            {isAuthenticated ? (
+            {!hasHydrated ? (
+              <div className="size-8" />
+            ) : isAuthenticated ? (
               <div className="relative">
                 <button
                   id="mobileProfileButton"
@@ -351,7 +354,9 @@ const Header = ({ isSidebarOpen, toggleSidebar, setIsSidebarOpen, setShowHelp }:
 
             {/* 인증 버튼 */}
             <div className="flex items-center">
-              {isAuthenticated ? (
+              {!hasHydrated ? (
+                <div className="size-9" />
+              ) : isAuthenticated ? (
                 <div className="relative">
                   <button
                     id="profileButton"
