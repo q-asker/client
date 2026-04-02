@@ -12,6 +12,7 @@ export interface UpdateLog {
 interface UseRecentChangesReturn {
   state: {
     changes: UpdateLog[];
+    isLoading: boolean;
   };
   actions: {
     formatDate: (isoString: string) => string;
@@ -64,6 +65,7 @@ export const useRecentChanges = (): UseRecentChangesReturn => {
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
   const [changes, setChanges] = useState<UpdateLog[]>(isMock ? MOCK_CHANGES : []);
+  const [isLoading, setIsLoading] = useState(!isMock);
 
   useEffect(() => {
     if (isMock) return;
@@ -75,6 +77,8 @@ export const useRecentChanges = (): UseRecentChangesReturn => {
         setChanges(data.updateLogs || []);
       } catch (err) {
         console.error(t('변경사항 로드 실패:'), err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -83,7 +87,7 @@ export const useRecentChanges = (): UseRecentChangesReturn => {
   }, [isMock]);
 
   return {
-    state: { changes },
+    state: { changes, isLoading },
     actions: { formatDate },
   };
 };
