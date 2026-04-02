@@ -19,7 +19,13 @@ import MarkdownText from '@/shared/ui/components/markdown-text';
 import MockPageGrid from './MockPageGrid';
 
 // PDF 뷰어를 파일 업로드 후에만 로드 (초기 번들 106KB 절감)
-const PdfPageSelector = React.lazy(() => import('./PdfPageSelector'));
+const pdfImport = () => import('./PdfPageSelector');
+const PdfPageSelector = React.lazy(pdfImport);
+
+// idle 시 PDF 뷰어 청크 백그라운드 프리로드
+if (typeof window !== 'undefined') {
+  window.requestIdleCallback(() => pdfImport());
+}
 import { useNavigate } from 'react-router-dom';
 import RecentChanges from '#widgets/recent-changes';
 import { cn } from '@/shared/ui/lib/utils';
