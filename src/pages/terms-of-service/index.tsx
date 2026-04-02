@@ -168,7 +168,7 @@ const TermsOfService = () => {
               <h2 className="mb-3 text-lg font-semibold text-foreground max-md:text-base">
                 {t('7. 문의처')}
               </h2>
-              <p className="text-muted-foreground">{t('이메일: inhapj01@gmail.com')}</p>
+              <p className="text-muted-foreground">{t('이메일: contact@q-asker.com')}</p>
             </section>
           </main>
         </div>

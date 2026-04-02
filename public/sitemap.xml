@@ -9,50 +9,40 @@
     <xhtml:link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.q-asker.com/en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/" />
-    <lastmod>2026-02-06T00:00:00.000Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-04-02</lastmod>
   </url>
   <url>
     <loc>https://www.q-asker.com/ko</loc>
     <xhtml:link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.q-asker.com/en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/" />
-    <lastmod>2026-02-06T00:00:00.000Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-04-02</lastmod>
   </url>
   <url>
     <loc>https://www.q-asker.com/en</loc>
     <xhtml:link rel="alternate" hreflang="ko" href="https://www.q-asker.com/ko" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.q-asker.com/en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/" />
-    <lastmod>2026-02-06T00:00:00.000Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-04-02</lastmod>
   </url>
   <url>
     <loc>https://www.q-asker.com/history</loc>
-    <lastmod>2026-02-06T00:00:00.000Z</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/history" />
+    <lastmod>2026-03-28</lastmod>
   </url>
   <url>
     <loc>https://www.q-asker.com/privacy-policy</loc>
-    <lastmod>2026-02-06T00:00:00.000Z</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/privacy-policy" />
+    <lastmod>2026-03-28</lastmod>
   </url>
   <url>
     <loc>https://www.q-asker.com/terms-of-service</loc>
-    <lastmod>2026-02-06T00:00:00.000Z</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/terms-of-service" />
+    <lastmod>2026-03-30</lastmod>
   </url>
   <url>
     <loc>https://www.q-asker.com/boards</loc>
-    <lastmod>2026-02-06T00:00:00.000Z</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.q-asker.com/boards" />
+    <lastmod>2026-03-30</lastmod>
   </url>
 </urlset>

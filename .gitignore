@@ -36,4 +36,5 @@ docs
 CLAUDE.md
 shrimp-rules.md
 .mcp.json
-.claude
+.claudescreenshots/
+.gstack/

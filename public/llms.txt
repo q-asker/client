@@ -1,18 +1,36 @@
 # Q-Asker
 
-> AI-powered quiz generator from PDF, PPT, and Word documents.
+> Free AI quiz generator that creates fill-in-the-blank, true/false, and
+> multiple-choice questions from uploaded PDF, PPT, and Word files.
 
-Q-Asker is a free web service that automatically generates quizzes from uploaded study materials. Users can create fill-in-the-blank, true/false, and multiple-choice questions without signing up.
+Q-Asker is a Korean-built, multilingual (Korean/English) web application
+for students and educators. Upload any study document and receive AI-generated
+quizzes within seconds. No signup required. Files are deleted after 24 hours.
 
-## Features
+## Use Cases
 
-- Upload PDF, PPT, or Word files
-- AI analyzes documents and generates quizzes automatically
-- Three question types: fill-in-the-blank, true/false, multiple-choice
-- Detailed explanations with document page references
-- Quiz history management
-- OCR support for scanned documents
-- Multilingual support (Korean, English)
+- University exam preparation from lecture slide PDFs
+- Corporate training quizzes from Word policy documents
+- Language learning question sets from textbook PDFs
+- OCR-based quiz creation from scanned documents
+
+## Key Differentiators
+
+- Free with no account required
+- OCR support for image-based and scanned documents
+- Page-range selection for targeted quiz generation
+- Detailed explanations with source page preview
+- Quiz history management for long-term review
+
+## Supported File Formats
+
+PDF, PPT, PPTX, DOC, DOCX
+
+## Question Types
+
+- Fill-in-the-blank (빈칸 채우기)
+- True/False (OX 퀴즈)
+- Multiple-choice (객관식)
 
 ## Links
 
@@ -21,3 +39,15 @@ Q-Asker is a free web service that automatically generates quizzes from uploaded
 - English: https://www.q-asker.com/en
 - Privacy Policy: https://www.q-asker.com/privacy-policy
 - Terms of Service: https://www.q-asker.com/terms-of-service
+
+## Last Updated
+
+2026-04-02
+
+## License
+
+RSL-1.0: Content available for AI search citation with attribution to Q-Asker (https://www.q-asker.com).
+
+## Full Documentation
+
+For detailed documentation, see https://www.q-asker.com/llms-full.txt

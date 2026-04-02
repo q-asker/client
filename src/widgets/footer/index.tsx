@@ -37,11 +37,11 @@ const Footer = () => {
               {t('구글 폼 링크')}
             </a>
             <a
-              href="mailto:inhapj01@gmail.com"
+              href="mailto:contact@q-asker.com"
               aria-label={t('Q-Asker 이메일 문의')}
               className="text-sm text-foreground no-underline transition-colors duration-200 hover:underline"
             >
-              inhapj01@gmail.com
+              contact@q-asker.com
             </a>
           </div>
 

@@ -15,11 +15,11 @@ import { useQuizGenerationStore } from '#features/quiz-generation';
 import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { useAuthStore } from '#entities/auth';
-import { Document, Page } from 'react-pdf';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import MockPageGrid from './MockPageGrid';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
+
+// PDF 뷰어를 파일 업로드 후에만 로드 (초기 번들 106KB 절감)
+const PdfPageSelector = React.lazy(() => import('./PdfPageSelector'));
 import { useNavigate } from 'react-router-dom';
 import RecentChanges from '#widgets/recent-changes';
 import { cn } from '@/shared/ui/lib/utils';
@@ -72,6 +72,15 @@ const MakeQuiz: React.FC = () => {
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
+
+  // Zustand persist hydration 완료 전까지 빈 화면 → 퀴즈 화면 플래싱 방지
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => {
+    const unsub = useQuizGenerationStore.persist.onFinishHydration(() => setIsHydrated(true));
+    // 이미 hydration이 완료된 경우
+    if (useQuizGenerationStore.persist.hasHydrated()) setIsHydrated(true);
+    return unsub;
+  }, []);
   const isAuthenticated = !!useAuthStore((state) => state.accessToken);
   const generatedQuizCount = useQuizGenerationStore((state) => state.quizzes.length);
   const safeFileName: string = upload.file?.name || storedFileInfo?.name || t('업로드된 파일');
@@ -138,6 +147,19 @@ const MakeQuiz: React.FC = () => {
 
   const currentLevel: { title: string; question: string; options: string[] } | undefined =
     levelDescriptions[options.quizLevel as QuizLevel];
+
+  // Hydration 완료 전 — 레이아웃만 표시하여 업로드↔퀴즈 화면 플래싱 방지
+  if (!isHydrated) {
+    return (
+      <div className="flex min-h-screen flex-col bg-muted">
+        <Header
+          isSidebarOpen={ui.isSidebarOpen}
+          toggleSidebar={uiActions.toggleSidebar}
+          setIsSidebarOpen={uiActions.setIsSidebarOpen}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-muted">
@@ -239,6 +261,7 @@ const MakeQuiz: React.FC = () => {
                                   if (e.key === 'Enter') pageActions.handleApplyPageRange();
                                 }}
                                 disabled={!pages.numPages}
+                                aria-label={t('시작 페이지')}
                                 className="w-12 border-none bg-transparent text-center text-sm font-bold tabular-nums text-foreground outline-none disabled:cursor-not-allowed disabled:text-muted-foreground"
                               />
 
@@ -257,6 +280,7 @@ const MakeQuiz: React.FC = () => {
                                   if (e.key === 'Enter') pageActions.handleApplyPageRange();
                                 }}
                                 disabled={!pages.numPages}
+                                aria-label={t('끝 페이지')}
                                 className="w-12 border-none bg-transparent text-center text-sm font-bold tabular-nums text-foreground outline-none disabled:cursor-not-allowed disabled:text-muted-foreground"
                               />
 
@@ -333,23 +357,8 @@ const MakeQuiz: React.FC = () => {
                             onPageClick={pageActions.handlePageSelection}
                           />
                         ) : (
-                          <Document
-                            file={upload.uploadedUrl}
-                            onLoadSuccess={pageActions.onDocumentLoadSuccess}
-                            onLoadError={(error: Error & { status?: number }) => {
-                              // 404 → MissingPDFException (status 없음), 그 외 4xx → UnexpectedResponseException (status 있음)
-                              if (
-                                error.name === 'MissingPDFException' ||
-                                (error.status && error.status >= 400 && error.status < 500)
-                              ) {
-                                CustomToast.error(t('파일이 삭제되었습니다. 다시 업로드해주세요.'));
-                                commonActions.handleRemoveFile();
-                              } else {
-                                console.error(error);
-                              }
-                            }}
-                            options={pdfOptions}
-                            loading={
+                          <React.Suspense
+                            fallback={
                               <div className="flex flex-col items-center justify-center py-12">
                                 <div className="mb-3 size-8 animate-spin rounded-full border-3 border-muted-foreground/20 border-t-primary" />
                                 <p className="text-sm font-medium text-muted-foreground">
@@ -358,85 +367,34 @@ const MakeQuiz: React.FC = () => {
                               </div>
                             }
                           >
-                            <div className="relative">
-                              <div
-                                className="grid max-h-[360px] grid-cols-2 gap-2 overflow-y-auto p-1 sm:grid-cols-3 sm:gap-3 sm:p-1.5"
-                                onMouseLeave={pageActions.handlePageMouseLeave}
-                              >
-                                {Array.from(
-                                  new Array(Math.min(pages.visiblePageCount, pages.numPages ?? 0)),
-                                  (_el: undefined, index: number) => {
-                                    const pageNumber: number = index + 1;
-                                    const isSelected: boolean =
-                                      pages.selectedPages.includes(pageNumber);
-                                    const isHovered: boolean =
-                                      pages.hoveredPage?.pageNumber === pageNumber;
-
-                                    return (
-                                      <div
-                                        key={`page_${pageNumber}`}
-                                        className={cn(
-                                          'relative cursor-pointer overflow-hidden rounded-none border-2 border-transparent bg-muted text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
-                                          isSelected && 'border-primary',
-                                          isHovered && 'border-muted-foreground',
-                                        )}
-                                        onClick={() => {
-                                          pageActions.handlePageSelection(pageNumber);
-                                        }}
-                                        onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                                          pageActions.handlePageMouseEnter(e, pageNumber);
-                                        }}
-                                      >
-                                        <Page
-                                          pageNumber={pageNumber}
-                                          width={300}
-                                          renderTextLayer={false}
-                                          renderAnnotationLayer={false}
-                                          className="[&_canvas]:!h-auto [&_canvas]:!w-full"
-                                        />
-
-                                        <p
-                                          className={cn(
-                                            'mt-2 flex items-center justify-center pb-2 text-sm text-muted-foreground',
-                                            "before:mr-2 before:inline-block before:size-4 before:rounded-full before:border before:border-border before:bg-background before:content-['']",
-                                            isSelected &&
-                                              "font-semibold text-foreground before:border-primary before:bg-primary before:bg-[url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpath%20fill='none'%20stroke='white'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M4%208l3%203%205-5'/%3e%3c/svg%3e\")]",
-                                          )}
-                                        >
-                                          {t('페이지')}
-                                          {pageNumber}
-                                        </p>
-                                      </div>
-                                    );
-                                  },
-                                )}
-                                {pages.visiblePageCount < (pages.numPages ?? 0) && (
-                                  <div className="col-span-full mt-4 flex flex-col items-center justify-center rounded-xl bg-muted p-5 text-muted-foreground">
-                                    <div className="mb-2 size-6 animate-spin rounded-full border-2 border-border border-t-primary" />
-                                    <p className="m-0 text-sm font-medium">
-                                      {t('더 많은 페이지 로딩 중... (')}
-                                      {pages.visiblePageCount}/{pages.numPages})
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* 페이지 호버 미리보기 */}
-                              {pages.isPreviewVisible && pages.hoveredPage && (
-                                <div
-                                  className="pointer-events-none absolute z-30 rounded-2xl bg-background p-3 shadow-lg transition-[opacity,top] duration-200"
-                                  style={pages.hoveredPage.style}
-                                >
-                                  <Page
-                                    pageNumber={pages.hoveredPage.pageNumber}
-                                    width={640}
-                                    renderTextLayer={false}
-                                    renderAnnotationLayer={false}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </Document>
+                            <PdfPageSelector
+                              uploadedUrl={upload.uploadedUrl}
+                              pdfOptions={pdfOptions}
+                              numPages={pages.numPages}
+                              visiblePageCount={pages.visiblePageCount}
+                              selectedPages={pages.selectedPages}
+                              hoveredPage={pages.hoveredPage}
+                              isPreviewVisible={pages.isPreviewVisible}
+                              t={t}
+                              onDocumentLoadSuccess={pageActions.onDocumentLoadSuccess}
+                              onLoadError={(error: Error & { status?: number }) => {
+                                if (
+                                  error.name === 'MissingPDFException' ||
+                                  (error.status && error.status >= 400 && error.status < 500)
+                                ) {
+                                  CustomToast.error(
+                                    t('파일이 존재하지 않습니다. 다시 업로드해주세요.'),
+                                  );
+                                  commonActions.handleRemoveFile();
+                                } else {
+                                  console.error(error);
+                                }
+                              }}
+                              onPageClick={pageActions.handlePageSelection}
+                              onPageMouseEnter={pageActions.handlePageMouseEnter}
+                              onPageMouseLeave={pageActions.handlePageMouseLeave}
+                            />
+                          </React.Suspense>
                         )}
                       </div>
                     )}
@@ -547,6 +505,7 @@ const MakeQuiz: React.FC = () => {
                             const newCount: number = +e.target.value;
                             optionActions.handleQuestionCountChange(newCount);
                           }}
+                          aria-label={t('문제 수')}
                           className="h-1.5 w-full accent-primary md:h-1"
                         />
 
@@ -745,7 +704,10 @@ const MakeQuiz: React.FC = () => {
                       <div className="absolute -inset-2 animate-pulse rounded-full border border-primary/20" />
                     </div>
 
-                    {/* 모바일: "파일을 업로드하세요", 데스크톱: "파일을 여기에 드래그하세요" */}
+                    {/* "퀴즈를 생성하기 위해" + 모바일: "파일을 업로드하세요", 데스크톱: "파일을 여기에 드래그하세요" */}
+                    <p className="mb-1 text-sm font-medium text-muted-foreground sm:text-base">
+                      {t('퀴즈를 생성하기 위해')}
+                    </p>
                     <h2 className="mb-1.5 text-lg font-bold tracking-tight text-foreground sm:mb-2 sm:text-xl">
                       <span className="hidden sm:inline">
                         <TextAnimate animation="slideUp" by="word" startOnView={false}>
@@ -769,6 +731,7 @@ const MakeQuiz: React.FC = () => {
                         type="file"
                         accept={acceptExtensions}
                         onChange={uploadActions.handleFileInput}
+                        aria-label={t('파일 선택하기')}
                         className="absolute inset-0 cursor-pointer opacity-0"
                       />
                     </div>
@@ -940,12 +903,14 @@ const MakeQuiz: React.FC = () => {
         </AnimatePresence>
 
         <RecentChanges />
-
-        {/* ─── SEO 콘텐츠 섹션: 파일 미업로드 & 퀴즈 미생성 시에만 표시 ─── */}
-        {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
-          <SeoContent t={t} />
-        )}
       </div>
+
+      {/* ─── SEO 콘텐츠 섹션: 파일 미업로드 & 퀴즈 미생성 시에만 표시 ─── */}
+      {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
+        <div className="mx-auto w-full px-4 md:w-[90%] lg:w-[85%] xl:w-[80%]">
+          <SeoContent t={t} currentLanguage={currentLanguage} />
+        </div>
+      )}
 
       <Footer />
     </div>
@@ -1006,139 +971,166 @@ const FAQ_ITEMS = [
     qKey: 'Q. 이미지로 된 파일도 퀴즈로 만들 수 있나요?',
     aKey: '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.',
   },
+  {
+    qKey: 'Q. 한 번에 몇 문제까지 생성할 수 있나요?',
+    aKey: '5개, 10개, 15개, 20개, 25개 중 선택할 수 있습니다. 페이지 범위를 지정하면 특정 구간에 집중한 문제를 생성할 수 있습니다.',
+  },
+  {
+    qKey: 'Q. 생성된 퀴즈는 저장되나요?',
+    aKey: '네. 로그인 시 퀴즈 기록에 자동 저장되며, 비로그인 시에도 24시간 동안 브라우저에 임시 저장됩니다.',
+  },
 ] as const;
 
 /** 메인 페이지 하단 SEO 콘텐츠 — 서비스 소개, 가이드, 팁, 신뢰, FAQ */
-const SeoContent: React.FC<{ t: (key: string) => string }> = ({ t }) => {
+const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string }> = ({
+  t,
+  currentLanguage,
+}) => {
   return (
-    <section id="how-to-use" className="mt-8 space-y-6 pb-4 sm:mt-12 sm:space-y-8">
-      {/* 서비스 소개 */}
-      <div className="text-center">
-        <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          {t('AI 퀴즈 생성')}
-        </h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          {t(
-            'PDF, PPT, Word 공부 자료로 퀴즈를 만들어 보세요. 핵심 개념을 빠르게 암기하고 시험 대비에 효과적입니다.',
-          )}
-        </p>
-      </div>
-
-      {/* 6단계 가이드 */}
+    <section id="how-to-use" className="mt-8 pb-4 sm:mt-12">
+      {/* 서비스 소개 — 상위 카드 */}
       <Card className="rounded-2xl border border-border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg font-bold">
-            <BookOpen className="size-5 text-primary" />
-            {t('AI 퀴즈 만들기 6단계 가이드')}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {t('가지고 계신 학습 자료로 AI 퀴즈를 만드는 가장 쉬운 방법을 알려드립니다.')}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {GUIDE_STEPS.map((step, i) => (
-              <div
-                key={step.stepKey}
-                className="flex items-start gap-3 rounded-xl border border-border bg-muted/50 p-4"
-              >
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                  {i + 1}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t(step.stepKey)}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {t(step.descKey)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 활용 팁 + 신뢰 이유 — 2컬럼 */}
-      <div className="grid gap-6 sm:grid-cols-2">
-        {/* 활용 팁 */}
-        <Card className="rounded-2xl border border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold">
-              <Lightbulb className="size-5 text-chart-3" />
-              {t('AI 퀴즈 활용 200% 팁')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              <li className="text-sm leading-relaxed text-muted-foreground">
-                {t('1. 빈칸 채우기로 핵심 개념을 정리하세요.')}
-              </li>
-              <li className="text-sm leading-relaxed text-muted-foreground">
-                {t('2. OX로 빠르게 개념을 점검하세요.')}
-              </li>
-              <li className="text-sm leading-relaxed text-muted-foreground">
-                {t('3. 객관식으로 개념을 응용해 보세요.')}
-              </li>
-            </ul>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        <CardContent className="space-y-6 pt-6 sm:space-y-8">
+          {/* 타이틀 + 설명 */}
+          <div className="text-center">
+            <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              {currentLanguage === 'en'
+                ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
+                : 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성'}
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
               {t(
-                '빈칸, OX, 객관식 유형을 번갈아 풀어보며 개념 이해와 기억을 균형 있게 강화하세요.',
+                'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요.',
               )}
+              <br />
+              {t('지금 회원가입 없이 무료로 시작하세요.')}
             </p>
-          </CardContent>
-        </Card>
+            <p className="sr-only">
+              {currentLanguage === 'en'
+                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5–25), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
+                : 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 30MB 파일을 업로드하고 페이지 범위와 문제 수(5~25개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.'}
+            </p>
+          </div>
 
-        {/* 신뢰 이유 */}
-        <Card className="rounded-2xl border border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold">
-              <Shield className="size-5 text-chart-2" />
-              {t('Q-Asker를 신뢰할 수 있는 이유')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
-                <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
-                {t('자료 보호')} — {t('모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다')}
-              </li>
-              <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
-                <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
-                {t('명확한 문제 생성 기준')} — {t('문제 유형별 기준에 맞춰 퀴즈를 생성합니다.')}
-              </li>
-              <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
-                <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
-                {t('파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.')}
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
+          {/* 6단계 가이드 — 하위 카드 */}
+          <Card className="rounded-xl border border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                <BookOpen className="size-5 text-primary" />
+                {t('AI 퀴즈 만들기 6단계 가이드')}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {t('가지고 계신 학습 자료로 AI 퀴즈를 만드는 가장 쉬운 방법을 알려드립니다.')}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {GUIDE_STEPS.map((step, i) => (
+                  <div
+                    key={step.stepKey}
+                    className="flex items-start gap-3 rounded-xl border border-border bg-muted/50 p-4"
+                  >
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{t(step.stepKey)}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {t(step.descKey)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* 주의사항 */}
-      <Card className="rounded-2xl border border-border">
-        <CardContent className="pt-6">
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            <span className="font-semibold text-foreground">{t('꼭 읽어주세요: 주의사항')}</span>
-            <br />
-            {t(
-              '생성된 문제는 학습 참고용이며, 사실관계가 100% 정확하지 않을 수 있습니다. 중요한 정보는 반드시 원본과 교차 확인하세요.',
-            )}
-          </p>
-        </CardContent>
-      </Card>
+          {/* 활용 팁 + 신뢰 이유 — 하위 카드 2컬럼 */}
+          <div className="grid gap-6 sm:grid-cols-2">
+            {/* 활용 팁 */}
+            <Card className="rounded-xl border border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                  <Lightbulb className="size-5 text-chart-3" />
+                  {t('AI 퀴즈 활용 200% 팁')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="text-sm leading-relaxed text-muted-foreground">
+                    {t('1. 빈칸 채우기로 핵심 개념을 정리하세요.')}
+                  </li>
+                  <li className="text-sm leading-relaxed text-muted-foreground">
+                    {t('2. OX로 빠르게 개념을 점검하세요.')}
+                  </li>
+                  <li className="text-sm leading-relaxed text-muted-foreground">
+                    {t('3. 객관식으로 개념을 응용해 보세요.')}
+                  </li>
+                </ul>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  {t(
+                    '빈칸, OX, 객관식 유형을 번갈아 풀어보며 개념 이해와 기억을 균형 있게 강화하세요.',
+                  )}
+                </p>
+              </CardContent>
+            </Card>
 
-      {/* FAQ */}
-      <Card className="rounded-2xl border border-border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg font-bold">
-            <HelpCircle className="size-5 text-primary" />
-            {t('자주 묻는 질문 (FAQ)')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {FAQ_ITEMS.map((item) => (
-            <FaqItem key={item.qKey} question={t(item.qKey)} answer={t(item.aKey)} />
-          ))}
+            {/* 신뢰 이유 */}
+            <Card className="rounded-xl border border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                  <Shield className="size-5 text-chart-2" />
+                  {t('Q-Asker를 신뢰할 수 있는 이유')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                    <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
+                    {t('자료 보호')} — {t('모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다')}
+                  </li>
+                  <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                    <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
+                    {t('명확한 문제 생성 기준')} — {t('문제 유형별 기준에 맞춰 퀴즈를 생성합니다.')}
+                  </li>
+                  <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                    <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
+                    {t('파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.')}
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 주의사항 — 하위 카드 */}
+          <Card className="rounded-xl border border-border">
+            <CardContent className="pt-6">
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                <span className="font-semibold text-foreground">
+                  {t('꼭 읽어주세요: 주의사항')}
+                </span>
+                <br />
+                {t(
+                  '생성된 문제는 학습 참고용이며, 사실관계가 100% 정확하지 않을 수 있습니다. 중요한 정보는 반드시 원본과 교차 확인하세요.',
+                )}
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* FAQ — 하위 카드 */}
+          <Card className="rounded-xl border border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                <HelpCircle className="size-5 text-primary" />
+                {t('자주 묻는 질문 (FAQ)')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {FAQ_ITEMS.map((item) => (
+                <FaqItem key={item.qKey} question={t(item.qKey)} answer={t(item.aKey)} />
+              ))}
+            </CardContent>
+          </Card>
         </CardContent>
       </Card>
     </section>

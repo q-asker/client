@@ -1,11 +1,33 @@
-User-agent: *
+# AI 검색 크롤러 — 명시적 허용
+User-agent: GPTBot
+Allow: /
+Disallow: /login
+Disallow: /quiz/
+Disallow: /result/
+Disallow: /explanation/
+Disallow: /des/
+
+User-agent: OAI-SearchBot
 Allow: /
 
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# 기본 규칙
+User-agent: *
+Allow: /
 Disallow: /login
 Disallow: /login/redirect
 Disallow: /maintenance
 Disallow: /quiz/
 Disallow: /result/
 Disallow: /explanation/
+Disallow: /des/
 
 Sitemap: https://www.q-asker.com/sitemap.xml
