@@ -17,7 +17,13 @@ const QuizExplanation = lazy(() => import('#pages/quiz-explanation'));
 const QuizHistory = lazy(() => import('#pages/quiz-history'));
 const QuizHistoryDetail = lazy(() => import('#pages/quiz-history-detail'));
 const QuizResult = lazy(() => import('#pages/quiz-result'));
-const SolveQuiz = lazy(() => import('#pages/solve-quiz'));
+const solveQuizImport = () => import('#pages/solve-quiz');
+const SolveQuiz = lazy(solveQuizImport);
+
+// idle 시 퀴즈 풀기 페이지 백그라운드 프리로드
+if (typeof window !== 'undefined') {
+  window.requestIdleCallback(() => solveQuizImport());
+}
 import { I18nProvider, useLanguageSwitcher, useTranslation } from 'i18nexus';
 import { loadNamespace } from '#shared/i18n';
 import PageViewTracker from '#app/ui/PageViewTracker';
