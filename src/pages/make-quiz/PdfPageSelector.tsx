@@ -74,7 +74,7 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
 
   return (
     <Document
-      file={uploadedUrl}
+      file={uploadedUrl?.replace(/^https?:\/\/files\.q-asker\.com\//, '/files/')}
       onLoadSuccess={onDocumentLoadSuccess}
       onLoadError={onLoadError}
       options={pdfOptions}
