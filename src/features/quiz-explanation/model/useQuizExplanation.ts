@@ -29,10 +29,6 @@ interface PdfOptions {
   cMapUrl: string;
   cMapPacked: boolean;
   standardFontDataUrl: string;
-  disableRange: boolean;
-  disableAutoFetch: boolean;
-  disableStream: boolean;
-  rangeChunkSize: number;
 }
 
 interface UseQuizExplanationParams {
@@ -109,10 +105,6 @@ const PDF_OPTIONS: PdfOptions = {
   cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
   cMapPacked: true,
   standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
-  disableRange: false,
-  disableAutoFetch: true,
-  disableStream: true,
-  rangeChunkSize: 5 * 1024 * 1024,
 };
 
 // ── 퀴즈 해설 훅 ──

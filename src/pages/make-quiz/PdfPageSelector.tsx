@@ -8,7 +8,9 @@ import { cn } from '@/shared/ui/lib/utils';
 const CONCURRENT_RENDERS = 6;
 
 interface PdfPageSelectorProps {
-  uploadedUrl: string | null;
+  pdfData: { data: Uint8Array } | null;
+  pdfLoading: boolean;
+  pdfError: string | null;
   pdfOptions: object;
   numPages: number | null;
   visiblePageCount: number;
@@ -24,7 +26,9 @@ interface PdfPageSelectorProps {
 }
 
 const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
-  uploadedUrl,
+  pdfData,
+  pdfLoading,
+  pdfError,
   pdfOptions,
   numPages,
   visiblePageCount,
@@ -72,9 +76,20 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
     }
   }, []);
 
+  if (pdfLoading || !pdfData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="mb-3 size-8 animate-spin rounded-full border-3 border-muted-foreground/20 border-t-primary" />
+        <p className="text-sm font-medium text-muted-foreground">
+          {pdfError ? pdfError : t('PDF 로딩 중...')}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Document
-      file={uploadedUrl?.replace(/^https?:\/\/files\.q-asker\.com\//, '/files/')}
+      file={pdfData}
       onLoadSuccess={onDocumentLoadSuccess}
       onLoadError={onLoadError}
       options={pdfOptions}
