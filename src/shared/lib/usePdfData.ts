@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 /** 5MB 청크 단위로 Range 분할 다운로드, 실패 시 청크별 재시도 */
-const CHUNK_SIZE = 5 * 1024 * 1024;
+const CHUNK_SIZE = 3 * 1024 * 1024;
 const MAX_RETRIES = 3;
 
 interface PdfDataState {
@@ -78,7 +78,7 @@ export function usePdfData(uploadedUrl: string | null): PdfDataState {
     }
 
     // URL 변환: files.q-asker.com → /files/ (same-origin)
-    const url = uploadedUrl.replace(/^https?:\/\/files\.q-asker\.com\//, '/files/');
+    const url = uploadedUrl;
 
     abortRef.current?.abort();
     const controller = new AbortController();

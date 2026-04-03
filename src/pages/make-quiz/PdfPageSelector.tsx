@@ -42,29 +42,43 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
   onPageMouseEnter,
   onPageMouseLeave,
 }) => {
-  // 캡처된 썸네일 이미지 (pageNumber → dataURL)
   const [thumbnails, setThumbnails] = useState<Map<number, string>>(new Map());
-  // 현재 렌더링 중인 페이지 Set (최대 CONCURRENT_RENDERS개)
   const [renderingSet, setRenderingSet] = useState<Set<number>>(new Set());
+  // 스크롤로 도달한 최대 페이지 번호 — 여기까지만 캡처
+  const [scrollReach, setScrollReach] = useState(CONCURRENT_RENDERS);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   const maxPage = Math.min(visiblePageCount, numPages ?? 0);
 
-  // thumbnails 또는 maxPage 변경 시 렌더링 슬롯 채우기
+  // 스크롤 위치에 따라 캡처 범위 확장
+  const handleScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el || !maxPage) return;
+
+    // 스크롤 비율로 현재 보이는 페이지 근처 계산
+    const scrollRatio = (el.scrollTop + el.clientHeight) / el.scrollHeight;
+    const reachedPage = Math.min(Math.ceil(scrollRatio * maxPage) + CONCURRENT_RENDERS, maxPage);
+
+    setScrollReach((prev) => Math.max(prev, reachedPage));
+  }, [maxPage]);
+
+  // scrollReach 또는 thumbnails 변경 시 렌더링 슬롯 채우기
   useEffect(() => {
     setRenderingSet((prev) => {
       const next = new Set<number>();
       for (const p of prev) {
         if (!thumbnails.has(p)) next.add(p);
       }
-      for (let i = 1; i <= maxPage && next.size < CONCURRENT_RENDERS; i++) {
-        if (!thumbnails.has(i) && !next.has(i)) {
+      // scrollReach까지만 캡처
+      for (let i = 1; i <= scrollReach && next.size < CONCURRENT_RENDERS; i++) {
+        if (!thumbnails.has(i) && !next.has(i) && i <= maxPage) {
           next.add(i);
         }
       }
       if (next.size === prev.size && [...next].every((p) => prev.has(p))) return prev;
       return next;
     });
-  }, [thumbnails, maxPage]);
+  }, [thumbnails, scrollReach, maxPage]);
 
   // Page 렌더링 완료 → canvas를 이미지로 캡처
   const handlePageRenderSuccess = useCallback((pageNumber: number) => {
@@ -102,7 +116,9 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
     >
       <div className="relative">
         <div
+          ref={scrollContainerRef}
           className="grid max-h-[360px] grid-cols-2 gap-2 overflow-y-auto p-1 sm:grid-cols-3 sm:gap-3 sm:p-1.5"
+          onScroll={handleScroll}
           onMouseLeave={onPageMouseLeave}
         >
           {Array.from(new Array(maxPage), (_el: undefined, index: number) => {
@@ -111,6 +127,9 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
             const isHovered: boolean = hoveredPage?.pageNumber === pageNumber;
             const thumbnail = thumbnails.get(pageNumber);
             const isRendering = renderingSet.has(pageNumber);
+
+            // 캡처 완료 또는 렌더링 중인 페이지만 표시
+            if (!thumbnail && !isRendering) return null;
 
             return (
               <div
@@ -137,17 +156,13 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
                     className="[&_canvas]:!h-auto [&_canvas]:!w-full"
                     onRenderSuccess={() => handlePageRenderSuccess(pageNumber)}
                   />
-                ) : thumbnail ? (
+                ) : (
                   <img
-                    src={thumbnail}
+                    src={thumbnail!}
                     alt={`${t('페이지')}${pageNumber}`}
                     className="h-auto w-full"
                     draggable={false}
                   />
-                ) : (
-                  <div className="flex aspect-[3/4] items-center justify-center">
-                    <div className="size-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary" />
-                  </div>
                 )}
 
                 <p
@@ -164,12 +179,12 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
               </div>
             );
           })}
-          {visiblePageCount < (numPages ?? 0) && (
+          {scrollReach < maxPage && (
             <div className="col-span-full mt-4 flex flex-col items-center justify-center rounded-xl bg-muted p-5 text-muted-foreground">
               <div className="mb-2 size-6 animate-spin rounded-full border-2 border-border border-t-primary" />
               <p className="m-0 text-sm font-medium">
                 {t('더 많은 페이지 로딩 중... (')}
-                {visiblePageCount}/{numPages})
+                {thumbnails.size}/{maxPage})
               </p>
             </div>
           )}
