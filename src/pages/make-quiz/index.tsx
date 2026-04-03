@@ -402,6 +402,7 @@ const MakeQuiz: React.FC = () => {
                                   console.error(error);
                                 }
                               }}
+                              onPageRenderSuccess={pageActions.onPageRenderSuccess}
                               onPageClick={pageActions.handlePageSelection}
                               onPageMouseEnter={pageActions.handlePageMouseEnter}
                               onPageMouseLeave={pageActions.handlePageMouseLeave}

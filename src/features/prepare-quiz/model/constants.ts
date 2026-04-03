@@ -64,5 +64,4 @@ export const levelMapping: Record<QuestionType, QuizLevel> = {
 
 export const defaultType: QuestionType = 'MULTIPLE';
 
-export const pageCountToLoad: number = 50;
-export const loadInterval: number = 2500;
+export const pageCountToLoad: number = 10;
