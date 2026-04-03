@@ -10,6 +10,7 @@ import {
   MAX_FILE_SIZE,
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
+  ACCEPT_FILE_TYPES,
 } from '#features/prepare-quiz';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import axiosInstance from '#shared/api';
@@ -74,7 +75,7 @@ const MakeQuiz: React.FC = () => {
   const isMock = searchParams.get('mock') === 'true';
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const levelDescriptions = useMemo(() => getLevelDescriptions(t), []);
-  const acceptExtensions: string = SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`).join(', ');
+  const acceptExtensions: string = ACCEPT_FILE_TYPES;
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
