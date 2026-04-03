@@ -329,7 +329,7 @@ const QuizExplanation: React.FC = () => {
                         </p>
                       ) : uploadedUrl.toLowerCase().endsWith('.pdf') ? (
                         <Document
-                          file={uploadedUrl}
+                          file={uploadedUrl.replace(/^https?:\/\/files\.q-asker\.com\//, '/files/')}
                           loading={<p className="text-center">{t('PDF 로딩 중...')}</p>}
                           onLoadError={
                             ((err: Error) => (

@@ -82,7 +82,7 @@ const LoginSelect = () => {
               <Button
                 asChild
                 size="lg"
-                className="h-12 rounded-xl bg-[#fee500] text-base font-semibold text-foreground shadow-none hover:bg-[#f5dc00]"
+                className="h-12 rounded-xl bg-[#fee500] text-base font-semibold text-[#191919] shadow-none hover:bg-[#f5dc00]"
               >
                 <a href={kakaoLoginUrl} className="no-underline">
                   <svg className="mr-2 size-5" viewBox="0 0 24 24" fill="currentColor">
