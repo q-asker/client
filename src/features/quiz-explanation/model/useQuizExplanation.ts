@@ -29,7 +29,7 @@ interface PdfOptions {
   cMapUrl: string;
   cMapPacked: boolean;
   standardFontDataUrl: string;
-  disableAutoFetch: boolean;
+  disableRange: boolean;
 }
 
 interface UseQuizExplanationParams {
@@ -106,7 +106,7 @@ const PDF_OPTIONS: PdfOptions = {
   cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
   cMapPacked: true,
   standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
-  disableAutoFetch: true,
+  disableRange: true,
 };
 
 // ── 퀴즈 해설 훅 ──
