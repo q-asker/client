@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import CustomToast from '#shared/toast';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
-import { MAX_SELECT_PAGES, pageCountToLoad } from './constants';
+import { loadInterval, MAX_SELECT_PAGES, pageCountToLoad } from './constants';
 
 const PAGES_STORAGE_KEY = 'makeQuizPages';
 const EXPIRATION_MS = 24 * 60 * 60 * 1000;
@@ -38,7 +38,6 @@ export interface PrepareQuizPagesState {
 
 export interface PrepareQuizPagesActions {
   onDocumentLoadSuccess: (result: { numPages: number }) => void;
-  onPageRenderSuccess: (pageNumber: number) => void;
   handlePageSelection: (pageNumber: number) => void;
   handleSelectAllPages: () => void;
   handleClearAllPages: () => void;
@@ -125,13 +124,36 @@ export const usePrepareQuizPages = ({
     setPageRangeEnd(String(Math.min(numPages, MAX_SELECT_PAGES)));
   }, [numPages]);
 
-  const renderedPagesRef = useRef<Set<number>>(new Set());
-
   useEffect(() => {
     if (!numPages) return;
+
     const initialCount = Math.min(numPages, pageCountToLoad);
     visiblePageCountRef.current = initialCount;
     setVisiblePageCount(initialCount);
+
+    if (numPages <= pageCountToLoad) return;
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
+
+    const scheduleNext = () => {
+      timeoutId = setTimeout(() => {
+        if (cancelled) return;
+        const nextCount = Math.min(visiblePageCountRef.current + pageCountToLoad, numPages);
+        visiblePageCountRef.current = nextCount;
+        setVisiblePageCount(nextCount);
+        if (nextCount < numPages) {
+          scheduleNext();
+        }
+      }, loadInterval);
+    };
+
+    scheduleNext();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [numPages]);
 
   const onDocumentLoadSuccess = useCallback(
@@ -140,31 +162,6 @@ export const usePrepareQuizPages = ({
       applyAllPagesSelection(nextNumPages);
     },
     [applyAllPagesSelection],
-  );
-
-  /** 페이지 렌더링 완료 시 호출 — 현재 배치가 모두 완료되면 다음 배치 확장 */
-  const onPageRenderSuccess = useCallback(
-    (pageNumber: number) => {
-      renderedPagesRef.current.add(pageNumber);
-      const currentVisible = visiblePageCountRef.current;
-      const total = numPages ?? 0;
-      if (currentVisible >= total) return;
-
-      // 현재 배치의 모든 페이지가 렌더링 완료되었는지 확인
-      let batchComplete = true;
-      for (let i = currentVisible - pageCountToLoad + 1; i <= currentVisible; i++) {
-        if (i > 0 && !renderedPagesRef.current.has(i)) {
-          batchComplete = false;
-          break;
-        }
-      }
-      if (batchComplete) {
-        const nextCount = Math.min(currentVisible + pageCountToLoad, total);
-        visiblePageCountRef.current = nextCount;
-        setVisiblePageCount(nextCount);
-      }
-    },
-    [numPages],
   );
 
   const handlePageSelection = useCallback((pageNumber: number) => {
@@ -290,7 +287,6 @@ export const usePrepareQuizPages = ({
     setPageRangeStart('');
     setPageRangeEnd('');
     setIsPreviewVisible(true);
-    renderedPagesRef.current.clear();
     localStorage.removeItem(PAGES_STORAGE_KEY);
   }, []);
 
@@ -303,7 +299,6 @@ export const usePrepareQuizPages = ({
     setPageRangeStart('1');
     setPageRangeEnd(String(Math.min(numPages ?? 1, MAX_SELECT_PAGES)));
     setIsPreviewVisible(true);
-    renderedPagesRef.current.clear();
     localStorage.removeItem(PAGES_STORAGE_KEY);
   }, [numPages]);
 
@@ -321,7 +316,6 @@ export const usePrepareQuizPages = ({
     },
     actions: {
       onDocumentLoadSuccess,
-      onPageRenderSuccess,
       handlePageSelection,
       handleSelectAllPages,
       handleClearAllPages,

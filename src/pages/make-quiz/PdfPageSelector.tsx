@@ -4,8 +4,6 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { cn } from '@/shared/ui/lib/utils';
 
-/** 뷰포트 밖 미리 다운로드할 페이지 수 (앞뒤 각각) */
-const PREFETCH_BUFFER = 10;
 /** 동시에 canvas 렌더링할 페이지 수 */
 const CONCURRENT_RENDERS = 6;
 
@@ -20,7 +18,6 @@ interface PdfPageSelectorProps {
   t: (key: string) => string;
   onDocumentLoadSuccess: (pdf: { numPages: number }) => void;
   onLoadError: (error: Error & { status?: number }) => void;
-  onPageRenderSuccess: (pageNumber: number) => void;
   onPageClick: (pageNumber: number) => void;
   onPageMouseEnter: (e: React.MouseEvent<HTMLDivElement>, pageNumber: number) => void;
   onPageMouseLeave: () => void;
@@ -37,135 +34,48 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
   t,
   onDocumentLoadSuccess,
   onLoadError,
-  onPageRenderSuccess,
   onPageClick,
   onPageMouseEnter,
   onPageMouseLeave,
 }) => {
+  // 캡처된 썸네일 이미지 (pageNumber → dataURL)
   const [thumbnails, setThumbnails] = useState<Map<number, string>>(new Map());
+  // 현재 렌더링 중인 페이지 Set (최대 CONCURRENT_RENDERS개)
   const [renderingSet, setRenderingSet] = useState<Set<number>>(new Set());
-  const [visibleInViewport, setVisibleInViewport] = useState<Set<number>>(new Set());
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const observedRef = useRef<Set<Element>>(new Set());
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pdfDocRef = useRef<any>(null);
-  const prefetchedRef = useRef<Set<number>>(new Set());
 
   const maxPage = Math.min(visiblePageCount, numPages ?? 0);
 
-  // 스크롤 컨테이너 ref callback — observer를 여기서 생성
-  const scrollContainerRef = useCallback((container: HTMLDivElement | null) => {
-    // 이전 observer 정리
-    observerRef.current?.disconnect();
-    observedRef.current.clear();
-    if (!container) return;
-
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        setVisibleInViewport((prev) => {
-          const next = new Set(prev);
-          for (const entry of entries) {
-            const page = Number((entry.target as HTMLElement).dataset.page);
-            if (entry.isIntersecting) {
-              next.add(page);
-            } else {
-              next.delete(page);
-            }
-          }
-          if (next.size === prev.size && [...next].every((p) => prev.has(p))) return prev;
-          return next;
-        });
-      },
-      { root: container, rootMargin: '300px 0px' },
-    );
-
-    // 이미 존재하는 요소 등록
-    container.querySelectorAll<HTMLElement>('[data-page]').forEach((el) => {
-      observerRef.current!.observe(el);
-      observedRef.current.add(el);
-    });
-  }, []);
-
-  // 페이지 요소를 observer에 등록
-  const registerRef = useCallback((el: HTMLDivElement | null) => {
-    if (el && observerRef.current && !observedRef.current.has(el)) {
-      observerRef.current.observe(el);
-      observedRef.current.add(el);
-    }
-  }, []);
-
-  const handleDocumentLoadSuccess = useCallback(
-    (pdf: { numPages: number }) => {
-      pdfDocRef.current = pdf;
-      onDocumentLoadSuccess(pdf);
-    },
-    [onDocumentLoadSuccess],
-  );
-
-  // 뷰포트 근처 페이지만 렌더링 슬롯에 채우기
+  // thumbnails 또는 maxPage 변경 시 렌더링 슬롯 채우기
   useEffect(() => {
     setRenderingSet((prev) => {
       const next = new Set<number>();
-      // 아직 렌더링 중인 페이지 유지
       for (const p of prev) {
         if (!thumbnails.has(p)) next.add(p);
       }
-      // 뷰포트에 보이는 페이지 중 캡처 안 된 것만 추가
-      // 작은 번호부터 우선
-      const sorted = [...visibleInViewport].sort((a, b) => a - b);
-      for (const p of sorted) {
-        if (next.size >= CONCURRENT_RENDERS) break;
-        if (!thumbnails.has(p) && !next.has(p) && p <= maxPage) {
-          next.add(p);
+      for (let i = 1; i <= maxPage && next.size < CONCURRENT_RENDERS; i++) {
+        if (!thumbnails.has(i) && !next.has(i)) {
+          next.add(i);
         }
       }
       if (next.size === prev.size && [...next].every((p) => prev.has(p))) return prev;
       return next;
     });
-  }, [thumbnails, visibleInViewport, maxPage]);
+  }, [thumbnails, maxPage]);
 
-  // Page 렌더링 완료 → canvas 캡처
-  const handlePageRenderSuccess = useCallback(
-    (pageNumber: number) => {
-      const container = document.querySelector(`[data-page="${pageNumber}"]`);
-      const canvas = container?.querySelector('canvas');
-      if (canvas) {
-        const dataUrl = canvas.toDataURL('image/png');
-        setThumbnails((prev) => new Map(prev).set(pageNumber, dataUrl));
-      }
-      onPageRenderSuccess(pageNumber);
-    },
-    [onPageRenderSuccess],
-  );
-
-  // 뷰포트 기준 앞뒤 10페이지 데이터 미리 다운로드
-  useEffect(() => {
-    const pdfDoc = pdfDocRef.current;
-    if (!pdfDoc || !numPages || visibleInViewport.size === 0) return;
-
-    let minVisible = Infinity;
-    let maxVisible = 0;
-    for (const p of visibleInViewport) {
-      if (p < minVisible) minVisible = p;
-      if (p > maxVisible) maxVisible = p;
+  // Page 렌더링 완료 → canvas를 이미지로 캡처
+  const handlePageRenderSuccess = useCallback((pageNumber: number) => {
+    const container = document.querySelector(`[data-page="${pageNumber}"]`);
+    const canvas = container?.querySelector('canvas');
+    if (canvas) {
+      const dataUrl = canvas.toDataURL('image/png');
+      setThumbnails((prev) => new Map(prev).set(pageNumber, dataUrl));
     }
-
-    const prefetchStart = Math.max(1, minVisible - PREFETCH_BUFFER);
-    const prefetchEnd = Math.min(numPages, maxVisible + PREFETCH_BUFFER);
-
-    for (let i = prefetchStart; i <= prefetchEnd; i++) {
-      if (prefetchedRef.current.has(i)) continue;
-      prefetchedRef.current.add(i);
-      pdfDoc.getPage(i).catch(() => {
-        prefetchedRef.current.delete(i);
-      });
-    }
-  }, [visibleInViewport, numPages]);
+  }, []);
 
   return (
     <Document
-      file={uploadedUrl?.replace(/^https?:\/\/files\.q-asker\.com\//, '/files/')}
-      onLoadSuccess={handleDocumentLoadSuccess}
+      file={uploadedUrl}
+      onLoadSuccess={onDocumentLoadSuccess}
       onLoadError={onLoadError}
       options={pdfOptions}
       loading={
@@ -177,7 +87,6 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
     >
       <div className="relative">
         <div
-          ref={scrollContainerRef}
           className="grid max-h-[360px] grid-cols-2 gap-2 overflow-y-auto p-1 sm:grid-cols-3 sm:gap-3 sm:p-1.5"
           onMouseLeave={onPageMouseLeave}
         >
@@ -192,7 +101,6 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
               <div
                 key={`page_${pageNumber}`}
                 data-page={pageNumber}
-                ref={registerRef}
                 className={cn(
                   'relative cursor-pointer overflow-hidden rounded-none border-2 border-transparent bg-muted text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
                   isSelected && 'border-primary',

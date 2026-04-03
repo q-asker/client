@@ -22,6 +22,8 @@ const PDF_OPTIONS = {
   standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
   disableRange: false,
   disableAutoFetch: true,
+  disableStream: true,
+  rangeChunkSize: 1024 * 1024,
 };
 
 /** 퀴즈 생성 상태 */
