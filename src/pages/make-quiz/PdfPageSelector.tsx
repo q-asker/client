@@ -1,19 +1,23 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { cn } from '@/shared/ui/lib/utils';
-import type { TFunction } from 'i18nexus';
+
+/** 동시에 canvas 렌더링할 페이지 수 */
+const CONCURRENT_RENDERS = 6;
 
 interface PdfPageSelectorProps {
-  uploadedUrl: string | null;
+  pdfData: { data: Uint8Array } | null;
+  pdfLoading: boolean;
+  pdfError: string | null;
   pdfOptions: object;
   numPages: number | null;
   visiblePageCount: number;
   selectedPages: number[];
   hoveredPage: { pageNumber: number; style: React.CSSProperties } | null;
   isPreviewVisible: boolean;
-  t: TFunction;
+  t: (key: string) => string;
   onDocumentLoadSuccess: (pdf: { numPages: number }) => void;
   onLoadError: (error: Error & { status?: number }) => void;
   onPageClick: (pageNumber: number) => void;
@@ -22,7 +26,9 @@ interface PdfPageSelectorProps {
 }
 
 const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
-  uploadedUrl,
+  pdfData,
+  pdfLoading,
+  pdfError,
   pdfOptions,
   numPages,
   visiblePageCount,
@@ -36,9 +42,68 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
   onPageMouseEnter,
   onPageMouseLeave,
 }) => {
+  const [thumbnails, setThumbnails] = useState<Map<number, string>>(new Map());
+  const [renderingSet, setRenderingSet] = useState<Set<number>>(new Set());
+  // 스크롤로 도달한 최대 페이지 번호 — 여기까지만 캡처
+  const [scrollReach, setScrollReach] = useState(CONCURRENT_RENDERS);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const maxPage = Math.min(visiblePageCount, numPages ?? 0);
+
+  // 스크롤 위치에 따라 캡처 범위 확장
+  const handleScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el || !maxPage) return;
+
+    // 스크롤 비율로 현재 보이는 페이지 근처 계산
+    const scrollRatio = (el.scrollTop + el.clientHeight) / el.scrollHeight;
+    const reachedPage = Math.min(Math.ceil(scrollRatio * maxPage) + CONCURRENT_RENDERS, maxPage);
+
+    setScrollReach((prev) => Math.max(prev, reachedPage));
+  }, [maxPage]);
+
+  // scrollReach 또는 thumbnails 변경 시 렌더링 슬롯 채우기
+  useEffect(() => {
+    setRenderingSet((prev) => {
+      const next = new Set<number>();
+      for (const p of prev) {
+        if (!thumbnails.has(p)) next.add(p);
+      }
+      // scrollReach까지만 캡처
+      for (let i = 1; i <= scrollReach && next.size < CONCURRENT_RENDERS; i++) {
+        if (!thumbnails.has(i) && !next.has(i) && i <= maxPage) {
+          next.add(i);
+        }
+      }
+      if (next.size === prev.size && [...next].every((p) => prev.has(p))) return prev;
+      return next;
+    });
+  }, [thumbnails, scrollReach, maxPage]);
+
+  // Page 렌더링 완료 → canvas를 이미지로 캡처
+  const handlePageRenderSuccess = useCallback((pageNumber: number) => {
+    const container = document.querySelector(`[data-page="${pageNumber}"]`);
+    const canvas = container?.querySelector('canvas');
+    if (canvas) {
+      const dataUrl = canvas.toDataURL('image/png');
+      setThumbnails((prev) => new Map(prev).set(pageNumber, dataUrl));
+    }
+  }, []);
+
+  if (pdfLoading || !pdfData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="mb-3 size-8 animate-spin rounded-full border-3 border-muted-foreground/20 border-t-primary" />
+        <p className="text-sm font-medium text-muted-foreground">
+          {pdfError ? pdfError : t('PDF 로딩 중...')}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Document
-      file={uploadedUrl?.replace(/^https?:\/\/files\.q-asker\.com\//, '/files/')}
+      file={pdfData}
       onLoadSuccess={onDocumentLoadSuccess}
       onLoadError={onLoadError}
       options={pdfOptions}
@@ -51,60 +116,75 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
     >
       <div className="relative">
         <div
+          ref={scrollContainerRef}
           className="grid max-h-[360px] grid-cols-2 gap-2 overflow-y-auto p-1 sm:grid-cols-3 sm:gap-3 sm:p-1.5"
+          onScroll={handleScroll}
           onMouseLeave={onPageMouseLeave}
         >
-          {Array.from(
-            new Array(Math.min(visiblePageCount, numPages ?? 0)),
-            (_el: undefined, index: number) => {
-              const pageNumber: number = index + 1;
-              const isSelected: boolean = selectedPages.includes(pageNumber);
-              const isHovered: boolean = hoveredPage?.pageNumber === pageNumber;
+          {Array.from(new Array(maxPage), (_el: undefined, index: number) => {
+            const pageNumber: number = index + 1;
+            const isSelected: boolean = selectedPages.includes(pageNumber);
+            const isHovered: boolean = hoveredPage?.pageNumber === pageNumber;
+            const thumbnail = thumbnails.get(pageNumber);
+            const isRendering = renderingSet.has(pageNumber);
 
-              return (
-                <div
-                  key={`page_${pageNumber}`}
-                  className={cn(
-                    'relative cursor-pointer overflow-hidden rounded-none border-2 border-transparent bg-muted text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
-                    isSelected && 'border-primary',
-                    isHovered && 'border-muted-foreground',
-                  )}
-                  onClick={() => {
-                    onPageClick(pageNumber);
-                  }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                    onPageMouseEnter(e, pageNumber);
-                  }}
-                >
+            // 캡처 완료 또는 렌더링 중인 페이지만 표시
+            if (!thumbnail && !isRendering) return null;
+
+            return (
+              <div
+                key={`page_${pageNumber}`}
+                data-page={pageNumber}
+                className={cn(
+                  'relative cursor-pointer overflow-hidden rounded-none border-2 border-transparent bg-muted text-center transition-all duration-200 hover:z-10 hover:scale-[1.02] hover:shadow-md',
+                  isSelected && 'border-primary',
+                  isHovered && 'border-muted-foreground',
+                )}
+                onClick={() => {
+                  onPageClick(pageNumber);
+                }}
+                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                  onPageMouseEnter(e, pageNumber);
+                }}
+              >
+                {isRendering ? (
                   <Page
                     pageNumber={pageNumber}
                     width={300}
                     renderTextLayer={false}
                     renderAnnotationLayer={false}
                     className="[&_canvas]:!h-auto [&_canvas]:!w-full"
+                    onRenderSuccess={() => handlePageRenderSuccess(pageNumber)}
                   />
+                ) : (
+                  <img
+                    src={thumbnail!}
+                    alt={`${t('페이지')}${pageNumber}`}
+                    className="h-auto w-full"
+                    draggable={false}
+                  />
+                )}
 
-                  <p
-                    className={cn(
-                      'mt-2 flex items-center justify-center pb-2 text-sm text-muted-foreground',
-                      "before:mr-2 before:inline-block before:size-4 before:rounded-full before:border before:border-border before:bg-background before:content-['']",
-                      isSelected &&
-                        "font-semibold text-foreground before:border-primary before:bg-primary before:bg-[url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpath%20fill='none'%20stroke='white'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M4%208l3%203%205-5'/%3e%3c/svg%3e\")]",
-                    )}
-                  >
-                    {t('페이지')}
-                    {pageNumber}
-                  </p>
-                </div>
-              );
-            },
-          )}
-          {visiblePageCount < (numPages ?? 0) && (
+                <p
+                  className={cn(
+                    'mt-2 flex items-center justify-center pb-2 text-sm text-muted-foreground',
+                    "before:mr-2 before:inline-block before:size-4 before:rounded-full before:border before:border-border before:bg-background before:content-['']",
+                    isSelected &&
+                      "font-semibold text-foreground before:border-primary before:bg-primary before:bg-[url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpath%20fill='none'%20stroke='white'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M4%208l3%203%205-5'/%3e%3c/svg%3e\")]",
+                  )}
+                >
+                  {t('페이지')}
+                  {pageNumber}
+                </p>
+              </div>
+            );
+          })}
+          {scrollReach < maxPage && (
             <div className="col-span-full mt-4 flex flex-col items-center justify-center rounded-xl bg-muted p-5 text-muted-foreground">
               <div className="mb-2 size-6 animate-spin rounded-full border-2 border-border border-t-primary" />
               <p className="m-0 text-sm font-medium">
                 {t('더 많은 페이지 로딩 중... (')}
-                {visiblePageCount}/{numPages})
+                {thumbnails.size}/{maxPage})
               </p>
             </div>
           )}

@@ -13,6 +13,7 @@ import {
   ACCEPT_FILE_TYPES,
 } from '#features/prepare-quiz';
 import { useQuizGenerationStore } from '#features/quiz-generation';
+import { usePdfData } from '#shared/lib/usePdfData';
 import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { useAuthStore } from '#entities/auth';
@@ -83,6 +84,7 @@ const MakeQuiz: React.FC = () => {
   const acceptExtensions: string = ACCEPT_FILE_TYPES;
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
+  const pdfDataState = usePdfData(upload.uploadedUrl);
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
 
   // Zustand persist hydration 완료 전까지 빈 화면 → 퀴즈 화면 플래싱 방지
@@ -380,7 +382,9 @@ const MakeQuiz: React.FC = () => {
                             }
                           >
                             <PdfPageSelector
-                              uploadedUrl={upload.uploadedUrl}
+                              pdfData={pdfDataState.data}
+                              pdfLoading={pdfDataState.isLoading}
+                              pdfError={pdfDataState.error}
                               pdfOptions={pdfOptions}
                               numPages={pages.numPages}
                               visiblePageCount={pages.visiblePageCount}

@@ -159,7 +159,6 @@ export const usePrepareQuizPages = ({
   const onDocumentLoadSuccess = useCallback(
     ({ numPages: nextNumPages }: { numPages: number }) => {
       setNumPages(nextNumPages);
-
       applyAllPagesSelection(nextNumPages);
     },
     [applyAllPagesSelection],

@@ -4,6 +4,7 @@ import { Document, Page } from 'react-pdf';
 import type { DocumentProps } from 'react-pdf';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuizExplanation } from '#features/quiz-explanation';
+import { usePdfData } from '#shared/lib/usePdfData';
 import { Check, X as XIcon } from 'lucide-react';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
@@ -49,6 +50,7 @@ const QuizExplanation: React.FC = () => {
     uploadedUrl,
   });
   const { quiz, pdf, explanation, ui } = state;
+  const pdfDataState = usePdfData(uploadedUrl?.toLowerCase().endsWith('.pdf') ? uploadedUrl : null);
   const { quiz: quizActions, pdf: pdfActions, common: commonActions } = actions;
   const refPages = explanation.thisExplanationObj?.referencedPages;
   const total = quiz.showWrongOnly ? quiz.filteredTotalQuestions : quiz.totalQuestions;
@@ -328,24 +330,28 @@ const QuizExplanation: React.FC = () => {
                           {t('파일 링크가 만료되었습니다.')}
                         </p>
                       ) : uploadedUrl.toLowerCase().endsWith('.pdf') ? (
-                        <Document
-                          file={uploadedUrl.replace(/^https?:\/\/files\.q-asker\.com\//, '/files/')}
-                          loading={<p className="text-center">{t('PDF 로딩 중...')}</p>}
-                          onLoadError={
-                            ((err: Error) => (
-                              <p>{t('파일이 존재하지 않습니다.')}</p>
-                            )) as DocumentProps['onLoadError']
-                          }
-                          options={pdf.pdfOptions}
-                          className="flex min-h-[400px] justify-center [&_.react-pdf\_\_Page]:h-auto [&_.react-pdf\_\_Page]:max-w-full [&_.react-pdf\_\_Page\_\_canvas]:!h-auto [&_.react-pdf\_\_Page\_\_canvas]:max-w-full"
-                        >
-                          <Page
-                            pageNumber={refPages?.[pdf.currentPdfPage] || 1}
-                            width={pdf.pdfWidth}
-                            renderTextLayer={false}
-                            renderAnnotationLayer={false}
-                          />
-                        </Document>
+                        pdfDataState.isLoading || !pdfDataState.data ? (
+                          <p className="text-center">{t('PDF 로딩 중...')}</p>
+                        ) : (
+                          <Document
+                            file={pdfDataState.data}
+                            loading={<p className="text-center">{t('PDF 로딩 중...')}</p>}
+                            onLoadError={
+                              ((err: Error) => (
+                                <p>{t('파일이 존재하지 않습니다.')}</p>
+                              )) as DocumentProps['onLoadError']
+                            }
+                            options={pdf.pdfOptions}
+                            className="flex min-h-[400px] justify-center [&_.react-pdf\_\_Page]:h-auto [&_.react-pdf\_\_Page]:max-w-full [&_.react-pdf\_\_Page\_\_canvas]:!h-auto [&_.react-pdf\_\_Page\_\_canvas]:max-w-full"
+                          >
+                            <Page
+                              pageNumber={refPages?.[pdf.currentPdfPage] || 1}
+                              width={pdf.pdfWidth}
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                            />
+                          </Document>
+                        )
                       ) : (
                         <p className="text-center text-muted-foreground">
                           {t('현재는 pdf 파일만 지원합니다.')}
