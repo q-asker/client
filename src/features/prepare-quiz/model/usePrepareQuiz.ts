@@ -23,7 +23,7 @@ const PDF_OPTIONS = {
   disableRange: false,
   disableAutoFetch: true,
   disableStream: true,
-  rangeChunkSize: 1024 * 1024,
+  rangeChunkSize: 5 * 1024 * 1024,
 };
 
 /** 퀴즈 생성 상태 */

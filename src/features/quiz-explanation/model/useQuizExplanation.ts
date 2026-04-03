@@ -112,7 +112,7 @@ const PDF_OPTIONS: PdfOptions = {
   disableRange: false,
   disableAutoFetch: true,
   disableStream: true,
-  rangeChunkSize: 1024 * 1024,
+  rangeChunkSize: 5 * 1024 * 1024,
 };
 
 // ── 퀴즈 해설 훅 ──
