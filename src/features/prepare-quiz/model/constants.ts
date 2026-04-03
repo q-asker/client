@@ -40,6 +40,21 @@ export const MAX_FILE_SIZE: number = 30 * 1024 * 1024;
 export const MAX_SELECT_PAGES: number = 150;
 export const SUPPORTED_EXTENSIONS: string[] = ['pdf', 'ppt', 'pptx', 'doc', 'docx'];
 
+/** iOS Safari는 accept에 MIME 타입이 없으면 change 이벤트를 발화하지 않는 버그가 있다 */
+export const SUPPORTED_MIME_TYPES: string[] = [
+  'application/pdf',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
+/** <input accept="...">에 사용할 값 (확장자 + MIME 타입, 공백 없이) */
+export const ACCEPT_FILE_TYPES: string = [
+  ...SUPPORTED_EXTENSIONS.map((ext) => `.${ext}`),
+  ...SUPPORTED_MIME_TYPES,
+].join(',');
+
 /** 퀴즈 유형 → 난이도 매핑 */
 export const levelMapping: Record<QuestionType, QuizLevel> = {
   BLANK: 'RECALL',
