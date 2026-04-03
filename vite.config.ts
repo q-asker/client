@@ -35,6 +35,10 @@ export default defineConfig(({ command }) => {
     server: {
       allowedHosts: true,
       proxy: {
+        '/files': {
+          target: 'https://files.q-asker.com',
+          changeOrigin: true,
+        },
         '/api': {
           target: proxyTarget,
           changeOrigin: true,

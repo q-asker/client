@@ -8,9 +8,13 @@ interface MarkdownTextProps {
 const markdownImport = () => import('./markdown-text-impl');
 const MarkdownTextImpl = lazy(markdownImport);
 
-/** 페이지 idle 시 마크다운 청크 백그라운드 프리로드 */
+/** 페이지 idle 시 마크다운 청크 백그라운드 프리로드 (Safari는 requestIdleCallback 미지원) */
 if (typeof window !== 'undefined') {
-  window.requestIdleCallback(() => markdownImport());
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(() => markdownImport());
+  } else {
+    requestAnimationFrame(() => setTimeout(() => markdownImport(), 0));
+  }
 }
 
 /** 마크다운 로딩 중 스켈레톤 — raw 텍스트 FOUC 방지 */

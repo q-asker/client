@@ -27,8 +27,8 @@ const RecentChanges = () => {
                 </div>
               </div>
             ))
-          : changes.map((log) => (
-              <div key={log.id} className="flex gap-2 items-start">
+          : changes.map((log, i) => (
+              <div key={log.id ?? i} className="flex gap-2 items-start">
                 <div className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
                 <div className="group flex flex-col items-start gap-1 rounded-full border border-primary/20 bg-primary/5 px-4 py-2.5 transition-all hover:border-primary/40 hover:bg-primary/10">
                   <span className="text-xs font-medium text-primary/70">

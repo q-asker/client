@@ -20,9 +20,13 @@ const QuizResult = lazy(() => import('#pages/quiz-result'));
 const solveQuizImport = () => import('#pages/solve-quiz');
 const SolveQuiz = lazy(solveQuizImport);
 
-// idle 시 퀴즈 풀기 페이지 백그라운드 프리로드
+// idle 시 퀴즈 풀기 페이지 백그라운드 프리로드 (Safari는 requestIdleCallback 미지원)
 if (typeof window !== 'undefined') {
-  window.requestIdleCallback(() => solveQuizImport());
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(() => solveQuizImport());
+  } else {
+    requestAnimationFrame(() => setTimeout(() => solveQuizImport(), 0));
+  }
 }
 import { I18nProvider, useLanguageSwitcher, useTranslation } from 'i18nexus';
 import { loadNamespace } from '#shared/i18n';
