@@ -23,9 +23,14 @@ import MockPageGrid from './MockPageGrid';
 const pdfImport = () => import('./PdfPageSelector');
 const PdfPageSelector = React.lazy(pdfImport);
 
-// idle 시 PDF 뷰어 청크 백그라운드 프리로드
+// idle 시 PDF 뷰어 청크 백그라운드 프리로드 (Safari는 requestIdleCallback 미지원)
 if (typeof window !== 'undefined') {
-  window.requestIdleCallback(() => pdfImport());
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(() => pdfImport());
+  } else {
+    // Safari 폴백: 렌더링 완료 후 다음 프레임에서 프리로드
+    requestAnimationFrame(() => setTimeout(() => pdfImport(), 0));
+  }
 }
 import { useNavigate } from 'react-router-dom';
 import RecentChanges from '#widgets/recent-changes';

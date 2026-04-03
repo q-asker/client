@@ -6,6 +6,16 @@ import Timer from '#shared/lib/timer';
 import { trackMakeQuizEvents } from '#shared/lib/analytics';
 import { authService } from '#entities/auth';
 
+/** Safari 15.4 미만은 crypto.randomUUID 미지원 */
+function generateUUID(): string {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 1
+  const hex = [...bytes].map((b) => b.toString(16).padStart(2, '0'));
+  return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10).join('')}`;
+}
+
 // ── 타입 정의 ──
 
 export interface QuizSelection {
@@ -311,7 +321,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
           uploadedUrl: requestData.uploadedUrl,
         });
 
-        const sessionId = crypto.randomUUID();
+        const sessionId = generateUUID();
         generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`, {
           withCredentials: true,
         });
