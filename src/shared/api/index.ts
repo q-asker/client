@@ -9,6 +9,19 @@ let getAccessToken: () => string | null = () => null;
 let clearAuth: () => void = () => {};
 let refreshAuthToken: () => Promise<void> = async () => {}; // 💡 토큰 재발급 로직 주입을 위한 변수 추가
 
+// 💡 동시 refresh 방지: 첫 번째 401만 실제 refresh를 수행하고, 나머지는 대기
+let isRefreshing = false;
+let refreshSubscribers: ((token: string | null) => void)[] = [];
+
+const onRefreshed = (token: string | null) => {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+};
+
+const addRefreshSubscriber = (cb: (token: string | null) => void) => {
+  refreshSubscribers.push(cb);
+};
+
 // 퀴즈 생성 페이지(비로그인 허용)에서는 로그인 리디렉션을 하지 않는다
 const SKIP_REDIRECT_PATHS = ['/', '/ko', '/en'];
 
@@ -85,30 +98,50 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      if (!originalRequest?._retry) {
-        originalRequest!._retry = true;
-        try {
-          await refreshAuthToken();
-          const newAccessToken = getAccessToken();
-          originalRequest!.headers.Authorization = `Bearer ${newAccessToken}`;
-          return axiosInstance(originalRequest!);
-        } catch (refreshError) {
-          const message =
-            (error?.response?.data as { message?: string })?.message ||
-            '알 수 없는 오류가 발생했습니다.';
-          clearAuthAndRedirect(message);
-          // never-settling promise: 호출부의 .then()/.catch() 모두 실행되지 않아 중복 토스트 방지
-          return new Promise(() => {});
-        }
+      if (originalRequest?._retry) {
+        // refresh 후 재요청에서도 401 → 로그아웃
+        const message =
+          (error?.response?.data as { message?: string })?.message ||
+          '알 수 없는 오류가 발생했습니다.';
+        clearAuthAndRedirect(message);
+        return new Promise(() => {});
       }
 
-      // refresh 후 재요청에서도 401 → 로그아웃
-      const message =
-        (error?.response?.data as { message?: string })?.message ||
-        '알 수 없는 오류가 발생했습니다.';
-      clearAuthAndRedirect(message);
-      // never-settling promise: 호출부의 .then()/.catch() 모두 실행되지 않아 중복 토스트 방지
-      return new Promise(() => {});
+      originalRequest!._retry = true;
+
+      // 이미 다른 요청이 refresh 중이면, 완료될 때까지 대기 후 재요청
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          addRefreshSubscriber((newToken) => {
+            if (newToken) {
+              originalRequest!.headers.Authorization = `Bearer ${newToken}`;
+              resolve(axiosInstance(originalRequest!));
+            } else {
+              // refresh 실패 시 never-settling promise로 중복 토스트 방지
+              resolve(new Promise(() => {}));
+            }
+          });
+        });
+      }
+
+      // 첫 번째 401 요청만 실제 refresh 수행
+      isRefreshing = true;
+      try {
+        await refreshAuthToken();
+        const newAccessToken = getAccessToken();
+        onRefreshed(newAccessToken);
+        originalRequest!.headers.Authorization = `Bearer ${newAccessToken}`;
+        return axiosInstance(originalRequest!);
+      } catch (refreshError) {
+        onRefreshed(null);
+        const message =
+          (error?.response?.data as { message?: string })?.message ||
+          '알 수 없는 오류가 발생했습니다.';
+        clearAuthAndRedirect(message);
+        return new Promise(() => {});
+      } finally {
+        isRefreshing = false;
+      }
     }
 
     if (!skipErrorToast) {
