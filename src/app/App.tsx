@@ -42,9 +42,9 @@ const SUPPORTED_LANGUAGES = new Set(['ko', 'en']);
 const SEO_CONFIG = {
   ko: {
     '/': {
-      title: '[한국어 특화] Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성',
+      title: '[한국어 특화] Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기',
       description:
-        'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.',
+        'PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요. 회원가입 없이 바로 시작할 수 있어요.',
       ogLocale: 'ko_KR',
       ogImageAlt: 'Q-Asker AI 퀴즈 생성 서비스 소개 이미지',
       twitterImageAlt: 'Q-Asker AI 퀴즈 생성 서비스 소개 이미지',
@@ -121,7 +121,7 @@ const SEO_CONFIG = {
             height: 512,
           },
           description:
-            'AI 기반 퀴즈 자동 생성 서비스. PDF, PPT, Word 파일로 빈칸·OX·객관식 문제를 즉시 생성합니다.',
+            'AI가 시험 문제를 만들어주는 무료 퀴즈 생성 서비스. PDF, PPT, Word 파일로 객관식·OX·빈칸 채우기 문제를 자동 생성합니다.',
           contactPoint: {
             '@type': 'ContactPoint',
             email: 'contact@q-asker.com',
@@ -193,7 +193,7 @@ const SEO_CONFIG = {
           applicationCategory: 'EducationalApplication',
           operatingSystem: 'Web Browser',
           description:
-            'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 자동 생성합니다. 빈칸, OX, 객관식 문제로 시험에 완벽 대비하세요.',
+            'PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요.',
           inLanguage: ['ko', 'en'],
           image: {
             '@type': 'ImageObject',
@@ -211,20 +211,20 @@ const SEO_CONFIG = {
             availability: 'https://schema.org/OnlineOnly',
           },
           featureList: [
-            'PDF 퀴즈 자동 생성',
-            'PPT 퀴즈 만들기',
-            'Word 퀴즈 변환',
-            'OCR 지원',
-            '빈칸/OX/객관식 문제 유형',
+            'PDF 시험 문제 AI 자동 생성',
+            'PPT 문제 만들기',
+            'Word 문제 생성',
+            'OCR 지원 (이미지 문서도 가능)',
+            '객관식, OX, 빈칸 채우기 문제 유형',
             '퀴즈 히스토리 관리',
           ],
         },
         webpage: {
           '@context': 'https://schema.org',
           '@type': 'WebPage',
-          name: 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성',
+          name: '[한국어 특화] Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기',
           description:
-            'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 자동 생성합니다. 빈칸, OX, 객관식 문제로 시험에 완벽 대비하세요.',
+            'PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요. 회원가입 없이 바로 시작할 수 있어요.',
           url: 'https://www.q-asker.com',
           inLanguage: 'ko',
           isPartOf: {

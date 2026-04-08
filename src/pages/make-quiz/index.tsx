@@ -187,7 +187,7 @@ const MakeQuiz: React.FC = () => {
         <h1 className="sr-only">
           {currentLanguage === 'en'
             ? 'Free AI Quiz Generator for PDF, PPT, Word'
-            : 'PDF, PPT, Word로 무료 AI 퀴즈 생성'}
+            : 'AI가 시험 문제 만들어주는 무료 퀴즈 생성기 | PDF, PPT, Word'}
         </h1>
         <AnimatePresence mode="wait">
           {/* 2컬럼 레이아웃 (업로드 완료 후, 생성 전, 생성 중 아닐 때) */}
@@ -1012,14 +1012,14 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
             <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               {currentLanguage === 'en'
                 ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
-                : 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성'}
+                : 'Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기'}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
               {t(
-                'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요.',
+                'PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요.',
               )}
               <br />
-              {t('지금 회원가입 없이 무료로 시작하세요.')}
+              {t('회원가입 없이 바로 시작할 수 있어요.')}
             </p>
             <p className="sr-only">
               {currentLanguage === 'en'
