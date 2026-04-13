@@ -19,7 +19,7 @@ const RecentChanges = () => {
       <div className="mb-3 flex items-center justify-between">
         <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
           <Sparkles className="size-4 text-primary" />
-          {t('변경사항')}
+          {t('최근 변경사항')}
         </h3>
         <Link
           to="/updates"

@@ -54,7 +54,8 @@ declare type BoardKeys =
   | '전체보기'
   | '제목'
   | '조회'
-  | '총';
+  | '총'
+  | '최근 변경사항';
 
 declare type BoardDetailKeys =
   | '개인정보가 포함되지 않도록 주의하세요.'

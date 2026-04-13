@@ -84,6 +84,7 @@ const MakeQuiz: React.FC = () => {
   const acceptExtensions: string = ACCEPT_FILE_TYPES;
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const pdfDataState = usePdfData(upload.uploadedUrl);
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
 
@@ -920,17 +921,29 @@ const MakeQuiz: React.FC = () => {
 
         {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
           <>
-            <HelpToggle t={t} />
             <RecentChanges />
+            <HelpToggle t={t} isOpen={isHelpOpen} onToggle={() => setIsHelpOpen((p) => !p)} />
           </>
         )}
       </div>
 
-      {/* ─── SEO 콘텐츠 섹션: 파일 미업로드 & 퀴즈 미생성 시에만 표시 ─── */}
+      {/* ─── SEO 콘텐츠 섹션: 도움말 토글로 제어 ─── */}
       {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
-        <div className="mx-auto w-full px-4 md:w-[90%] lg:w-[85%] xl:w-[80%]">
-          <SeoContent t={t} currentLanguage={currentLanguage} />
-        </div>
+        <AnimatePresence>
+          {isHelpOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden"
+            >
+              <div className="mx-auto w-full px-4 md:w-[90%] lg:w-[85%] xl:w-[80%]">
+                <SeoContent t={t} currentLanguage={currentLanguage} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
 
       <Footer />
@@ -940,14 +953,16 @@ const MakeQuiz: React.FC = () => {
 
 export default MakeQuiz;
 
-/* ─── 도움말 토글 컴포넌트 ─── */
-const HelpToggle: React.FC<{ t: (key: string) => string }> = ({ t }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
+/* ─── 도움말 토글 버튼 ─── */
+const HelpToggle: React.FC<{
+  t: (key: string) => string;
+  isOpen: boolean;
+  onToggle: () => void;
+}> = ({ t, isOpen, onToggle }) => {
   return (
     <div className="mt-5">
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={onToggle}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <HelpCircle className="size-4" />
@@ -956,34 +971,6 @@ const HelpToggle: React.FC<{ t: (key: string) => string }> = ({ t }) => {
           className={cn('size-3.5 transition-transform duration-200', isOpen && 'rotate-180')}
         />
       </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="mt-3 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-foreground/80 max-md:p-4">
-              <h3 className="mb-2 text-base font-bold text-foreground">
-                {t('Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기')}
-              </h3>
-              <p className="mb-3">
-                {t(
-                  'PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요.',
-                )}
-              </p>
-              <p className="mb-3">{t('회원가입 없이 바로 시작할 수 있어요.')}</p>
-              <p>
-                {t(
-                  'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요. 지금 회원가입 없이 무료로 시작하세요.',
-                )}
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
