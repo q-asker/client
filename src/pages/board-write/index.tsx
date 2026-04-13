@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Header from '#widgets/header';
 import CustomToast from '#shared/toast';
@@ -10,6 +10,28 @@ import { Input } from '@/shared/ui/components/input';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import { Send, X, Loader2 } from 'lucide-react';
+import type { BoardCategory } from '../../shared/types/board';
+
+const MDEditor = lazy(() => import('@uiw/react-md-editor'));
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+/** 이미지 파일을 서버에 업로드하고 URL을 반환한다 */
+const uploadImage = async (file: File): Promise<string> => {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    throw new Error('지원하지 않는 이미지 형식입니다. (jpg, png, gif, webp)');
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    throw new Error('이미지 크기는 5MB 이하여야 합니다.');
+  }
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await axiosInstance.post<{ url: string }>('/admin/images', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data.url;
+};
 
 const MAX_TITLE_LENGTH = 100;
 const MAX_CONTENT_LENGTH = 5000;
@@ -20,8 +42,12 @@ interface BoardEditData {
   isWriter: boolean;
 }
 
-/** Slide Form — BlurFade 섹션별 순차 등장 */
-const BoardWrite = () => {
+interface BoardWriteProps {
+  category?: BoardCategory;
+}
+
+/** Slide Form — BlurFade 섹션별 순차 등장, 카테고리별 게시판 공유 */
+const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
   const { t } = useTranslation('board-write');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -30,7 +56,10 @@ const BoardWrite = () => {
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
-  const isEditMode = !!boardId;
+
+  const isInquiry = category === 'INQUIRY';
+  const isEditMode = isInquiry && !!boardId;
+  const listPath = isInquiry ? '/boards' : '/updates';
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -92,15 +121,21 @@ const BoardWrite = () => {
 
     setIsSubmitting(true);
     try {
-      if (isEditMode) {
-        await axiosInstance.put(`/boards/${boardId}`, { title, content });
+      if (isInquiry) {
+        if (isEditMode) {
+          await axiosInstance.put(`/boards/${boardId}`, { title, content });
+        } else {
+          await axiosInstance.post('/boards', { title, content });
+        }
+        CustomToast.success(
+          t(`게시글이 성공적으로 ${isEditMode ? t('수정') : t('등록')}되었습니다.`),
+        );
+        navigate(isEditMode ? `/boards/${boardId}` : '/boards', { replace: true });
       } else {
-        await axiosInstance.post('/boards', { title, content });
+        await axiosInstance.post('/admin/boards/update-logs', { title, content });
+        CustomToast.success(t(`게시글이 성공적으로 ${t('등록')}되었습니다.`));
+        navigate('/updates', { replace: true });
       }
-      CustomToast.success(
-        t(`게시글이 성공적으로 ${isEditMode ? t('수정') : t('등록')}되었습니다.`),
-      );
-      navigate(isEditMode ? `/boards/${boardId}` : '/boards', { replace: true });
     } catch {
       // 인터셉터에서 에러 토스트 처리
     } finally {
@@ -127,6 +162,12 @@ const BoardWrite = () => {
     );
   }
 
+  const pageTitle = isInquiry
+    ? isEditMode
+      ? t('문의 수정')
+      : t('새 문의 작성')
+    : t('변경사항 작성');
+
   return (
     <>
       <Header
@@ -139,7 +180,7 @@ const BoardWrite = () => {
         <div className="mx-auto max-w-4xl px-6 py-10 max-md:px-4">
           <BlurFade delay={0.05}>
             <h1 className="mb-8 border-l-4 border-primary/40 pl-4 text-4xl font-bold text-foreground max-md:text-2xl">
-              {isEditMode ? t('문의 수정') : t('새 문의 작성')}
+              {pageTitle}
             </h1>
           </BlurFade>
 
@@ -172,14 +213,25 @@ const BoardWrite = () => {
                 >
                   {t('내용')}
                 </label>
-                <textarea
-                  id="content"
-                  className="min-h-[400px] w-full resize-y rounded-lg border border-input bg-background p-5 text-base leading-relaxed transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-muted"
-                  placeholder={t('문의 내용을 상세히 적어주세요.')}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  disabled={isSubmitting}
-                />
+                {isInquiry ? (
+                  <textarea
+                    id="content"
+                    className="min-h-[400px] w-full resize-y rounded-lg border border-input bg-background p-5 text-base leading-relaxed transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-muted"
+                    placeholder={t('문의 내용을 상세히 적어주세요.')}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                ) : (
+                  <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
+                    <MarkdownEditorWithUpload
+                      value={content}
+                      onChange={setContent}
+                      placeholder={t('마크다운으로 변경사항을 작성해주세요.')}
+                      disabled={isSubmitting}
+                    />
+                  </Suspense>
+                )}
               </div>
             </BlurFade>
 
@@ -189,7 +241,7 @@ const BoardWrite = () => {
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => navigate(isEditMode ? `/boards/${boardId}` : '/boards')}
+                    onClick={() => navigate(isEditMode ? `/boards/${boardId}` : listPath)}
                   >
                     <X className="mr-1 size-4" />
                     {t('취소')}
@@ -219,3 +271,137 @@ const BoardWrite = () => {
 };
 
 export default BoardWrite;
+
+/* ─── 이미지 업로드 기능이 포함된 마크다운 에디터 ─── */
+interface MarkdownEditorWithUploadProps {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+}
+
+const MarkdownEditorWithUpload = ({
+  value,
+  onChange,
+  placeholder,
+  disabled,
+}: MarkdownEditorWithUploadProps) => {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  /** 파일을 업로드하고 마크다운에 삽입한다 */
+  const handleImageUpload = useCallback(
+    async (file: File) => {
+      setIsUploading(true);
+      try {
+        const url = await uploadImage(file);
+        const alt = file.name.replace(/\.[^.]+$/, '');
+        const markdown = `![${alt}](${url})`;
+        onChange(value ? `${value}\n${markdown}` : markdown);
+      } catch (err) {
+        CustomToast.error(err instanceof Error ? err.message : '이미지 업로드 실패');
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [value, onChange],
+  );
+
+  /** 드래그&드롭 핸들러 */
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      const file = e.dataTransfer?.files?.[0];
+      if (file && file.type.startsWith('image/')) {
+        e.preventDefault();
+        handleImageUpload(file);
+      }
+    },
+    [handleImageUpload],
+  );
+
+  /** 붙여넣기 핸들러 */
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) handleImageUpload(file);
+          return;
+        }
+      }
+    },
+    [handleImageUpload],
+  );
+
+  /** 툴바 이미지 버튼을 파일 업로드로 교체하는 커스텀 커맨드 */
+  const imageUploadCommand = {
+    name: 'image-upload',
+    keyCommand: 'image-upload',
+    buttonProps: { 'aria-label': '이미지 업로드', title: '이미지 업로드 (jpg, png, gif, webp)' },
+    icon: (
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+        <circle cx="9" cy="9" r="2" />
+        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+      </svg>
+    ),
+    execute: () => {
+      fileInputRef.current?.click();
+    },
+  };
+
+  return (
+    <div
+      ref={editorRef}
+      className="relative"
+      onDrop={handleDrop}
+      onDragOver={(e) => e.preventDefault()}
+      onPaste={handlePaste}
+    >
+      <div data-color-mode="auto">
+        <MDEditor
+          value={value}
+          onChange={(val) => onChange(val || '')}
+          height={400}
+          preview="live"
+          extraCommands={[imageUploadCommand]}
+          textareaProps={{ placeholder, disabled: disabled || isUploading }}
+        />
+      </div>
+
+      {isUploading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/60 backdrop-blur-sm">
+          <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 shadow-lg">
+            <Loader2 className="size-4 animate-spin text-primary" />
+            <span className="text-sm">이미지 업로드 중...</span>
+          </div>
+        </div>
+      )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleImageUpload(file);
+          e.target.value = '';
+        }}
+      />
+    </div>
+  );
+};
