@@ -9,9 +9,9 @@ import { cn } from '@/shared/ui/lib/utils';
 import { Button } from '@/shared/ui/components/button';
 import { Badge } from '@/shared/ui/components/badge';
 import { Skeleton } from '@/shared/ui/components/skeleton';
+import MarkdownText from '@/shared/ui/components/markdown-text';
 import {
   ArrowLeft,
-  Plus,
   Pencil,
   Trash2,
   MessageCircle,
@@ -24,22 +24,14 @@ import {
   Clock,
   Shield,
 } from 'lucide-react';
-import { MOCK_BOARD_DETAIL } from './mockBoardDetailData';
+import { MOCK_BOARD_DETAIL, MOCK_UPDATE_LOG_DETAIL } from './mockBoardDetailData';
+import type { BoardCategory, BoardDetailPost } from '../../shared/types/board';
 
-/** 댓글을 포함한 게시글 상세 타입 */
-interface BoardDetailPost {
-  boardId: string;
-  title: string;
-  content: string;
-  username: string;
-  createdAt: string;
-  viewCount: number;
-  status: string;
-  replies: string[];
-  isWriter: boolean;
+interface BoardDetailProps {
+  category?: BoardCategory;
 }
 
-const BoardDetail = () => {
+const BoardDetail = ({ category = 'INQUIRY' }: BoardDetailProps) => {
   const { t } = useTranslation('board-detail');
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
@@ -48,6 +40,9 @@ const BoardDetail = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
+  const isInquiry = category === 'INQUIRY';
+  const listPath = isInquiry ? '/boards' : '/updates';
+
   const [post, setPost] = useState<BoardDetailPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [replyContent, setReplyContent] = useState('');
@@ -55,10 +50,11 @@ const BoardDetail = () => {
   const { accessToken, clearAuth } = useAuthStore();
 
   const isAdmin = useMemo(() => {
+    if (!isInquiry) return false;
     if (isMock) return true;
     const role = extractRoleFromToken(accessToken);
     return role === 'ROLE_ADMIN';
-  }, [accessToken, isMock]);
+  }, [accessToken, isMock, isInquiry]);
 
   const formatDate = (isoString: string | null): string => {
     if (!isoString) return '-';
@@ -73,15 +69,20 @@ const BoardDetail = () => {
 
   const fetchPost = useCallback(async () => {
     if (isMock) {
-      setPost(MOCK_BOARD_DETAIL as BoardDetailPost);
+      setPost(isInquiry ? MOCK_BOARD_DETAIL : MOCK_UPDATE_LOG_DETAIL);
       setLoading(false);
       return;
     }
-    try {
-      await authService.refresh();
-    } catch {
-      /* 무시 */
+
+    // 문의 게시판은 인증 refresh 시도
+    if (isInquiry) {
+      try {
+        await authService.refresh();
+      } catch {
+        /* 무시 */
+      }
     }
+
     try {
       const response = await axiosInstance.get(`/boards/${boardId}`, {
         skipAuthRefresh: true,
@@ -89,24 +90,28 @@ const BoardDetail = () => {
       } as Record<string, unknown>);
       setPost(response.data);
     } catch (error: unknown) {
-      const err = error as { response?: { status?: number } };
-      if (err.response?.status === 401) {
-        clearAuth();
-        try {
-          const fallbackResponse = await axiosInstance.get(`/boards/${boardId}`, {
-            skipAuthRefresh: true,
-          } as Record<string, unknown>);
-          setPost(fallbackResponse.data);
-        } catch {
-          navigate('/boards');
+      if (isInquiry) {
+        const err = error as { response?: { status?: number } };
+        if (err.response?.status === 401) {
+          clearAuth();
+          try {
+            const fallbackResponse = await axiosInstance.get(`/boards/${boardId}`, {
+              skipAuthRefresh: true,
+            } as Record<string, unknown>);
+            setPost(fallbackResponse.data);
+          } catch {
+            navigate(listPath);
+          }
+        } else {
+          navigate(listPath);
         }
       } else {
-        navigate('/boards');
+        navigate(listPath);
       }
     } finally {
       setLoading(false);
     }
-  }, [boardId, navigate, clearAuth, isMock]);
+  }, [boardId, navigate, clearAuth, isMock, isInquiry, listPath]);
 
   useEffect(() => {
     fetchPost();
@@ -117,7 +122,7 @@ const BoardDetail = () => {
     try {
       await axiosInstance.delete(`/boards/${boardId}`);
       CustomToast.success(t('게시글이 삭제되었습니다.'));
-      navigate('/boards', { replace: true });
+      navigate(listPath, { replace: true });
     } catch {
       // 인터셉터에서 에러 토스트 처리
     }
@@ -130,7 +135,7 @@ const BoardDetail = () => {
     }
     setIsSubmitting(true);
     try {
-      await axiosInstance.post(`/boards/${boardId}/replies`, { content: replyContent });
+      await axiosInstance.post(`/admin/boards/${boardId}/replies`, { content: replyContent });
       CustomToast.success(t('댓글이 등록되었습니다.'));
       setReplyContent('');
       fetchPost();
@@ -176,30 +181,32 @@ const BoardDetail = () => {
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <button
-              onClick={() => navigate('/boards')}
+              onClick={() => navigate(listPath)}
               className="transition-colors hover:text-foreground"
             >
-              {t('문의 게시판')}
+              {isInquiry ? t('문의 게시판') : t('변경사항')}
             </button>
             <span>/</span>
             <span className="text-foreground">{t('상세')}</span>
           </div>
-          <Badge
-            variant="outline"
-            className={cn(
-              'text-xs',
-              post.status === 'ANSWERED'
-                ? 'border-chart-2/30 bg-chart-2/10 text-chart-2'
-                : 'border-chart-5/30 bg-chart-5/10 text-chart-5',
-            )}
-          >
-            {post.status === 'ANSWERED' ? (
-              <CheckCircle className="mr-0.5 size-3" />
-            ) : (
-              <Clock className="mr-0.5 size-3" />
-            )}
-            {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
-          </Badge>
+          {isInquiry && (
+            <Badge
+              variant="outline"
+              className={cn(
+                'text-xs',
+                post.status === 'ANSWERED'
+                  ? 'border-chart-2/30 bg-chart-2/10 text-chart-2'
+                  : 'border-chart-5/30 bg-chart-5/10 text-chart-5',
+              )}
+            >
+              {post.status === 'ANSWERED' ? (
+                <CheckCircle className="mr-0.5 size-3" />
+              ) : (
+                <Clock className="mr-0.5 size-3" />
+              )}
+              {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
+            </Badge>
+          )}
         </div>
 
         {/* 제목 영역 */}
@@ -208,11 +215,18 @@ const BoardDetail = () => {
 
           {/* 메타 정보 */}
           <div className="mb-6 flex items-center border-b-2 border-border pb-3 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-1 pr-4">
-              <User className="size-3.5" />
-              {post.username}
-            </span>
-            <span className="inline-flex items-center gap-1 border-l border-border px-4">
+            {isInquiry && (
+              <span className="inline-flex items-center gap-1 pr-4">
+                <User className="size-3.5" />
+                {post.username}
+              </span>
+            )}
+            <span
+              className={cn(
+                'inline-flex items-center gap-1',
+                isInquiry ? 'border-l border-border px-4' : 'pr-4',
+              )}
+            >
               <CalendarDays className="size-3.5" />
               {formatDate(post.createdAt)}
             </span>
@@ -224,57 +238,64 @@ const BoardDetail = () => {
         </div>
 
         {/* 본문 */}
-        <div className="mb-8 min-h-[180px] text-base leading-[1.85] text-foreground/85 whitespace-pre-wrap">
-          {post.content}
-        </div>
+        {isInquiry ? (
+          <div className="mb-8 min-h-[180px] text-base leading-[1.85] text-foreground/85 whitespace-pre-wrap">
+            {post.content}
+          </div>
+        ) : (
+          <div className="mb-8 min-h-[180px] text-base leading-[1.85] text-foreground/85">
+            <MarkdownText>{post.content}</MarkdownText>
+          </div>
+        )}
 
         {/* 구분선 */}
         <div className="mb-6 border-t border-border" />
 
-        {/* 댓글 섹션 — 채팅 버블 스타일 */}
-        <div>
-          <div className="mb-5 flex items-center gap-2">
-            <MessageCircle className="size-4 text-foreground" />
-            <span className="text-base font-semibold text-foreground">
-              {t('댓글 {{expr0}}건', { expr0: post.replies?.length || 0 })}
-            </span>
-          </div>
+        {/* 댓글 섹션 — 문의 게시판에서만 표시 */}
+        {isInquiry && (
+          <div>
+            <div className="mb-5 flex items-center gap-2">
+              <MessageCircle className="size-4 text-foreground" />
+              <span className="text-base font-semibold text-foreground">
+                {t('댓글 {{expr0}}건', { expr0: post.replies?.length || 0 })}
+              </span>
+            </div>
 
-          <div className="space-y-4">
-            {post.replies && post.replies.length > 0 ? (
-              post.replies.map((reply, index) => (
-                <div key={index}>
-                  <div className="flex items-start gap-3">
-                    {/* 관리자 아바타 */}
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                      <Shield className="size-4 text-primary" />
-                    </div>
-
-                    {/* 말풍선 */}
-                    <div className="flex-1">
-                      <div className="relative rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-3">
-                        <div className="absolute top-3 -left-1.5 size-3 rotate-45 bg-muted/60" />
-                        <div className="mb-1 text-xs font-semibold text-primary">{t('관리자')}</div>
-                        <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap">
-                          {reply}
-                        </p>
+            <div className="space-y-4">
+              {post.replies && post.replies.length > 0 ? (
+                post.replies.map((reply, index) => (
+                  <div key={index}>
+                    <div className="flex items-start gap-3">
+                      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15">
+                        <Shield className="size-4 text-primary" />
                       </div>
-                      <div className="mt-1 pl-2 text-[11px] text-muted-foreground/60">
-                        {formatDate(post.createdAt)}
+                      <div className="flex-1">
+                        <div className="relative rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-3">
+                          <div className="absolute top-3 -left-1.5 size-3 rotate-45 bg-muted/60" />
+                          <div className="mb-1 text-xs font-semibold text-primary">
+                            {t('관리자')}
+                          </div>
+                          <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap">
+                            {reply}
+                          </p>
+                        </div>
+                        <div className="mt-1 pl-2 text-[11px] text-muted-foreground/60">
+                          {formatDate(post.createdAt)}
+                        </div>
                       </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
+                  {t('아직 등록된 댓글이 없습니다.')}
                 </div>
-              ))
-            ) : (
-              <div className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
-                {t('아직 등록된 댓글이 없습니다.')}
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* 관리자 답변 폼 — 플로팅 하단 바 스타일 */}
+        {/* 관리자 답변 폼 — 문의 게시판 + 관리자만 */}
         {isAdmin && (
           <div className="sticky bottom-4 z-10 mt-6">
             <div className="rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur-md">
@@ -295,7 +316,6 @@ const BoardDetail = () => {
                     }
                   }}
                 />
-
                 <Button
                   size="icon"
                   onClick={handleReplySubmit}
@@ -316,13 +336,13 @@ const BoardDetail = () => {
         {/* 하단 액션 */}
         <div className="mt-8 flex items-center justify-between border-t border-border pt-5 pb-10 max-md:flex-col max-md:gap-3">
           <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/boards')} className="gap-1">
+            <Button variant="ghost" size="sm" onClick={() => navigate(listPath)} className="gap-1">
               <ArrowLeft className="size-3.5" />
               {t('목록')}
             </Button>
           </div>
 
-          {post.isWriter && (
+          {isInquiry && post.isWriter && (
             <div className="flex gap-2 max-md:w-full">
               <Button
                 variant="secondary"

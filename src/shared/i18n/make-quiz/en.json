@@ -6,7 +6,9 @@
   "PDF, PPT, Word로 무료 AI 퀴즈 생성": "Free AI Quiz Generator for PDF, PPT, Word",
   "PDF 로딩 중...": "Loading PDF...",
   "객관식": "Multiple Choice",
+  "Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기": "Q-Asker - Free AI Quiz Generator",
   "다른 문제 생성": "Generate Different Questions",
+  "도움말 보기": "Help",
   "다른 파일 넣기": "Upload Another File",
   "더 많은 페이지 로딩 중... (": "Loading more pages... (",
   "또는": "or",
@@ -101,7 +103,6 @@
   "문제 유형별 기준에 맞춰 퀴즈를 생성합니다.": "Quizzes are generated based on criteria for each question type.",
   "문제 풀이: ": "Solving: ",
   "반복 학습: ": "Repetitive learning: ",
-  "변경사항 로드 실패:": "Failed to load changes:",
   "보통 10초 ~ 30초 (문서 길이에 따라 다름)": "Usually 10-30 seconds (varies by document length)",
   "복습 퀴즈": "Review Quiz",
   "복습: ": "Review: ",
@@ -130,7 +131,6 @@
   "좌측 번호판으로 빠른 이동": "Quick navigation with the left number panel",
   "지원 형식: ": "지원 형식: ",
   "총 퀴즈 수, 평균 점수 등 확인": "View total quizzes, average scores, and more",
-  "최근 변경사항": "Recent Changes",
   "틀린 문제 중심 재학습 가능": "Focus on wrong answers for re-study",
   "팁: ": "Tip: ",
   "파일을 드래그하거나 버튼 클릭": "Drag a file or click the button",
@@ -145,5 +145,7 @@
   "Q. 한 번에 몇 문제까지 생성할 수 있나요?": "Q. How many questions can I generate at once?",
   "5개, 10개, 15개, 20개, 25개 중 선택할 수 있습니다. 페이지 범위를 지정하면 특정 구간에 집중한 문제를 생성할 수 있습니다.": "You can choose from 5, 10, 15, 20, or 25 questions. Specifying a page range lets you generate questions focused on specific sections.",
   "Q. 생성된 퀴즈는 저장되나요?": "Q. Are generated quizzes saved?",
-  "네. 로그인 시 퀴즈 기록에 자동 저장되며, 비로그인 시에도 24시간 동안 브라우저에 임시 저장됩니다.": "Yes. When logged in, quizzes are automatically saved to your quiz history. Even without logging in, they are temporarily stored in your browser for 24 hours."
+  "네. 로그인 시 퀴즈 기록에 자동 저장되며, 비로그인 시에도 24시간 동안 브라우저에 임시 저장됩니다.": "Yes. When logged in, quizzes are automatically saved to your quiz history. Even without logging in, they are temporarily stored in your browser for 24 hours.",
+  "PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요.": "",
+  "회원가입 없이 바로 시작할 수 있어요.": ""
 }
