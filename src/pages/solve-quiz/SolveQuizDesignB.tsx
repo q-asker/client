@@ -1,11 +1,12 @@
 import { useTranslation } from 'i18nexus';
 import InlineEdit from '@/shared/ui/components/inline-edit';
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
+import { LogIn } from 'lucide-react';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Skeleton } from '@/shared/ui/components/skeleton';
@@ -14,9 +15,7 @@ import { Skeleton } from '@/shared/ui/components/skeleton';
 const SolveQuizDesignB: React.FC = () => {
   const { t } = useTranslation('solve-quiz');
   const navigate = useNavigate();
-  const location = useLocation();
   const { problemSetId } = useParams<{ problemSetId: string }>();
-  const { uploadedUrl } = (location.state as { uploadedUrl?: string }) || {};
   const storeProblemSetId = useQuizGenerationStore((state) => state.problemSetId);
   const streamQuizzes = useQuizGenerationStore((state) => state.quizzes);
   const streamIsStreaming = useQuizGenerationStore((state) => state.isStreaming);
@@ -33,7 +32,6 @@ const SolveQuizDesignB: React.FC = () => {
     t,
     navigate,
     problemSetId,
-    uploadedUrl,
     quizzes,
     isStreaming,
   });
@@ -55,15 +53,6 @@ const SolveQuizDesignB: React.FC = () => {
       document.title = 'Q-Asker';
     };
   }, [quiz.title]);
-
-  // 새로고침/탭 닫기 시 진행 정보 손실 경고
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -227,15 +216,41 @@ const SolveQuizDesignB: React.FC = () => {
         </div>
       )}
 
-      {/* 상단 네비게이션 바 */}
-      <header className="relative flex items-center justify-center bg-primary px-6 py-4 text-primary-foreground shadow-card">
-        <button
-          className="absolute left-6 cursor-pointer border-none bg-transparent text-xl text-inherit"
-          onClick={() => navigate('/')}
-        >
-          x
-        </button>
-        <div className="font-mono text-sm">{quiz.currentTime}</div>
+      {/* 상단 타이머 바 */}
+      <header className="bg-primary shadow-card">
+        <div className="relative mx-auto flex w-[95%] max-w-[1200px] items-center justify-between py-3 text-primary-foreground">
+          {/* 왼쪽: X 닫기 */}
+          <button
+            className="cursor-pointer border-none bg-transparent text-xl text-inherit"
+            onClick={() => navigate('/')}
+            aria-label={t('닫기')}
+          >
+            ✕
+          </button>
+
+          {/* 중앙: 타이머 */}
+          <div className="absolute left-1/2 -translate-x-1/2 font-mono text-sm">
+            {quiz.currentTime}
+          </div>
+
+          {/* 오른쪽: 기록 상태 + 프로필/로그인 */}
+          <div className="flex items-center gap-3">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-1.5 text-xs text-primary-foreground/80">
+                <span className="inline-block size-2 animate-pulse rounded-full bg-green-400" />
+                {t('퀴즈 기록 중')}
+              </div>
+            ) : (
+              <button
+                className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap border-none bg-transparent px-0 py-0 text-xs text-primary-foreground/80 transition-colors hover:text-primary-foreground"
+                onClick={quizActions.saveProgressAndLogin}
+              >
+                <LogIn className="size-3.5" />
+                {t('로그인하고 기록하기')}
+              </button>
+            )}
+          </div>
+        </div>
       </header>
 
       {/* 퀴즈 제목 */}

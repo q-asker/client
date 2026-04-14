@@ -10,7 +10,6 @@ interface UseQuizResultParams {
   problemSetId: string;
   quizzes: Quiz[];
   totalTime: number;
-  uploadedUrl: string;
   title: string;
 }
 
@@ -31,7 +30,6 @@ export const useQuizResult = ({
   problemSetId,
   quizzes,
   totalTime,
-  uploadedUrl,
   title,
 }: UseQuizResultParams): UseQuizResultReturn => {
   const correctCount = useMemo(() => {
@@ -68,7 +66,7 @@ export const useQuizResult = ({
       const res = await axiosInstance.get(`/explanation/${problemSetId}`);
       const data = res.data;
       navigate(`/explanation/${problemSetId}`, {
-        state: { quizzes, explanation: data, uploadedUrl },
+        state: { quizzes, explanation: data },
       });
     } catch {
       navigate('/');

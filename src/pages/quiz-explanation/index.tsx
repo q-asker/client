@@ -12,15 +12,15 @@ import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
-import { MOCK_QUIZZES, MOCK_EXPLANATION, MOCK_UPLOADED_URL } from './mockExplanationData';
+import { MOCK_QUIZZES, MOCK_EXPLANATION } from './mockExplanationData';
 
 /** location.state 타입 */
 interface LocationState {
   quizzes?: Quiz[];
   explanation?: {
     results?: Array<{ number: number; explanation: string; referencedPages?: number[] }>;
+    fileUrl?: string;
   };
-  uploadedUrl?: string;
 }
 
 /**
@@ -34,12 +34,8 @@ const QuizExplanation: React.FC = () => {
   const { state: locationState } = useLocation();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
-  const {
-    quizzes: initialQuizzes = [],
-    explanation: rawExplanation = [],
-    uploadedUrl,
-  } = isMock
-    ? { quizzes: MOCK_QUIZZES, explanation: MOCK_EXPLANATION, uploadedUrl: MOCK_UPLOADED_URL }
+  const { quizzes: initialQuizzes = [], explanation: rawExplanation = {} } = isMock
+    ? { quizzes: MOCK_QUIZZES, explanation: MOCK_EXPLANATION }
     : (locationState as LocationState) || {};
   const { state, actions } = useQuizExplanation({
     t,
@@ -47,10 +43,11 @@ const QuizExplanation: React.FC = () => {
     problemSetId,
     initialQuizzes,
     rawExplanation,
-    uploadedUrl,
   });
   const { quiz, pdf, explanation, ui } = state;
-  const pdfDataState = usePdfData(uploadedUrl?.toLowerCase().endsWith('.pdf') ? uploadedUrl : null);
+  const pdfDataState = usePdfData(
+    ui.uploadedUrl?.toLowerCase().endsWith('.pdf') ? ui.uploadedUrl : null,
+  );
   const { quiz: quizActions, pdf: pdfActions, common: commonActions } = actions;
   const refPages = explanation.thisExplanationObj?.referencedPages;
   const total = quiz.showWrongOnly ? quiz.filteredTotalQuestions : quiz.totalQuestions;
@@ -325,11 +322,11 @@ const QuizExplanation: React.FC = () => {
                           &rarr;
                         </Button>
                       </div>
-                      {!uploadedUrl ? (
+                      {!ui.uploadedUrl ? (
                         <p className="text-center text-muted-foreground">
                           {t('파일 링크가 만료되었습니다.')}
                         </p>
-                      ) : uploadedUrl.toLowerCase().endsWith('.pdf') ? (
+                      ) : ui.uploadedUrl.toLowerCase().endsWith('.pdf') ? (
                         pdfDataState.isLoading || !pdfDataState.data ? (
                           <p className="text-center">{t('PDF 로딩 중...')}</p>
                         ) : (

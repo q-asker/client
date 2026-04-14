@@ -9,7 +9,6 @@ interface UseSolveQuizSubmitParams {
   quizzes: Quiz[];
   problemSetId: string;
   currentTime: string;
-  uploadedUrl: string;
   title: string;
   navigate: NavigateFunction;
 }
@@ -31,7 +30,6 @@ export const useSolveQuizSubmit = ({
   quizzes,
   problemSetId,
   currentTime,
-  uploadedUrl,
   title,
   navigate,
 }: UseSolveQuizSubmitParams): UseSolveQuizSubmitReturn => {
@@ -51,10 +49,19 @@ export const useSolveQuizSubmit = ({
 
     trackQuizEvents.submitQuiz(problemSetId, answeredCount, safeQuizzes.length, reviewCount);
 
-    navigate(`/result/${problemSetId}`, {
-      state: { quizzes: safeQuizzes, totalTime: currentTime, uploadedUrl, title },
+    // 임시 저장 삭제 + 채점용 저장
+    localStorage.removeItem('quizProgress');
+    const answers: Record<number, string | null> = {};
+    safeQuizzes.forEach((q) => {
+      answers[q.number] = q.userAnswer as string | null;
     });
-  }, [quizzes, problemSetId, currentTime, uploadedUrl, title, navigate]);
+    localStorage.setItem(
+      `quizResult:${problemSetId}`,
+      JSON.stringify({ answers, totalTime: currentTime, title, savedAt: Date.now() }),
+    );
+
+    navigate(`/result/${problemSetId}`);
+  }, [quizzes, problemSetId, currentTime, title, navigate]);
 
   const handleCancelSubmit = useCallback((): void => {
     setShowSubmitDialog(false);

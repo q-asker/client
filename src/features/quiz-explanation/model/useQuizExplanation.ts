@@ -22,6 +22,7 @@ interface ExplanationResult {
 /** API에서 반환되는 해설 응답 */
 interface RawExplanation {
   results?: ExplanationResult[];
+  fileUrl?: string;
 }
 
 /** PDF 옵션 */
@@ -37,7 +38,6 @@ interface UseQuizExplanationParams {
   problemSetId: string;
   initialQuizzes: Quiz[];
   rawExplanation: RawExplanation;
-  uploadedUrl: string;
 }
 
 interface QuizState {
@@ -115,7 +115,6 @@ export const useQuizExplanation = ({
   problemSetId,
   initialQuizzes,
   rawExplanation,
-  uploadedUrl,
 }: UseQuizExplanationParams): UseQuizExplanationReturn => {
   const [showPdf, setShowPdf] = useState(false);
   const [pdfWidth, setPdfWidth] = useState(600);
@@ -304,7 +303,7 @@ export const useQuizExplanation = ({
       },
       ui: {
         isLoading,
-        uploadedUrl,
+        uploadedUrl: rawExplanation.fileUrl ?? '',
       },
     },
     actions: {

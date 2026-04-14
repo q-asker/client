@@ -1,11 +1,13 @@
 import { useTranslation } from 'i18nexus';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuizResult } from '#features/quiz-result';
-import { MOCK_RESULT_QUIZZES, MOCK_TOTAL_TIME, MOCK_UPLOADED_URL } from './mockResultData';
+import { MOCK_RESULT_QUIZZES, MOCK_TOTAL_TIME } from './mockResultData';
 import { Button } from '@/shared/ui/components/button';
 import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
 import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
 import { Home } from 'lucide-react';
+import axiosInstance from '#shared/api';
 
 /** 선택지 타입 */
 interface QuizSelection {
@@ -19,32 +21,76 @@ interface QuizItem {
   number: number;
   title: string;
   selections: QuizSelection[];
-  userAnswer: string | number;
+  userAnswer: string | number | null;
 }
 
-/** location.state 타입 */
-interface QuizResultLocationState {
-  quizzes?: QuizItem[];
-  totalTime?: string;
-  uploadedUrl?: string;
-  title?: string;
+/** localStorage 채점용 데이터 타입 */
+interface SavedResult {
+  answers: Record<number, string | null>;
+  totalTime: string;
+  title: string;
+  savedAt: number;
+}
+
+/** API 응답 타입 */
+interface ProblemSetResponse {
+  quiz: QuizItem[];
+  title: string;
 }
 
 const QuizResultDesignK = () => {
   const { t } = useTranslation('quiz-result');
-  const { state } = useLocation() as { state: QuizResultLocationState | null };
   const navigate = useNavigate();
   const { problemSetId } = useParams<{ problemSetId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
-  const {
-    quizzes = [],
-    totalTime = '00:00:00',
-    uploadedUrl,
-    title = '',
-  } = isMock
-    ? { quizzes: MOCK_RESULT_QUIZZES, totalTime: MOCK_TOTAL_TIME, uploadedUrl: MOCK_UPLOADED_URL }
-    : state || {};
+
+  const [quizzes, setQuizzes] = useState<QuizItem[]>(isMock ? MOCK_RESULT_QUIZZES : []);
+  const [totalTime, setTotalTime] = useState<string>(isMock ? MOCK_TOTAL_TIME : '00:00:00');
+  const [title, setTitle] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(!isMock);
+
+  useEffect(() => {
+    if (isMock || !problemSetId) return;
+
+    const loadResult = async () => {
+      try {
+        // 서버에서 퀴즈 데이터 조회
+        const res = await axiosInstance.get<ProblemSetResponse>(`/problem-set/${problemSetId}`);
+        const serverQuizzes = res.data.quiz;
+        setTitle(res.data.title);
+
+        // localStorage 채점 데이터에서 답안 + 경과 시간 복원
+        const raw = localStorage.getItem(`quizResult:${problemSetId}`);
+        if (raw) {
+          const saved = JSON.parse(raw) as SavedResult;
+          // 24시간 만료 체크
+          if (Date.now() - saved.savedAt > 24 * 60 * 60 * 1000) {
+            localStorage.removeItem(`quizResult:${problemSetId}`);
+          } else {
+            const merged = serverQuizzes.map((q) => ({
+              ...q,
+              userAnswer: saved.answers[q.number] ?? q.userAnswer,
+            }));
+            setQuizzes(merged);
+            setTotalTime(saved.totalTime);
+            if (saved.title) setTitle(saved.title);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // 채점 데이터 없으면 서버 데이터 그대로 사용
+        setQuizzes(serverQuizzes);
+      } catch {
+        navigate('/');
+      }
+      setIsLoading(false);
+    };
+
+    loadResult();
+  }, [problemSetId, isMock, navigate]);
+
   const {
     state: { correctCount, scorePercent },
     actions: { getQuizExplanation },
@@ -53,9 +99,10 @@ const QuizResultDesignK = () => {
     problemSetId: problemSetId ?? '',
     quizzes,
     totalTime,
-    uploadedUrl: uploadedUrl ?? '',
     title,
   });
+
+  if (isLoading) return null;
 
   // 공통 컴포넌트용 데이터 변환
   const problems: ScoreBoardProblem[] = quizzes.map((q) => {
