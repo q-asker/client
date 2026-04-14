@@ -3,6 +3,7 @@ import type { MouseEvent } from 'react';
 import type { NavigateFunction } from 'react-router';
 import { trackQuizEvents } from '#shared/lib/analytics';
 import { isUnanswered } from '../lib/isUnanswered';
+import { clearProgress, saveResult } from './solveQuizProgress';
 import type { Quiz } from '#features/quiz-generation';
 
 interface UseSolveQuizSubmitParams {
@@ -48,17 +49,19 @@ export const useSolveQuizSubmit = ({
     const answeredCount = safeQuizzes.length - unansweredCount;
 
     trackQuizEvents.submitQuiz(problemSetId, answeredCount, safeQuizzes.length, reviewCount);
+    clearProgress();
 
-    // 임시 저장 삭제 + 채점용 저장
-    localStorage.removeItem('quizProgress');
+    // 채점용 데이터를 localStorage에 저장
     const answers: Record<number, string | null> = {};
     safeQuizzes.forEach((q) => {
-      answers[q.number] = q.userAnswer as string | null;
+      answers[q.number] = q.userAnswer != null ? String(q.userAnswer) : null;
     });
-    localStorage.setItem(
-      `quizResult:${problemSetId}`,
-      JSON.stringify({ answers, totalTime: currentTime, title, savedAt: Date.now() }),
-    );
+    saveResult(problemSetId, {
+      answers,
+      totalTime: currentTime,
+      title,
+      savedAt: Date.now(),
+    });
 
     navigate(`/result/${problemSetId}`);
   }, [quizzes, problemSetId, currentTime, title, navigate]);

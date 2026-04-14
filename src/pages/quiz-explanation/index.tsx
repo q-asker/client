@@ -1,8 +1,8 @@
 import { useTranslation } from 'i18nexus';
-import React, { Suspense } from 'react';
+import React from 'react';
 import { Document, Page } from 'react-pdf';
 import type { DocumentProps } from 'react-pdf';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQuizExplanation } from '#features/quiz-explanation';
 import { usePdfData } from '#shared/lib/usePdfData';
 import { Check, X as XIcon } from 'lucide-react';
@@ -12,16 +12,6 @@ import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
-import { MOCK_QUIZZES, MOCK_EXPLANATION } from './mockExplanationData';
-
-/** location.state 타입 */
-interface LocationState {
-  quizzes?: Quiz[];
-  explanation?: {
-    results?: Array<{ number: number; explanation: string; referencedPages?: number[] }>;
-    fileUrl?: string;
-  };
-}
 
 /**
  * Navigator Split — 좌측 문제 리스트 사이드바 + 3열 레이아웃.
@@ -31,18 +21,10 @@ const QuizExplanation: React.FC = () => {
   const { t } = useTranslation('quiz-explanation');
   const { problemSetId } = useParams<{ problemSetId: string }>();
   const navigate = useNavigate();
-  const { state: locationState } = useLocation();
-  const [searchParams] = useSearchParams();
-  const isMock = searchParams.get('mock') === 'true';
-  const { quizzes: initialQuizzes = [], explanation: rawExplanation = {} } = isMock
-    ? { quizzes: MOCK_QUIZZES, explanation: MOCK_EXPLANATION }
-    : (locationState as LocationState) || {};
   const { state, actions } = useQuizExplanation({
     t,
     navigate,
-    problemSetId,
-    initialQuizzes,
-    rawExplanation,
+    problemSetId: problemSetId ?? '',
   });
   const { quiz, pdf, explanation, ui } = state;
   const pdfDataState = usePdfData(
@@ -330,24 +312,34 @@ const QuizExplanation: React.FC = () => {
                         pdfDataState.isLoading || !pdfDataState.data ? (
                           <p className="text-center">{t('PDF 로딩 중...')}</p>
                         ) : (
-                          <Document
-                            file={pdfDataState.data}
-                            loading={<p className="text-center">{t('PDF 로딩 중...')}</p>}
-                            onLoadError={
-                              ((err: Error) => (
-                                <p>{t('파일이 존재하지 않습니다.')}</p>
-                              )) as DocumentProps['onLoadError']
-                            }
-                            options={pdf.pdfOptions}
-                            className="flex min-h-[400px] justify-center [&_.react-pdf\_\_Page]:h-auto [&_.react-pdf\_\_Page]:max-w-full [&_.react-pdf\_\_Page\_\_canvas]:!h-auto [&_.react-pdf\_\_Page\_\_canvas]:max-w-full"
+                          <button
+                            type="button"
+                            className="w-full cursor-pointer border-none bg-transparent p-0 transition-opacity hover:opacity-80"
+                            onClick={() => {
+                              const pageNum = refPages?.[pdf.currentPdfPage] || 1;
+                              window.open(`${ui.uploadedUrl}#page=${pageNum}`, '_blank');
+                            }}
+                            title={t('원본 PDF 열기')}
                           >
-                            <Page
-                              pageNumber={refPages?.[pdf.currentPdfPage] || 1}
-                              width={pdf.pdfWidth}
-                              renderTextLayer={false}
-                              renderAnnotationLayer={false}
-                            />
-                          </Document>
+                            <Document
+                              file={pdfDataState.data}
+                              loading={<p className="text-center">{t('PDF 로딩 중...')}</p>}
+                              onLoadError={
+                                ((err: Error) => (
+                                  <p>{t('파일이 존재하지 않습니다.')}</p>
+                                )) as DocumentProps['onLoadError']
+                              }
+                              options={pdf.pdfOptions}
+                              className="pointer-events-none flex min-h-[400px] justify-center [&_.react-pdf\_\_Page]:h-auto [&_.react-pdf\_\_Page]:max-w-full [&_.react-pdf\_\_Page\_\_canvas]:!h-auto [&_.react-pdf\_\_Page\_\_canvas]:max-w-full"
+                            >
+                              <Page
+                                pageNumber={refPages?.[pdf.currentPdfPage] || 1}
+                                width={pdf.pdfWidth}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                              />
+                            </Document>
+                          </button>
                         )
                       ) : (
                         <p className="text-center text-muted-foreground">

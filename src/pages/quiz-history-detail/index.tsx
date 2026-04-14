@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import axiosInstance from '#shared/api';
+import { saveResult } from '#features/solve-quiz';
 import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
@@ -118,18 +119,18 @@ const QuizHistoryDetail = () => {
             <Button
               size="lg"
               className="w-full text-base"
-              onClick={async () => {
-                try {
-                  const res = await axiosInstance.get(`/explanation/${detail.problemSetId}`);
-                  navigate(`/explanation/${detail.problemSetId}`, {
-                    state: {
-                      quizzes: detail.problems,
-                      explanation: res.data,
-                    },
-                  });
-                } catch {
-                  navigate('/history');
-                }
+              onClick={() => {
+                const answers: Record<number, string | null> = {};
+                detail.problems.forEach((p) => {
+                  answers[p.number] = p.userAnswer != null ? String(p.userAnswer) : null;
+                });
+                saveResult(detail.problemSetId, {
+                  answers,
+                  totalTime: detail.totalTime,
+                  title: '',
+                  savedAt: Date.now(),
+                });
+                navigate(`/explanation/${detail.problemSetId}`);
               }}
             >
               {t('해설 보기')}

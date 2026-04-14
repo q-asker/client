@@ -1,23 +1,18 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { NavigateFunction } from 'react-router';
 import { useSolveQuizData } from './useSolveQuizData';
 import { useSolveQuizQuestion } from './useSolveQuizQuestion';
 import { isUnanswered } from '../lib/isUnanswered';
 import { useSolveQuizSubmit } from './useSolveQuizSubmit';
 import { useSolveQuizTimer } from './useSolveQuizTimer';
-import CustomToast from '#shared/toast';
+import { loadProgress, saveProgress } from './solveQuizProgress';
 import type { Quiz } from '#features/quiz-generation';
 
-const PROGRESS_KEY = 'quizProgress';
-
-interface SavedProgress {
-  problemSetId: string;
-  answers: Record<number, string | null>;
-  checks: Record<number, boolean>;
-  currentQuestion: number;
-  elapsedMs: number;
-  savedAt: number;
-}
+/** 서버의 userAnswer(0 = 미응답)를 null로 정규화 */
+const normalizeAnswer = (answer: string | number | null | undefined): string | null => {
+  if (answer === undefined || answer === null || answer === 0 || answer === '') return null;
+  return String(answer);
+};
 
 interface UseSolveQuizParams {
   t: (key: string) => string;
@@ -56,27 +51,10 @@ interface UseSolveQuizReturn {
       handleCancelSubmit: () => void;
       handleOverlayClick: (e: React.MouseEvent<HTMLDivElement>) => void;
       changeTitle: (newTitle: string) => Promise<void>;
-      saveProgressAndLogin: () => void;
+      persistNow: () => void;
     };
   };
 }
-
-/** 로컬스토리지에서 진행 상태 읽기 */
-const loadProgress = (problemSetId: string): SavedProgress | null => {
-  try {
-    const raw = localStorage.getItem(PROGRESS_KEY);
-    if (!raw) return null;
-    const saved = JSON.parse(raw) as SavedProgress;
-    // 만료 또는 다른 퀴즈 → 삭제
-    if (saved.problemSetId !== problemSetId || Date.now() - saved.savedAt > 24 * 60 * 60 * 1000) {
-      localStorage.removeItem(PROGRESS_KEY);
-      return null;
-    }
-    return saved;
-  } catch {
-    return null;
-  }
-};
 
 /** 퀴즈 풀이 페이지의 전체 상태와 액션을 통합 관리하는 훅 */
 export const useSolveQuiz = ({
@@ -85,9 +63,9 @@ export const useSolveQuiz = ({
   problemSetId,
   quizzes = [],
 }: UseSolveQuizParams): UseSolveQuizReturn => {
-  // 저장된 진행 상태 복원
   const savedProgress = useMemo(() => loadProgress(problemSetId), [problemSetId]);
   const initialOffsetMs = savedProgress?.elapsedMs ?? 0;
+  const readyRef = useRef(false);
 
   const {
     quizzes: solveQuizzes,
@@ -99,6 +77,7 @@ export const useSolveQuiz = ({
     problemSetId,
     quizzes,
     navigate,
+    savedProgress,
   });
   const { currentTime, elapsedMs } = useSolveQuizTimer(initialOffsetMs);
   const totalQuestions = solveQuizzes.length;
@@ -108,6 +87,7 @@ export const useSolveQuiz = ({
     quizzes: solveQuizzes,
     setQuizzes: setSolveQuizzes,
     totalQuestions,
+    initialQuestion: savedProgress?.currentQuestion,
   });
   const submit = useSolveQuizSubmit({
     quizzes: solveQuizzes,
@@ -123,57 +103,35 @@ export const useSolveQuiz = ({
     }
   }, [problemSetId, navigate]);
 
-  // 저장된 답안/검토 복원
-  useEffect(() => {
-    if (!savedProgress || solveQuizzes.length === 0) return;
-    const { answers, checks, currentQuestion } = savedProgress;
-
-    setSolveQuizzes((prev) =>
-      prev.map((q) => ({
-        ...q,
-        userAnswer: answers[q.number] ?? q.userAnswer,
-        check: checks[q.number] ?? q.check,
-      })),
-    );
-    question.actions.handleJumpTo(currentQuestion);
-
-    // 복원 완료 후 삭제
-    localStorage.removeItem(PROGRESS_KEY);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [solveQuizzes.length > 0 && !!savedProgress]);
-
-  /** 진행 상태를 localStorage에 저장 */
-  const saveProgress = useCallback(() => {
+  /** 현재 상태를 명시적으로 localStorage에 저장 */
+  const persistNow = useCallback(() => {
     if (solveQuizzes.length === 0) return;
     const answers: Record<number, string | null> = {};
     const checks: Record<number, boolean> = {};
     solveQuizzes.forEach((q) => {
-      answers[q.number] = q.userAnswer;
-      checks[q.number] = q.check;
+      answers[q.number] = normalizeAnswer(q.userAnswer);
+      checks[q.number] = q.check ?? false;
     });
-    const progress: SavedProgress = {
+    saveProgress({
       problemSetId,
       answers,
       checks,
       currentQuestion: question.state.currentQuestion,
       elapsedMs,
       savedAt: Date.now(),
-    };
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    });
   }, [solveQuizzes, problemSetId, question.state.currentQuestion, elapsedMs]);
 
-  // 답안 변경 시 자동 저장
+  // solveQuizzes 또는 currentQuestion 변경 시 자동 저장
   useEffect(() => {
     if (solveQuizzes.length === 0) return;
-    saveProgress();
-  }, [solveQuizzes, saveProgress]);
-
-  /** 진행 상태 저장 후 로그인 페이지 이동 */
-  const saveProgressAndLogin = () => {
-    saveProgress();
-    CustomToast.info(t('진행 상태가 저장되었습니다. 로그인 후 자동으로 돌아옵니다.'));
-    setTimeout(() => navigate('/login'), 1500);
-  };
+    if (!readyRef.current) {
+      readyRef.current = true;
+      return;
+    }
+    persistNow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [solveQuizzes, question.state.currentQuestion]);
 
   const unansweredCount = useMemo(
     () => solveQuizzes.filter((q) => isUnanswered(q.userAnswer, q.selections)).length,
@@ -204,7 +162,7 @@ export const useSolveQuiz = ({
         ...question.actions,
         ...submit.actions,
         changeTitle,
-        saveProgressAndLogin,
+        persistNow,
       },
     },
   };

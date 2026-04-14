@@ -10,6 +10,8 @@ interface UseSolveQuizQuestionParams {
   quizzes: Quiz[];
   setQuizzes: Dispatch<SetStateAction<Quiz[]>>;
   totalQuestions: number;
+  /** 복원할 초기 문항 번호 */
+  initialQuestion?: number;
 }
 
 interface UseSolveQuizQuestionReturn {
@@ -44,9 +46,10 @@ export const useSolveQuizQuestion = ({
   quizzes,
   setQuizzes,
   totalQuestions,
+  initialQuestion,
 }: UseSolveQuizQuestionParams): UseSolveQuizQuestionReturn => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState<number>(1);
+  const [currentQuestion, setCurrentQuestion] = useState<number>(initialQuestion ?? 1);
 
   useEffect(() => {
     const saved = quizzes[currentQuestion - 1]?.userAnswer;

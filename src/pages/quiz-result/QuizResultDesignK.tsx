@@ -1,7 +1,8 @@
 import { useTranslation } from 'i18nexus';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuizResult } from '#features/quiz-result';
+import { loadResult } from '#features/solve-quiz';
 import { MOCK_RESULT_QUIZZES, MOCK_TOTAL_TIME } from './mockResultData';
 import { Button } from '@/shared/ui/components/button';
 import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
@@ -21,15 +22,7 @@ interface QuizItem {
   number: number;
   title: string;
   selections: QuizSelection[];
-  userAnswer: string | number | null;
-}
-
-/** localStorage 채점용 데이터 타입 */
-interface SavedResult {
-  answers: Record<number, string | null>;
-  totalTime: string;
-  title: string;
-  savedAt: number;
+  userAnswer?: string | null;
 }
 
 /** API 응답 타입 */
@@ -45,50 +38,46 @@ const QuizResultDesignK = () => {
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
 
+  const savedResult = useMemo(
+    () => (problemSetId ? loadResult(problemSetId) : null),
+    [problemSetId],
+  );
+
   const [quizzes, setQuizzes] = useState<QuizItem[]>(isMock ? MOCK_RESULT_QUIZZES : []);
-  const [totalTime, setTotalTime] = useState<string>(isMock ? MOCK_TOTAL_TIME : '00:00:00');
-  const [title, setTitle] = useState<string>('');
+  const [totalTime, setTotalTime] = useState<string>(
+    isMock ? MOCK_TOTAL_TIME : (savedResult?.totalTime ?? '00:00:00'),
+  );
+  const [title, setTitle] = useState<string>(savedResult?.title ?? '');
   const [isLoading, setIsLoading] = useState(!isMock);
 
   useEffect(() => {
     if (isMock || !problemSetId) return;
 
-    const loadResult = async () => {
+    const fetchResult = async () => {
       try {
         // 서버에서 퀴즈 데이터 조회
         const res = await axiosInstance.get<ProblemSetResponse>(`/problem-set/${problemSetId}`);
         const serverQuizzes = res.data.quiz;
-        setTitle(res.data.title);
+        setTitle((prev) => prev || res.data.title);
 
-        // localStorage 채점 데이터에서 답안 + 경과 시간 복원
-        const raw = localStorage.getItem(`quizResult:${problemSetId}`);
-        if (raw) {
-          const saved = JSON.parse(raw) as SavedResult;
-          // 24시간 만료 체크
-          if (Date.now() - saved.savedAt > 24 * 60 * 60 * 1000) {
-            localStorage.removeItem(`quizResult:${problemSetId}`);
-          } else {
-            const merged = serverQuizzes.map((q) => ({
-              ...q,
-              userAnswer: saved.answers[q.number] ?? q.userAnswer,
-            }));
-            setQuizzes(merged);
-            setTotalTime(saved.totalTime);
-            if (saved.title) setTitle(saved.title);
-            setIsLoading(false);
-            return;
-          }
+        // localStorage 채점 데이터가 있으면 답안 병합
+        if (savedResult) {
+          const merged = serverQuizzes.map((q) => ({
+            ...q,
+            userAnswer: savedResult.answers[q.number] ?? q.userAnswer,
+          }));
+          setQuizzes(merged);
+        } else {
+          setQuizzes(serverQuizzes);
         }
-
-        // 채점 데이터 없으면 서버 데이터 그대로 사용
-        setQuizzes(serverQuizzes);
       } catch {
         navigate('/');
       }
       setIsLoading(false);
     };
 
-    loadResult();
+    fetchResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [problemSetId, isMock, navigate]);
 
   const {
@@ -111,7 +100,7 @@ const QuizResultDesignK = () => {
       number: q.number,
       title: q.title,
       correct: selected?.correct === true,
-      userAnswer: q.userAnswer,
+      userAnswer: q.userAnswer ?? '',
       selections: q.selections,
     };
   });

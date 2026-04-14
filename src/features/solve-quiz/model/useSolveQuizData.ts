@@ -22,6 +22,10 @@ interface UseSolveQuizDataParams {
   problemSetId: string;
   quizzes: Quiz[];
   navigate: NavigateFunction;
+  savedProgress?: {
+    answers: Record<number, string | null>;
+    checks: Record<number, boolean>;
+  } | null;
 }
 
 /** Shadow Copy 확인 응답 */
@@ -41,10 +45,27 @@ interface UseSolveQuizDataReturn {
 }
 
 /** 퀴즈 데이터를 서버에서 불러오고 스트리밍 상태를 관리하는 훅 */
+/** 서버 데이터에 저장된 진행 상태를 병합 */
+const mergeWithProgress = (
+  serverQuizzes: Quiz[],
+  progress:
+    | { answers: Record<number, string | null>; checks: Record<number, boolean> }
+    | null
+    | undefined,
+): Quiz[] => {
+  if (!progress) return serverQuizzes;
+  return serverQuizzes.map((q) => ({
+    ...q,
+    userAnswer: progress.answers[q.number] ?? q.userAnswer,
+    check: progress.checks[q.number] ?? q.check,
+  }));
+};
+
 export const useSolveQuizData = ({
   problemSetId,
   quizzes,
   navigate,
+  savedProgress,
 }: UseSolveQuizDataParams): UseSolveQuizDataReturn => {
   const [localQuizzes, setLocalQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -67,7 +88,7 @@ export const useSolveQuizData = ({
     /* mock 모드: API 호출 없이 mock 데이터 사용 */
     if (isMock) {
       import('../../../pages/solve-quiz/mockQuizData').then(({ MOCK_QUIZZES }) => {
-        setLocalQuizzes(MOCK_QUIZZES);
+        setLocalQuizzes(mergeWithProgress(MOCK_QUIZZES, savedProgress));
         setIsLoading(false);
       });
       return;
@@ -113,7 +134,7 @@ export const useSolveQuizData = ({
         setTitle(quizTitle);
 
         if (status === 'COMPLETED') {
-          setLocalQuizzes(res.data.quiz);
+          setLocalQuizzes(mergeWithProgress(res.data.quiz, savedProgress));
           setIsLoading(false);
         }
         if (status === 'GENERATING') {
@@ -123,7 +144,7 @@ export const useSolveQuizData = ({
             isStreaming: true,
           });
           if (Array.isArray(res.data.quiz) && res.data.quiz.length > 0) {
-            setLocalQuizzes(res.data.quiz);
+            setLocalQuizzes(mergeWithProgress(res.data.quiz, savedProgress));
           }
           const sessionId = res.data.sessionId;
           reconnectStream(sessionId);

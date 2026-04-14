@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import axiosInstance from '#shared/api';
 import { trackQuizEvents, trackResultEvents } from '#shared/lib/analytics';
 import type { Quiz } from '#features/quiz-generation';
@@ -9,7 +9,7 @@ interface UseQuizResultParams {
   navigate: (to: string, options?: { state?: unknown; replace?: boolean }) => void;
   problemSetId: string;
   quizzes: Quiz[];
-  totalTime: number;
+  totalTime: string;
   title: string;
 }
 
@@ -35,7 +35,7 @@ export const useQuizResult = ({
   const correctCount = useMemo(() => {
     return quizzes.reduce((count, q) => {
       const selected = q.selections.find((s) => s.id === q.userAnswer);
-      return count + ((selected as Record<string, unknown>)?.correct ? 1 : 0);
+      return count + (selected?.correct ? 1 : 0);
     }, 0);
   }, [quizzes]);
 
@@ -43,8 +43,10 @@ export const useQuizResult = ({
     return quizzes.length ? Math.round((correctCount / quizzes.length) * 100) : 0;
   }, [quizzes.length, correctCount]);
 
+  const historySavedRef = useRef(false);
   useEffect(() => {
-    if (!problemSetId || quizzes.length === 0) return;
+    if (!problemSetId || quizzes.length === 0 || historySavedRef.current) return;
+    historySavedRef.current = true;
 
     trackResultEvents.viewResult(problemSetId, correctCount, quizzes.length, totalTime);
     trackQuizEvents.completeQuiz(problemSetId, correctCount, quizzes.length, totalTime);
@@ -57,20 +59,12 @@ export const useQuizResult = ({
     axiosInstance
       .post('/history', { problemSetId, title, userAnswers, score: correctCount, totalTime })
       .catch((err) => console.error('Failed to save quiz history:', err));
-  }, []);
+  }, [problemSetId, quizzes, correctCount, totalTime, title]);
 
   const getQuizExplanation = async (): Promise<void> => {
     trackResultEvents.clickExplanation(problemSetId);
 
-    try {
-      const res = await axiosInstance.get(`/explanation/${problemSetId}`);
-      const data = res.data;
-      navigate(`/explanation/${problemSetId}`, {
-        state: { quizzes, explanation: data },
-      });
-    } catch {
-      navigate('/');
-    }
+    navigate(`/explanation/${problemSetId}`);
   };
 
   return {
