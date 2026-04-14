@@ -1,5 +1,5 @@
 {
-  "(최대": "(최대",
+  "(최대": "(max",
   "AI는 실수를 할 수 있습니다. 학습 보조 도구로 활용해 주세요.": "AI can make mistakes. Please use it as a study aid.",
   "24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.": "Automatically deleted after 24 hours and not stored or shared separately.",
   "OX 퀴즈": "True/False Quiz",
@@ -129,7 +129,7 @@
   "전체 또는 특정 페이지 지정": "Select all or specific pages",
   "점수, 소요시간 등 결과 확인": "Check scores, time spent, and results",
   "좌측 번호판으로 빠른 이동": "Quick navigation with the left number panel",
-  "지원 형식: ": "지원 형식: ",
+  "지원 형식: ": "Supported Formats: ",
   "총 퀴즈 수, 평균 점수 등 확인": "View total quizzes, average scores, and more",
   "틀린 문제 중심 재학습 가능": "Focus on wrong answers for re-study",
   "팁: ": "Tip: ",
@@ -146,6 +146,6 @@
   "5개, 10개, 15개, 20개, 25개 중 선택할 수 있습니다. 페이지 범위를 지정하면 특정 구간에 집중한 문제를 생성할 수 있습니다.": "You can choose from 5, 10, 15, 20, or 25 questions. Specifying a page range lets you generate questions focused on specific sections.",
   "Q. 생성된 퀴즈는 저장되나요?": "Q. Are generated quizzes saved?",
   "네. 로그인 시 퀴즈 기록에 자동 저장되며, 비로그인 시에도 24시간 동안 브라우저에 임시 저장됩니다.": "Yes. When logged in, quizzes are automatically saved to your quiz history. Even without logging in, they are temporarily stored in your browser for 24 hours.",
-  "PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요.": "",
-  "회원가입 없이 바로 시작할 수 있어요.": ""
+  "PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요.": "Just upload PDF, PPT, or Word files and AI automatically creates exam questions. Generate multiple choice, true/false, and fill-in-the-blank questions for free.",
+  "회원가입 없이 바로 시작할 수 있어요.": "Start right away without signing up."
 }
