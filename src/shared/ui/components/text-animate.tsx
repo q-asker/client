@@ -405,6 +405,7 @@ const TextAnimateBase = ({
   return (
     <AnimatePresence mode="popLayout">
       <MotionComponent
+        key={children}
         variants={finalVariants.container as Variants}
         initial="hidden"
         whileInView={startOnView ? 'show' : undefined}

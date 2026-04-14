@@ -79,8 +79,7 @@ const MakeQuiz: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const levelDescriptions = useMemo(() => getLevelDescriptions(t), []);
+  const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
   const acceptExtensions: string = ACCEPT_FILE_TYPES;
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;

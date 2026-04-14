@@ -125,13 +125,16 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): U
   };
 
   const handleLanguageChange = (lang: string) => {
-    changeLanguage(lang);
+    // 언어 경로에서는 navigate만 수행 — LanguageRouteSync가 changeLanguage 처리
+    // 동시 호출 시 LanguageRouteSync가 중간에 개입하여 플래싱 발생 방지
     if (location.pathname === '/' || location.pathname === '/ko' || location.pathname === '/en') {
       const targetPath = lang === 'en' ? '/en' : '/ko';
       if (location.pathname !== targetPath) {
         navigate(targetPath, { replace: true });
+        return;
       }
     }
+    changeLanguage(lang);
   };
 
   const closeSidebar = () => {
