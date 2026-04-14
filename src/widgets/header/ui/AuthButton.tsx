@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { LogIn, LogOut } from 'lucide-react';
+import { LogIn, LogOut, Pencil, Check, X } from 'lucide-react';
 import { useTranslation } from 'i18nexus';
 import { useAuthStore } from '#entities/auth';
 import { authService } from '#entities/auth';
@@ -86,6 +86,39 @@ const AuthButton: React.FC<AuthButtonProps> = ({
   };
 
   const email = (user as Record<string, unknown> | null)?.email as string | undefined;
+  const [isEditingNickname, setIsEditingNickname] = useState(false);
+  const [nicknameInput, setNicknameInput] = useState('');
+  const [isSavingNickname, setIsSavingNickname] = useState(false);
+  const nicknameInputRef = useRef<HTMLInputElement>(null);
+
+  const startEditNickname = () => {
+    setNicknameInput(displayName);
+    setIsEditingNickname(true);
+    setTimeout(() => nicknameInputRef.current?.focus(), 50);
+  };
+
+  const cancelEditNickname = () => {
+    setIsEditingNickname(false);
+    setNicknameInput('');
+  };
+
+  const saveNickname = async () => {
+    const trimmed = nicknameInput.trim();
+    if (!trimmed || trimmed === displayName) {
+      cancelEditNickname();
+      return;
+    }
+    setIsSavingNickname(true);
+    try {
+      await authService.updateNickname(trimmed);
+      CustomToast.info(t('닉네임이 변경되었습니다.'));
+      setIsEditingNickname(false);
+    } catch {
+      CustomToast.error(t('닉네임 변경에 실패했습니다.'));
+    } finally {
+      setIsSavingNickname(false);
+    }
+  };
 
   if (!hasHydrated) {
     return <div className={variant === 'header-mobile' ? 'size-8' : 'size-9'} />;
@@ -166,8 +199,51 @@ const AuthButton: React.FC<AuthButtonProps> = ({
               <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                 {profileInitial}
               </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-foreground">{displayName}</p>
+              <div className="min-w-0 flex-1">
+                {isEditingNickname ? (
+                  <div className="flex items-center gap-1">
+                    <input
+                      ref={nicknameInputRef}
+                      className="w-full rounded border border-border bg-background px-1.5 py-0.5 text-sm font-semibold text-foreground outline-none focus:border-primary"
+                      value={nicknameInput}
+                      onChange={(e) => setNicknameInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveNickname();
+                        if (e.key === 'Escape') cancelEditNickname();
+                      }}
+                      maxLength={20}
+                      disabled={isSavingNickname}
+                    />
+                    <button
+                      type="button"
+                      className="shrink-0 cursor-pointer rounded border-none bg-transparent p-0.5 text-primary transition-colors hover:bg-primary/10"
+                      onClick={saveNickname}
+                      disabled={isSavingNickname}
+                    >
+                      <Check className="size-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      className="shrink-0 cursor-pointer rounded border-none bg-transparent p-0.5 text-muted-foreground transition-colors hover:bg-muted"
+                      onClick={cancelEditNickname}
+                      disabled={isSavingNickname}
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <p className="truncate text-sm font-semibold text-foreground">{displayName}</p>
+                    <button
+                      type="button"
+                      className="shrink-0 cursor-pointer rounded border-none bg-transparent p-0.5 text-muted-foreground transition-colors hover:text-primary"
+                      onClick={startEditNickname}
+                      title={t('닉네임 변경')}
+                    >
+                      <Pencil className="size-3" />
+                    </button>
+                  </div>
+                )}
                 {email && <p className="truncate text-xs text-muted-foreground">{email}</p>}
               </div>
             </div>

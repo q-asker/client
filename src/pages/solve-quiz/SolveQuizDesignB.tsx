@@ -7,6 +7,7 @@ import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
 import { LogIn } from 'lucide-react';
+import CustomToast from '#shared/toast';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Skeleton } from '@/shared/ui/components/skeleton';
@@ -31,9 +32,8 @@ const SolveQuizDesignB: React.FC = () => {
   const { state, actions } = useSolveQuiz({
     t,
     navigate,
-    problemSetId,
+    problemSetId: problemSetId ?? '',
     quizzes,
-    isStreaming,
   });
   const { quiz } = state;
   const { quiz: quizActions } = actions;
@@ -164,7 +164,7 @@ const SolveQuizDesignB: React.FC = () => {
                       : quizItem.selections?.find((sel) => sel.id === quizItem.userAnswer)
                           ?.content ||
                         t('{{quizItem_userAnswer}}번', {
-                          quizItem_userAnswer: quizItem.userAnswer,
+                          quizItem_userAnswer: quizItem.userAnswer ?? '',
                         });
 
                     return (
@@ -243,7 +243,13 @@ const SolveQuizDesignB: React.FC = () => {
             ) : (
               <button
                 className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap border-none bg-transparent px-0 py-0 text-xs text-primary-foreground/80 transition-colors hover:text-primary-foreground"
-                onClick={quizActions.saveProgressAndLogin}
+                onClick={() => {
+                  quizActions.persistNow();
+                  CustomToast.info(
+                    `${t('진행 상태가 저장되었습니다.')} ${t('로그인 후 이어서 풀 수 있습니다.')}`,
+                  );
+                  navigate('/login');
+                }}
               >
                 <LogIn className="size-3.5" />
                 {t('로그인하고 기록하기')}
