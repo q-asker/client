@@ -36,7 +36,7 @@ const THEME_OPTIONS = [
 ] as const;
 
 const navItemClass =
-  'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground no-underline transition-all duration-200 hover:bg-primary/8 hover:text-foreground cursor-pointer border-none bg-transparent';
+  'inline-flex items-center whitespace-nowrap px-3 py-2 text-foreground no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary text-sm md:text-base cursor-pointer border-none bg-transparent';
 
 const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
   const {
@@ -271,28 +271,14 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
 
   return (
     <>
-      {/* 헤더 */}
-      <header className="sticky top-0 z-[999] bg-background/80 backdrop-blur-xl">
-        {/* 상단 미세 그라디언트 라인 */}
-        <div
-          className="absolute inset-x-0 bottom-0 h-px"
-          style={{
-            background:
-              'linear-gradient(to right, transparent, oklch(0.511 0.2301 276.97 / 0.25) 30%, oklch(0.501 0.1384 304.73 / 0.25) 70%, transparent)',
-          }}
-        />
-
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-2.5 md:px-6">
+      <div className="relative bg-background shadow-sm">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3 md:px-6">
           {/* 로고 */}
-          <motion.div
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          >
+          <div className="flex items-center">
             <Link to="/" className="text-inherit no-underline">
               <Logo />
             </Link>
-          </motion.div>
+          </div>
 
           {/* 모바일: 언어 + 프로필/로그인 */}
           <div className="flex items-center gap-2 md:hidden">
@@ -345,12 +331,7 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
           </div>
 
           {/* 데스크톱 네비게이션 */}
-          <motion.nav
-            className="hidden items-center gap-0.5 md:flex"
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
-          >
+          <div className="hidden items-center gap-1 md:flex md:gap-3">
             {/* 테마 버튼 */}
             <div className="relative">
               <button
@@ -361,24 +342,30 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
                 aria-expanded={isThemeOpen}
                 aria-haspopup="true"
               >
-                <Palette className="size-4" />
-                {t('테마 설정')}
+                <Palette className="mr-1.5 size-4" />
+                <strong>{t('테마 설정')}</strong>
               </button>
               <AnimatePresence>
                 {isThemeOpen && <ThemeDropdownContent id="themeDropdown" />}
               </AnimatePresence>
             </div>
 
+            {/* 구분선 */}
+            <div className="mx-1 h-5 w-px bg-border" />
+
             <Link to="/boards" className={navItemClass}>
-              <MessageSquare className="size-4" />
-              {t('문의하기')}
+              <MessageSquare className="mr-1.5 size-4" />
+              <strong>{t('문의하기')}</strong>
             </Link>
 
+            {/* 구분선 */}
+            <div className="mx-1 h-5 w-px bg-border" />
+
             {/* 퀴즈 기록 + 툴팁 */}
-            <div className="relative">
+            <div className="relative inline-flex items-center">
               <Link to="/history" className={navItemClass} onClick={handleQuizManagement}>
-                <ClipboardList className="size-4" />
-                {t('퀴즈 기록')}
+                <ClipboardList className="mr-1.5 size-4" />
+                <strong>{t('퀴즈 기록')}</strong>
               </Link>
               {!isAuthenticated && showNavTooltip && (
                 <span
@@ -403,8 +390,8 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
               )}
             </div>
 
-            {/* 미세 구분 */}
-            <div className="mx-2 h-4 w-px bg-border/60" />
+            {/* 구분선 */}
+            <div className="mx-1 h-5 w-px bg-border" />
 
             {/* 인증 영역 */}
             {!hasHydrated ? (
@@ -428,16 +415,16 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
               </div>
             ) : (
               <Link
-                className="inline-flex items-center whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-primary no-underline transition-all duration-200 hover:bg-primary/8"
+                className="inline-flex items-center whitespace-nowrap px-3 py-2 text-sm text-primary no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary rounded md:text-base"
                 to="/login"
               >
                 <LogIn className="mr-1.5 size-4" />
-                {t('로그인')}
+                <strong>{t('로그인')}</strong>
               </Link>
             )}
 
-            {/* 미세 구분 */}
-            <div className="mx-2 h-4 w-px bg-border/60" />
+            {/* 구분선 */}
+            <div className="mx-1 h-5 w-px bg-border" />
 
             {/* 언어 선택 */}
             <div className="relative">
@@ -450,15 +437,15 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
                 aria-haspopup="true"
               >
                 <Globe className="size-4" />
-                <span className="text-xs font-bold">{currentLanguage.toUpperCase()}</span>
+                <span className="text-xs">{currentLanguage.toUpperCase()}</span>
               </button>
               <AnimatePresence>
                 {isLangOpen && <LangDropdownContent id="langDropdown" />}
               </AnimatePresence>
             </div>
-          </motion.nav>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* 모바일 고정 하단 네비게이션 */}
       <nav className="fixed inset-x-0 bottom-0 z-[998] flex border-t border-border/60 bg-background/90 backdrop-blur-xl md:hidden">
