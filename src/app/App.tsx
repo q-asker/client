@@ -42,9 +42,9 @@ const SUPPORTED_LANGUAGES = new Set(['ko', 'en']);
 const SEO_CONFIG = {
   ko: {
     '/': {
-      title: '[한국어 특화] Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기',
+      title: '[한국어 특화] Q-Asker: AI가 한국어로 시험 문제 바로 만들어줘요!',
       description:
-        'PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요. 회원가입 없이 바로 시작할 수 있어요.',
+        'PDF, PPT, Word만 올리면 객관식, OX, 빈칸 채우기 시험 문제를 AI가 내주는 무료 사이트입니다. 회원가입 없이 무료로 시작하세요!',
       ogLocale: 'ko_KR',
       ogImageAlt: 'Q-Asker AI 퀴즈 생성 서비스 소개 이미지',
       twitterImageAlt: 'Q-Asker AI 퀴즈 생성 서비스 소개 이미지',
@@ -193,7 +193,7 @@ const SEO_CONFIG = {
           applicationCategory: 'EducationalApplication',
           operatingSystem: 'Web Browser',
           description:
-            'PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요.',
+            'PDF, PPT, Word만 올리면 객관식, OX, 빈칸 채우기 시험 문제를 AI가 내주는 무료 사이트입니다. 회원가입 없이 무료로 시작하세요!',
           inLanguage: ['ko', 'en'],
           image: {
             '@type': 'ImageObject',
@@ -222,9 +222,9 @@ const SEO_CONFIG = {
         webpage: {
           '@context': 'https://schema.org',
           '@type': 'WebPage',
-          name: '[한국어 특화] Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기',
+          name: '[한국어 특화] Q-Asker: AI가 한국어로 시험 문제 바로 만들어줘요!',
           description:
-            'PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요. 회원가입 없이 바로 시작할 수 있어요.',
+            'PDF, PPT, Word만 올리면 객관식, OX, 빈칸 채우기 시험 문제를 AI가 내주는 무료 사이트입니다. 회원가입 없이 무료로 시작하세요!',
           url: 'https://www.q-asker.com',
           inLanguage: 'ko',
           isPartOf: {

@@ -187,8 +187,8 @@ const MakeQuiz: React.FC = () => {
       <div className="mx-auto mt-4 w-full flex-1 px-4 sm:mt-6 md:mt-8 md:w-[90%] lg:w-[85%] xl:w-[80%]">
         <h1 className="sr-only">
           {currentLanguage === 'en'
-            ? 'Free AI Quiz Generator for PDF, PPT, Word'
-            : 'AI가 시험 문제 만들어주는 무료 퀴즈 생성기 | PDF, PPT, Word'}
+            ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
+            : '[한국어 특화] Q-Asker: AI가 한국어로 시험 문제 바로 만들어줘요!'}
         </h1>
         <AnimatePresence mode="wait">
           {/* 2컬럼 레이아웃 (업로드 완료 후, 생성 전, 생성 중 아닐 때) */}
