@@ -12,6 +12,7 @@ import {
   Monitor,
   Check,
   Palette,
+  Globe,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useHeader } from './model/useHeader';
@@ -46,6 +47,7 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
   const { presets, currentPresetId, applyPreset } = useThemePreset();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isThemeOpen, setIsThemeOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
   const [showNavTooltip, setShowNavTooltip] = useState(false);
 
   const displayName = useMemo(() => {
@@ -77,6 +79,13 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
     triggerId: ['themeButton', 'mobileThemeButton'],
     onOutsideClick: () => setIsThemeOpen(false),
     isEnabled: isThemeOpen,
+  });
+
+  useClickOutside({
+    containerId: ['langDropdown', 'mobileLangDropdown'],
+    triggerId: ['langButton', 'mobileLangButton'],
+    onOutsideClick: () => setIsLangOpen(false),
+    isEnabled: isLangOpen,
   });
 
   useEffect(() => {
@@ -112,20 +121,20 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96, y: -6 }}
       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-      className="absolute right-0 top-[calc(100%+10px)] z-[1001] min-w-[228px] overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-xl backdrop-blur-xl"
+      className="absolute right-0 top-[calc(100%+10px)] z-[1001] min-w-[228px] overflow-hidden rounded-lg border border-border/70 bg-card/95 shadow-lg backdrop-blur-xl"
     >
       {/* 모드 토글 */}
       <div className="border-b border-border/50 px-3 py-2.5">
         <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
           {t('모드')}
         </p>
-        <div className="flex gap-0.5 rounded-xl bg-muted/70 p-0.5">
+        <div className="flex gap-0.5 rounded-md bg-muted/70 p-0.5">
           {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
             <button
               key={value}
               type="button"
               className={cn(
-                'flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[9px] border-none px-2 py-1.5 text-xs font-medium transition-all duration-200',
+                'flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded border-none px-2 py-1.5 text-xs font-medium transition-all duration-200',
                 theme === value
                   ? 'bg-background text-foreground shadow-sm'
                   : 'bg-transparent text-muted-foreground hover:text-foreground',
@@ -152,7 +161,7 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
               key={preset.id}
               type="button"
               className={cn(
-                'flex w-full cursor-pointer items-center gap-2.5 rounded-xl border-none px-2.5 py-2 text-left text-xs font-medium transition-all duration-150',
+                'flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none px-2.5 py-2 text-left text-xs font-medium transition-all duration-150',
                 currentPresetId === preset.id
                   ? 'bg-primary/10 text-primary'
                   : 'bg-transparent text-muted-foreground hover:bg-muted/80 hover:text-foreground',
@@ -194,17 +203,11 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96, y: -6 }}
       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-      className="absolute right-0 top-[calc(100%+10px)] z-[1001] min-w-[248px] overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-xl backdrop-blur-xl"
+      className="absolute right-0 top-[calc(100%+10px)] z-[1001] min-w-[248px] overflow-hidden rounded-lg border border-border/70 bg-card/95 shadow-lg backdrop-blur-xl"
     >
       {/* 프로필 정보 */}
       <div className="flex items-center gap-3 border-b border-border/50 px-4 py-3.5">
-        <div
-          className="flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm"
-          style={{
-            background:
-              'linear-gradient(135deg, var(--color-primary, oklch(0.511 0.2301 276.97)), oklch(0.501 0.1384 304.73))',
-          }}
-        >
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
           {profileInitial}
         </div>
         <div className="min-w-0">
@@ -215,7 +218,7 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
       {/* 로그아웃 */}
       <div className="p-2">
         <button
-          className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl border-none bg-transparent px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-destructive/8 hover:text-destructive"
+          className="flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none bg-transparent px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-destructive/8 hover:text-destructive"
           type="button"
           onClick={() => {
             setIsProfileOpen(false);
@@ -225,6 +228,43 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
           <LogOut className="size-4" />
           {t('로그아웃')}
         </button>
+      </div>
+    </motion.div>
+  );
+
+  const LangDropdownContent = ({ id, dropUp = false }: { id: string; dropUp?: boolean }) => (
+    <motion.div
+      id={id}
+      initial={{ opacity: 0, scale: 0.96, y: dropUp ? 6 : -6 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96, y: dropUp ? 6 : -6 }}
+      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+      className={cn(
+        'absolute right-0 z-[1001] min-w-[140px] overflow-hidden rounded-lg border border-border/70 bg-card/95 shadow-lg backdrop-blur-xl',
+        dropUp ? 'bottom-full mb-2' : 'top-[calc(100%+10px)]',
+      )}
+    >
+      <div className="p-1.5">
+        {(['ko', 'en'] as const).map((lang) => (
+          <button
+            key={lang}
+            type="button"
+            className={cn(
+              'flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none px-3 py-2 text-left text-sm font-medium transition-all duration-150',
+              currentLanguage === lang
+                ? 'bg-primary/10 text-primary'
+                : 'bg-transparent text-muted-foreground hover:bg-muted/80 hover:text-foreground',
+            )}
+            onClick={() => {
+              handleLanguageChange(lang);
+              setIsLangOpen(false);
+            }}
+          >
+            <span className="flex-1">{lang === 'ko' ? '한국어' : 'English'}</span>
+            <span className="text-xs opacity-50">{lang.toUpperCase()}</span>
+            {currentLanguage === lang && <Check className="size-3.5 shrink-0" />}
+          </button>
+        ))}
       </div>
     </motion.div>
   );
@@ -256,32 +296,22 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
 
           {/* 모바일: 언어 + 프로필/로그인 */}
           <div className="flex items-center gap-2 md:hidden">
-            {/* 모바일 언어 토글 */}
-            <div className="flex rounded-full bg-muted/80 p-0.5">
-              {(['ko', 'en'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  className="relative cursor-pointer rounded-full border-none bg-transparent px-2.5 py-1 text-xs font-bold transition-colors"
-                  onClick={() => handleLanguageChange(lang)}
-                >
-                  {currentLanguage === lang && (
-                    <motion.span
-                      layoutId="langIndicatorMobile"
-                      className="absolute inset-0 rounded-full bg-background shadow-sm"
-                      transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                    />
-                  )}
-                  <span
-                    className={cn(
-                      'relative z-10',
-                      currentLanguage === lang ? 'text-foreground' : 'text-muted-foreground',
-                    )}
-                  >
-                    {lang.toUpperCase()}
-                  </span>
-                </button>
-              ))}
+            {/* 모바일 언어 선택 */}
+            <div className="relative">
+              <button
+                id="mobileLangButton"
+                type="button"
+                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2 py-1.5 text-muted-foreground transition-colors hover:bg-primary/8 hover:text-foreground"
+                onClick={() => setIsLangOpen((prev) => !prev)}
+                aria-expanded={isLangOpen}
+                aria-haspopup="true"
+              >
+                <Globe className="size-4" />
+                <span className="text-xs font-bold">{currentLanguage.toUpperCase()}</span>
+              </button>
+              <AnimatePresence>
+                {isLangOpen && <LangDropdownContent id="mobileLangDropdown" />}
+              </AnimatePresence>
             </div>
 
             {!hasHydrated ? (
@@ -290,11 +320,7 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
               <div className="relative">
                 <button
                   id="mobileProfileButton"
-                  className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border-none p-0 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:shadow-md hover:opacity-90"
-                  style={{
-                    background:
-                      'linear-gradient(135deg, var(--color-primary, oklch(0.511 0.2301 276.97)), oklch(0.501 0.1384 304.73))',
-                  }}
+                  className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-primary/30 bg-primary/10 p-0 text-sm font-bold text-primary transition-colors duration-200 hover:bg-primary/20"
                   onClick={() => setIsProfileOpen((prev) => !prev)}
                   aria-expanded={isProfileOpen}
                   aria-haspopup="true"
@@ -387,11 +413,7 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
               <div className="relative">
                 <button
                   id="profileButton"
-                  className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border-none p-0 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:shadow-md hover:opacity-90"
-                  style={{
-                    background:
-                      'linear-gradient(135deg, var(--color-primary, oklch(0.511 0.2301 276.97)), oklch(0.501 0.1384 304.73))',
-                  }}
+                  className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-primary/30 bg-primary/10 p-0 text-sm font-bold text-primary transition-colors duration-200 hover:bg-primary/20"
                   onClick={() => setIsProfileOpen((prev) => !prev)}
                   aria-expanded={isProfileOpen}
                   aria-haspopup="true"
@@ -417,32 +439,22 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
             {/* 미세 구분 */}
             <div className="mx-2 h-4 w-px bg-border/60" />
 
-            {/* 언어 토글 */}
-            <div className="flex rounded-full bg-muted/80 p-0.5">
-              {(['ko', 'en'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  className="relative cursor-pointer rounded-full border-none bg-transparent px-2.5 py-1 text-xs font-bold transition-colors"
-                  onClick={() => handleLanguageChange(lang)}
-                >
-                  {currentLanguage === lang && (
-                    <motion.span
-                      layoutId="langIndicator"
-                      className="absolute inset-0 rounded-full bg-background shadow-sm"
-                      transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                    />
-                  )}
-                  <span
-                    className={cn(
-                      'relative z-10',
-                      currentLanguage === lang ? 'text-foreground' : 'text-muted-foreground',
-                    )}
-                  >
-                    {lang.toUpperCase()}
-                  </span>
-                </button>
-              ))}
+            {/* 언어 선택 */}
+            <div className="relative">
+              <button
+                id="langButton"
+                type="button"
+                className={cn(navItemClass, 'gap-1')}
+                onClick={() => setIsLangOpen((prev) => !prev)}
+                aria-expanded={isLangOpen}
+                aria-haspopup="true"
+              >
+                <Globe className="size-4" />
+                <span className="text-xs font-bold">{currentLanguage.toUpperCase()}</span>
+              </button>
+              <AnimatePresence>
+                {isLangOpen && <LangDropdownContent id="langDropdown" />}
+              </AnimatePresence>
             </div>
           </motion.nav>
         </div>
@@ -509,20 +521,20 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: 6 }}
                 transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute bottom-full right-0 z-[1001] mb-2 min-w-[228px] overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-xl backdrop-blur-xl"
+                className="absolute bottom-full right-0 z-[1001] mb-2 min-w-[228px] overflow-hidden rounded-lg border border-border/70 bg-card/95 shadow-lg backdrop-blur-xl"
               >
                 {/* 모드 토글 */}
                 <div className="border-b border-border/50 px-3 py-2.5">
                   <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
                     {t('모드')}
                   </p>
-                  <div className="flex gap-0.5 rounded-xl bg-muted/70 p-0.5">
+                  <div className="flex gap-0.5 rounded-md bg-muted/70 p-0.5">
                     {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
                       <button
                         key={value}
                         type="button"
                         className={cn(
-                          'flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[9px] border-none px-2 py-1.5 text-xs font-medium transition-all duration-200',
+                          'flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded border-none px-2 py-1.5 text-xs font-medium transition-all duration-200',
                           theme === value
                             ? 'bg-background text-foreground shadow-sm'
                             : 'bg-transparent text-muted-foreground hover:text-foreground',
@@ -549,7 +561,7 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
                         key={preset.id}
                         type="button"
                         className={cn(
-                          'flex w-full cursor-pointer items-center gap-2.5 rounded-xl border-none px-2.5 py-2 text-left text-xs font-medium transition-all duration-150',
+                          'flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none px-2.5 py-2 text-left text-xs font-medium transition-all duration-150',
                           currentPresetId === preset.id
                             ? 'bg-primary/10 text-primary'
                             : 'bg-transparent text-muted-foreground hover:bg-muted/80 hover:text-foreground',
