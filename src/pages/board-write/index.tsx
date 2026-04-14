@@ -49,9 +49,6 @@ interface BoardWriteProps {
 /** Slide Form — BlurFade 섹션별 순차 등장, 카테고리별 게시판 공유 */
 const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
   const { t } = useTranslation('board-write');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
   const navigate = useNavigate();
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams] = useSearchParams();
@@ -146,11 +143,7 @@ const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
   if (isCheckingAccess) {
     return (
       <>
-        <Header
-          isSidebarOpen={isSidebarOpen}
-          toggleSidebar={toggleSidebar}
-          setIsSidebarOpen={setIsSidebarOpen}
-        />
+        <Header />
 
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-4xl space-y-4">
@@ -170,11 +163,7 @@ const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
 
   return (
     <>
-      <Header
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+      <Header />
 
       <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-4xl px-6 py-10 max-md:px-4">

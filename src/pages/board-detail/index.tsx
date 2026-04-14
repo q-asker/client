@@ -37,9 +37,6 @@ const BoardDetail = ({ category = 'INQUIRY' }: BoardDetailProps) => {
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
   const isInquiry = category === 'INQUIRY';
   const listPath = isInquiry ? '/boards' : '/updates';
 
@@ -149,11 +146,7 @@ const BoardDetail = ({ category = 'INQUIRY' }: BoardDetailProps) => {
   if (loading) {
     return (
       <>
-        <Header
-          isSidebarOpen={isSidebarOpen}
-          toggleSidebar={toggleSidebar}
-          setIsSidebarOpen={setIsSidebarOpen}
-        />
+        <Header />
 
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-3xl space-y-4">
@@ -170,11 +163,7 @@ const BoardDetail = ({ category = 'INQUIRY' }: BoardDetailProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+      <Header />
 
       <div className="mx-auto max-w-3xl px-6 py-6 max-md:px-4">
         {/* 상단 브레드크럼 스타일 */}

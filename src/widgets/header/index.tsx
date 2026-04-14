@@ -21,13 +21,6 @@ import Logo from '#shared/ui/logo';
 import { cn } from '@/shared/ui/lib/utils';
 import AuthButton from './ui/AuthButton';
 
-interface HeaderProps {
-  isSidebarOpen?: boolean;
-  toggleSidebar?: () => void;
-  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowHelp?: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
 const THEME_OPTIONS = [
   { value: 'light', icon: Sun, label: '라이트' },
   { value: 'dark', icon: Moon, label: '다크' },
@@ -37,11 +30,11 @@ const THEME_OPTIONS = [
 const navItemClass =
   'inline-flex items-center whitespace-nowrap px-3 py-2 text-foreground no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary text-sm md:text-base cursor-pointer border-none bg-transparent';
 
-const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
+const Header = () => {
   const {
     state: { t, isAuthenticated, hasHydrated, currentLanguage },
     actions: { handleQuizManagement, handleLanguageChange },
-  } = useHeader({ setIsSidebarOpen, setShowHelp });
+  } = useHeader();
   const { theme, setTheme } = useTheme();
   const { presets, currentPresetId, applyPreset } = useThemePreset();
   const [isThemeOpen, setIsThemeOpen] = useState(false);

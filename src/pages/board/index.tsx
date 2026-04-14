@@ -47,9 +47,6 @@ const Board = ({ category = 'INQUIRY' }: BoardProps) => {
     return role === 'ROLE_ADMIN';
   }, [accessToken, isMock]);
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
   const [posts, setPosts] = useState<BoardPost[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -126,11 +123,7 @@ const Board = ({ category = 'INQUIRY' }: BoardProps) => {
   if (loading) {
     return (
       <>
-        <Header
-          isSidebarOpen={isSidebarOpen}
-          toggleSidebar={toggleSidebar}
-          setIsSidebarOpen={setIsSidebarOpen}
-        />
+        <Header />
 
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-5xl">
@@ -146,11 +139,7 @@ const Board = ({ category = 'INQUIRY' }: BoardProps) => {
 
   return (
     <>
-      <Header
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+      <Header />
 
       <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-5xl px-6 py-6 max-md:px-4">

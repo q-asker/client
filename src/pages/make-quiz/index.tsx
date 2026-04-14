@@ -82,7 +82,7 @@ const MakeQuiz: React.FC = () => {
   const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
   const acceptExtensions: string = ACCEPT_FILE_TYPES;
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
-  const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
+  const { upload, options, pages, generation, isWaitingForFirstQuiz, pdfOptions } = state;
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const pdfDataState = usePdfData(upload.uploadedUrl);
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
@@ -131,7 +131,6 @@ const MakeQuiz: React.FC = () => {
     options: optionActions,
     pages: pageActions,
     generation: generationActions,
-    ui: uiActions,
     common: commonActions,
   } = actions;
 
@@ -166,22 +165,14 @@ const MakeQuiz: React.FC = () => {
   if (!isHydrated) {
     return (
       <div className="flex min-h-screen flex-col bg-muted">
-        <Header
-          isSidebarOpen={ui.isSidebarOpen}
-          toggleSidebar={uiActions.toggleSidebar}
-          setIsSidebarOpen={uiActions.setIsSidebarOpen}
-        />
+        <Header />
       </div>
     );
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-muted">
-      <Header
-        isSidebarOpen={ui.isSidebarOpen}
-        toggleSidebar={uiActions.toggleSidebar}
-        setIsSidebarOpen={uiActions.setIsSidebarOpen}
-      />
+      <Header />
 
       <div className="mx-auto mt-4 w-full flex-1 px-4 sm:mt-6 md:mt-8 md:w-[90%] lg:w-[85%] xl:w-[80%]">
         <h1 className="sr-only">
@@ -334,7 +325,7 @@ const MakeQuiz: React.FC = () => {
                               )}
                               type="button"
                               onClick={() =>
-                                pageActions.setIsPreviewVisible((prev: boolean) => !prev)
+                                pageActions.setIsPreviewVisible(!pages.isPreviewVisible)
                               }
                             >
                               {pages.isPreviewVisible ? (

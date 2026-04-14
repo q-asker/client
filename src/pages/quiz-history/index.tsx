@@ -33,10 +33,8 @@ const QuizHistory = () => {
   const navigate = useNavigate();
 
   const {
-    state: { quizHistory, loading, isSidebarOpen, isAuthenticated, stats },
+    state: { quizHistory, loading, isAuthenticated, stats },
     actions: {
-      toggleSidebar,
-      setIsSidebarOpen,
       navigateToDetail,
       navigateToQuiz,
       deleteQuizRecord,
@@ -53,11 +51,7 @@ const QuizHistory = () => {
   if (loading) {
     return (
       <>
-        <Header
-          isSidebarOpen={isSidebarOpen}
-          toggleSidebar={toggleSidebar}
-          setIsSidebarOpen={setIsSidebarOpen}
-        />
+        <Header />
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-6xl space-y-3">
             <Skeleton className="h-10 w-full rounded-lg" />
@@ -72,11 +66,7 @@ const QuizHistory = () => {
 
   return (
     <>
-      <Header
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+      <Header />
 
       <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-6xl px-6 py-8 max-md:px-4">
