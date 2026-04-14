@@ -45,6 +45,10 @@ interface TextAnimateProps extends Omit<MotionProps, 'children'> {
    */
   children: string;
   /**
+   * HTML id attribute
+   */
+  id?: string;
+  /**
    * The class name to be applied to the component
    */
   className?: string;

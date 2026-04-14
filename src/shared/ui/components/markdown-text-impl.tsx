@@ -39,8 +39,10 @@ class MarkdownErrorBoundary extends Component<
   }
 }
 
-const remarkPlugins = [remarkGfm, remarkMath] as const;
-const rehypePlugins = [rehypeKatex, [rehypeHighlight, { plainText: ['mermaid'] }]] as const;
+import type { PluggableList } from 'unified';
+
+const remarkPlugins: PluggableList = [remarkGfm, remarkMath];
+const rehypePlugins: PluggableList = [rehypeKatex, [rehypeHighlight, { plainText: ['mermaid'] }]];
 
 /**
  * 렌더 간 동일 참조를 유지하여 불필요한 리렌더링을 방지한다.

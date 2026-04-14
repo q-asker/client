@@ -556,7 +556,9 @@ const updateJsonLd = (id: string, data: Record<string, unknown> | undefined): vo
 configureAuth({
   getAccessToken: () => useAuthStore.getState().accessToken,
   clearAuth: () => useAuthStore.getState().clearAuth(),
-  refreshAuthToken: () => authService.refresh(),
+  refreshAuthToken: async () => {
+    await authService.refresh();
+  },
 });
 
 const SeoMetaSync = () => {
@@ -564,7 +566,7 @@ const SeoMetaSync = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const langConfig = SEO_CONFIG[currentLanguage] ?? SEO_CONFIG.ko;
+    const langConfig = SEO_CONFIG[currentLanguage as keyof typeof SEO_CONFIG] ?? SEO_CONFIG.ko;
     const path = location.pathname;
     // 경로에 맞는 설정 찾기 (정확히 일치하거나, /history 포함시)
     const config = path.includes('/history') ? langConfig['/history'] : langConfig['/'];
@@ -591,15 +593,16 @@ const SeoMetaSync = () => {
 
     // JSON-LD 업데이트
     if (config.jsonLd) {
-      updateJsonLd('ld-itemlist', config.jsonLd.itemlist);
-      updateJsonLd('ld-website', config.jsonLd.website);
-      updateJsonLd('ld-organization', config.jsonLd.organization);
-      updateJsonLd('ld-faq', config.jsonLd.faq);
-      updateJsonLd('ld-software', config.jsonLd.software);
-      updateJsonLd('ld-webpage', (config.jsonLd as Record<string, unknown>).webpage);
+      const jsonLd = config.jsonLd as Record<string, Record<string, unknown> | undefined>;
+      updateJsonLd('ld-itemlist', jsonLd.itemlist);
+      updateJsonLd('ld-website', jsonLd.website);
+      updateJsonLd('ld-organization', jsonLd.organization);
+      updateJsonLd('ld-faq', jsonLd.faq);
+      updateJsonLd('ld-software', jsonLd.software);
+      updateJsonLd('ld-webpage', jsonLd.webpage);
 
       // Breadcrumb 동적 삽입 (index.html에 기본 태그가 없으므로 동적 생성)
-      const breadcrumbData = (config.jsonLd as Record<string, unknown>).breadcrumb;
+      const breadcrumbData = jsonLd.breadcrumb;
       let breadcrumbEl = document.head.querySelector('#ld-breadcrumb');
       if (breadcrumbData) {
         if (!breadcrumbEl) {

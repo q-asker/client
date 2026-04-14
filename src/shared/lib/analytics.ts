@@ -9,8 +9,7 @@ export const initGA = (measurementId: string): void => {
 
   if (measurementId && measurementId !== 'G-XXXXXXXXXX') {
     ReactGA.initialize(measurementId, {
-      // 개발 환경에서는 디버그 모드 활성화
-      debug: import.meta.env.DEV,
+      gtagOptions: { debug_mode: import.meta.env.DEV },
     });
 
     if (import.meta.env.DEV) {
@@ -65,7 +64,7 @@ export const trackQuizEvents = {
     problemSetId: string,
     score: number,
     totalQuestions: number,
-    totalTime: number,
+    totalTime: string,
   ): void => {
     logEvent('quiz_complete', {
       problem_set_id: problemSetId,
@@ -244,7 +243,7 @@ export const trackResultEvents = {
     problemSetId: string,
     score: number,
     totalQuestions: number,
-    totalTime: number,
+    totalTime: string,
   ): void => {
     logEvent('view_result', {
       problem_set_id: problemSetId,
