@@ -56,6 +56,15 @@ const SolveQuizDesignB: React.FC = () => {
     };
   }, [quiz.title]);
 
+  // 새로고침/탭 닫기 시 진행 정보 손실 경고
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   useEffect(() => {
     return () => {
       resetQuizGeneration();
