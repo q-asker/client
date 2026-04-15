@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useRecentChanges } from './model/useRecentChanges';
 import { cn } from '@/shared/ui/lib/utils';
 import { Skeleton } from '@/shared/ui/components/skeleton';
-import { Sparkles, Eye, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 
 /** 메인 페이지용 최근 변경사항 미니 목록 — 문의 게시판 테이블 스타일 */
 const RecentChanges = () => {
@@ -34,7 +34,6 @@ const RecentChanges = () => {
       <div className="flex items-center border-b-2 border-border px-3 py-2 text-xs font-semibold text-muted-foreground max-md:hidden">
         <span className="flex-1 pl-1">{t('제목')}</span>
         <span className="w-[15%] text-center">{t('작성일')}</span>
-        <span className="w-[10%] text-center">{t('조회')}</span>
       </div>
 
       {/* 로딩 */}
@@ -43,7 +42,6 @@ const RecentChanges = () => {
           <div key={i} className="flex items-center border-b border-border px-3 py-3">
             <Skeleton className="h-4 flex-1 rounded" />
             <Skeleton className="ml-4 h-4 w-20 rounded max-md:hidden" />
-            <Skeleton className="ml-4 h-4 w-12 rounded max-md:hidden" />
           </div>
         ))
       ) : posts.length === 0 ? (
@@ -69,12 +67,6 @@ const RecentChanges = () => {
             </span>
             <span className="w-[15%] text-center text-xs text-muted-foreground max-md:hidden">
               {formatDate(post.createdAt)}
-            </span>
-            <span className="w-[10%] text-center max-md:hidden">
-              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                <Eye className="size-3" />
-                {post.viewCount || 0}
-              </span>
             </span>
           </div>
         ))
