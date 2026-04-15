@@ -36,7 +36,7 @@ const DEFAULT_QUIZ: Quiz = {
   title: '',
   selections: [],
   userAnswer: null,
-  check: false,
+  inReview: false,
 };
 
 /** 퀴즈 문제 탐색 및 답안 선택을 관리하는 훅 */
@@ -111,12 +111,12 @@ export const useSolveQuizQuestion = ({
   const handleCheckToggle = useCallback((): void => {
     const currentQuiz = quizzes[currentQuestion - 1];
     if (!currentQuiz) return;
-    const newCheckState = !currentQuiz.check;
+    const newReviewState = !currentQuiz.inReview;
 
-    trackQuizEvents.toggleReview(problemSetId, currentQuestion, newCheckState);
+    trackQuizEvents.toggleReview(problemSetId, currentQuestion, newReviewState);
 
     setQuizzes((prev) =>
-      prev.map((q, idx) => (idx === currentQuestion - 1 ? { ...q, check: newCheckState } : q)),
+      prev.map((q, idx) => (idx === currentQuestion - 1 ? { ...q, inReview: newReviewState } : q)),
     );
   }, [currentQuestion, problemSetId, quizzes, setQuizzes]);
 

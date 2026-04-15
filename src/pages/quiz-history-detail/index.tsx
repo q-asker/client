@@ -21,6 +21,7 @@ interface Problem {
   title: string;
   userAnswer: number;
   correct: boolean;
+  inReview: boolean;
   selections: Selection[];
 }
 
@@ -121,11 +122,14 @@ const QuizHistoryDetail = () => {
               className="w-full text-base"
               onClick={() => {
                 const answers: Record<number, string | null> = {};
+                const inReview: Record<number, boolean> = {};
                 detail.problems.forEach((p) => {
                   answers[p.number] = p.userAnswer != null ? String(p.userAnswer) : null;
+                  inReview[p.number] = p.inReview ?? false;
                 });
                 saveResult(detail.problemSetId, {
                   answers,
+                  inReview,
                   totalTime: detail.totalTime,
                   title: '',
                   savedAt: Date.now(),

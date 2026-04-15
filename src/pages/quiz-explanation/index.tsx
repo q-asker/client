@@ -93,7 +93,7 @@ const QuizExplanation: React.FC = () => {
           {/* 프로그레스 바 */}
           <div className="h-2 w-full rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-chart-2 transition-all duration-500"
+              className="h-full rounded-full bg-success transition-all duration-500"
               style={{ width: `${(correctCount / quiz.filteredQuizzes.length) * 100}%` }}
             />
           </div>
@@ -111,7 +111,11 @@ const QuizExplanation: React.FC = () => {
                 key={q.number}
                 className={cn(
                   'mb-0.5 flex w-full items-center gap-3 rounded-xl px-4 py-2 text-left transition-all max-lg:mb-0 max-lg:w-auto max-lg:shrink-0 max-lg:px-3 max-lg:py-1.5',
-                  cur ? 'bg-primary/10 shadow-sm' : 'hover:bg-muted/50',
+                  cur
+                    ? 'bg-primary/10 shadow-sm'
+                    : correct
+                      ? 'bg-success/5 hover:bg-success/10'
+                      : 'hover:bg-muted/50',
                 )}
                 onClick={() =>
                   quizActions.handleQuestionClick(quiz.showWrongOnly ? i + 1 : q.number)
@@ -123,7 +127,7 @@ const QuizExplanation: React.FC = () => {
                     cur
                       ? 'bg-primary text-primary-foreground'
                       : correct
-                        ? 'bg-chart-2/15 text-chart-2'
+                        ? 'bg-success/15 text-success'
                         : 'bg-destructive/12 text-destructive',
                   )}
                 >
@@ -131,12 +135,17 @@ const QuizExplanation: React.FC = () => {
                 </span>
                 <span
                   className={cn(
-                    'flex-1 truncate text-sm max-lg:hidden',
+                    'min-w-0 flex-1 truncate text-sm max-lg:hidden',
                     cur ? 'font-semibold text-foreground' : 'text-muted-foreground',
                   )}
                 >
                   {q.title}
                 </span>
+                {q.inReview && (
+                  <span className="shrink-0 rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-medium text-warning max-lg:hidden">
+                    {t('검토함')}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -175,14 +184,14 @@ const QuizExplanation: React.FC = () => {
                     <div
                       className={cn(
                         'flex items-center gap-3 py-4',
-                        correct && '-mx-3 rounded-lg bg-chart-2/5 px-3',
+                        correct && '-mx-3 rounded-lg bg-success/5 px-3',
                       )}
                     >
                       <span
                         className={cn(
                           'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold',
                           correct
-                            ? 'bg-chart-2 text-white'
+                            ? 'bg-success text-white'
                             : wrongSel
                               ? 'bg-destructive text-white'
                               : 'bg-muted text-muted-foreground',

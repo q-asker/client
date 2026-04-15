@@ -45,7 +45,7 @@ export const useSolveQuizSubmit = ({
     const unansweredCount = safeQuizzes.filter((q) =>
       isUnanswered(q.userAnswer, q.selections),
     ).length;
-    const reviewCount = safeQuizzes.filter((q) => q.check).length;
+    const reviewCount = safeQuizzes.filter((q) => q.inReview).length;
     const answeredCount = safeQuizzes.length - unansweredCount;
 
     trackQuizEvents.submitQuiz(problemSetId, answeredCount, safeQuizzes.length, reviewCount);
@@ -53,11 +53,14 @@ export const useSolveQuizSubmit = ({
 
     // 채점용 데이터를 localStorage에 저장
     const answers: Record<number, string | null> = {};
+    const inReview: Record<number, boolean> = {};
     safeQuizzes.forEach((q) => {
       answers[q.number] = q.userAnswer != null ? String(q.userAnswer) : null;
+      inReview[q.number] = q.inReview ?? false;
     });
     saveResult(problemSetId, {
       answers,
+      inReview,
       totalTime: currentTime,
       title,
       savedAt: Date.now(),

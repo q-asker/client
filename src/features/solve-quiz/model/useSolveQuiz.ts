@@ -110,7 +110,7 @@ export const useSolveQuiz = ({
     const checks: Record<number, boolean> = {};
     solveQuizzes.forEach((q) => {
       answers[q.number] = normalizeAnswer(q.userAnswer);
-      checks[q.number] = q.check ?? false;
+      checks[q.number] = q.inReview ?? false;
     });
     saveProgress({
       problemSetId,
@@ -137,7 +137,7 @@ export const useSolveQuiz = ({
     () => solveQuizzes.filter((q) => isUnanswered(q.userAnswer, q.selections)).length,
     [solveQuizzes],
   );
-  const reviewCount = useMemo(() => solveQuizzes.filter((q) => q.check).length, [solveQuizzes]);
+  const reviewCount = useMemo(() => solveQuizzes.filter((q) => q.inReview).length, [solveQuizzes]);
   const answeredCount = solveQuizzes.length - unansweredCount;
 
   return {

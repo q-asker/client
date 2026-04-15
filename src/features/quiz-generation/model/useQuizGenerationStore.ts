@@ -30,7 +30,7 @@ export interface Quiz {
   title: string;
   selections: QuizSelection[];
   userAnswer?: string | null;
-  check?: boolean;
+  inReview?: boolean;
 }
 
 export interface FileInfo {

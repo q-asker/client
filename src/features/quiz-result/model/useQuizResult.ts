@@ -34,7 +34,7 @@ export const useQuizResult = ({
 }: UseQuizResultParams): UseQuizResultReturn => {
   const correctCount = useMemo(() => {
     return quizzes.reduce((count, q) => {
-      const selected = q.selections.find((s) => s.id === q.userAnswer);
+      const selected = q.selections.find((s) => String(s.id) === String(q.userAnswer));
       return count + (selected?.correct ? 1 : 0);
     }, 0);
   }, [quizzes]);
@@ -54,6 +54,7 @@ export const useQuizResult = ({
     const userAnswers = quizzes.map((q) => ({
       number: q.number,
       userAnswer: q.userAnswer != null ? Number(q.userAnswer) : 0,
+      inReview: q.inReview ?? false,
     }));
 
     axiosInstance

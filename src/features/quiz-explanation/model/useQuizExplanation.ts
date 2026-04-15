@@ -151,6 +151,7 @@ export const useQuizExplanation = ({
           ? serverQuizzes.map((q) => ({
               ...q,
               userAnswer: savedResult.answers[q.number] ?? q.userAnswer,
+              inReview: savedResult.inReview?.[q.number] ?? false,
             }))
           : serverQuizzes;
 

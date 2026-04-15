@@ -23,6 +23,7 @@ interface QuizItem {
   title: string;
   selections: QuizSelection[];
   userAnswer?: string | null;
+  inReview?: boolean;
 }
 
 /** API 응답 타입 */
@@ -65,6 +66,7 @@ const QuizResultDesignK = () => {
           const merged = serverQuizzes.map((q) => ({
             ...q,
             userAnswer: savedResult.answers[q.number] ?? q.userAnswer,
+            inReview: savedResult.inReview?.[q.number] ?? false,
           }));
           setQuizzes(merged);
         } else {
@@ -95,12 +97,13 @@ const QuizResultDesignK = () => {
 
   // 공통 컴포넌트용 데이터 변환
   const problems: ScoreBoardProblem[] = quizzes.map((q) => {
-    const selected = q.selections.find((s) => s.id === q.userAnswer);
+    const selected = q.selections.find((s) => String(s.id) === String(q.userAnswer));
     return {
       number: q.number,
       title: q.title,
       correct: selected?.correct === true,
       userAnswer: q.userAnswer ?? '',
+      inReview: savedResult?.inReview?.[q.number] ?? false,
       selections: q.selections,
     };
   });

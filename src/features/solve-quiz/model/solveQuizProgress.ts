@@ -50,6 +50,7 @@ const RESULT_KEY_PREFIX = 'solveQuizResult:';
 
 export interface SavedResult {
   answers: Record<number, string | null>;
+  inReview: Record<number, boolean>;
   totalTime: string;
   title: string;
   savedAt: number;

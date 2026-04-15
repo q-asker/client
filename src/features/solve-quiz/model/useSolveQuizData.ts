@@ -57,7 +57,7 @@ const mergeWithProgress = (
   return serverQuizzes.map((q) => ({
     ...q,
     userAnswer: progress.answers[q.number] ?? q.userAnswer,
-    check: progress.checks[q.number] ?? q.check,
+    inReview: progress.checks[q.number] ?? q.inReview,
   }));
 };
 

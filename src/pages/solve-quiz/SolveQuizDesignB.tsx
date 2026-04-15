@@ -74,7 +74,7 @@ const SolveQuizDesignB: React.FC = () => {
           'cursor-pointer text-sm font-medium text-muted-foreground transition-colors duration-200',
           'hover:border-primary hover:bg-primary/5',
           !unanswered && 'border-primary/40 bg-primary/10 text-primary',
-          q.check && 'border-warning bg-warning/10 text-warning',
+          q.inReview && 'border-warning bg-warning/10 text-warning',
           q.number === quiz.currentQuestion &&
             'border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground',
         )}
@@ -161,8 +161,9 @@ const SolveQuizDesignB: React.FC = () => {
                     const unanswered = isUnanswered(quizItem.userAnswer, quizItem.selections);
                     const selectedAnswer = unanswered
                       ? t('미선택')
-                      : quizItem.selections?.find((sel) => sel.id === quizItem.userAnswer)
-                          ?.content ||
+                      : quizItem.selections?.find(
+                          (sel) => String(sel.id) === String(quizItem.userAnswer),
+                        )?.content ||
                         t('{{quizItem_userAnswer}}번', {
                           quizItem_userAnswer: quizItem.userAnswer ?? '',
                         });
@@ -172,20 +173,22 @@ const SolveQuizDesignB: React.FC = () => {
                         key={quizItem.number}
                         className="flex items-center border-b border-border py-2 last:border-b-0"
                       >
-                        <span className="min-w-[50px] font-semibold text-muted-foreground">
+                        <span className="shrink-0 min-w-[50px] font-semibold text-muted-foreground">
                           {quizItem.number}
                           {t('번:')}
                         </span>
                         <span
                           className={cn(
-                            'ml-3 flex items-center gap-2 break-words',
+                            'ml-3 flex min-w-0 flex-1 items-center gap-2',
                             unanswered && 'italic text-destructive',
-                            quizItem.check && 'text-warning',
+                            quizItem.inReview && 'text-warning',
                           )}
                         >
-                          <MarkdownText>{selectedAnswer}</MarkdownText>
-                          {quizItem.check && (
-                            <span className="rounded-full bg-warning px-1.5 py-0.5 text-xs font-medium text-warning-foreground">
+                          <span className="min-w-0 break-words">
+                            <MarkdownText>{selectedAnswer}</MarkdownText>
+                          </span>
+                          {quizItem.inReview && (
+                            <span className="shrink-0 whitespace-nowrap rounded-full bg-warning px-1.5 py-0.5 text-xs font-medium text-warning-foreground">
                               {t('검토')}
                             </span>
                           )}
@@ -339,7 +342,7 @@ const SolveQuizDesignB: React.FC = () => {
                     onClick={quizActions.handleCheckToggle}
                     className={cn(
                       'flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-none px-2 py-1 text-xs font-semibold transition-all duration-200',
-                      quiz.currentQuiz.check
+                      quiz.currentQuiz.inReview
                         ? 'bg-warning/12 text-warning'
                         : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
                     )}
@@ -348,7 +351,7 @@ const SolveQuizDesignB: React.FC = () => {
                       width="14"
                       height="14"
                       viewBox="0 0 24 24"
-                      fill={quiz.currentQuiz.check ? 'currentColor' : 'none'}
+                      fill={quiz.currentQuiz.inReview ? 'currentColor' : 'none'}
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
