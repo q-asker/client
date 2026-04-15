@@ -240,7 +240,7 @@ const SolveQuizDesignB: React.FC = () => {
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <div className="flex items-center gap-1.5 text-xs text-primary-foreground/80">
-                <span className="inline-block size-2 animate-pulse rounded-full bg-green-400" />
+                <span className="inline-block size-2 rounded-full bg-green-400" />
                 {t('퀴즈 기록 중')}
               </div>
             ) : (
@@ -364,7 +364,7 @@ const SolveQuizDesignB: React.FC = () => {
                 </div>
 
                 {/* 질문 제목 */}
-                <div className="p-5 pt-2 pb-4">
+                <div className="p-5 pt-2 pb-6">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
                     <MarkdownText>{quiz.currentQuiz.title.split('\n')[0]}</MarkdownText>
                   </div>
@@ -372,7 +372,7 @@ const SolveQuizDesignB: React.FC = () => {
 
                 {/* 문제 본문 (코드, 힌트 등) */}
                 {quiz.currentQuiz.title.includes('\n') && (
-                  <div className="p-5 pt-3">
+                  <div className="px-5 pt-3 pb-6">
                     <div className="m-0 break-words text-base leading-relaxed text-foreground">
                       <MarkdownText>
                         {quiz.currentQuiz.title.split('\n').slice(1).join('\n')}
@@ -398,7 +398,7 @@ const SolveQuizDesignB: React.FC = () => {
                     <span className="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs">
                       {idx + 1}
                     </span>
-                    <span className="break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
+                    <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
                       <MarkdownText>{opt.content}</MarkdownText>
                     </span>
                   </div>
