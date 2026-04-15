@@ -45,6 +45,10 @@ interface TextAnimateProps extends Omit<MotionProps, 'children'> {
    */
   children: string;
   /**
+   * HTML id attribute
+   */
+  id?: string;
+  /**
    * The class name to be applied to the component
    */
   className?: string;
@@ -405,6 +409,7 @@ const TextAnimateBase = ({
   return (
     <AnimatePresence mode="popLayout">
       <MotionComponent
+        key={children}
         variants={finalVariants.container as Variants}
         initial="hidden"
         whileInView={startOnView ? 'show' : undefined}

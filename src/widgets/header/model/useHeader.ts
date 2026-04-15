@@ -3,17 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation, useLanguageSwitcher } from 'i18nexus';
 import CustomToast from '#shared/toast';
 import { authService, useAuthStore } from '#entities/auth';
-import { useClickOutside } from '#shared/lib/useClickOutside';
 import type { User } from '#entities/auth';
-
-interface UseHeaderParams {
-  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowHelp?: React.Dispatch<React.SetStateAction<boolean>>;
-}
 
 interface UseHeaderReturn {
   state: {
-    t: (key: string) => string;
+    t: (key: string, variables?: Record<string, string | number>) => string;
     isAuthenticated: boolean;
     hasHydrated: boolean;
     user: User | null;
@@ -21,10 +15,8 @@ interface UseHeaderReturn {
   };
   actions: {
     handleQuizManagement: () => void;
-    handleHelp: () => void;
     handleLogout: () => Promise<void>;
     handleLanguageChange: (lang: string) => void;
-    closeSidebar: () => void;
   };
 }
 
@@ -70,7 +62,7 @@ const extractNicknameFromToken = (token: string | null): string | null => {
   return (payload?.nickname as string) ?? null;
 };
 
-export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): UseHeaderReturn => {
+export const useHeader = (): UseHeaderReturn => {
   const { changeLanguage } = useLanguageSwitcher();
   const { t, currentLanguage } = useTranslation('common');
   const location = useLocation();
@@ -85,34 +77,8 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): U
     return { ...(user || { id: '' }), nickname: nicknameFromToken };
   }, [nicknameFromToken, user]);
 
-  useClickOutside({
-    containerId: 'sidebar',
-    triggerId: 'menuButton',
-    onOutsideClick: () => setIsSidebarOpen(false),
-  });
-
   const handleQuizManagement = () => {
-    setIsSidebarOpen(false);
-  };
-
-  const handleHelp = () => {
-    if (typeof setShowHelp !== 'function') {
-      setIsSidebarOpen(false);
-      return;
-    }
-
-    setIsSidebarOpen(false);
-    setShowHelp((prev) => {
-      if (!prev) {
-        setTimeout(() => {
-          const helpElement = document.getElementById('help-section');
-          if (helpElement) {
-            helpElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 100);
-      }
-      return !prev;
-    });
+    // 퀴즈 기록 클릭 시 추가 동작 없음
   };
 
   const handleLogout = async () => {
@@ -125,27 +91,24 @@ export const useHeader = ({ setIsSidebarOpen, setShowHelp }: UseHeaderParams): U
   };
 
   const handleLanguageChange = (lang: string) => {
-    changeLanguage(lang);
+    // 언어 경로에서는 navigate만 수행 — LanguageRouteSync가 changeLanguage 처리
+    // 동시 호출 시 LanguageRouteSync가 중간에 개입하여 플래싱 발생 방지
     if (location.pathname === '/' || location.pathname === '/ko' || location.pathname === '/en') {
       const targetPath = lang === 'en' ? '/en' : '/ko';
       if (location.pathname !== targetPath) {
         navigate(targetPath, { replace: true });
+        return;
       }
     }
-  };
-
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
+    changeLanguage(lang);
   };
 
   return {
     state: { t, isAuthenticated, hasHydrated, user: resolvedUser, currentLanguage },
     actions: {
       handleQuizManagement,
-      handleHelp,
       handleLogout,
       handleLanguageChange,
-      closeSidebar,
     },
   };
 };

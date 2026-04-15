@@ -2,6 +2,12 @@ import 'axios';
 
 // Axios 커스텀 속성 모듈 augmentation
 declare module 'axios' {
+  interface AxiosRequestConfig {
+    isMultipart?: boolean;
+    skipAuthRefresh?: boolean;
+    skipErrorToast?: boolean;
+    _retry?: boolean;
+  }
   interface InternalAxiosRequestConfig {
     isMultipart?: boolean;
     skipAuthRefresh?: boolean;

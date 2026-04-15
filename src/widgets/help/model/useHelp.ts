@@ -40,7 +40,7 @@ export const useHelp = (): UseHelpReturn => {
       if (docHeight <= 0) return;
       const scrollPercent = Math.round((scrollTop / docHeight) * 100);
 
-      (Object.keys(scrollTrackingRef.current) as Array<keyof ScrollTracking>).forEach(
+      (Object.keys(scrollTrackingRef.current) as unknown as (keyof ScrollTracking)[]).forEach(
         (threshold) => {
           const numThreshold = Number(threshold);
           if (scrollPercent >= numThreshold && !scrollTrackingRef.current[threshold]) {

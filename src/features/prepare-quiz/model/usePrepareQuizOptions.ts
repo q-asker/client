@@ -1,17 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback } from 'react';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
 import type { QuestionType, QuizLevel } from './constants';
-import { defaultType, levelMapping } from './constants';
-
-const OPTIONS_STORAGE_KEY = 'makeQuizOptions';
-const EXPIRATION_MS = 24 * 60 * 60 * 1000;
-
-/** localStorage에 저장되는 옵션 구조 */
-interface SavedOptions {
-  questionType?: QuestionType;
-  questionCount?: number;
-  savedAt?: number;
-}
+import { defaultType } from './constants';
+import { usePrepareQuizSettingsStore, getQuizLevel } from './usePrepareQuizSettingsStore';
 
 export interface PrepareQuizOptionsState {
   questionType: QuestionType;
@@ -30,62 +21,21 @@ export interface PrepareQuizOptionsReturn {
   actions: PrepareQuizOptionsActions;
 }
 
-const readSavedOptions = (): SavedOptions | null => {
-  try {
-    const saved = localStorage.getItem(OPTIONS_STORAGE_KEY);
-    if (!saved) return null;
-    const parsed: SavedOptions = JSON.parse(saved);
-    const savedAt = Number(parsed?.savedAt);
-    if (!savedAt || Date.now() - savedAt > EXPIRATION_MS) {
-      localStorage.removeItem(OPTIONS_STORAGE_KEY);
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-};
-
 export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
-  const savedOptions = useMemo(() => readSavedOptions(), []);
-  const [questionType, setQuestionType] = useState<QuestionType>(() => {
-    return savedOptions?.questionType || defaultType;
-  });
-  const [questionCount, setQuestionCount] = useState<number>(() => {
-    return typeof savedOptions?.questionCount === 'number' ? savedOptions.questionCount : 10;
-  });
-  const [quizLevel, setQuizLevel] = useState<QuizLevel>(() => {
-    return levelMapping[savedOptions?.questionType || defaultType];
-  });
-
-  useEffect(() => {
-    setQuizLevel(levelMapping[questionType]);
-  }, [questionType]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        OPTIONS_STORAGE_KEY,
-        JSON.stringify({
-          questionType,
-          questionCount,
-          savedAt: Date.now(),
-        }),
-      );
-    } catch {
-      // localStorage 에러 무시
-    }
-  }, [questionCount, questionType]);
+  const questionType = usePrepareQuizSettingsStore((s) => s.questionType);
+  const questionCount = usePrepareQuizSettingsStore((s) => s.questionCount);
+  const setQuestionType = usePrepareQuizSettingsStore((s) => s.setQuestionType);
+  const setQuestionCount = usePrepareQuizSettingsStore((s) => s.setQuestionCount);
+  const quizLevel = getQuizLevel(questionType);
 
   const handleQuestionTypeChange = useCallback(
     (nextType: QuestionType, label: string) => {
       if (questionType !== nextType) {
         trackPrepareQuizEvents.changeQuizOption('question_type', label);
         setQuestionType(nextType);
-        setQuizLevel(levelMapping[nextType]);
       }
     },
-    [questionType],
+    [questionType, setQuestionType],
   );
 
   const handleQuestionCountChange = useCallback(
@@ -95,13 +45,13 @@ export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
         setQuestionCount(nextCount);
       }
     },
-    [questionCount],
+    [questionCount, setQuestionCount],
   );
 
   const resetOptions = useCallback(() => {
-    setQuestionType(defaultType);
-    setQuestionCount(10);
-    setQuizLevel(levelMapping[defaultType]);
+    const store = usePrepareQuizSettingsStore.getState();
+    store.setQuestionType(defaultType);
+    store.setQuestionCount(10);
   }, []);
 
   return {

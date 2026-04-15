@@ -60,4 +60,11 @@ const logout = async (): Promise<void> => {
   }
 };
 
-export const authService = { refresh, logout };
+/** 닉네임 변경 후 토큰 갱신 */
+const updateNickname = async (nickname: string): Promise<void> => {
+  await axiosInstance.patch('/user/nickname', { nickname }, { withCredentials: true });
+  // 토큰에 닉네임이 포함되어 있으므로 갱신된 토큰 발급
+  await refresh();
+};
+
+export const authService = { refresh, logout, updateNickname };

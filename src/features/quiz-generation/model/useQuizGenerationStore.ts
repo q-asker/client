@@ -1,9 +1,10 @@
 import { create } from 'zustand';
-import { persist, type StateStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import Timer from '#shared/lib/timer';
 import { trackMakeQuizEvents } from '#shared/lib/analytics';
+import { createExpiringStorage } from '#shared/lib/expiringStorage';
 import { authService } from '#entities/auth';
 
 /** Safari 15.4 미만은 crypto.randomUUID 미지원 */
@@ -29,7 +30,7 @@ export interface Quiz {
   title: string;
   selections: QuizSelection[];
   userAnswer?: string | null;
-  check?: boolean;
+  inReview?: boolean;
 }
 
 export interface FileInfo {
@@ -70,8 +71,7 @@ interface StartGenerationParams {
 }
 
 interface HandleNavigateToQuizParams {
-  navigate: (to: string, options?: { state?: Record<string, unknown> }) => void;
-  uploadedUrl: string | null;
+  navigate: (to: string) => void;
 }
 
 interface QuizGenerationState {
@@ -98,40 +98,7 @@ interface QuizGenerationState {
   resetGenerationForRecreate: () => void;
 }
 
-// ── 만료 스토리지 ──
-
 const baseUrl = import.meta.env.VITE_BASE_URL as string;
-const EXPIRATION_MS = 24 * 60 * 60 * 1000;
-
-const expiringStorage: StateStorage = {
-  getItem: (name: string): string | null => {
-    const raw = localStorage.getItem(name);
-    if (!raw) return null;
-    try {
-      const parsed = JSON.parse(raw) as { savedAt?: number; value?: string };
-      const savedAt = Number(parsed?.savedAt);
-      if (!savedAt || Date.now() - savedAt > EXPIRATION_MS) {
-        localStorage.removeItem(name);
-        return null;
-      }
-      return (parsed?.value as string) ?? null;
-    } catch {
-      return null;
-    }
-  },
-  setItem: (name: string, value: string): void => {
-    localStorage.setItem(
-      name,
-      JSON.stringify({
-        value,
-        savedAt: Date.now(),
-      }),
-    );
-  },
-  removeItem: (name: string): void => {
-    localStorage.removeItem(name);
-  },
-};
 
 // ── 모듈 레벨 변수 ──
 
@@ -405,15 +372,13 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
         }
       },
 
-      handleNavigateToQuiz: ({ navigate, uploadedUrl }: HandleNavigateToQuizParams) => {
+      handleNavigateToQuiz: ({ navigate }: HandleNavigateToQuizParams) => {
         const { problemSetId } = useQuizGenerationStore.getState();
         if (!problemSetId) {
           return;
         }
         trackMakeQuizEvents.navigateToQuiz(problemSetId);
-        navigate(`/quiz/${problemSetId}`, {
-          state: { uploadedUrl },
-        });
+        navigate(`/quiz/${problemSetId}`);
       },
 
       resetGenerationState: () => {
@@ -428,7 +393,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
     }),
     {
       name: 'make-quiz-storage',
-      storage: expiringStorage,
+      storage: createExpiringStorage() as never,
       partialize: (state) => ({
         totalCount: state.totalCount,
         problemSetId: state.problemSetId,

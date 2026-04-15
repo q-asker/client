@@ -525,8 +525,8 @@
 
       function updatePreview() {
         var query = buildQuery();
-        /* mock=true로 전 섹션 표시, showHelp=true로 도움말 열림 */
-        var base = query ? query + '&mock=true&showHelp=true' : '?mock=true&showHelp=true';
+        /* mock=true로 전 섹션 표시 */
+        var base = query ? query + '&mock=true' : '?mock=true';
         document.getElementById('preview').src = '/' + base;
         saveSelections();
       }
@@ -554,7 +554,7 @@
           }
         }
         var query = params.length ? params.join('&') : '';
-        var base = query ? '?mock=true&showHelp=true&' + query : '?mock=true&showHelp=true';
+        var base = query ? '?mock=true&' + query : '?mock=true';
         document.getElementById('preview').src = '/' + base;
       }
 

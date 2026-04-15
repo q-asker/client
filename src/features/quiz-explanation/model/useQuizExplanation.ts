@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { pdfjs } from 'react-pdf';
 import CustomToast from '#shared/toast';
+import axiosInstance from '#shared/api';
 import { trackQuizEvents } from '#shared/lib/analytics';
+import { loadResult } from '#features/solve-quiz';
 import type { Quiz } from '#features/quiz-generation';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -22,6 +24,7 @@ interface ExplanationResult {
 /** API에서 반환되는 해설 응답 */
 interface RawExplanation {
   results?: ExplanationResult[];
+  fileUrl?: string;
 }
 
 /** PDF 옵션 */
@@ -31,13 +34,16 @@ interface PdfOptions {
   standardFontDataUrl: string;
 }
 
+/** 퀴즈 문제 API 응답 */
+interface ProblemSetResponse {
+  quiz: Quiz[];
+  title: string;
+}
+
 interface UseQuizExplanationParams {
   t: (key: string) => string;
   navigate: (to: string, options?: { state?: unknown; replace?: boolean }) => void;
   problemSetId: string;
-  initialQuizzes: Quiz[];
-  rawExplanation: RawExplanation;
-  uploadedUrl: string;
 }
 
 interface QuizState {
@@ -113,10 +119,9 @@ export const useQuizExplanation = ({
   t,
   navigate,
   problemSetId,
-  initialQuizzes,
-  rawExplanation,
-  uploadedUrl,
 }: UseQuizExplanationParams): UseQuizExplanationReturn => {
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [explanationData, setExplanationData] = useState<RawExplanation>({});
   const [showPdf, setShowPdf] = useState(false);
   const [pdfWidth, setPdfWidth] = useState(600);
   const pdfContainerRef = useRef<HTMLDivElement | null>(null);
@@ -127,15 +132,51 @@ export const useQuizExplanation = ({
 
   const pdfOptions = PDF_OPTIONS;
 
-  const totalQuestions = initialQuizzes.length;
-  const allExplanation: ExplanationResult[] = Array.isArray(rawExplanation.results)
-    ? rawExplanation.results
+  // 서버에서 퀴즈 + 해설 데이터 fetch
+  useEffect(() => {
+    if (!problemSetId) return;
+
+    const fetchData = async () => {
+      try {
+        const [quizRes, explanationRes] = await Promise.all([
+          axiosInstance.get<ProblemSetResponse>(`/problem-set/${problemSetId}`),
+          axiosInstance.get<RawExplanation>(`/explanation/${problemSetId}`),
+        ]);
+
+        const serverQuizzes = quizRes.data.quiz;
+
+        // localStorage 채점 결과에서 답안 병합
+        const savedResult = loadResult(problemSetId);
+        const merged = savedResult
+          ? serverQuizzes.map((q) => ({
+              ...q,
+              userAnswer: savedResult.answers[q.number] ?? q.userAnswer,
+              inReview: savedResult.inReview?.[q.number] ?? false,
+            }))
+          : serverQuizzes;
+
+        setQuizzes(merged);
+        setExplanationData(explanationRes.data);
+        setIsLoading(false);
+      } catch {
+        CustomToast.error(t('해설 정보를 불러오지 못했습니다.'));
+        navigate('/');
+      }
+    };
+
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [problemSetId]);
+
+  const totalQuestions = quizzes.length;
+  const allExplanation: ExplanationResult[] = Array.isArray(explanationData.results)
+    ? explanationData.results
     : [];
 
   const filteredQuizzes = useMemo(() => {
-    if (!showWrongOnly) return initialQuizzes;
+    if (!showWrongOnly) return quizzes;
 
-    return initialQuizzes.filter((q) => {
+    return quizzes.filter((q) => {
       if (q.userAnswer === undefined || q.userAnswer === null) return false;
 
       const correctOption = q.selections.find(
@@ -145,7 +186,7 @@ export const useQuizExplanation = ({
 
       return Number(q.userAnswer) !== Number(correctOption.id);
     });
-  }, [initialQuizzes, showWrongOnly]);
+  }, [quizzes, showWrongOnly]);
 
   const filteredTotalQuestions = filteredQuizzes.length;
 
@@ -160,8 +201,8 @@ export const useQuizExplanation = ({
   const currentQuiz = useMemo(() => {
     return showWrongOnly
       ? filteredQuizzes[currentQuestion - 1] || defaultQuiz
-      : initialQuizzes[currentQuestion - 1] || defaultQuiz;
-  }, [showWrongOnly, filteredQuizzes, initialQuizzes, currentQuestion]);
+      : quizzes[currentQuestion - 1] || defaultQuiz;
+  }, [showWrongOnly, filteredQuizzes, quizzes, currentQuestion]);
 
   const thisExplanationObj = useMemo(() => {
     return allExplanation.find((e) => e.number === currentQuiz.number) || {};
@@ -177,15 +218,11 @@ export const useQuizExplanation = ({
   };
 
   useEffect(() => {
-    if (!problemSetId || initialQuizzes.length === 0) {
-      CustomToast.error(t('유효한 퀴즈 정보가 없습니다. 홈으로 이동합니다.'));
-      navigate('/');
-    } else {
-      setIsLoading(false);
+    if (!isLoading && quizzes.length > 0) {
       trackQuizEvents.viewExplanation(problemSetId, currentQuestion);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [problemSetId, initialQuizzes.length, navigate, currentQuestion]);
+  }, [isLoading, currentQuestion]);
 
   useEffect(() => {
     const calculatePdfWidth = (): void => {
@@ -304,7 +341,7 @@ export const useQuizExplanation = ({
       },
       ui: {
         isLoading,
-        uploadedUrl,
+        uploadedUrl: explanationData.fileUrl ?? '',
       },
     },
     actions: {
