@@ -54,11 +54,22 @@ const mergeWithProgress = (
     | undefined,
 ): Quiz[] => {
   if (!progress) return serverQuizzes;
-  return serverQuizzes.map((q) => ({
-    ...q,
-    userAnswer: progress.answers[q.number] ?? q.userAnswer,
-    inReview: progress.checks[q.number] ?? q.inReview,
-  }));
+  return serverQuizzes.map((q) => {
+    const savedAnswer = progress.answers[q.number];
+    // localStorage 복원 시 string으로 변환된 답안을 서버 selection ID 원본 타입에 맞춤
+    let restoredAnswer: string | null | undefined = savedAnswer ?? q.userAnswer;
+    if (savedAnswer != null && q.selections?.length > 0) {
+      const matched = q.selections.find((s) => String(s.id) === String(savedAnswer));
+      if (matched) {
+        restoredAnswer = matched.id;
+      }
+    }
+    return {
+      ...q,
+      userAnswer: restoredAnswer,
+      inReview: progress.checks[q.number] ?? q.inReview,
+    };
+  });
 };
 
 export const useSolveQuizData = ({
