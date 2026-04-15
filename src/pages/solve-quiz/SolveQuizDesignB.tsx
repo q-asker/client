@@ -240,7 +240,7 @@ const SolveQuizDesignB: React.FC = () => {
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <div className="flex items-center gap-1.5 text-xs text-primary-foreground/80">
-                <span className="inline-block size-2 animate-pulse rounded-full bg-green-400" />
+                <span className="inline-block size-2 rounded-full bg-green-400" />
                 {t('퀴즈 기록 중')}
               </div>
             ) : (
@@ -364,7 +364,7 @@ const SolveQuizDesignB: React.FC = () => {
                 </div>
 
                 {/* 질문 제목 */}
-                <div className="p-5 pt-2 pb-4">
+                <div className="p-5 pt-2 pb-6">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
                     <MarkdownText>{quiz.currentQuiz.title.split('\n')[0]}</MarkdownText>
                   </div>
@@ -372,7 +372,7 @@ const SolveQuizDesignB: React.FC = () => {
 
                 {/* 문제 본문 (코드, 힌트 등) */}
                 {quiz.currentQuiz.title.includes('\n') && (
-                  <div className="p-5 pt-3">
+                  <div className="px-5 pt-3 pb-6">
                     <div className="m-0 break-words text-base leading-relaxed text-foreground">
                       <MarkdownText>
                         {quiz.currentQuiz.title.split('\n').slice(1).join('\n')}
