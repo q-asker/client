@@ -63,7 +63,7 @@ const MermaidDiagram = ({ code }: { code: string }) => {
 
   return (
     <div
-      className="my-2 flex justify-center overflow-x-auto rounded-lg bg-background p-4"
+      className="my-2 w-full overflow-x-auto rounded-lg bg-background p-4 [&>svg]:w-full [&>svg]:h-auto"
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

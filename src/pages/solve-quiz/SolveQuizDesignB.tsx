@@ -398,7 +398,7 @@ const SolveQuizDesignB: React.FC = () => {
                     <span className="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs">
                       {idx + 1}
                     </span>
-                    <span className="break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
+                    <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
                       <MarkdownText>{opt.content}</MarkdownText>
                     </span>
                   </div>
