@@ -3,13 +3,13 @@ import type { MouseEvent } from 'react';
 import type { NavigateFunction } from 'react-router';
 import { trackQuizEvents } from '#shared/lib/analytics';
 import { isUnanswered } from '../lib/isUnanswered';
+import { clearProgress, saveResult } from './solveQuizProgress';
 import type { Quiz } from '#features/quiz-generation';
 
 interface UseSolveQuizSubmitParams {
   quizzes: Quiz[];
   problemSetId: string;
   currentTime: string;
-  uploadedUrl: string;
   title: string;
   navigate: NavigateFunction;
 }
@@ -31,7 +31,6 @@ export const useSolveQuizSubmit = ({
   quizzes,
   problemSetId,
   currentTime,
-  uploadedUrl,
   title,
   navigate,
 }: UseSolveQuizSubmitParams): UseSolveQuizSubmitReturn => {
@@ -46,15 +45,29 @@ export const useSolveQuizSubmit = ({
     const unansweredCount = safeQuizzes.filter((q) =>
       isUnanswered(q.userAnswer, q.selections),
     ).length;
-    const reviewCount = safeQuizzes.filter((q) => q.check).length;
+    const reviewCount = safeQuizzes.filter((q) => q.inReview).length;
     const answeredCount = safeQuizzes.length - unansweredCount;
 
     trackQuizEvents.submitQuiz(problemSetId, answeredCount, safeQuizzes.length, reviewCount);
+    clearProgress();
 
-    navigate(`/result/${problemSetId}`, {
-      state: { quizzes: safeQuizzes, totalTime: currentTime, uploadedUrl, title },
+    // 채점용 데이터를 localStorage에 저장
+    const answers: Record<number, string | null> = {};
+    const inReview: Record<number, boolean> = {};
+    safeQuizzes.forEach((q) => {
+      answers[q.number] = q.userAnswer != null ? String(q.userAnswer) : null;
+      inReview[q.number] = q.inReview ?? false;
     });
-  }, [quizzes, problemSetId, currentTime, uploadedUrl, title, navigate]);
+    saveResult(problemSetId, {
+      answers,
+      inReview,
+      totalTime: currentTime,
+      title,
+      savedAt: Date.now(),
+    });
+
+    navigate(`/result/${problemSetId}`);
+  }, [quizzes, problemSetId, currentTime, title, navigate]);
 
   const handleCancelSubmit = useCallback((): void => {
     setShowSubmitDialog(false);

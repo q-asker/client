@@ -4,11 +4,9 @@ import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analy
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { usePrepareQuizOptions } from './usePrepareQuizOptions';
 import { usePrepareQuizPages } from './usePrepareQuizPages';
-import { usePrepareQuizUi } from './usePrepareQuizUi';
 import { usePrepareQuizUpload } from './usePrepareQuizUpload';
 import type { PrepareQuizOptionsState, PrepareQuizOptionsActions } from './usePrepareQuizOptions';
 import type { PrepareQuizPagesState, PrepareQuizPagesActions } from './usePrepareQuizPages';
-import type { PrepareQuizUiState, PrepareQuizUiActions } from './usePrepareQuizUi';
 import type { PrepareQuizUploadState, PrepareQuizUploadActions } from './usePrepareQuizUpload';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -45,7 +43,6 @@ export interface PrepareQuizReturn {
     options: PrepareQuizOptionsState;
     pages: PrepareQuizPagesState;
     generation: GenerationState;
-    ui: PrepareQuizUiState;
     isWaitingForFirstQuiz: boolean;
     pdfOptions: typeof PDF_OPTIONS;
   };
@@ -54,7 +51,6 @@ export interface PrepareQuizReturn {
     options: PrepareQuizOptionsActions;
     pages: PrepareQuizPagesActions;
     generation: GenerationActions;
-    ui: PrepareQuizUiActions;
     common: {
       handleRemoveFile: () => void;
       handleReCreate: () => void;
@@ -73,7 +69,6 @@ export const usePrepareQuiz = ({
   currentLanguage,
   navigate,
 }: UsePrepareQuizParams): PrepareQuizReturn => {
-  const ui = usePrepareQuizUi();
   const upload = usePrepareQuizUpload({ t });
   const options = usePrepareQuizOptions();
   const pages = usePrepareQuizPages({
@@ -138,11 +133,8 @@ export const usePrepareQuiz = ({
   ]);
 
   const handleNavigateToQuiz = useCallback(() => {
-    generationActions.handleNavigateToQuiz({
-      navigate,
-      uploadedUrl: upload.state.uploadedUrl,
-    });
-  }, [generationActions, navigate, upload.state.uploadedUrl]);
+    generationActions.handleNavigateToQuiz({ navigate });
+  }, [generationActions, navigate]);
 
   const pdfOptions = PDF_OPTIONS;
 
@@ -174,7 +166,6 @@ export const usePrepareQuiz = ({
       options: options.state,
       pages: pages.state,
       generation: generationState,
-      ui: ui.state,
       isWaitingForFirstQuiz: generationState.isWaitingForFirstQuiz,
       pdfOptions,
     },
@@ -188,7 +179,6 @@ export const usePrepareQuiz = ({
         resetGenerationState: generationActions.resetGenerationState,
         resetGenerationForRecreate: generationActions.resetGenerationForRecreate,
       },
-      ui: ui.actions,
       common: {
         handleRemoveFile,
         handleReCreate,

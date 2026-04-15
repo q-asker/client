@@ -1,19 +1,25 @@
 import { useTranslation } from 'i18nexus';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '#entities/auth';
-import Header from '#widgets/header';
+import Header, { extractRoleFromToken } from '#widgets/header';
 import { cn } from '@/shared/ui/lib/utils';
 import { Badge } from '@/shared/ui/components/badge';
 import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
-import { MOCK_BOARD_POSTS, MOCK_BOARD_RESPONSE } from './mockBoardData';
-import type { MockBoardPost } from './mockBoardData';
+import {
+  MOCK_BOARD_POSTS,
+  MOCK_BOARD_RESPONSE,
+  MOCK_UPDATE_LOG_POSTS,
+  MOCK_UPDATE_LOG_RESPONSE,
+} from './mockBoardData';
+import type { BoardCategory, BoardPost } from '../../shared/types/board';
 import {
   Plus,
   ChevronLeft,
   ChevronRight,
   MessageSquare,
+  Sparkles,
   Eye,
   CheckCircle,
   Clock,
@@ -21,18 +27,27 @@ import {
 
 const PAGE_SIZE = 10;
 
-/** Compact Table — 밀집 테이블 뷰, 정보 밀도 극대화 */
-const Board = () => {
+interface BoardProps {
+  category?: BoardCategory;
+}
+
+/** Compact Table — 밀집 테이블 뷰, 카테고리별 게시판 공유 */
+const Board = ({ category = 'INQUIRY' }: BoardProps) => {
   const { t } = useTranslation('board');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
   const accessToken = useAuthStore((state) => state.accessToken);
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+  const isInquiry = category === 'INQUIRY';
 
-  const [posts, setPosts] = useState<MockBoardPost[]>([]);
+  const isAdmin = useMemo(() => {
+    if (isMock) return true;
+    const role = extractRoleFromToken(accessToken);
+    return role === 'ROLE_ADMIN';
+  }, [accessToken, isMock]);
+
+  const [posts, setPosts] = useState<BoardPost[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -53,19 +68,23 @@ const Board = () => {
     });
   };
 
+  const detailPath = isInquiry ? '/boards' : '/updates';
+
   const fetchPosts = useCallback(
     async (page: number) => {
       if (isMock) {
-        setPosts(MOCK_BOARD_POSTS);
-        setTotalPages(MOCK_BOARD_RESPONSE.totalPages);
-        setTotalElements(MOCK_BOARD_RESPONSE.totalElements);
+        const mockPosts = isInquiry ? MOCK_BOARD_POSTS : MOCK_UPDATE_LOG_POSTS;
+        const mockResponse = isInquiry ? MOCK_BOARD_RESPONSE : MOCK_UPDATE_LOG_RESPONSE;
+        setPosts(mockPosts);
+        setTotalPages(mockResponse.totalPages);
+        setTotalElements(mockResponse.totalElements);
         return;
       }
       setLoading(true);
       setError(null);
       try {
         const response = await fetch(
-          `${getBaseUrl()}/boards?page=${page}&size=${PAGE_SIZE}&sort=createdAt,desc`,
+          `${getBaseUrl()}/boards?category=${category}&page=${page}&size=${PAGE_SIZE}&sort=createdAt,desc`,
           { method: 'GET', headers: { 'Content-Type': 'application/json' } },
         );
         if (!response.ok) throw new Error(t('데이터를 불러오는데 실패했습니다.'));
@@ -74,13 +93,17 @@ const Board = () => {
         setTotalPages(data.totalPages || 0);
         setTotalElements(data.totalElements || 0);
       } catch {
-        setError(t('게시글 목록을 불러올 수 없습니다.'));
+        setError(
+          isInquiry
+            ? t('게시글 목록을 불러올 수 없습니다.')
+            : t('변경사항 목록을 불러올 수 없습니다.'),
+        );
       } finally {
         setLoading(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isMock],
+    [isMock, category],
   );
 
   useEffect(() => {
@@ -100,11 +123,7 @@ const Board = () => {
   if (loading) {
     return (
       <>
-        <Header
-          isSidebarOpen={isSidebarOpen}
-          toggleSidebar={toggleSidebar}
-          setIsSidebarOpen={setIsSidebarOpen}
-        />
+        <Header />
 
         <div className="min-h-screen bg-background p-8 max-md:p-4">
           <div className="mx-auto max-w-5xl">
@@ -120,28 +139,32 @@ const Board = () => {
 
   return (
     <>
-      <Header
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+      <Header />
 
       <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-5xl px-6 py-6 max-md:px-4">
           {/* 헤더 */}
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-foreground">{t('문의 게시판')}</h1>
+              <h1 className="text-2xl font-bold text-foreground">
+                {isInquiry ? t('문의 게시판') : t('변경사항')}
+              </h1>
               <span className="text-base text-muted-foreground">
                 {t('총')}
                 {totalElements}
                 {t('건')}
               </span>
             </div>
-            {posts.length > 0 && (
+            {isInquiry && posts.length > 0 && (
               <Button size="sm" onClick={handleWriteClick}>
                 <Plus className="mr-1 size-3" />
                 {t('문의하기')}
+              </Button>
+            )}
+            {!isInquiry && isAdmin && (
+              <Button size="sm" onClick={() => navigate('/updates/write')}>
+                <Plus className="mr-1 size-3" />
+                {t('작성')}
               </Button>
             )}
           </div>
@@ -156,12 +179,21 @@ const Board = () => {
           {/* 빈 상태 */}
           {posts.length === 0 && !error ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-muted-foreground">
-              <MessageSquare className="mb-3 size-10 opacity-50" />
-              <p className="mb-4 text-base">{t('아직 등록된 문의가 없습니다')}</p>
-              <Button size="sm" onClick={handleWriteClick}>
-                <Plus className="mr-1 size-3" />
-                {t('문의 작성하기')}
-              </Button>
+              {isInquiry ? (
+                <>
+                  <MessageSquare className="mb-3 size-10 opacity-50" />
+                  <p className="mb-4 text-base">{t('아직 등록된 문의가 없습니다')}</p>
+                  <Button size="sm" onClick={handleWriteClick}>
+                    <Plus className="mr-1 size-3" />
+                    {t('문의 작성하기')}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mb-3 size-10 opacity-50" />
+                  <p className="text-base">{t('아직 등록된 변경사항이 없습니다')}</p>
+                </>
+              )}
             </div>
           ) : (
             <>
@@ -169,10 +201,10 @@ const Board = () => {
               <div className="flex items-center border-b-2 border-border px-3 py-2.5 text-sm font-semibold text-muted-foreground max-md:hidden">
                 <span className="w-[6%] text-center">#</span>
                 <span className="flex-1 pl-2">{t('제목')}</span>
-                <span className="w-[12%] text-center">{t('작성자')}</span>
+                {isInquiry && <span className="w-[12%] text-center">{t('작성자')}</span>}
                 <span className="w-[12%] text-center">{t('작성일')}</span>
                 <span className="w-[8%] text-center">{t('조회')}</span>
-                <span className="w-[10%] text-center">{t('상태')}</span>
+                {isInquiry && <span className="w-[10%] text-center">{t('상태')}</span>}
               </div>
 
               {/* 게시글 행 */}
@@ -195,15 +227,17 @@ const Board = () => {
                     </span>
                     <span className="flex-1 truncate pl-2 max-md:w-full max-md:pl-0">
                       <Link
-                        to={`/boards/${post.boardId}`}
+                        to={`${detailPath}/${post.boardId}`}
                         className="font-medium text-foreground no-underline transition-colors hover:text-primary"
                       >
                         {post.title}
                       </Link>
                     </span>
-                    <span className="w-[12%] text-center text-sm text-muted-foreground max-md:w-full max-md:text-left">
-                      {post.userName}
-                    </span>
+                    {isInquiry && (
+                      <span className="w-[12%] text-center text-sm text-muted-foreground max-md:w-full max-md:text-left">
+                        {post.userName}
+                      </span>
+                    )}
                     <span className="w-[12%] text-center text-sm text-muted-foreground max-md:hidden">
                       {formatDate(post.createdAt)}
                     </span>
@@ -213,24 +247,26 @@ const Board = () => {
                         {post.viewCount || 0}
                       </span>
                     </span>
-                    <span className="w-[10%] text-center max-md:w-full max-md:text-left">
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'text-xs',
-                          post.status === 'ANSWERED'
-                            ? 'border-emerald-300 text-emerald-700'
-                            : 'border-amber-300 text-amber-700',
-                        )}
-                      >
-                        {post.status === 'ANSWERED' ? (
-                          <CheckCircle className="mr-0.5 size-2.5" />
-                        ) : (
-                          <Clock className="mr-0.5 size-2.5" />
-                        )}
-                        {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
-                      </Badge>
-                    </span>
+                    {isInquiry && (
+                      <span className="w-[10%] text-center max-md:w-full max-md:text-left">
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            'text-xs',
+                            post.status === 'ANSWERED'
+                              ? 'border-emerald-300 text-emerald-700'
+                              : 'border-amber-300 text-amber-700',
+                          )}
+                        >
+                          {post.status === 'ANSWERED' ? (
+                            <CheckCircle className="mr-0.5 size-2.5" />
+                          ) : (
+                            <Clock className="mr-0.5 size-2.5" />
+                          )}
+                          {post.status === 'ANSWERED' ? t('답변완료') : t('대기중')}
+                        </Badge>
+                      </span>
+                    )}
                   </div>
                 );
               })}

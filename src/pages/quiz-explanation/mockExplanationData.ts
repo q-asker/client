@@ -15,7 +15,7 @@ export const MOCK_QUIZZES: Quiz[] = [
       { id: '4', content: 'RST 패킷을 전송한다' },
     ],
     userAnswer: '1',
-    check: true,
+    inReview: true,
   },
   {
     number: 2,
@@ -27,7 +27,7 @@ export const MOCK_QUIZZES: Quiz[] = [
       { id: '4', content: 'useEffect 콜백 실행 직후 매번' },
     ],
     userAnswer: '2',
-    check: false,
+    inReview: false,
   },
   {
     number: 3,
@@ -39,7 +39,7 @@ export const MOCK_QUIZZES: Quiz[] = [
       { id: '4', content: '퀵 정렬, 삽입 정렬, 버블 정렬' },
     ],
     userAnswer: '1',
-    check: true,
+    inReview: true,
   },
   {
     number: 4,
@@ -55,7 +55,7 @@ export const MOCK_QUIZZES: Quiz[] = [
       },
     ],
     userAnswer: '3',
-    check: false,
+    inReview: false,
   },
 ];
 

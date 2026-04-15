@@ -1,11 +1,13 @@
 import { useTranslation } from 'i18nexus';
 import InlineEdit from '@/shared/ui/components/inline-edit';
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
+import { LogIn } from 'lucide-react';
+import CustomToast from '#shared/toast';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Skeleton } from '@/shared/ui/components/skeleton';
@@ -14,9 +16,7 @@ import { Skeleton } from '@/shared/ui/components/skeleton';
 const SolveQuizDesignB: React.FC = () => {
   const { t } = useTranslation('solve-quiz');
   const navigate = useNavigate();
-  const location = useLocation();
   const { problemSetId } = useParams<{ problemSetId: string }>();
-  const { uploadedUrl } = (location.state as { uploadedUrl?: string }) || {};
   const storeProblemSetId = useQuizGenerationStore((state) => state.problemSetId);
   const streamQuizzes = useQuizGenerationStore((state) => state.quizzes);
   const streamIsStreaming = useQuizGenerationStore((state) => state.isStreaming);
@@ -32,10 +32,8 @@ const SolveQuizDesignB: React.FC = () => {
   const { state, actions } = useSolveQuiz({
     t,
     navigate,
-    problemSetId,
-    uploadedUrl,
+    problemSetId: problemSetId ?? '',
     quizzes,
-    isStreaming,
   });
   const { quiz } = state;
   const { quiz: quizActions } = actions;
@@ -76,7 +74,7 @@ const SolveQuizDesignB: React.FC = () => {
           'cursor-pointer text-sm font-medium text-muted-foreground transition-colors duration-200',
           'hover:border-primary hover:bg-primary/5',
           !unanswered && 'border-primary/40 bg-primary/10 text-primary',
-          q.check && 'border-warning bg-warning/10 text-warning',
+          q.inReview && 'border-warning bg-warning/10 text-warning',
           q.number === quiz.currentQuestion &&
             'border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground',
         )}
@@ -163,10 +161,11 @@ const SolveQuizDesignB: React.FC = () => {
                     const unanswered = isUnanswered(quizItem.userAnswer, quizItem.selections);
                     const selectedAnswer = unanswered
                       ? t('미선택')
-                      : quizItem.selections?.find((sel) => sel.id === quizItem.userAnswer)
-                          ?.content ||
+                      : quizItem.selections?.find(
+                          (sel) => String(sel.id) === String(quizItem.userAnswer),
+                        )?.content ||
                         t('{{quizItem_userAnswer}}번', {
-                          quizItem_userAnswer: quizItem.userAnswer,
+                          quizItem_userAnswer: quizItem.userAnswer ?? '',
                         });
 
                     return (
@@ -174,20 +173,22 @@ const SolveQuizDesignB: React.FC = () => {
                         key={quizItem.number}
                         className="flex items-center border-b border-border py-2 last:border-b-0"
                       >
-                        <span className="min-w-[50px] font-semibold text-muted-foreground">
+                        <span className="shrink-0 min-w-[50px] font-semibold text-muted-foreground">
                           {quizItem.number}
                           {t('번:')}
                         </span>
                         <span
                           className={cn(
-                            'ml-3 flex items-center gap-2 break-words',
+                            'ml-3 flex min-w-0 flex-1 items-center gap-2',
                             unanswered && 'italic text-destructive',
-                            quizItem.check && 'text-warning',
+                            quizItem.inReview && 'text-warning',
                           )}
                         >
-                          <MarkdownText>{selectedAnswer}</MarkdownText>
-                          {quizItem.check && (
-                            <span className="rounded-full bg-warning px-1.5 py-0.5 text-xs font-medium text-warning-foreground">
+                          <span className="min-w-0 break-words">
+                            <MarkdownText>{selectedAnswer}</MarkdownText>
+                          </span>
+                          {quizItem.inReview && (
+                            <span className="shrink-0 whitespace-nowrap rounded-full bg-warning px-1.5 py-0.5 text-xs font-medium text-warning-foreground">
                               {t('검토')}
                             </span>
                           )}
@@ -218,15 +219,47 @@ const SolveQuizDesignB: React.FC = () => {
         </div>
       )}
 
-      {/* 상단 네비게이션 바 */}
-      <header className="relative flex items-center justify-center bg-primary px-6 py-4 text-primary-foreground shadow-card">
-        <button
-          className="absolute left-6 cursor-pointer border-none bg-transparent text-xl text-inherit"
-          onClick={() => navigate('/')}
-        >
-          x
-        </button>
-        <div className="font-mono text-sm">{quiz.currentTime}</div>
+      {/* 상단 타이머 바 */}
+      <header className="bg-primary shadow-card">
+        <div className="relative mx-auto flex w-[95%] max-w-[1200px] items-center justify-between py-3 text-primary-foreground">
+          {/* 왼쪽: X 닫기 */}
+          <button
+            className="cursor-pointer border-none bg-transparent text-xl text-inherit"
+            onClick={() => navigate('/')}
+            aria-label={t('닫기')}
+          >
+            ✕
+          </button>
+
+          {/* 중앙: 타이머 */}
+          <div className="absolute left-1/2 -translate-x-1/2 font-mono text-sm">
+            {quiz.currentTime}
+          </div>
+
+          {/* 오른쪽: 기록 상태 + 프로필/로그인 */}
+          <div className="flex items-center gap-3">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-1.5 text-xs text-primary-foreground/80">
+                <span className="inline-block size-2 animate-pulse rounded-full bg-green-400" />
+                {t('퀴즈 기록 중')}
+              </div>
+            ) : (
+              <button
+                className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap border-none bg-transparent px-0 py-0 text-xs text-primary-foreground/80 transition-colors hover:text-primary-foreground"
+                onClick={() => {
+                  quizActions.persistNow();
+                  CustomToast.info(
+                    `${t('진행 상태가 저장되었습니다.')} ${t('로그인 후 이어서 풀 수 있습니다.')}`,
+                  );
+                  navigate('/login');
+                }}
+              >
+                <LogIn className="size-3.5" />
+                {t('로그인하고 기록하기')}
+              </button>
+            )}
+          </div>
+        </div>
       </header>
 
       {/* 퀴즈 제목 */}
@@ -309,7 +342,7 @@ const SolveQuizDesignB: React.FC = () => {
                     onClick={quizActions.handleCheckToggle}
                     className={cn(
                       'flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-none px-2 py-1 text-xs font-semibold transition-all duration-200',
-                      quiz.currentQuiz.check
+                      quiz.currentQuiz.inReview
                         ? 'bg-warning/12 text-warning'
                         : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
                     )}
@@ -318,7 +351,7 @@ const SolveQuizDesignB: React.FC = () => {
                       width="14"
                       height="14"
                       viewBox="0 0 24 24"
-                      fill={quiz.currentQuiz.check ? 'currentColor' : 'none'}
+                      fill={quiz.currentQuiz.inReview ? 'currentColor' : 'none'}
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"

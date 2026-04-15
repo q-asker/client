@@ -1,12 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   MessageSquare,
   ClipboardList,
-  LogIn,
   X,
-  LogOut,
   Sun,
   Moon,
   Monitor,
@@ -21,13 +19,7 @@ import { useThemePreset } from '#shared/themes';
 import { logEvent } from '#shared/lib/analytics';
 import Logo from '#shared/ui/logo';
 import { cn } from '@/shared/ui/lib/utils';
-
-interface HeaderProps {
-  isSidebarOpen?: boolean;
-  toggleSidebar?: () => void;
-  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowHelp?: React.Dispatch<React.SetStateAction<boolean>>;
-}
+import AuthButton from './ui/AuthButton';
 
 const THEME_OPTIONS = [
   { value: 'light', icon: Sun, label: '라이트' },
@@ -36,43 +28,18 @@ const THEME_OPTIONS = [
 ] as const;
 
 const navItemClass =
-  'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground no-underline transition-all duration-200 hover:bg-primary/8 hover:text-foreground cursor-pointer border-none bg-transparent';
+  'inline-flex items-center whitespace-nowrap px-3 py-2 text-foreground no-underline transition-all duration-200 hover:bg-primary/5 hover:text-primary text-sm md:text-base cursor-pointer border-none bg-transparent';
 
-const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
+const Header = () => {
   const {
-    state: { t, isAuthenticated, hasHydrated, user, currentLanguage },
-    actions: { handleQuizManagement, handleLogout, handleLanguageChange },
-  } = useHeader({ setIsSidebarOpen, setShowHelp });
+    state: { t, isAuthenticated, hasHydrated, currentLanguage },
+    actions: { handleQuizManagement, handleLanguageChange },
+  } = useHeader();
   const { theme, setTheme } = useTheme();
   const { presets, currentPresetId, applyPreset } = useThemePreset();
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isThemeOpen, setIsThemeOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [showNavTooltip, setShowNavTooltip] = useState(false);
-
-  const displayName = useMemo(() => {
-    const u = user as Record<string, unknown> | null;
-    const name =
-      (u?.nickname as string) ||
-      (u?.name as string) ||
-      (u?.username as string) ||
-      (u?.email as string) ||
-      '';
-    return name.trim() || t('사용자');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  const profileInitial = useMemo(
-    () => displayName?.trim().slice(0, 1).toUpperCase() || '?',
-    [displayName],
-  );
-
-  useClickOutside({
-    containerId: ['profileDropdown', 'mobileProfileDropdown'],
-    triggerId: ['profileButton', 'mobileProfileButton'],
-    onOutsideClick: () => setIsProfileOpen(false),
-    isEnabled: isProfileOpen,
-  });
 
   useClickOutside({
     containerId: ['themeDropdown', 'mobileThemeDropdown'],
@@ -196,42 +163,6 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
     </motion.div>
   );
 
-  const ProfileDropdownContent = ({ id }: { id: string }) => (
-    <motion.div
-      id={id}
-      initial={{ opacity: 0, scale: 0.96, y: -6 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96, y: -6 }}
-      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-      className="absolute right-0 top-[calc(100%+10px)] z-[1001] min-w-[248px] overflow-hidden rounded-lg border border-border/70 bg-card/95 shadow-lg backdrop-blur-xl"
-    >
-      {/* 프로필 정보 */}
-      <div className="flex items-center gap-3 border-b border-border/50 px-4 py-3.5">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-          {profileInitial}
-        </div>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-foreground">{displayName}</p>
-          {user?.email && <p className="truncate text-xs text-muted-foreground">{user.email}</p>}
-        </div>
-      </div>
-      {/* 로그아웃 */}
-      <div className="p-2">
-        <button
-          className="flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none bg-transparent px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-destructive/8 hover:text-destructive"
-          type="button"
-          onClick={() => {
-            setIsProfileOpen(false);
-            handleLogout();
-          }}
-        >
-          <LogOut className="size-4" />
-          {t('로그아웃')}
-        </button>
-      </div>
-    </motion.div>
-  );
-
   const LangDropdownContent = ({ id, dropUp = false }: { id: string; dropUp?: boolean }) => (
     <motion.div
       id={id}
@@ -271,28 +202,14 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
 
   return (
     <>
-      {/* 헤더 */}
-      <header className="sticky top-0 z-[999] bg-background/80 backdrop-blur-xl">
-        {/* 상단 미세 그라디언트 라인 */}
-        <div
-          className="absolute inset-x-0 bottom-0 h-px"
-          style={{
-            background:
-              'linear-gradient(to right, transparent, oklch(0.511 0.2301 276.97 / 0.25) 30%, oklch(0.501 0.1384 304.73 / 0.25) 70%, transparent)',
-          }}
-        />
-
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-2.5 md:px-6">
+      <div className="relative bg-background shadow-sm">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3 md:px-6">
           {/* 로고 */}
-          <motion.div
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          >
+          <div className="flex items-center">
             <Link to="/" className="text-inherit no-underline">
               <Logo />
             </Link>
-          </motion.div>
+          </div>
 
           {/* 모바일: 언어 + 프로필/로그인 */}
           <div className="flex items-center gap-2 md:hidden">
@@ -314,43 +231,11 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
               </AnimatePresence>
             </div>
 
-            {!hasHydrated ? (
-              <div className="size-8" />
-            ) : isAuthenticated ? (
-              <div className="relative">
-                <button
-                  id="mobileProfileButton"
-                  className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-primary/30 bg-primary/10 p-0 text-sm font-bold text-primary transition-colors duration-200 hover:bg-primary/20"
-                  onClick={() => setIsProfileOpen((prev) => !prev)}
-                  aria-expanded={isProfileOpen}
-                  aria-haspopup="true"
-                  title={displayName}
-                  type="button"
-                >
-                  {profileInitial}
-                </button>
-                <AnimatePresence>
-                  {isProfileOpen && <ProfileDropdownContent id="mobileProfileDropdown" />}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <Link
-                className="inline-flex items-center whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm font-medium text-primary no-underline transition-all duration-200 hover:bg-primary/8"
-                to="/login"
-              >
-                <LogIn className="mr-1 size-4" />
-                {t('로그인')}
-              </Link>
-            )}
+            <AuthButton variant="header-mobile" idPrefix="mobile" />
           </div>
 
           {/* 데스크톱 네비게이션 */}
-          <motion.nav
-            className="hidden items-center gap-0.5 md:flex"
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
-          >
+          <div className="hidden items-center gap-1 md:flex md:gap-3">
             {/* 테마 버튼 */}
             <div className="relative">
               <button
@@ -361,24 +246,30 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
                 aria-expanded={isThemeOpen}
                 aria-haspopup="true"
               >
-                <Palette className="size-4" />
-                {t('테마 설정')}
+                <Palette className="mr-1.5 size-4" />
+                <strong>{t('테마 설정')}</strong>
               </button>
               <AnimatePresence>
                 {isThemeOpen && <ThemeDropdownContent id="themeDropdown" />}
               </AnimatePresence>
             </div>
 
+            {/* 구분선 */}
+            <div className="mx-1 h-5 w-px bg-border" />
+
             <Link to="/boards" className={navItemClass}>
-              <MessageSquare className="size-4" />
-              {t('문의하기')}
+              <MessageSquare className="mr-1.5 size-4" />
+              <strong>{t('문의하기')}</strong>
             </Link>
 
+            {/* 구분선 */}
+            <div className="mx-1 h-5 w-px bg-border" />
+
             {/* 퀴즈 기록 + 툴팁 */}
-            <div className="relative">
+            <div className="relative inline-flex items-center">
               <Link to="/history" className={navItemClass} onClick={handleQuizManagement}>
-                <ClipboardList className="size-4" />
-                {t('퀴즈 기록')}
+                <ClipboardList className="mr-1.5 size-4" />
+                <strong>{t('퀴즈 기록')}</strong>
               </Link>
               {!isAuthenticated && showNavTooltip && (
                 <span
@@ -403,41 +294,14 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
               )}
             </div>
 
-            {/* 미세 구분 */}
-            <div className="mx-2 h-4 w-px bg-border/60" />
+            {/* 구분선 */}
+            <div className="mx-1 h-5 w-px bg-border" />
 
             {/* 인증 영역 */}
-            {!hasHydrated ? (
-              <div className="size-9" />
-            ) : isAuthenticated ? (
-              <div className="relative">
-                <button
-                  id="profileButton"
-                  className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-primary/30 bg-primary/10 p-0 text-sm font-bold text-primary transition-colors duration-200 hover:bg-primary/20"
-                  onClick={() => setIsProfileOpen((prev) => !prev)}
-                  aria-expanded={isProfileOpen}
-                  aria-haspopup="true"
-                  title={displayName}
-                  type="button"
-                >
-                  {profileInitial}
-                </button>
-                <AnimatePresence>
-                  {isProfileOpen && <ProfileDropdownContent id="profileDropdown" />}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <Link
-                className="inline-flex items-center whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-primary no-underline transition-all duration-200 hover:bg-primary/8"
-                to="/login"
-              >
-                <LogIn className="mr-1.5 size-4" />
-                {t('로그인')}
-              </Link>
-            )}
+            <AuthButton variant="header" idPrefix="desktop" />
 
-            {/* 미세 구분 */}
-            <div className="mx-2 h-4 w-px bg-border/60" />
+            {/* 구분선 */}
+            <div className="mx-1 h-5 w-px bg-border" />
 
             {/* 언어 선택 */}
             <div className="relative">
@@ -450,15 +314,15 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
                 aria-haspopup="true"
               >
                 <Globe className="size-4" />
-                <span className="text-xs font-bold">{currentLanguage.toUpperCase()}</span>
+                <span className="text-xs">{currentLanguage.toUpperCase()}</span>
               </button>
               <AnimatePresence>
                 {isLangOpen && <LangDropdownContent id="langDropdown" />}
               </AnimatePresence>
             </div>
-          </motion.nav>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* 모바일 고정 하단 네비게이션 */}
       <nav className="fixed inset-x-0 bottom-0 z-[998] flex border-t border-border/60 bg-background/90 backdrop-blur-xl md:hidden">
@@ -603,5 +467,6 @@ const Header = ({ setIsSidebarOpen, setShowHelp }: HeaderProps) => {
 };
 
 export { extractRoleFromToken } from './model/useHeader';
+export { default as AuthButton } from './ui/AuthButton';
 
 export default Header;

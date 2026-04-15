@@ -20,6 +20,7 @@ export interface ScoreBoardProblem {
   title: string;
   correct: boolean;
   userAnswer: string | number;
+  inReview?: boolean;
   selections: ScoreBoardSelection[];
 }
 
@@ -104,7 +105,9 @@ const QuizScoreBoard = ({
         {/* 아코디언 문항 리스트 */}
         <div className="space-y-1.5 max-md:space-y-2">
           {problems.map((problem) => {
-            const userSelection = problem.selections.find((s) => s.id === problem.userAnswer);
+            const userSelection = problem.selections.find(
+              (s) => String(s.id) === String(problem.userAnswer),
+            );
             const correctSelection = problem.selections.find((s) => s.correct === true);
             const isOpen = openSet.has(problem.number);
 
@@ -164,12 +167,19 @@ const QuizScoreBoard = ({
                         problem.title.split('\n')[0]
                       )}
                     </span>
-                    <Badge
-                      variant={problem.correct ? 'default' : 'destructive'}
-                      className="shrink-0 text-[0.65rem]"
-                    >
-                      {problem.correct ? t('정답') : t('오답')}
-                    </Badge>
+                    <div className="flex w-11 shrink-0 flex-col gap-1">
+                      <Badge
+                        variant={problem.correct ? 'default' : 'destructive'}
+                        className="w-full justify-center text-[0.65rem]"
+                      >
+                        {problem.correct ? t('정답') : t('오답')}
+                      </Badge>
+                      {problem.inReview && (
+                        <span className="w-full rounded-full bg-warning/15 py-0.5 text-center text-[0.65rem] font-medium text-warning">
+                          {t('검토함')}
+                        </span>
+                      )}
+                    </div>
                     <ChevronDown
                       className={cn(
                         'size-4 shrink-0 text-muted-foreground transition-transform duration-300',

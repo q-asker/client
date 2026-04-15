@@ -37,7 +37,7 @@ export interface PrepareQuizUploadReturn {
 }
 
 interface UsePrepareQuizUploadParams {
-  t: (key: string) => string;
+  t: (key: string, variables?: Record<string, string | number>) => string;
 }
 
 export const usePrepareQuizUpload = ({

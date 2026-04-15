@@ -15,7 +15,7 @@ interface QuizItem {
   number: number;
   title: string;
   selections: QuizSelection[];
-  userAnswer: string | number;
+  userAnswer?: string | null;
 }
 
 export const MOCK_RESULT_QUIZZES: QuizItem[] = [

@@ -18,5 +18,11 @@
   "진행 현황": "Progress",
   "진행률": "Progress",
   "취소": "Cancel",
+  "기록 중": "Recording",
+  "기록 저장": "Save Record",
+  "기록 중 아님": "Not Recording",
+  "로그인하고 기록하기": "Log in to save",
+  "진행 상태가 저장되었습니다. 로그인 후 자동으로 돌아옵니다.": "Your progress has been saved. You'll return here after logging in.",
+  "퀴즈 기록 중": "Recording",
   "확인": "Confirm"
 }

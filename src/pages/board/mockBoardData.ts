@@ -1,26 +1,16 @@
 /**
- * board 게시판 목록 디자인 변형 테스트용 mock 데이터.
+ * board 게시판 목록 mock 데이터.
  * URL에 ?mock=true 추가 시 실제 API 없이 이 데이터로 렌더링 가능.
  */
 
-/** 게시글 항목 타입 */
-export interface MockBoardPost {
-  boardId: string;
-  title: string;
-  userName: string;
-  createdAt: string;
-  viewCount: number;
-  status: 'ANSWERED' | 'CREATED' | string;
-}
+import type { BoardPost, BoardListResponse } from '../../shared/types/board';
 
-/** 게시글 목록 응답 타입 */
-export interface MockBoardListResponse {
-  posts: MockBoardPost[];
-  totalPages: number;
-  totalElements: number;
-}
+/** @deprecated BoardPost 사용 권장 */
+export type MockBoardPost = BoardPost;
+/** @deprecated BoardListResponse 사용 권장 */
+export type MockBoardListResponse = BoardListResponse;
 
-export const MOCK_BOARD_POSTS: MockBoardPost[] = [
+export const MOCK_BOARD_POSTS: BoardPost[] = [
   {
     boardId: 'mock-bd-001',
     title: '퀴즈 생성 시 PDF 파일이 업로드되지 않습니다',
@@ -28,6 +18,7 @@ export const MOCK_BOARD_POSTS: MockBoardPost[] = [
     createdAt: '2026-03-12T14:30:00.000Z',
     viewCount: 42,
     status: 'ANSWERED',
+    category: 'INQUIRY',
   },
   {
     boardId: 'mock-bd-002',
@@ -36,6 +27,7 @@ export const MOCK_BOARD_POSTS: MockBoardPost[] = [
     createdAt: '2026-03-12T10:15:00.000Z',
     viewCount: 28,
     status: 'CREATED',
+    category: 'INQUIRY',
   },
   {
     boardId: 'mock-bd-003',
@@ -44,6 +36,7 @@ export const MOCK_BOARD_POSTS: MockBoardPost[] = [
     createdAt: '2026-03-11T16:45:00.000Z',
     viewCount: 15,
     status: 'ANSWERED',
+    category: 'INQUIRY',
   },
   {
     boardId: 'mock-bd-004',
@@ -52,6 +45,7 @@ export const MOCK_BOARD_POSTS: MockBoardPost[] = [
     createdAt: '2026-03-11T09:00:00.000Z',
     viewCount: 7,
     status: 'CREATED',
+    category: 'INQUIRY',
   },
   {
     boardId: 'mock-bd-005',
@@ -60,6 +54,7 @@ export const MOCK_BOARD_POSTS: MockBoardPost[] = [
     createdAt: '2026-03-10T20:30:00.000Z',
     viewCount: 53,
     status: 'ANSWERED',
+    category: 'INQUIRY',
   },
   {
     boardId: 'mock-bd-006',
@@ -68,12 +63,76 @@ export const MOCK_BOARD_POSTS: MockBoardPost[] = [
     createdAt: '2026-03-10T11:00:00.000Z',
     viewCount: 19,
     status: 'CREATED',
+    category: 'INQUIRY',
+  },
+];
+
+export const MOCK_UPDATE_LOG_POSTS: BoardPost[] = [
+  {
+    boardId: 'mock-ul-001',
+    title: '퀴즈 해설 페이지 UI 개선 및 레이아웃 최적화',
+    userName: '운영팀',
+    createdAt: '2026-03-13T09:00:00.000Z',
+    viewCount: 128,
+    status: null,
+    category: 'UPDATE_LOG',
+  },
+  {
+    boardId: 'mock-ul-002',
+    title: '문의 게시판 답변 알림 기능 추가 및 이메일 발송',
+    userName: '운영팀',
+    createdAt: '2026-03-12T14:30:00.000Z',
+    viewCount: 95,
+    status: null,
+    category: 'UPDATE_LOG',
+  },
+  {
+    boardId: 'mock-ul-003',
+    title: 'PDF 업로드 속도 최적화 및 파일 용량 압축',
+    userName: '운영팀',
+    createdAt: '2026-03-11T11:00:00.000Z',
+    viewCount: 203,
+    status: null,
+    category: 'UPDATE_LOG',
+  },
+  {
+    boardId: 'mock-ul-004',
+    title: '퀴즈 기록 통계 차트 추가 및 분석 기능 개선',
+    userName: '운영팀',
+    createdAt: '2026-03-10T16:00:00.000Z',
+    viewCount: 67,
+    status: null,
+    category: 'UPDATE_LOG',
+  },
+  {
+    boardId: 'mock-ul-005',
+    title: '다크 모드 지원 시작 (베타) 및 전체 테마 통일',
+    userName: '운영팀',
+    createdAt: '2026-03-09T10:00:00.000Z',
+    viewCount: 312,
+    status: null,
+    category: 'UPDATE_LOG',
+  },
+  {
+    boardId: 'mock-ul-006',
+    title: 'Safari 대용량 PDF Range 분할 다운로드 최적화',
+    userName: '운영팀',
+    createdAt: '2026-03-08T15:00:00.000Z',
+    viewCount: 41,
+    status: null,
+    category: 'UPDATE_LOG',
   },
 ];
 
 /** mock 응답 데이터 */
-export const MOCK_BOARD_RESPONSE: MockBoardListResponse = {
+export const MOCK_BOARD_RESPONSE: BoardListResponse = {
   posts: MOCK_BOARD_POSTS,
+  totalPages: 2,
+  totalElements: 16,
+};
+
+export const MOCK_UPDATE_LOG_RESPONSE: BoardListResponse = {
+  posts: MOCK_UPDATE_LOG_POSTS,
   totalPages: 2,
   totalElements: 16,
 };

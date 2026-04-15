@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { trackQuizHistoryEvents } from '#shared/lib/analytics';
-import { useClickOutside } from '#shared/lib/useClickOutside';
 import { useAuthStore } from '#entities/auth';
 
 // ── 타입 정의 ──
@@ -38,13 +37,10 @@ interface UseQuizHistoryReturn {
   state: {
     quizHistory: HistoryItem[];
     loading: boolean;
-    isSidebarOpen: boolean;
     isAuthenticated: boolean;
     stats: QuizStats;
   };
   actions: {
-    toggleSidebar: () => void;
-    setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
     navigateToDetail: (record: HistoryItem) => void;
     navigateToQuiz: (record: HistoryItem) => void;
     deleteQuizRecord: (problemSetId: string) => Promise<void>;
@@ -66,7 +62,6 @@ export const useQuizHistory = ({
   const isAuthenticated = !!accessToken;
   const [quizHistory, setQuizHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const startTimeRef = useRef(Date.now());
 
   const loadQuizHistory = async (): Promise<void> => {
@@ -80,8 +75,6 @@ export const useQuizHistory = ({
     }
   };
 
-  const toggleSidebar = (): void => setIsSidebarOpen((prev) => !prev);
-
   useEffect(() => {
     if (!hasHydrated) return;
     if (isAuthenticated) {
@@ -90,12 +83,6 @@ export const useQuizHistory = ({
       setLoading(false);
     }
   }, [hasHydrated]);
-
-  useClickOutside({
-    containerId: 'sidebar',
-    triggerId: 'menuButton',
-    onOutsideClick: () => setIsSidebarOpen(false),
-  });
 
   const navigateToDetail = (record: HistoryItem): void => {
     if (!record.historyId) return;
@@ -239,13 +226,10 @@ export const useQuizHistory = ({
     state: {
       quizHistory,
       loading,
-      isSidebarOpen,
       isAuthenticated,
       stats,
     },
     actions: {
-      toggleSidebar,
-      setIsSidebarOpen,
       navigateToDetail,
       navigateToQuiz,
       deleteQuizRecord,

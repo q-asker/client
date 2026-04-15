@@ -79,11 +79,11 @@ const MakeQuiz: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const levelDescriptions = useMemo(() => getLevelDescriptions(t), []);
+  const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
   const acceptExtensions: string = ACCEPT_FILE_TYPES;
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
-  const { upload, options, pages, generation, ui, isWaitingForFirstQuiz, pdfOptions } = state;
+  const { upload, options, pages, generation, isWaitingForFirstQuiz, pdfOptions } = state;
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const pdfDataState = usePdfData(upload.uploadedUrl);
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
 
@@ -131,7 +131,6 @@ const MakeQuiz: React.FC = () => {
     options: optionActions,
     pages: pageActions,
     generation: generationActions,
-    ui: uiActions,
     common: commonActions,
   } = actions;
 
@@ -166,28 +165,20 @@ const MakeQuiz: React.FC = () => {
   if (!isHydrated) {
     return (
       <div className="flex min-h-screen flex-col bg-muted">
-        <Header
-          isSidebarOpen={ui.isSidebarOpen}
-          toggleSidebar={uiActions.toggleSidebar}
-          setIsSidebarOpen={uiActions.setIsSidebarOpen}
-        />
+        <Header />
       </div>
     );
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-muted">
-      <Header
-        isSidebarOpen={ui.isSidebarOpen}
-        toggleSidebar={uiActions.toggleSidebar}
-        setIsSidebarOpen={uiActions.setIsSidebarOpen}
-      />
+      <Header />
 
       <div className="mx-auto mt-4 w-full flex-1 px-4 sm:mt-6 md:mt-8 md:w-[90%] lg:w-[85%] xl:w-[80%]">
         <h1 className="sr-only">
           {currentLanguage === 'en'
-            ? 'Free AI Quiz Generator for PDF, PPT, Word'
-            : 'PDF, PPT, Word로 무료 AI 퀴즈 생성'}
+            ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
+            : '[한국어 특화] Q-Asker: AI가 한국어로 시험 문제 바로 만들어줘요!'}
         </h1>
         <AnimatePresence mode="wait">
           {/* 2컬럼 레이아웃 (업로드 완료 후, 생성 전, 생성 중 아닐 때) */}
@@ -334,7 +325,7 @@ const MakeQuiz: React.FC = () => {
                               )}
                               type="button"
                               onClick={() =>
-                                pageActions.setIsPreviewVisible((prev: boolean) => !prev)
+                                pageActions.setIsPreviewVisible(!pages.isPreviewVisible)
                               }
                             >
                               {pages.isPreviewVisible ? (
@@ -918,14 +909,31 @@ const MakeQuiz: React.FC = () => {
           )}
         </AnimatePresence>
 
-        <RecentChanges />
+        {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
+          <>
+            <RecentChanges />
+            <HelpToggle t={t} isOpen={isHelpOpen} onToggle={() => setIsHelpOpen((p) => !p)} />
+          </>
+        )}
       </div>
 
-      {/* ─── SEO 콘텐츠 섹션: 파일 미업로드 & 퀴즈 미생성 시에만 표시 ─── */}
+      {/* ─── SEO 콘텐츠 섹션: 도움말 토글로 제어 ─── */}
       {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
-        <div className="mx-auto w-full px-4 md:w-[90%] lg:w-[85%] xl:w-[80%]">
-          <SeoContent t={t} currentLanguage={currentLanguage} />
-        </div>
+        <AnimatePresence>
+          {isHelpOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden"
+            >
+              <div className="mx-auto w-full px-4 md:w-[90%] lg:w-[85%] xl:w-[80%]">
+                <SeoContent t={t} currentLanguage={currentLanguage} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
 
       <Footer />
@@ -934,6 +942,28 @@ const MakeQuiz: React.FC = () => {
 };
 
 export default MakeQuiz;
+
+/* ─── 도움말 토글 버튼 ─── */
+const HelpToggle: React.FC<{
+  t: (key: string) => string;
+  isOpen: boolean;
+  onToggle: () => void;
+}> = ({ t, isOpen, onToggle }) => {
+  return (
+    <div className="mt-5">
+      <button
+        onClick={onToggle}
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <HelpCircle className="size-4" />
+        {t('도움말 보기')}
+        <ChevronDown
+          className={cn('size-3.5 transition-transform duration-200', isOpen && 'rotate-180')}
+        />
+      </button>
+    </div>
+  );
+};
 
 /* ─── SEO 콘텐츠 컴포넌트 ─── */
 
@@ -1012,14 +1042,14 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
             <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               {currentLanguage === 'en'
                 ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
-                : 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성'}
+                : 'Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기'}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
               {t(
-                'PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 생성해줘요. 빈칸, OX, 객관식 문제로 시험에 완벽 대비할 수 있어요.',
+                'PDF, PPT, Word 파일만 올리면 AI가 시험 문제를 자동으로 만들어줍니다. 객관식, OX, 빈칸 채우기 문제를 무료로 생성하세요.',
               )}
               <br />
-              {t('지금 회원가입 없이 무료로 시작하세요.')}
+              {t('회원가입 없이 바로 시작할 수 있어요.')}
             </p>
             <p className="sr-only">
               {currentLanguage === 'en'

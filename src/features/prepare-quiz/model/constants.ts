@@ -12,7 +12,7 @@ export type QuestionType = 'BLANK' | 'OX' | 'MULTIPLE';
 export type QuizLevel = 'RECALL' | 'SKILLS' | 'STRATEGIC';
 
 /** 번역 함수 타입 */
-type TranslationFn = (value: string) => string;
+type TranslationFn = (value: string, variables?: Record<string, string | number>) => string;
 
 export const getLevelDescriptions = (
   t: TranslationFn = (value) => value,

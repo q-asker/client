@@ -126,9 +126,9 @@ const Help = () => {
         {/* === 헤더 === */}
         <header className="mb-12 text-center">
           <BlurFade delay={0} inView>
-            <h1 className="mb-4 text-[1.5rem] font-bold text-foreground md:text-[2.5rem]">
+            <h2 className="mb-4 text-[1.5rem] font-bold text-foreground md:text-[2.5rem]">
               {t('Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성')}
-            </h1>
+            </h2>
           </BlurFade>
           <BlurFade delay={0.1} inView>
             <p className="text-lg leading-relaxed text-muted-foreground">
@@ -140,7 +140,7 @@ const Help = () => {
         <main>
           {/* === 단계별 가이드 섹션 (타임라인 레이아웃) === */}
           <section className="mb-12" onMouseEnter={() => handleSectionHover('usage_guide')}>
-            <h2
+            <h3
               id="how-to-use"
               className="mb-8 text-[1.8rem] font-bold text-foreground md:text-2xl"
             >
@@ -148,7 +148,7 @@ const Help = () => {
               <TextAnimate animation="fadeIn" by="word" as="span">
                 {t('AI 퀴즈 만들기 6단계 가이드')}
               </TextAnimate>
-            </h2>
+            </h3>
 
             {/* 타임라인 컨테이너 */}
             <div className="relative ml-6 border-l-2 border-border pl-8 md:ml-4 md:pl-6">
@@ -167,9 +167,9 @@ const Help = () => {
 
                     {/* 카드 */}
                     <div className="rounded-lg border border-border bg-muted p-6 transition-colors duration-200 hover:border-primary md:p-5">
-                      <h3 className="mb-3 text-xl font-semibold text-primary">
+                      <h4 className="mb-3 text-xl font-semibold text-primary">
                         {t(step.titleKey)}
-                      </h3>
+                      </h4>
                       <div>
                         <ul className="m-0 list-none pl-0">
                           {step.items.map((item, i) => (
@@ -208,7 +208,7 @@ const Help = () => {
 
           {/* === 타겟 사용자별 활용 팁 섹션 (단일 컬럼 스택) === */}
           <section className="mb-12" onMouseEnter={() => handleSectionHover('tips')}>
-            <h2
+            <h3
               id="usage-tips"
               className="mb-6 text-[1.8rem] font-bold text-foreground md:text-2xl"
             >
@@ -216,7 +216,7 @@ const Help = () => {
               <TextAnimate animation="fadeIn" by="word" as="span">
                 {t('AI 퀴즈 활용 200% 팁')}
               </TextAnimate>
-            </h2>
+            </h3>
 
             <div className="space-y-4">
               <BlurFade delay={0} inView>
@@ -253,7 +253,7 @@ const Help = () => {
           {/* === 신뢰도 섹션 (단일 컬럼 스택) === */}
           <section className="mb-12" onMouseEnter={() => handleSectionHover('trust')}>
             <TextAnimate
-              as="h2"
+              as="h3"
               animation="fadeIn"
               by="word"
               id="why-trust-us"
@@ -290,12 +290,12 @@ const Help = () => {
 
           {/* === FAQ 섹션 (아코디언 비주얼, 단일 컬럼) === */}
           <section className="mb-12" onMouseEnter={() => handleSectionHover('faq')}>
-            <h2 id="faq" className="mb-6 text-[1.8rem] font-bold text-foreground md:text-2xl">
+            <h3 id="faq" className="mb-6 text-[1.8rem] font-bold text-foreground md:text-2xl">
               <CircleHelp className="inline size-5" />{' '}
               <TextAnimate animation="fadeIn" by="word" as="span">
                 {t('자주 묻는 질문 (FAQ)')}
               </TextAnimate>
-            </h2>
+            </h3>
 
             <div className="space-y-3">
               {[
@@ -337,7 +337,7 @@ const Help = () => {
           {/* === 주의사항 섹션 (왼쪽 보더 콜아웃) === */}
           <section className="mb-12" onMouseEnter={() => handleSectionHover('warnings')}>
             <TextAnimate
-              as="h2"
+              as="h3"
               animation="fadeIn"
               by="word"
               id="precautions"
@@ -367,7 +367,7 @@ const Help = () => {
           {/* === 문의 및 피드백 섹션 === */}
           <section className="mb-12" onMouseEnter={() => handleSectionHover('contact')}>
             <TextAnimate
-              as="h2"
+              as="h3"
               animation="fadeIn"
               by="word"
               id="contact-support"
