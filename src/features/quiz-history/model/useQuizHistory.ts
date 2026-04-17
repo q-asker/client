@@ -96,16 +96,31 @@ export const useQuizHistory = ({
     async (page: number): Promise<void> => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get<PaginatedHistoryResponse>('/history', {
-          params: { page, size: PAGE_SIZE },
-        });
-        setQuizHistory(response.data.content);
-        setPagination({
-          currentPage: response.data.currentPage,
-          totalPages: response.data.totalPages,
-          totalCount: response.data.totalCount,
-          size: response.data.size,
-        });
+        const response = await axiosInstance.get<PaginatedHistoryResponse | HistoryItem[]>(
+          '/history',
+          { params: { page, size: PAGE_SIZE } },
+        );
+        // 하위 호환: 배열 응답(기존 API)이면 클라이언트에서 페이지네이션 처리
+        if (Array.isArray(response.data)) {
+          const all = response.data;
+          const start = page * PAGE_SIZE;
+          const sliced = all.slice(start, start + PAGE_SIZE);
+          setQuizHistory(sliced);
+          setPagination({
+            currentPage: page,
+            totalPages: Math.ceil(all.length / PAGE_SIZE),
+            totalCount: all.length,
+            size: PAGE_SIZE,
+          });
+        } else {
+          setQuizHistory(response.data.content);
+          setPagination({
+            currentPage: response.data.currentPage,
+            totalPages: response.data.totalPages,
+            totalCount: response.data.totalCount,
+            size: response.data.size,
+          });
+        }
       } catch (error) {
         console.error(t('퀴즈 기록 불러오기 실패:'), error);
       } finally {
