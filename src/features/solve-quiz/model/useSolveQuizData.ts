@@ -11,6 +11,7 @@ import { useAuthStore } from '#entities/auth';
 /** API 응답 데이터 타입 */
 interface ProblemSetResponse {
   generationStatus: 'COMPLETED' | 'GENERATING';
+  quizType?: 'BLANK' | 'MULTIPLE' | 'OX';
   quiz: Quiz[];
   totalCount: number;
   sessionId: string;
@@ -43,6 +44,12 @@ interface UseSolveQuizDataReturn {
   historyId: string | null;
   changeTitle: (newTitle: string) => Promise<void>;
 }
+
+/** quizType을 각 quiz 항목에 전파 */
+const applyQuizType = (quizzes: Quiz[], quizType?: 'BLANK' | 'MULTIPLE' | 'OX'): Quiz[] => {
+  if (!quizType) return quizzes;
+  return quizzes.map((q) => (q.type ? q : { ...q, type: quizType }));
+};
 
 /** 퀴즈 데이터를 서버에서 불러오고 스트리밍 상태를 관리하는 훅 */
 /** 서버 데이터에 저장된 진행 상태를 병합 */
@@ -84,6 +91,7 @@ export const useSolveQuizData = ({
   const [historyId, setHistoryId] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
+  const isMockBlank = searchParams.get('blank') === 'true';
   const reconnectStream = useQuizGenerationStore((state) => state.reconnectStream);
   const setProblemSetInfo = useQuizGenerationStore((state) => state.setProblemSetInfo);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -98,8 +106,10 @@ export const useSolveQuizData = ({
   useEffect(() => {
     /* mock 모드: API 호출 없이 mock 데이터 사용 */
     if (isMock) {
-      import('../../../pages/solve-quiz/mockQuizData').then(({ MOCK_QUIZZES }) => {
-        setLocalQuizzes(mergeWithProgress(MOCK_QUIZZES, savedProgress));
+      import('../../../pages/solve-quiz/mockQuizData').then((mod) => {
+        const data = isMockBlank ? mod.MOCK_BLANK_QUIZZES : mod.MOCK_QUIZZES;
+        setLocalQuizzes(mergeWithProgress(data, savedProgress));
+        setTitle(isMockBlank ? 'BLANK Mock 퀴즈' : 'Mock 퀴즈');
         setIsLoading(false);
       });
       return;
@@ -144,8 +154,10 @@ export const useSolveQuizData = ({
         }
         setTitle(quizTitle);
 
+        const typedQuizzes = applyQuizType(res.data.quiz, res.data.quizType);
+
         if (status === 'COMPLETED') {
-          setLocalQuizzes(mergeWithProgress(res.data.quiz, savedProgress));
+          setLocalQuizzes(mergeWithProgress(typedQuizzes, savedProgress));
           setIsLoading(false);
         }
         if (status === 'GENERATING') {
@@ -154,8 +166,8 @@ export const useSolveQuizData = ({
             totalCount: res.data.totalCount,
             isStreaming: true,
           });
-          if (Array.isArray(res.data.quiz) && res.data.quiz.length > 0) {
-            setLocalQuizzes(mergeWithProgress(res.data.quiz, savedProgress));
+          if (Array.isArray(typedQuizzes) && typedQuizzes.length > 0) {
+            setLocalQuizzes(mergeWithProgress(typedQuizzes, savedProgress));
           }
           const sessionId = res.data.sessionId;
           reconnectStream(sessionId);
