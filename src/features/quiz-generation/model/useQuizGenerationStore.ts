@@ -25,9 +25,12 @@ export interface QuizSelection {
   correct?: boolean;
 }
 
+export type QuizType = 'BLANK' | 'MULTIPLE' | 'OX';
+
 export interface Quiz {
   number: number;
   title: string;
+  type?: QuizType;
   selections: QuizSelection[];
   userAnswer?: string | null;
   inReview?: boolean;

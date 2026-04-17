@@ -20,6 +20,7 @@ interface PdfPageSelectorProps {
   t: (key: string) => string;
   onDocumentLoadSuccess: (pdf: { numPages: number }) => void;
   onLoadError: (error: Error & { status?: number }) => void;
+  onRetry?: () => void;
   onPageClick: (pageNumber: number) => void;
   onPageMouseEnter: (e: React.MouseEvent<HTMLDivElement>, pageNumber: number) => void;
   onPageMouseLeave: () => void;
@@ -38,6 +39,7 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
   t,
   onDocumentLoadSuccess,
   onLoadError,
+  onRetry,
   onPageClick,
   onPageMouseEnter,
   onPageMouseLeave,
@@ -90,13 +92,27 @@ const PdfPageSelector: React.FC<PdfPageSelectorProps> = ({
     }
   }, []);
 
+  if (pdfError) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12">
+        <p className="text-sm font-medium text-destructive">{pdfError}</p>
+        {onRetry && (
+          <button
+            className="cursor-pointer rounded-xl border-none bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90"
+            onClick={onRetry}
+          >
+            {t('다시 시도')}
+          </button>
+        )}
+      </div>
+    );
+  }
+
   if (pdfLoading || !pdfData) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <div className="mb-3 size-8 animate-spin rounded-full border-3 border-muted-foreground/20 border-t-primary" />
-        <p className="text-sm font-medium text-muted-foreground">
-          {pdfError ? pdfError : t('PDF 로딩 중...')}
-        </p>
+        <p className="text-sm font-medium text-muted-foreground">{t('PDF 로딩 중...')}</p>
       </div>
     );
   }

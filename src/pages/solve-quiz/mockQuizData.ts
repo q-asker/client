@@ -168,3 +168,70 @@ export const MOCK_QUIZZES: Quiz[] = [
     ],
   },
 ];
+
+/**
+ * BLANK(빈칸 채우기) 타입 mock 퀴즈 데이터.
+ * URL에 ?mock=true&design=C|D|E|F 추가 시 BLANK 전용 UI를 테스트할 수 있다.
+ */
+export const MOCK_BLANK_QUIZZES: Quiz[] = [
+  {
+    number: 1,
+    type: 'BLANK',
+    title:
+      '카프카에서 `Producer`가 메시지를 전송할 때, 메시지의 `Key`값을 가지지 않는 경우 파티션 분배 전략으로 Kafka 2.4 버전부터 기본으로 채택된 방식은 _______이다.',
+    selections: [
+      { id: '1', content: 'Custom Partitioner', correct: false },
+      { id: '2', content: 'Sticky Partitioning', correct: true },
+      { id: '3', content: 'Round Robin', correct: false },
+      { id: '4', content: 'Hash Partitioning', correct: false },
+    ],
+  },
+  {
+    number: 2,
+    type: 'BLANK',
+    title:
+      '카프카 `Consumer`가 `Topic`에 처음 접속하여 메시지를 가져올 때, 가장 오래된 처음 `offset`부터 가져올지, 가장 최근의 마지막 `offset`부터 가져올지를 설정하는 파라미터는 _______이다.',
+    selections: [
+      { id: '1', content: 'enable.auto.commit', correct: false },
+      { id: '2', content: 'bootstrap.servers', correct: false },
+      { id: '3', content: 'auto.offset.reset', correct: true },
+      { id: '4', content: 'group.id', correct: false },
+    ],
+  },
+  {
+    number: 3,
+    type: 'BLANK',
+    title:
+      '카프카 `Producer`에서 `send()` 메소드 호출 시, `Record Accumulator`에 입력하지 못하고 `block`되는 최대 시간을 설정하는 파라미터는 _______이다.',
+    selections: [
+      { id: '1', content: 'retry.backoff.ms', correct: false },
+      { id: '2', content: 'delivery.timeout.ms', correct: false },
+      { id: '3', content: 'request.timeout.ms', correct: false },
+      { id: '4', content: 'max.block.ms', correct: true },
+    ],
+  },
+  {
+    number: 4,
+    type: 'BLANK',
+    title:
+      '카프카에서 `Consumer Group` 내의 `Consumer`들에게 고정된 ID를 부여하여, `Consumer`가 `shutdown`되어도 `session.timeout.ms` 내에 재기동되면 `rebalance`가 수행되지 않게 하는 기능은 _______이다.',
+    selections: [
+      { id: '1', content: 'Idempotence', correct: false },
+      { id: '2', content: 'Cooperative Rebalancing', correct: false },
+      { id: '3', content: 'Dynamic Group Membership', correct: false },
+      { id: '4', content: 'Static Group Membership', correct: true },
+    ],
+  },
+  {
+    number: 5,
+    type: 'BLANK',
+    title:
+      'Producer가 메시지 전송 시 재전송(retry)을 수행하더라도 메시지 중복을 방지하기 위해, Producer ID와 메시지 Sequence를 사용하여 중복을 제거하는 메커니즘을 _______라고 한다.',
+    selections: [
+      { id: '1', content: 'Idempotence', correct: true },
+      { id: '2', content: 'Compaction', correct: false },
+      { id: '3', content: 'Rebalancing', correct: false },
+      { id: '4', content: 'Transaction', correct: false },
+    ],
+  },
+];
