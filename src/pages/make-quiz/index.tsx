@@ -884,6 +884,7 @@ const MakeQuiz: React.FC = () => {
                           )
                         ) {
                           commonActions.handleReCreate();
+                          pdfDataState.refreshCopy();
                         }
                       }}
                     >

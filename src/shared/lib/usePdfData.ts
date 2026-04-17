@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /** 5MB 청크 단위로 Range 분할 다운로드, 실패 시 청크별 재시도 */
 const CHUNK_SIZE = 3 * 1024 * 1024;
@@ -9,8 +9,10 @@ interface PdfDataState {
   data: { data: Uint8Array } | null;
   isLoading: boolean;
   error: string | null;
-  /** 로딩 실패 시 재시도 */
+  /** 로딩 실패 시 재시도 (서버에서 다시 fetch) */
   retry: () => void;
+  /** 같은 PDF 데이터의 새 복사본 생성 (detach된 buffer 대체용) */
+  refreshCopy: () => void;
 }
 
 async function fetchChunkWithRetry(
@@ -69,31 +71,39 @@ async function fetchPdfAsArrayBuffer(url: string, signal: AbortSignal): Promise<
  * localFile이 있으면 로컬에서 직접 읽고, 없으면 서버에서 fetch한다.
  */
 export function usePdfData(uploadedUrl: string | null, localFile?: File | null): PdfDataState {
-  const [state, setState] = useState<Omit<PdfDataState, 'retry'>>({
-    data: null,
-    isLoading: false,
-    error: null,
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // pdfjs worker가 ArrayBuffer를 transfer(detach)하므로 원본을 ref에 보관
+  const sourceRef = useRef<Uint8Array | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  // copyVersion이 바뀔 때마다 sourceRef에서 새 .slice() 복사본 생성
+  const [copyVersion, setCopyVersion] = useState(0);
 
   useEffect(() => {
     // 로컬 파일이 있으면 서버 다운로드 없이 직접 읽기
     if (localFile) {
-      setState({ data: null, isLoading: true, error: null });
+      setIsLoading(true);
+      setError(null);
       localFile
         .arrayBuffer()
         .then((buf) => {
-          setState({ data: { data: new Uint8Array(buf) }, isLoading: false, error: null });
+          sourceRef.current = new Uint8Array(buf);
+          setCopyVersion((v) => v + 1);
+          setIsLoading(false);
         })
         .catch((err) => {
-          setState({ data: null, isLoading: false, error: (err as Error).message });
+          setError((err as Error).message);
+          setIsLoading(false);
         });
       return;
     }
 
     if (!uploadedUrl) {
-      setState({ data: null, isLoading: false, error: null });
+      sourceRef.current = null;
+      setCopyVersion((v) => v + 1);
+      setIsLoading(false);
+      setError(null);
       return;
     }
 
@@ -103,24 +113,36 @@ export function usePdfData(uploadedUrl: string | null, localFile?: File | null):
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setState({ data: null, isLoading: true, error: null });
+    setIsLoading(true);
+    setError(null);
 
     fetchPdfAsArrayBuffer(url, controller.signal)
       .then((buffer) => {
         if (!controller.signal.aborted) {
-          setState({ data: { data: buffer }, isLoading: false, error: null });
+          sourceRef.current = buffer;
+          setCopyVersion((v) => v + 1);
+          setIsLoading(false);
         }
       })
       .catch((err) => {
         if (!controller.signal.aborted) {
-          setState({ data: null, isLoading: false, error: err.message });
+          setError(err.message);
+          setIsLoading(false);
         }
       });
 
     return () => controller.abort();
   }, [uploadedUrl, localFile, retryCount]);
 
-  const retry = useCallback(() => setRetryCount((c) => c + 1), []);
+  // copyVersion이 바뀔 때만 새 복사본 생성 — 불필요한 <Document> 재파싱 방지
+  const data = useMemo(() => {
+    if (!sourceRef.current) return null;
+    return { data: sourceRef.current.slice() };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [copyVersion]);
 
-  return { ...state, retry };
+  const retry = useCallback(() => setRetryCount((c) => c + 1), []);
+  const refreshCopy = useCallback(() => setCopyVersion((v) => v + 1), []);
+
+  return { data, isLoading, error, retry, refreshCopy };
 }
