@@ -84,7 +84,7 @@ const MakeQuiz: React.FC = () => {
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, isWaitingForFirstQuiz, pdfOptions } = state;
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const pdfDataState = usePdfData(upload.uploadedUrl);
+  const pdfDataState = usePdfData(upload.uploadedUrl, upload.localPdfFile);
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
 
   // Zustand persist hydration 완료 전까지 빈 화면 → 퀴즈 화면 플래싱 방지
@@ -397,6 +397,7 @@ const MakeQuiz: React.FC = () => {
                                   console.error(error);
                                 }
                               }}
+                              onRetry={pdfDataState.retry}
                               onPageClick={pageActions.handlePageSelection}
                               onPageMouseEnter={pageActions.handlePageMouseEnter}
                               onPageMouseLeave={pageActions.handlePageMouseLeave}

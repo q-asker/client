@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /** 5MB 청크 단위로 Range 분할 다운로드, 실패 시 청크별 재시도 */
 const CHUNK_SIZE = 3 * 1024 * 1024;
@@ -9,6 +9,8 @@ interface PdfDataState {
   data: { data: Uint8Array } | null;
   isLoading: boolean;
   error: string | null;
+  /** 로딩 실패 시 재시도 */
+  retry: () => void;
 }
 
 async function fetchChunkWithRetry(
@@ -62,22 +64,39 @@ async function fetchPdfAsArrayBuffer(url: string, signal: AbortSignal): Promise<
   return buffer;
 }
 
-/** PDF를 직접 fetch하여 ArrayBuffer로 react-pdf에 전달하는 훅 */
-export function usePdfData(uploadedUrl: string | null): PdfDataState {
-  const [state, setState] = useState<PdfDataState>({
+/**
+ * PDF를 react-pdf에 전달하는 훅.
+ * localFile이 있으면 로컬에서 직접 읽고, 없으면 서버에서 fetch한다.
+ */
+export function usePdfData(uploadedUrl: string | null, localFile?: File | null): PdfDataState {
+  const [state, setState] = useState<Omit<PdfDataState, 'retry'>>({
     data: null,
     isLoading: false,
     error: null,
   });
   const abortRef = useRef<AbortController | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
+    // 로컬 파일이 있으면 서버 다운로드 없이 직접 읽기
+    if (localFile) {
+      setState({ data: null, isLoading: true, error: null });
+      localFile
+        .arrayBuffer()
+        .then((buf) => {
+          setState({ data: { data: new Uint8Array(buf) }, isLoading: false, error: null });
+        })
+        .catch((err) => {
+          setState({ data: null, isLoading: false, error: (err as Error).message });
+        });
+      return;
+    }
+
     if (!uploadedUrl) {
       setState({ data: null, isLoading: false, error: null });
       return;
     }
 
-    // URL 변환: files.q-asker.com → /files/ (same-origin)
     const url = uploadedUrl;
 
     abortRef.current?.abort();
@@ -99,7 +118,9 @@ export function usePdfData(uploadedUrl: string | null): PdfDataState {
       });
 
     return () => controller.abort();
-  }, [uploadedUrl]);
+  }, [uploadedUrl, localFile, retryCount]);
 
-  return state;
+  const retry = useCallback(() => setRetryCount((c) => c + 1), []);
+
+  return { ...state, retry };
 }
