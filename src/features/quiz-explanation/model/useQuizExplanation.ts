@@ -108,9 +108,9 @@ interface UseQuizExplanationReturn {
 // ── 상수 ──
 
 const PDF_OPTIONS: PdfOptions = {
-  cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+  cMapUrl: '/cmaps/',
   cMapPacked: true,
-  standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
+  standardFontDataUrl: '/standard_fonts/',
 };
 
 // ── 퀴즈 해설 훅 ──
