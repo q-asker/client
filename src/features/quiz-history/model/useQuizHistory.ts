@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { trackQuizHistoryEvents } from '#shared/lib/analytics';
@@ -19,6 +19,15 @@ export interface HistoryItem {
   takenAt: string | null;
 }
 
+/** 페이지네이션 응답 */
+interface PaginatedHistoryResponse {
+  content: HistoryItem[];
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+  size: number;
+}
+
 /** 퀴즈 통계 */
 interface QuizStats {
   totalQuizzes: number;
@@ -26,6 +35,17 @@ interface QuizStats {
   averageScore: number;
   completionRate: number;
 }
+
+/** 페이지네이션 상태 */
+interface PaginationState {
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  size: number;
+}
+
+/** 페이지 크기 */
+const PAGE_SIZE = 20;
 
 interface UseQuizHistoryParams {
   t: (key: string) => string;
@@ -39,6 +59,7 @@ interface UseQuizHistoryReturn {
     loading: boolean;
     isAuthenticated: boolean;
     stats: QuizStats;
+    pagination: PaginationState;
   };
   actions: {
     navigateToDetail: (record: HistoryItem) => void;
@@ -48,6 +69,7 @@ interface UseQuizHistoryReturn {
     clearAllHistory: () => Promise<void>;
     formatDate: (dateString: string) => string;
     handleCreateFromEmpty: () => void;
+    goToPage: (page: number) => Promise<void>;
   };
 }
 
@@ -62,23 +84,49 @@ export const useQuizHistory = ({
   const isAuthenticated = !!accessToken;
   const [quizHistory, setQuizHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState<PaginationState>({
+    currentPage: 0,
+    totalPages: 0,
+    totalCount: 0,
+    size: PAGE_SIZE,
+  });
   const startTimeRef = useRef(Date.now());
 
-  const loadQuizHistory = async (): Promise<void> => {
-    try {
-      const response = await axiosInstance.get<HistoryItem[]>('/history');
-      setQuizHistory(response.data);
-    } catch (error) {
-      console.error(t('퀴즈 기록 불러오기 실패:'), error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchPage = useCallback(
+    async (page: number): Promise<void> => {
+      setLoading(true);
+      try {
+        const response = await axiosInstance.get<PaginatedHistoryResponse>('/history', {
+          params: { page, size: PAGE_SIZE },
+        });
+        setQuizHistory(response.data.content);
+        setPagination({
+          currentPage: response.data.currentPage,
+          totalPages: response.data.totalPages,
+          totalCount: response.data.totalCount,
+          size: response.data.size,
+        });
+      } catch (error) {
+        console.error(t('퀴즈 기록 불러오기 실패:'), error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t],
+  );
+
+  const goToPage = useCallback(
+    async (page: number): Promise<void> => {
+      if (page < 0 || page >= pagination.totalPages) return;
+      await fetchPage(page);
+    },
+    [fetchPage, pagination.totalPages],
+  );
 
   useEffect(() => {
     if (!hasHydrated) return;
     if (isAuthenticated) {
-      loadQuizHistory();
+      fetchPage(0);
     } else {
       setLoading(false);
     }
@@ -139,7 +187,12 @@ export const useQuizHistory = ({
 
     try {
       await axiosInstance.delete(`/history/${record.historyId}`);
-      setQuizHistory((prev) => prev.filter((item) => item.problemSetId !== problemSetId));
+      // 현재 페이지가 비면 이전 페이지로, 아니면 현재 페이지 새로고침
+      const pageAfterDelete =
+        quizHistory.length <= 1 && pagination.currentPage > 0
+          ? pagination.currentPage - 1
+          : pagination.currentPage;
+      await fetchPage(pageAfterDelete);
       CustomToast.success(t('기록이 삭제되었습니다.'));
     } catch (error) {
       console.error(t('기록 삭제 실패:'), error);
@@ -154,6 +207,7 @@ export const useQuizHistory = ({
     try {
       await axiosInstance.delete('/history/all');
       setQuizHistory([]);
+      setPagination({ currentPage: 0, totalPages: 0, totalCount: 0, size: PAGE_SIZE });
       CustomToast.success(t('모든 기록이 삭제되었습니다.'));
     } catch (error) {
       console.error(t('전체 기록 삭제 실패:'), error);
@@ -177,7 +231,8 @@ export const useQuizHistory = ({
 
   const stats = useMemo((): QuizStats => {
     const completed = quizHistory.filter((item) => item.completed);
-    const totalQuizzes = quizHistory.length;
+    // 전체 퀴즈 수는 서버의 totalCount 사용 (현재 페이지 데이터가 아닌 전체 기준)
+    const totalQuizzes = pagination.totalCount || quizHistory.length;
     const completedQuizzes = completed.length;
     const scoredQuizzes = completed.filter((item) => item.score !== null);
     const averageScore =
@@ -228,6 +283,7 @@ export const useQuizHistory = ({
       loading,
       isAuthenticated,
       stats,
+      pagination,
     },
     actions: {
       navigateToDetail,
@@ -237,6 +293,7 @@ export const useQuizHistory = ({
       clearAllHistory,
       formatDate,
       handleCreateFromEmpty,
+      goToPage,
     },
   };
 };
