@@ -16,6 +16,8 @@ interface UploadedFileInfo {
 
 export interface PrepareQuizUploadState {
   file: UploadedFileInfo | null;
+  /** PDF 파일인 경우 로컬 File 객체 (서버 다운로드 없이 프리뷰용) */
+  localPdfFile: File | null;
   uploadedUrl: string | null;
   isDragging: boolean;
   uploadElapsedTime: number;
@@ -66,6 +68,7 @@ export const usePrepareQuizUpload = ({
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(
     isMock ? 'mock://sample.pdf' : (initialStoreState.uploadedUrl ?? null),
   );
+  const [localPdfFile, setLocalPdfFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadElapsedTime, setUploadElapsedTime] = useState(0);
   const [fileExtension, setFileExtension] = useState<string | null>(
@@ -127,6 +130,8 @@ export const usePrepareQuizUpload = ({
         size: nextFile.size,
         extension: ext,
       });
+      // PDF 파일은 로컬 File 객체를 보관 (서버 다운로드 없이 프리뷰)
+      setLocalPdfFile(ext === 'pdf' ? nextFile : null);
       setIsWaitingForFirstQuiz(true);
       try {
         const uploaded = await uploadFileToServer(nextFile);
@@ -197,6 +202,7 @@ export const usePrepareQuizUpload = ({
     }
 
     setFile(null);
+    setLocalPdfFile(null);
     setUploadedUrl(null);
     setIsDragging(false);
     setUploadElapsedTime(0);
@@ -208,6 +214,7 @@ export const usePrepareQuizUpload = ({
   return {
     state: {
       file,
+      localPdfFile,
       uploadedUrl,
       isDragging,
       uploadElapsedTime,
