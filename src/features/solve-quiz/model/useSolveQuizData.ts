@@ -89,6 +89,7 @@ export const useSolveQuizData = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [title, setTitle] = useState<string>('');
   const [historyId, setHistoryId] = useState<string | null>(null);
+  const [quizType, setQuizType] = useState<'BLANK' | 'MULTIPLE' | 'OX' | undefined>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
   const isMockBlank = searchParams.get('blank') === 'true';
@@ -154,6 +155,9 @@ export const useSolveQuizData = ({
         }
         setTitle(quizTitle);
 
+        if (res.data.quizType) {
+          setQuizType(res.data.quizType);
+        }
         const typedQuizzes = applyQuizType(res.data.quiz, res.data.quizType);
 
         if (status === 'COMPLETED') {
@@ -188,9 +192,11 @@ export const useSolveQuizData = ({
     setLocalQuizzes((prev) => {
       const existingNumbers = new Set(prev.map((q) => q.number));
       const next = quizzes.filter((q) => !existingNumbers.has(q.number));
-      return next.length > 0 ? [...prev, ...next] : prev;
+      if (next.length === 0) return prev;
+      const typedNext = applyQuizType(next, quizType);
+      return [...prev, ...typedNext];
     });
-  }, [quizzes]);
+  }, [quizzes, quizType]);
 
   return {
     quizzes: localQuizzes,
