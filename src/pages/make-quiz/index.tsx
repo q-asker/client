@@ -911,6 +911,11 @@ const MakeQuiz: React.FC = () => {
           )}
         </AnimatePresence>
 
+g        {/* 건의함 — 생성 중/완료 공통: 상태 전환 시 언마운트 없이 유지 */}
+        {(isWaitingForFirstQuiz && upload.uploadedUrl) || generation.problemSetId ? (
+          <FeedbackBox t={t} />
+        ) : null}
+
         {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
           <>
             <RecentChanges />
@@ -944,6 +949,59 @@ const MakeQuiz: React.FC = () => {
 };
 
 export default MakeQuiz;
+
+/* ─── 건의함 컴포넌트 ─── */
+const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
+  const [content, setContent] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const handleSubmit = async () => {
+    if (!content.trim()) return;
+    setIsSubmitting(true);
+    try {
+      await axiosInstance.post('/feedback', { content: content.trim() });
+      setSubmitted(true);
+      setContent('');
+      CustomToast.success(t('소중한 의견 감사합니다!'));
+    } catch {
+      CustomToast.error(t('전송에 실패했습니다. 다시 시도해주세요.'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="mx-auto mt-4 max-w-lg sm:mt-6">
+      <Card className="rounded-2xl border border-border">
+        <CardContent className="px-4 pt-4 pb-4 sm:px-6 sm:pt-5 sm:pb-5">
+          <p className="mb-3 text-sm font-semibold text-foreground">{t('기다리시는 동안.. 건의사항 / 피드백 있으면 부탁드립니다!')}</p>
+          {submitted ? (
+            <p className="text-sm text-muted-foreground">{t('소중한 의견 감사합니다!')}</p>
+          ) : (
+            <>
+              <textarea
+                value={content}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
+                placeholder={t('불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.')}
+                rows={3}
+                className="w-full resize-none rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              <div className="mt-2 flex justify-end">
+                <button
+                  onClick={handleSubmit}
+                  disabled={!content.trim() || isSubmitting}
+                  className="cursor-pointer rounded-xl border-none bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isSubmitting ? t('전송 중...') : t('전송')}
+                </button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 /* ─── 도움말 토글 버튼 ─── */
 const HelpToggle: React.FC<{
