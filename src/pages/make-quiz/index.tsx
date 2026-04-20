@@ -910,12 +910,10 @@ const MakeQuiz: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
-g        {/* 건의함 — 생성 중/완료 공통: 상태 전환 시 언마운트 없이 유지 */}
+        {/* 건의함 — 생성 중/완료 공통: 상태 전환 시 언마운트 없이 유지 */}
         {(isWaitingForFirstQuiz && upload.uploadedUrl) || generation.problemSetId ? (
           <FeedbackBox t={t} />
         ) : null}
-
         {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
           <>
             <RecentChanges />
@@ -974,7 +972,9 @@ const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
     <div className="mx-auto mt-4 max-w-lg sm:mt-6">
       <Card className="rounded-2xl border border-border">
         <CardContent className="px-4 pt-4 pb-4 sm:px-6 sm:pt-5 sm:pb-5">
-          <p className="mb-3 text-sm font-semibold text-foreground">{t('기다리시는 동안.. 건의사항 / 피드백 있으면 부탁드립니다!')}</p>
+          <p className="mb-3 text-sm font-semibold text-foreground">
+            {t('기다리시는 동안.. 건의사항 / 피드백 있으면 부탁드립니다!')}
+          </p>
           {submitted ? (
             <p className="text-sm text-muted-foreground">{t('소중한 의견 감사합니다!')}</p>
           ) : (
@@ -984,7 +984,7 @@ const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
                 placeholder={t('불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.')}
                 rows={3}
-                className="w-full resize-none rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full resize-none rounded-sm border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <div className="mt-2 flex justify-end">
                 <button
