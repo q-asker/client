@@ -122,6 +122,7 @@ const SolveQuizDesignD: React.FC = () => {
   const listboxId = useId();
 
   const isBlank = quiz.currentQuiz.type === 'BLANK';
+  const isOX = quiz.currentQuiz.type === 'OX';
 
   /** BLANK 문제의 제목을 빈칸 슬롯 포함 React 노드로 렌더링 */
   const renderBlankTitle = useCallback(
@@ -162,7 +163,7 @@ const SolveQuizDesignD: React.FC = () => {
       quiz.currentQuiz?.selections,
     );
 
-    if (alreadyAnswered) {
+    if (alreadyAnswered || isOX) {
       setShowSelections(true);
     } else if (isBlank) {
       setShowSelections(false);
@@ -187,6 +188,7 @@ const SolveQuizDesignD: React.FC = () => {
     quiz.currentQuestion,
     problemSetId,
     isBlank,
+    isOX,
     quiz.currentQuiz?.userAnswer,
     quiz.currentQuiz?.selections,
   ]);
@@ -397,34 +399,36 @@ const SolveQuizDesignD: React.FC = () => {
   /** 선택지 영역 렌더링 */
   const renderSelections = () => (
     <div className="flex flex-col gap-2">
-      {/* 선택지 토글 버튼 */}
-      <button
-        className="cursor-pointer self-start border-none bg-transparent px-1 py-0 text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
-        onClick={toggleSelections}
-      >
-        <span className="inline-flex items-center gap-1">
-          {showSelections ? (
-            <>
-              <ChevronUp className="size-3" />
-              {t('선택지 숨기기')}
-            </>
-          ) : (
-            <>
-              <ChevronDown className="size-3" />
-              {t('선택지 보기')}
-            </>
-          )}
-        </span>
-      </button>
+      {/* 선택지 토글 버튼 — OX 타입은 숨김 */}
+      {!isOX && (
+        <button
+          className="cursor-pointer self-start border-none bg-transparent px-1 py-0 text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
+          onClick={toggleSelections}
+        >
+          <span className="inline-flex items-center gap-1">
+            {showSelections ? (
+              <>
+                <ChevronUp className="size-3" />
+                {t('선택지 숨기기')}
+              </>
+            ) : (
+              <>
+                <ChevronDown className="size-3" />
+                {t('선택지 보기')}
+              </>
+            )}
+          </span>
+        </button>
+      )}
 
       {/* 선택지 리스트 (확장/축소 애니메이션) */}
       <div
         className={cn(
           'grid transition-[grid-template-rows] duration-300 ease-out',
-          showSelections ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+          showSelections || isOX ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         )}
-        inert={!showSelections || undefined}
-        aria-hidden={!showSelections}
+        inert={(!showSelections && !isOX) || undefined}
+        aria-hidden={!showSelections && !isOX}
       >
         <div className="overflow-hidden">
           <div className="flex flex-col gap-3 max-md:gap-2">
@@ -756,8 +760,8 @@ const SolveQuizDesignD: React.FC = () => {
                 )}
               </div>
 
-              {/* 메모 영역 — 문제와 선택지 사이 (BLANK 문제 제외) */}
-              {!isBlank && (
+              {/* 메모 영역 — 문제와 선택지 사이 (BLANK, OX 문제 제외) */}
+              {!isBlank && !isOX && (
                 <div className="flex flex-col gap-2">
                   {/* 메모 토글 버튼 */}
                   <button
