@@ -56,6 +56,8 @@ import {
   Lightbulb,
   HelpCircle,
   ChevronDown,
+  ChevronUp,
+  MessageCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
@@ -140,9 +142,8 @@ const MakeQuiz: React.FC = () => {
     (isWaitingForFirstQuiz && !!upload.uploadedUrl) || !!generation.problemSetId;
   useEffect(() => {
     if (shouldShowFeedback) setHasFeedbackBoxShown(true);
-    if (!shouldShowFeedback && !upload.uploadedUrl && !generation.problemSetId)
-      setHasFeedbackBoxShown(false);
-  }, [shouldShowFeedback, upload.uploadedUrl, generation.problemSetId]);
+    if (!shouldShowFeedback) setHasFeedbackBoxShown(false);
+  }, [shouldShowFeedback]);
 
   // AI 커스텀 지시사항
   const [customInstruction, setCustomInstruction] = useState('');
@@ -547,7 +548,7 @@ const MakeQuiz: React.FC = () => {
                   <CardHeader>
                     <CardTitle>
                       <p className="mb-0.5 text-sm font-normal text-muted-foreground">
-                        {t('원하는 문제 스타일을 작성하고')}
+                        {t('AI에게 원하는 지시사항을 작성하고')}
                       </p>
                       <TextAnimate
                         animation="slideUp"
@@ -986,6 +987,16 @@ const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem('feedback_collapsed') === 'true';
+  });
+
+  const toggleCollapse = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    localStorage.setItem('feedback_collapsed', String(newState));
+  };
+
   const handleSubmit = async () => {
     if (!content.trim()) return;
     setIsSubmitting(true);
@@ -1003,35 +1014,62 @@ const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
 
   return (
     <div className="mx-auto mt-4 max-w-lg sm:mt-6">
-      <Card className="rounded-2xl border border-border">
-        <CardContent className="px-4 pt-4 pb-4 sm:px-6 sm:pt-5 sm:pb-5">
-          <p className="mb-3 text-sm font-semibold text-foreground">
-            {t('기다리시는 동안.. 건의사항 / 피드백 있으면 부탁드립니다!')}
-          </p>
-          {submitted ? (
-            <p className="text-sm text-muted-foreground">{t('소중한 의견 감사합니다!')}</p>
+      <Card className="overflow-hidden rounded-2xl border border-border">
+        <button
+          onClick={toggleCollapse}
+          className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors sm:px-6"
+        >
+          <div className="flex items-center gap-2">
+            <MessageCircle className="size-4 text-primary" />
+            <p className="text-sm font-semibold text-foreground">
+              {t('기다리시는 동안.. 건의사항 / 피드백 있으면 부탁드립니다!')}
+            </p>
+          </div>
+          {isCollapsed ? (
+            <ChevronDown className="size-4 text-muted-foreground" />
           ) : (
-            <>
-              <textarea
-                value={content}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
-                placeholder={t('불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.')}
-                rows={3}
-                className="w-full resize-none rounded-sm border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-
-              <div className="mt-2 flex justify-end">
-                <button
-                  onClick={handleSubmit}
-                  disabled={!content.trim() || isSubmitting}
-                  className="cursor-pointer rounded-xl border-none bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isSubmitting ? t('전송 중...') : t('전송')}
-                </button>
-              </div>
-            </>
+            <ChevronUp className="size-4 text-muted-foreground" />
           )}
-        </CardContent>
+        </button>
+
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <CardContent className="px-4 pb-4 sm:px-6 sm:pb-5">
+                {submitted ? (
+                  <p className="text-sm text-muted-foreground">{t('소중한 의견 감사합니다!')}</p>
+                ) : (
+                  <>
+                    <textarea
+                      value={content}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        setContent(e.target.value)
+                      }
+                      placeholder={t('불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.')}
+                      rows={3}
+                      className="w-full resize-none rounded-sm border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+
+                    <div className="mt-2 flex justify-end">
+                      <button
+                        onClick={handleSubmit}
+                        disabled={!content.trim() || isSubmitting}
+                        className="cursor-pointer rounded-xl border-none bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {isSubmitting ? t('전송 중...') : t('전송')}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </div>
   );
