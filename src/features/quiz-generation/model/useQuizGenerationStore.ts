@@ -57,6 +57,7 @@ interface GenerateQuestionsParams {
   questionCount: number;
   quizLevel: string;
   selectedPages: number[];
+  customInstruction?: string;
 }
 
 interface StartGenerationParams {
@@ -68,6 +69,7 @@ interface StartGenerationParams {
     difficultyType: string;
     pageNumbers: number[];
     language?: string;
+    customInstruction?: string;
   };
   onSuccess?: () => void;
   onError?: (error: unknown) => void;
@@ -325,6 +327,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
         questionCount,
         quizLevel,
         selectedPages,
+        customInstruction,
       }: GenerateQuestionsParams) => {
         if (!uploadedUrl) {
           CustomToast.error(t('파일을 먼저 업로드해주세요.'));
@@ -354,6 +357,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
               difficultyType: quizLevel,
               pageNumbers: selectedPages,
               ...(currentLanguage === 'en' ? { language: 'EN' } : {}),
+              ...(customInstruction?.trim() ? { customInstruction: customInstruction.trim() } : {}),
             },
             onSuccess: () => {},
             onError: (errorMessage: unknown) => {

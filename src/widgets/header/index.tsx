@@ -143,10 +143,12 @@ const Header = () => {
                   className="inline-block size-3 rounded-full border border-border/40"
                   style={{ background: preset.colors.primary }}
                 />
+
                 <span
                   className="inline-block size-3 rounded-full border border-border/40"
                   style={{ background: preset.colors.background }}
                 />
+
                 <span
                   className="inline-block size-3 rounded-full border border-border/40"
                   style={{ background: preset.colors.accent }}
@@ -191,7 +193,7 @@ const Header = () => {
               setIsLangOpen(false);
             }}
           >
-            <span className="flex-1">{lang === 'ko' ? '한국어' : 'English'}</span>
+            <span className="flex-1">{lang === 'ko' ? t('한국어') : 'English'}</span>
             <span className="text-xs opacity-50">{lang.toUpperCase()}</span>
             {currentLanguage === lang && <Check className="size-3.5 shrink-0" />}
           </button>
@@ -440,10 +442,12 @@ const Header = () => {
                             className="inline-block size-3 rounded-full border border-border/40"
                             style={{ background: preset.colors.primary }}
                           />
+
                           <span
                             className="inline-block size-3 rounded-full border border-border/40"
                             style={{ background: preset.colors.background }}
                           />
+
                           <span
                             className="inline-block size-3 rounded-full border border-border/40"
                             style={{ background: preset.colors.accent }}

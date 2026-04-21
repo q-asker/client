@@ -1,3 +1,4 @@
+import { useTranslation } from 'i18nexus';
 import { useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { NavigateFunction } from 'react-router';
@@ -85,6 +86,7 @@ export const useSolveQuizData = ({
   navigate,
   savedProgress,
 }: UseSolveQuizDataParams): UseSolveQuizDataReturn => {
+  const { t } = useTranslation('common');
   const [localQuizzes, setLocalQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [title, setTitle] = useState<string>('');
@@ -110,7 +112,7 @@ export const useSolveQuizData = ({
       import('../../../pages/solve-quiz/mockQuizData').then((mod) => {
         const data = isMockBlank ? mod.MOCK_BLANK_QUIZZES : mod.MOCK_QUIZZES;
         setLocalQuizzes(mergeWithProgress(data, savedProgress));
-        setTitle(isMockBlank ? 'BLANK Mock 퀴즈' : 'Mock 퀴즈');
+        setTitle(isMockBlank ? t('BLANK Mock 퀴즈') : t('Mock 퀴즈'));
         setIsLoading(false);
       });
       return;
@@ -138,8 +140,7 @@ export const useSolveQuizData = ({
             }
           } catch {
             // 히스토리 확인 실패 시 problemSet 제목 사용
-          }
-          // 히스토리가 없으면 초기화
+          } // 히스토리가 없으면 초기화
           if (!resolvedHistoryId) {
             try {
               const { data } = await axiosInstance.post<{ historyId: string }>('/history/init', {
