@@ -56,6 +56,8 @@ import {
   Lightbulb,
   HelpCircle,
   ChevronDown,
+  ChevronUp,
+  MessageCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
@@ -73,9 +75,31 @@ interface QuizTypeOption {
   icon: LucideIcon;
 }
 
+/** Gemini 그라데이션 4-point 스파크 */
+const GeminiSparkIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    viewBox="0 0 16 16"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="qa-gemini-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#1C7ED6" />
+        <stop offset="50%" stopColor="#9B72CB" />
+        <stop offset="100%" stopColor="#D96570" />
+      </linearGradient>
+    </defs>
+    <path
+      fill="url(#qa-gemini-grad)"
+      d="M8 0C8 4 4 8 0 8C4 8 8 12 8 16C8 12 12 8 16 8C12 8 8 4 8 0Z"
+    />
+  </svg>
+);
+
 /** Sidebar Wizard 디자인 — 스텝 인디케이터 + 카드 컨텐츠 */
 const MakeQuiz: React.FC = () => {
-  const { t, currentLanguage } = useTranslation('make-quiz');
+  const { t, currentLanguage } = useTranslation<'make-quiz'>('make-quiz');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
@@ -134,6 +158,18 @@ const MakeQuiz: React.FC = () => {
     common: commonActions,
   } = actions;
 
+  // 건의함 — 한 번 표시되면 리셋 전까지 유지 (상태 전환 중 언마운트 방지)
+  const [hasFeedbackBoxShown, setHasFeedbackBoxShown] = useState(false);
+  const shouldShowFeedback =
+    (isWaitingForFirstQuiz && !!upload.uploadedUrl) || !!generation.problemSetId;
+  useEffect(() => {
+    if (shouldShowFeedback) setHasFeedbackBoxShown(true);
+    if (!shouldShowFeedback) setHasFeedbackBoxShown(false);
+  }, [shouldShowFeedback]);
+
+  // AI 커스텀 지시사항
+  const [customInstruction, setCustomInstruction] = useState('');
+
   // 제목 인라인 편집
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
@@ -178,7 +214,7 @@ const MakeQuiz: React.FC = () => {
         <h1 className="sr-only">
           {currentLanguage === 'en'
             ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
-            : '[한국어 특화] Q-Asker: AI가 한국어로 시험 문제 바로 만들어줘요!'}
+            : t('[한국어 특화] Q-Asker: AI가 한국어로 시험 문제 바로 만들어줘요!')}
         </h1>
         <AnimatePresence mode="wait">
           {/* 2컬럼 레이아웃 (업로드 완료 후, 생성 전, 생성 중 아닐 때) */}
@@ -506,7 +542,7 @@ const MakeQuiz: React.FC = () => {
                         <input
                           type="range"
                           min="5"
-                          max="25"
+                          max="20"
                           step="5"
                           value={options.questionCount}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -522,7 +558,6 @@ const MakeQuiz: React.FC = () => {
                           <span>10</span>
                           <span>15</span>
                           <span>20</span>
-                          <span>25</span>
                         </div>
                       </div>
                     </div>
@@ -533,6 +568,9 @@ const MakeQuiz: React.FC = () => {
                 <Card className="rounded-2xl border border-border">
                   <CardHeader>
                     <CardTitle>
+                      <p className="mb-0.5 text-sm font-normal text-muted-foreground">
+                        {t('AI에게 원하는 지시사항을 작성하고')}
+                      </p>
                       <TextAnimate
                         animation="slideUp"
                         by="word"
@@ -577,24 +615,35 @@ const MakeQuiz: React.FC = () => {
                           )}
                         </motion.div>
                       ) : (
-                        /* 대기: 안내 텍스트 + 버튼 */
+                        /* 대기: 커스텀 지시사항 입력 + 버튼 */
                         <motion.div
                           key="idle"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0, y: -20, transition: { duration: 0.25 } }}
                         >
-                          <div className="flex min-h-[80px] items-center justify-center rounded-2xl border border-border bg-muted p-4 text-center sm:min-h-[100px] sm:p-6">
-                            <p className="m-0 text-sm text-muted-foreground">
-                              {t('문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.')}
-                            </p>
-                          </div>
+                          <textarea
+                            value={customInstruction}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                              setCustomInstruction(e.target.value.slice(0, 500))
+                            }
+                            placeholder={t(
+                              'AI에게 원하는 지시사항을 입력하세요. (선택 사항) \n 예) ~스타일로 만들어줘 \n 예) ~ 문제유형으로 만들어줘',
+                            )}
+                            rows={4}
+                            maxLength={500}
+                            className="w-full resize-none rounded-2xl border border-border bg-muted px-4 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                          />
+
+                          <p className="mt-1 text-right text-xs text-muted-foreground">
+                            {customInstruction.length} / 500
+                          </p>
 
                           {/* 생성 버튼 */}
                           <div className="mt-4 flex flex-col items-center gap-3 sm:mt-6">
                             <button
                               className="w-full cursor-pointer rounded-2xl border-none bg-primary py-4 text-base font-bold text-primary-foreground transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground sm:py-5 sm:text-lg"
-                              onClick={generationActions.generateQuestions}
+                              onClick={() => generationActions.generateQuestions(customInstruction)}
                               disabled={
                                 !upload.uploadedUrl ||
                                 isWaitingForFirstQuiz ||
@@ -699,8 +748,17 @@ const MakeQuiz: React.FC = () => {
                 </div>
               ) : (
                 <>
+                  {/* 상단: AI 파트너십 배지 */}
+                  <div className="flex items-center justify-center gap-1.5 px-5 pt-5 sm:px-8 sm:pt-6">
+                    <span className="text-[11px] text-muted-foreground sm:text-xs">Powered by</span>
+                    <GeminiSparkIcon className="size-3.5 sm:size-4" />
+                    <span className="text-[11px] font-semibold text-foreground sm:text-xs">
+                      Gemini
+                    </span>
+                  </div>
+
                   {/* 상단: 업로드 영역 */}
-                  <div className="flex flex-col items-center px-5 pt-10 pb-5 text-center sm:px-8 sm:pt-12 sm:pb-6">
+                  <div className="flex flex-col items-center px-5 pt-6 pb-5 text-center sm:px-8 sm:pt-8 sm:pb-6">
                     {/* 아이콘 */}
                     <div className="relative mb-4 sm:mb-5">
                       <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 sm:size-20">
@@ -910,10 +968,16 @@ const MakeQuiz: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
-        {/* 건의함 — 생성 중/완료 공통: 상태 전환 시 언마운트 없이 유지 */}
-        {(isWaitingForFirstQuiz && upload.uploadedUrl) || generation.problemSetId ? (
-          <FeedbackBox t={t} />
-        ) : null}
+        {/* 건의함 — 한 번 표시되면 리셋 전까지 유지 (상태 전환 중 언마운트 방지) */}
+        {hasFeedbackBoxShown && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.25 }}
+          >
+            <FeedbackBox t={t} />
+          </motion.div>
+        )}
         {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
           <>
             <RecentChanges />
@@ -953,6 +1017,16 @@ const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem('feedback_collapsed') === 'true';
+  });
+
+  const toggleCollapse = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    localStorage.setItem('feedback_collapsed', String(newState));
+  };
+
   const handleSubmit = async () => {
     if (!content.trim()) return;
     setIsSubmitting(true);
@@ -970,34 +1044,62 @@ const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
 
   return (
     <div className="mx-auto mt-4 max-w-lg sm:mt-6">
-      <Card className="rounded-2xl border border-border">
-        <CardContent className="px-4 pt-4 pb-4 sm:px-6 sm:pt-5 sm:pb-5">
-          <p className="mb-3 text-sm font-semibold text-foreground">
-            {t('기다리시는 동안.. 건의사항 / 피드백 있으면 부탁드립니다!')}
-          </p>
-          {submitted ? (
-            <p className="text-sm text-muted-foreground">{t('소중한 의견 감사합니다!')}</p>
+      <Card className="overflow-hidden rounded-2xl border border-border">
+        <button
+          onClick={toggleCollapse}
+          className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors sm:px-6"
+        >
+          <div className="flex items-center gap-2">
+            <MessageCircle className="size-4 text-primary" />
+            <p className="text-sm font-semibold text-foreground">
+              {t('기다리시는 동안.. 건의사항 / 피드백 있으면 부탁드립니다!')}
+            </p>
+          </div>
+          {isCollapsed ? (
+            <ChevronDown className="size-4 text-muted-foreground" />
           ) : (
-            <>
-              <textarea
-                value={content}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
-                placeholder={t('불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.')}
-                rows={3}
-                className="w-full resize-none rounded-sm border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <div className="mt-2 flex justify-end">
-                <button
-                  onClick={handleSubmit}
-                  disabled={!content.trim() || isSubmitting}
-                  className="cursor-pointer rounded-xl border-none bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isSubmitting ? t('전송 중...') : t('전송')}
-                </button>
-              </div>
-            </>
+            <ChevronUp className="size-4 text-muted-foreground" />
           )}
-        </CardContent>
+        </button>
+
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <CardContent className="px-4 pb-4 sm:px-6 sm:pb-5">
+                {submitted ? (
+                  <p className="text-sm text-muted-foreground">{t('소중한 의견 감사합니다!')}</p>
+                ) : (
+                  <>
+                    <textarea
+                      value={content}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        setContent(e.target.value)
+                      }
+                      placeholder={t('불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.')}
+                      rows={3}
+                      className="w-full resize-none rounded-sm border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+
+                    <div className="mt-2 flex justify-end">
+                      <button
+                        onClick={handleSubmit}
+                        disabled={!content.trim() || isSubmitting}
+                        className="cursor-pointer rounded-xl border-none bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {isSubmitting ? t('전송 중...') : t('전송')}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </div>
   );
@@ -1079,7 +1181,7 @@ const FAQ_ITEMS = [
   },
   {
     qKey: 'Q. 한 번에 몇 문제까지 생성할 수 있나요?',
-    aKey: '5개, 10개, 15개, 20개, 25개 중 선택할 수 있습니다. 페이지 범위를 지정하면 특정 구간에 집중한 문제를 생성할 수 있습니다.',
+    aKey: '5개, 10개, 15개, 20개 중 선택할 수 있습니다. 페이지 범위를 지정하면 특정 구간에 집중한 문제를 생성할 수 있습니다.',
   },
   {
     qKey: 'Q. 생성된 퀴즈는 저장되나요?',
@@ -1102,7 +1204,7 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
             <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               {currentLanguage === 'en'
                 ? 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word'
-                : 'Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기'}
+                : t('Q-Asker - AI가 시험 문제 만들어주는 무료 퀴즈 생성기')}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
               {t(
@@ -1113,8 +1215,10 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
             </p>
             <p className="sr-only">
               {currentLanguage === 'en'
-                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5–25), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
-                : 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 30MB 파일을 업로드하고 페이지 범위와 문제 수(5~25개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.'}
+                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5–20), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
+                : t(
+                    'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 30MB 파일을 업로드하고 페이지 범위와 문제 수(5~20개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.',
+                  )}
             </p>
           </div>
 

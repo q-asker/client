@@ -6,11 +6,12 @@ import { useSolveQuiz } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
-import { ChevronDown, ChevronUp, LogIn } from 'lucide-react';
+import { ChevronDown, ChevronUp, LogIn, NotebookPen } from 'lucide-react';
 import CustomToast from '#shared/toast';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Skeleton } from '@/shared/ui/components/skeleton';
+import { AnimatePresence, motion } from 'framer-motion';
 
 /** 빈칸 감지 정규식: 밑줄 3개 이상 연속 */
 const BLANK_PATTERN = /_{3,}/g;
@@ -98,12 +99,62 @@ const SolveQuizDesignF: React.FC = () => {
   // 제목 편집 상태
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
-  // 선택지 공개 상태 (BLANK 문제에서만 사용)
-  const [showSelections, setShowSelections] = useState(false);
+  // 선택지 공개 상태
+  const [showSelections, setShowSelections] = useState(() => {
+    const saved = localStorage.getItem(`solve_show_selections_${problemSetId}`);
+    return saved ? saved === 'true' : true;
+  });
 
-  // 현재 문제 제목의 첫 줄에 빈칸이 있는지 판별
+  // 선택지 토글 시 저장
+  const toggleSelections = () => {
+    const nextValue = !showSelections;
+    setShowSelections(nextValue);
+    localStorage.setItem(`solve_show_selections_${problemSetId}`, String(nextValue));
+  };
+
+  // 메모 상태
+  const [note, setNote] = useState(() => {
+    return localStorage.getItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`) || '';
+  });
+
+  // 문제 전환 시 메모 및 선택지 공개 상태 초기화/로드
   const titleFirstLine = quiz.currentQuiz?.title?.split('\n')[0] ?? '';
   const hasBlank = quiz.currentQuiz.type === 'BLANK';
+
+  useEffect(() => {
+    // 메모 로드
+    const savedNote =
+      localStorage.getItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`) || '';
+    setNote(savedNote);
+
+    // 선택지 공개 상태 로드 (BLANK는 기본적으로 숨김, 일반 문제는 저장된 상태 또는 기본값 사용)
+    const savedToggle = localStorage.getItem(`solve_show_selections_${problemSetId}`);
+    const alreadyAnswered = !isUnanswered(
+      quiz.currentQuiz?.userAnswer,
+      quiz.currentQuiz?.selections,
+    );
+
+    if (alreadyAnswered) {
+      setShowSelections(true);
+    } else if (hasBlank) {
+      setShowSelections(false);
+    } else {
+      setShowSelections(savedToggle ? savedToggle === 'true' : true);
+    }
+  }, [
+    quiz.currentQuestion,
+    problemSetId,
+    hasBlank,
+    quiz.currentQuiz?.userAnswer,
+    quiz.currentQuiz?.selections,
+  ]);
+
+  // 메모 저장
+  const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setNote(value);
+    localStorage.setItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`, value);
+  };
 
   // 현재 선택된 선택지의 content
   const selectedContent = useMemo(() => {
@@ -113,19 +164,6 @@ const SolveQuizDesignF: React.FC = () => {
     );
     return sel?.content ?? null;
   }, [quiz.selectedOption, quiz.currentQuiz?.selections]);
-
-  // 문제 전환 시 showSelections 초기화 (이미 답변한 문제면 true)
-  useEffect(() => {
-    if (hasBlank) {
-      const alreadyAnswered = !isUnanswered(
-        quiz.currentQuiz?.userAnswer,
-        quiz.currentQuiz?.selections,
-      );
-      setShowSelections(alreadyAnswered);
-    } else {
-      setShowSelections(false);
-    }
-  }, [quiz.currentQuestion, hasBlank]);
 
   // 퀴즈 제목을 브라우저 탭 타이틀에 반영
   useEffect(() => {
@@ -179,7 +217,7 @@ const SolveQuizDesignF: React.FC = () => {
     </button>
   );
 
-  /** 선택지 영역 렌더링 (BLANK 문제의 선택지 숨김/공개 포함) */
+  /** 선택지 영역 렌더링 (선택지 숨김/공개 포함) */
   const renderSelections = () => {
     const selections = (
       <div className="flex flex-col gap-3 max-md:mt-2 max-md:gap-2">
@@ -209,21 +247,17 @@ const SolveQuizDesignF: React.FC = () => {
       </div>
     );
 
-    // BLANK이 아닌 문제는 그대로 선택지 표시
-    if (!hasBlank) return selections;
-
-    // BLANK 문제: 선택지 숨김/공개 토글
+    // 선택지 숨김/공개 토글 로직
     if (!showSelections) {
       return (
         <div className="flex flex-col items-center gap-2">
           <button
             className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-none bg-muted py-4 text-center text-sm font-medium text-foreground transition-colors duration-200 hover:bg-muted/80"
-            onClick={() => setShowSelections(true)}
+            onClick={toggleSelections}
           >
             <ChevronDown className="size-4" />
             {t('선택지 보기')}
           </button>
-          <span className="text-xs text-muted-foreground">{t('먼저 답을 떠올려 보세요')}</span>
         </div>
       );
     }
@@ -232,7 +266,7 @@ const SolveQuizDesignF: React.FC = () => {
       <div className="flex flex-col gap-3">
         <button
           className="cursor-pointer self-start border-none bg-transparent px-1 py-0 text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
-          onClick={() => setShowSelections(false)}
+          onClick={toggleSelections}
         >
           <span className="inline-flex items-center gap-1">
             <ChevronUp className="size-3" />
@@ -503,7 +537,7 @@ const SolveQuizDesignF: React.FC = () => {
             <>
               {/* 문제 영역 — 시각적으로 하나의 카드 */}
               <div className="w-full overflow-hidden rounded-2xl bg-card shadow-card">
-                {/* 검토 배지 */}
+                {/* 검토 버튼 */}
                 <div className="flex justify-end px-5 pt-4 pb-0">
                   <button
                     onClick={quizActions.handleCheckToggle}
@@ -554,6 +588,23 @@ const SolveQuizDesignF: React.FC = () => {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* 메모 영역 (항상 노출) — 문제와 선택지 사이 */}
+              <div className="overflow-hidden">
+                <div className="relative rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 shadow-sm">
+                  <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-primary/70">
+                    <NotebookPen className="size-3.5" />
+                    {t('정답 적어보기')}
+                  </div>
+                  <textarea
+                    value={note}
+                    onChange={handleNoteChange}
+                    placeholder={t('정답 내용을 입력하세요')}
+                    rows={3}
+                    className="w-full resize-none border-none bg-transparent p-0 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-0"
+                  />
+                </div>
               </div>
 
               {/* 선택지 영역 */}

@@ -30,7 +30,7 @@ interface GenerationState {
 
 /** 퀴즈 생성 액션 */
 interface GenerationActions {
-  generateQuestions: () => void;
+  generateQuestions: (customInstruction?: string) => void;
   handleNavigateToQuiz: () => void;
   resetGenerationState: () => void;
   resetGenerationForRecreate: () => void;
@@ -109,28 +109,32 @@ export const usePrepareQuiz = ({
     ],
   );
 
-  const generateQuestions = useCallback(() => {
-    generationActions.generateQuestions({
-      t,
+  const generateQuestions = useCallback(
+    (customInstruction?: string) => {
+      generationActions.generateQuestions({
+        t,
+        currentLanguage,
+        uploadedUrl: upload.state.uploadedUrl,
+        fileName: upload.state.file?.name ?? '',
+        questionType: options.state.questionType,
+        questionCount: options.state.questionCount,
+        quizLevel: options.state.quizLevel,
+        selectedPages: pages.state.selectedPages,
+        customInstruction,
+      });
+    },
+    [
+      generationActions,
       currentLanguage,
-      uploadedUrl: upload.state.uploadedUrl,
-      fileName: upload.state.file?.name ?? '',
-      questionType: options.state.questionType,
-      questionCount: options.state.questionCount,
-      quizLevel: options.state.quizLevel,
-      selectedPages: pages.state.selectedPages,
-    });
-  }, [
-    generationActions,
-    currentLanguage,
-    options.state.questionCount,
-    options.state.questionType,
-    options.state.quizLevel,
-    pages.state.selectedPages,
-    t,
-    upload.state.uploadedUrl,
-    upload.state.file?.name,
-  ]);
+      options.state.questionCount,
+      options.state.questionType,
+      options.state.quizLevel,
+      pages.state.selectedPages,
+      t,
+      upload.state.uploadedUrl,
+      upload.state.file?.name,
+    ],
+  );
 
   const handleNavigateToQuiz = useCallback(() => {
     generationActions.handleNavigateToQuiz({ navigate });

@@ -1,3 +1,4 @@
+import { useTranslation } from 'i18nexus';
 import { useEffect, useId, useState } from 'react';
 
 /**
@@ -5,6 +6,7 @@ import { useEffect, useId, useState } from 'react';
  * mermaid 라이브러리를 dynamic import로 지연 로드하여 번들 크기 영향을 최소화한다.
  */
 const MermaidDiagram = ({ code }: { code: string }) => {
+  const { t } = useTranslation('common');
   const [svg, setSvg] = useState<string>('');
   const [error, setError] = useState<string>('');
   const uniqueId = useId().replace(/:/g, '-');
@@ -32,7 +34,7 @@ const MermaidDiagram = ({ code }: { code: string }) => {
         document.getElementById(`d${renderId}`)?.remove();
         document.querySelector(`[id="${renderId}"]`)?.remove();
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Mermaid 렌더링 실패');
+          setError(err instanceof Error ? err.message : t('Mermaid 렌더링 실패'));
           setSvg('');
         }
       }
@@ -56,7 +58,7 @@ const MermaidDiagram = ({ code }: { code: string }) => {
   if (!svg) {
     return (
       <div className="my-2 flex items-center justify-center rounded-lg bg-muted p-4">
-        <span className="text-sm text-muted-foreground">다이어그램 로딩 중...</span>
+        <span className="text-sm text-muted-foreground">{t('다이어그램 로딩 중...')}</span>
       </div>
     );
   }
