@@ -542,7 +542,7 @@ const MakeQuiz: React.FC = () => {
                         <input
                           type="range"
                           min="5"
-                          max="25"
+                          max="20"
                           step="5"
                           value={options.questionCount}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -558,7 +558,6 @@ const MakeQuiz: React.FC = () => {
                           <span>10</span>
                           <span>15</span>
                           <span>20</span>
-                          <span>25</span>
                         </div>
                       </div>
                     </div>
@@ -1182,7 +1181,7 @@ const FAQ_ITEMS = [
   },
   {
     qKey: 'Q. 한 번에 몇 문제까지 생성할 수 있나요?',
-    aKey: '5개, 10개, 15개, 20개, 25개 중 선택할 수 있습니다. 페이지 범위를 지정하면 특정 구간에 집중한 문제를 생성할 수 있습니다.',
+    aKey: '5개, 10개, 15개, 20개 중 선택할 수 있습니다. 페이지 범위를 지정하면 특정 구간에 집중한 문제를 생성할 수 있습니다.',
   },
   {
     qKey: 'Q. 생성된 퀴즈는 저장되나요?',
@@ -1216,9 +1215,9 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
             </p>
             <p className="sr-only">
               {currentLanguage === 'en'
-                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5–25), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
+                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5–20), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
                 : t(
-                    'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 30MB 파일을 업로드하고 페이지 범위와 문제 수(5~25개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.',
+                    'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 30MB 파일을 업로드하고 페이지 범위와 문제 수(5~20개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.',
                   )}
             </p>
           </div>
