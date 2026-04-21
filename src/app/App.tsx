@@ -723,6 +723,10 @@ const App = () => {
                 <Route path="/boards/edit/:boardId" element={<BoardWrite />} />
                 <Route path="/updates" element={<Board category="UPDATE_LOG" />} />
                 <Route path="/updates/write" element={<BoardWrite category="UPDATE_LOG" />} />
+                <Route
+                  path="/updates/edit/:boardId"
+                  element={<BoardWrite category="UPDATE_LOG" />}
+                />
                 <Route path="/updates/:boardId" element={<BoardDetail category="UPDATE_LOG" />} />
                 <Route path="/help" element={<Navigate to="/" replace />} />
               </Routes>
