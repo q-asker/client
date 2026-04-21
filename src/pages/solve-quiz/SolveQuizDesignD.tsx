@@ -6,11 +6,12 @@ import { useSolveQuiz } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
-import { ChevronDown, ChevronUp, LogIn, PenLine } from 'lucide-react';
+import { ChevronDown, ChevronUp, LogIn, NotebookPen, PenLine } from 'lucide-react';
 import CustomToast from '#shared/toast';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Skeleton } from '@/shared/ui/components/skeleton';
+import { AnimatePresence, motion } from 'framer-motion';
 
 /** 빈칸 위치 감지 (렌더링용) */
 const BLANK_REGEX = /_{3,}/;
@@ -83,9 +84,26 @@ const SolveQuizDesignD: React.FC = () => {
   // 제목 편집 상태
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
+  // 선택지 공개 상태
+  const [showSelections, setShowSelections] = useState(() => {
+    const saved = localStorage.getItem(`solve_show_selections_${problemSetId}`);
+    return saved ? saved === 'true' : true;
+  });
+
+  // 선택지 토글 시 저장
+  const toggleSelections = () => {
+    const nextValue = !showSelections;
+    setShowSelections(nextValue);
+    localStorage.setItem(`solve_show_selections_${problemSetId}`, String(nextValue));
+  };
+
+  // 메모 상태
+  const [note, setNote] = useState(() => {
+    return localStorage.getItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`) || '';
+  });
+
   // BLANK 문제 전용 상태
   const [typedAnswer, setTypedAnswer] = useState('');
-  const [showSelections, setShowSelections] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const firstSelectionRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
@@ -114,19 +132,37 @@ const SolveQuizDesignD: React.FC = () => {
         </span>
       );
     },
-    [typedAnswer, quiz.selectedOption],
+    [typedAnswer, quiz.selectedOption, t],
   );
 
-  // 문제 전환 시 상태 초기화
+  // 문제 전환 시 상태 초기화 및 로드
   useEffect(() => {
-    setShowSelections(false);
-    // 이미 답변한 문제로 돌아왔을 때 매칭된 선택지의 content 표시
-    if (quiz.currentQuiz.type === 'BLANK') {
+    // 메모 로드
+    const savedNote =
+      localStorage.getItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`) || '';
+    setNote(savedNote);
+
+    // 선택지 공개 상태 로드
+    const savedToggle = localStorage.getItem(`solve_show_selections_${problemSetId}`);
+    const alreadyAnswered = !isUnanswered(
+      quiz.currentQuiz?.userAnswer,
+      quiz.currentQuiz?.selections,
+    );
+
+    if (alreadyAnswered) {
+      setShowSelections(true);
+    } else if (isBlank) {
+      setShowSelections(false);
+    } else {
+      setShowSelections(savedToggle ? savedToggle === 'true' : true);
+    }
+
+    // BLANK 문제 처리
+    if (isBlank) {
       const answered = quiz.currentQuiz.selections.find(
         (sel) => String(sel.id) === String(quiz.currentQuiz.userAnswer),
       );
       setTypedAnswer(answered ? answered.content : '');
-      // 빈칸 문제 진입 시 입력 필드에 자동 포커스 (모바일 키보드 팝업 방지)
       const isTouch = window.matchMedia('(pointer: coarse)').matches;
       if (!isTouch) {
         setTimeout(() => inputRef.current?.focus(), 100);
@@ -134,7 +170,20 @@ const SolveQuizDesignD: React.FC = () => {
     } else {
       setTypedAnswer('');
     }
-  }, [quiz.currentQuestion]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    quiz.currentQuestion,
+    problemSetId,
+    isBlank,
+    quiz.currentQuiz?.userAnswer,
+    quiz.currentQuiz?.selections,
+  ]);
+
+  // 메모 저장
+  const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setNote(value);
+    localStorage.setItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`, value);
+  };
 
   // 퀴즈 제목을 브라우저 탭 타이틀에 반영
   useEffect(() => {
@@ -229,7 +278,7 @@ const SolveQuizDesignD: React.FC = () => {
               inputRef.current?.blur();
             }
           }}
-          placeholder={t('먼저 답을 떠올려 보세요')}
+          placeholder={t('답을 직접 입력하세요')}
           aria-label={t('답을 직접 입력하세요')}
           className={cn(
             'h-14 w-full rounded-2xl border border-input bg-card pl-10 pr-12 text-base text-foreground shadow-card max-md:pr-4',
@@ -254,7 +303,7 @@ const SolveQuizDesignD: React.FC = () => {
             ? 'bg-primary/10 text-primary hover:bg-primary/15'
             : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground',
         )}
-        onClick={() => setShowSelections((prev) => !prev)}
+        onClick={toggleSelections}
         aria-expanded={showSelections}
         aria-controls={listboxId}
       >
@@ -332,153 +381,213 @@ const SolveQuizDesignD: React.FC = () => {
     </div>
   );
 
-  /** 일반 문제의 선택지 리스트 (DesignB와 동일) */
-  const renderSelections = () => (
-    <div className="flex flex-col gap-3 max-md:mt-2 max-md:gap-2">
-      {quiz.currentQuiz.selections.map((opt, idx) => (
-        <div
-          key={opt.id}
-          className={cn(
-            'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
-            'hover:bg-muted',
-            'max-md:min-h-12 max-md:px-3 max-md:py-4',
-            quiz.selectedOption === opt.id && 'ring-2 ring-primary ring-offset-0',
-          )}
-          onClick={() => quizActions.handleOptionSelect(opt.id)}
-        >
-          <span className="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs">
-            {idx + 1}
-          </span>
-          <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
-            <MarkdownText>{opt.content}</MarkdownText>
-          </span>
+  /** 선택지 영역 렌더링 (DesignB와 동일) */
+  const renderSelections = () => {
+    const selections = (
+      <div className="flex flex-col gap-3 max-md:mt-2 max-md:gap-2">
+        {quiz.currentQuiz.selections.map((opt, idx) => (
+          <div
+            key={opt.id}
+            className={cn(
+              'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
+              'hover:bg-muted',
+              'max-md:min-h-12 max-md:px-3 max-md:py-4',
+              quiz.selectedOption === opt.id && 'ring-2 ring-primary ring-offset-0',
+            )}
+            onClick={() => quizActions.handleOptionSelect(opt.id)}
+          >
+            <span className="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs">
+              {idx + 1}
+            </span>
+            <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
+              <MarkdownText>{opt.content}</MarkdownText>
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+
+    // 선택지 숨김/공개 토글 로직
+    if (!showSelections) {
+      return (
+        <div className="flex flex-col items-center gap-2">
+          <button
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-none bg-muted py-4 text-center text-sm font-medium text-foreground transition-colors duration-200 hover:bg-muted/80"
+            onClick={toggleSelections}
+          >
+            <ChevronDown className="size-4" />
+            {t('선택지 보기')}
+          </button>
         </div>
-      ))}
-    </div>
-  );
+      );
+    }
+
+    return (
+      <div className="flex flex-col gap-3">
+        <button
+          className="cursor-pointer self-start border-none bg-transparent px-1 py-0 text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
+          onClick={toggleSelections}
+        >
+          <span className="inline-flex items-center gap-1">
+            <ChevronUp className="size-3" />
+            {t('선택지 숨기기')}
+          </span>
+        </button>
+        <div
+          className="animate-[fadeSlideIn_0.3s_ease-out]"
+          style={{
+            animation: 'fadeSlideIn 0.3s ease-out',
+          }}
+        >
+          {selections}
+        </div>
+        <style>{`
+          @keyframes fadeSlideIn {
+            from {
+              opacity: 0;
+              transform: translateY(8px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* 제출 다이얼로그 */}
-      {quiz.showSubmitDialog && (
-        <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-foreground/50"
-          onClick={quizActions.handleOverlayClick}
-        >
-          <div
-            className="w-[90%] max-w-[600px] animate-[slideIn_0.3s_ease-out] overflow-y-auto rounded-2xl bg-card shadow-card max-md:m-5 max-md:w-[95%]"
-            style={{ maxHeight: '80vh' }}
+      {/* 제출 확인 다이얼로그 */}
+      <AnimatePresence>
+        {quiz.showSubmitDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
+            onClick={quizActions.handleOverlayClick}
           >
-            {/* 다이얼로그 헤더 */}
-            <div className="flex items-center justify-between border-b border-border px-6 py-5">
-              <h2 className="m-0 text-xl font-semibold text-foreground">{t('제출 확인')}</h2>
-              <button
-                className="flex h-8 w-8 items-center justify-center rounded-lg border-none bg-transparent text-2xl text-muted-foreground transition-colors duration-200 hover:bg-muted"
-                onClick={quizActions.handleCancelSubmit}
-              >
-                x
-              </button>
-            </div>
-
-            {/* 다이얼로그 콘텐츠 */}
-            <div className="p-6">
-              {/* 상단 통계 정보 */}
-              <div className="mb-8 grid grid-cols-2 gap-4 rounded-2xl bg-muted p-5 max-md:grid-cols-1 max-md:gap-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-muted-foreground">{t('전체 문제:')}</span>
-                  <span className="rounded-lg px-2 py-1 text-sm font-semibold">
-                    {quiz.quizzes.length}
-                    {t('개')}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-muted-foreground">{t('답변한 문제:')}</span>
-                  <span className="rounded-lg bg-primary/8 px-2 py-1 text-sm font-semibold text-primary/70">
-                    {quiz.answeredCount}
-                    {t('개')}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-muted-foreground">{t('안푼 문제:')}</span>
-                  <span className="rounded-lg bg-destructive/10 px-2 py-1 text-sm font-semibold text-destructive/80">
-                    {quiz.unansweredCount}
-                    {t('개')}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-muted-foreground">{t('검토할 문제:')}</span>
-                  <span className="rounded-lg bg-warning/10 px-2 py-1 text-sm font-semibold text-warning/80">
-                    {quiz.reviewCount}
-                    {t('개')}
-                  </span>
-                </div>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="w-full max-w-lg overflow-hidden rounded-3xl bg-card shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 다이얼로그 헤더 */}
+              <div className="flex items-center justify-between border-b border-border px-6 py-5">
+                <h2 className="m-0 text-xl font-semibold text-foreground">{t('제출 확인')}</h2>
+                <button
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border-none bg-transparent text-2xl text-muted-foreground transition-colors duration-200 hover:bg-muted"
+                  onClick={quizActions.handleCancelSubmit}
+                >
+                  ✕
+                </button>
               </div>
 
-              {/* 하단 문제별 선택 답안 */}
-              <div>
-                <h3 className="mb-4 text-lg font-semibold text-foreground">{t('선택한 답안')}</h3>
-                <div className="max-h-[300px] overflow-y-auto rounded-2xl border border-border p-3">
-                  {quiz.quizzes.map((quizItem) => {
-                    const unanswered = isUnanswered(quizItem.userAnswer, quizItem.selections);
-                    const selectedAnswer = unanswered
-                      ? t('미선택')
-                      : quizItem.selections?.find(
-                          (sel) => String(sel.id) === String(quizItem.userAnswer),
-                        )?.content ||
-                        t('{{quizItem_userAnswer}}번', {
-                          quizItem_userAnswer: quizItem.userAnswer ?? '',
-                        });
+              {/* 다이얼로그 콘텐츠 */}
+              <div className="p-6">
+                {/* 상단 통계 정보 */}
+                <div className="mb-8 grid grid-cols-2 gap-4 rounded-2xl bg-muted p-5 max-md:grid-cols-1 max-md:gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-muted-foreground">{t('전체 문제:')}</span>
+                    <span className="rounded-lg px-2 py-1 text-sm font-semibold">
+                      {quiz.quizzes.length}
+                      {t('개')}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-muted-foreground">{t('답변한 문제:')}</span>
+                    <span className="rounded-lg bg-primary/8 px-2 py-1 text-sm font-semibold text-primary/70">
+                      {quiz.answeredCount}
+                      {t('개')}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-muted-foreground">{t('안푼 문제:')}</span>
+                    <span className="rounded-lg bg-destructive/10 px-2 py-1 text-sm font-semibold text-destructive/80">
+                      {quiz.unansweredCount}
+                      {t('개')}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-muted-foreground">{t('검토할 문제:')}</span>
+                    <span className="rounded-lg bg-warning/10 px-2 py-1 text-sm font-semibold text-warning/80">
+                      {quiz.reviewCount}
+                      {t('개')}
+                    </span>
+                  </div>
+                </div>
 
-                    return (
-                      <div
-                        key={quizItem.number}
-                        className="flex items-center border-b border-border py-2 last:border-b-0"
-                      >
-                        <span className="shrink-0 min-w-[50px] font-semibold text-muted-foreground">
-                          {quizItem.number}
-                          {t('번:')}
-                        </span>
-                        <span
-                          className={cn(
-                            'ml-3 flex min-w-0 flex-1 items-center gap-2',
-                            unanswered && 'italic text-destructive',
-                            quizItem.inReview && 'text-warning',
-                          )}
+                {/* 하단 문제별 선택 답안 */}
+                <div>
+                  <h3 className="mb-4 text-lg font-semibold text-foreground">{t('선택한 답안')}</h3>
+                  <div className="max-h-[300px] overflow-y-auto rounded-2xl border border-border p-3">
+                    {quiz.quizzes.map((quizItem) => {
+                      const unanswered = isUnanswered(quizItem.userAnswer, quizItem.selections);
+                      const selectedAnswer = unanswered
+                        ? t('미선택')
+                        : quizItem.selections?.find(
+                            (sel) => String(sel.id) === String(quizItem.userAnswer),
+                          )?.content ||
+                          t('{{quizItem_userAnswer}}번', {
+                            quizItem_userAnswer: quizItem.userAnswer ?? '',
+                          });
+
+                      return (
+                        <div
+                          key={quizItem.number}
+                          className="flex items-center border-b border-border py-2 last:border-b-0"
                         >
-                          <span className="min-w-0 break-words">
-                            <MarkdownText>{selectedAnswer}</MarkdownText>
+                          <span className="min-w-[50px] shrink-0 font-semibold text-muted-foreground">
+                            {quizItem.number}
+                            {t('번:')}
                           </span>
-                          {quizItem.inReview && (
-                            <span className="shrink-0 whitespace-nowrap rounded-full bg-warning px-1.5 py-0.5 text-xs font-medium text-warning-foreground">
-                              {t('검토')}
+                          <span
+                            className={cn(
+                              'ml-3 flex min-w-0 flex-1 items-center gap-2',
+                              unanswered && 'italic text-destructive',
+                              quizItem.inReview && 'text-warning',
+                            )}
+                          >
+                            <span className="min-w-0 break-words">
+                              <MarkdownText>{selectedAnswer}</MarkdownText>
                             </span>
-                          )}
-                        </span>
-                      </div>
-                    );
-                  })}
+                            {quizItem.inReview && (
+                              <span className="shrink-0 whitespace-nowrap rounded-full bg-warning px-1.5 py-0.5 text-xs font-medium text-warning-foreground">
+                                {t('검토')}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* 다이얼로그 버튼 */}
-            <div className="flex justify-end gap-3 border-t border-border px-6 py-5 max-md:flex-col">
-              <button
-                className="cursor-pointer rounded-xl border-none bg-muted px-6 py-2.5 font-medium text-muted-foreground transition-colors duration-200 hover:bg-muted max-md:w-full"
-                onClick={quizActions.handleCancelSubmit}
-              >
-                {t('취소')}
-              </button>
-              <button
-                className="cursor-pointer rounded-xl border-none bg-primary px-6 py-2.5 font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90 max-md:w-full"
-                onClick={quizActions.handleConfirmSubmit}
-              >
-                {t('제출하기')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              {/* 다이얼로그 버튼 */}
+              <div className="flex justify-end gap-3 border-t border-border px-6 py-5 max-md:flex-col">
+                <button
+                  className="cursor-pointer rounded-xl border-none bg-muted px-6 py-2.5 font-medium text-muted-foreground transition-colors duration-200 hover:bg-muted max-md:w-full"
+                  onClick={quizActions.handleCancelSubmit}
+                >
+                  {t('취소')}
+                </button>
+                <button
+                  className="cursor-pointer rounded-xl border-none bg-primary px-6 py-2.5 font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90 max-md:w-full"
+                  onClick={quizActions.handleConfirmSubmit}
+                >
+                  {t('제출하기')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 상단 타이머 바 */}
       <header className="bg-primary shadow-card">
@@ -597,7 +706,7 @@ const SolveQuizDesignD: React.FC = () => {
             <>
               {/* 문제 영역 — 시각적으로 하나의 카드 */}
               <div className="w-full overflow-hidden rounded-2xl bg-card shadow-card">
-                {/* 검토 배지 */}
+                {/* 검토 버튼 */}
                 <div className="flex justify-end px-5 pt-4 pb-0">
                   <button
                     onClick={quizActions.handleCheckToggle}
@@ -649,6 +758,23 @@ const SolveQuizDesignD: React.FC = () => {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* 메모 영역 (항상 노출) — 문제와 선택지 사이 */}
+              <div className="overflow-hidden">
+                <div className="relative rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 shadow-sm">
+                  <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-primary/70">
+                    <NotebookPen className="size-3.5" />
+                    {t('메모')}
+                  </div>
+                  <textarea
+                    value={note}
+                    onChange={handleNoteChange}
+                    placeholder={t('메모 내용을 입력하세요')}
+                    rows={3}
+                    className="w-full resize-none border-none bg-transparent p-0 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-0"
+                  />
+                </div>
               </div>
 
               {/* 선택지 영역: BLANK이면 직접 입력 UI, 아니면 기존 선택지 */}
