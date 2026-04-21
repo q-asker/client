@@ -164,8 +164,9 @@ const MakeQuiz: React.FC = () => {
     (isWaitingForFirstQuiz && !!upload.uploadedUrl) || !!generation.problemSetId;
   useEffect(() => {
     if (shouldShowFeedback) setHasFeedbackBoxShown(true);
-    if (!shouldShowFeedback) setHasFeedbackBoxShown(false);
-  }, [shouldShowFeedback]);
+    if (!shouldShowFeedback && !upload.uploadedUrl && !generation.problemSetId)
+      setHasFeedbackBoxShown(false);
+  }, [shouldShowFeedback, upload.uploadedUrl, generation.problemSetId]);
 
   // AI 커스텀 지시사항
   const [customInstruction, setCustomInstruction] = useState('');
@@ -570,7 +571,7 @@ const MakeQuiz: React.FC = () => {
                   <CardHeader>
                     <CardTitle>
                       <p className="mb-0.5 text-sm font-normal text-muted-foreground">
-                        {t('AI에게 원하는 지시사항을 작성하고')}
+                        {t('원하는 문제 스타일을 작성하고')}
                       </p>
                       <TextAnimate
                         animation="slideUp"
@@ -1059,7 +1060,25 @@ const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
           {isCollapsed ? (
             <ChevronDown className="size-4 text-muted-foreground" />
           ) : (
-            <ChevronUp className="size-4 text-muted-foreground" />
+            <>
+              <textarea
+                value={content}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
+                placeholder={t('불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.')}
+                rows={3}
+                className="w-full resize-none rounded-sm border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+
+              <div className="mt-2 flex justify-end">
+                <button
+                  onClick={handleSubmit}
+                  disabled={!content.trim() || isSubmitting}
+                  className="cursor-pointer rounded-xl border-none bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isSubmitting ? t('전송 중...') : t('전송')}
+                </button>
+              </div>
+            </>
           )}
         </button>
 
