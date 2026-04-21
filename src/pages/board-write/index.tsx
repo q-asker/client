@@ -294,6 +294,7 @@ const MarkdownEditorWithUpload = ({
   placeholder,
   disabled,
 }: MarkdownEditorWithUploadProps) => {
+  const { t } = useTranslation('board-write');
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -308,7 +309,7 @@ const MarkdownEditorWithUpload = ({
         const markdown = `![${alt}](${url})`;
         onChange(value ? `${value}\n${markdown}` : markdown);
       } catch (err) {
-        CustomToast.error(err instanceof Error ? err.message : '이미지 업로드 실패');
+        CustomToast.error(err instanceof Error ? err.message : t('이미지 업로드 실패'));
       } finally {
         setIsUploading(false);
       }
@@ -349,7 +350,10 @@ const MarkdownEditorWithUpload = ({
   const imageUploadCommand = {
     name: 'image-upload',
     keyCommand: 'image-upload',
-    buttonProps: { 'aria-label': '이미지 업로드', title: '이미지 업로드 (jpg, png, gif, webp)' },
+    buttonProps: {
+      'aria-label': t('이미지 업로드'),
+      title: t('이미지 업로드 (jpg, png, gif, webp)'),
+    },
     icon: (
       <svg
         width="13"
@@ -366,6 +370,7 @@ const MarkdownEditorWithUpload = ({
         <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
       </svg>
     ),
+
     execute: () => {
       fileInputRef.current?.click();
     },
@@ -394,7 +399,7 @@ const MarkdownEditorWithUpload = ({
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/60 backdrop-blur-sm">
           <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 shadow-lg">
             <Loader2 className="size-4 animate-spin text-primary" />
-            <span className="text-sm">이미지 업로드 중...</span>
+            <span className="text-sm">{t('이미지 업로드 중...')}</span>
           </div>
         </div>
       )}
