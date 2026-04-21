@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import Header from '#widgets/header';
+import Header, { extractRoleFromToken } from '#widgets/header';
 import CustomToast from '#shared/toast';
 import axiosInstance from '#shared/api';
 import { useAuthStore } from '#entities/auth';
@@ -55,8 +55,9 @@ const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
   const isMock = searchParams.get('mock') === 'true';
 
   const isInquiry = category === 'INQUIRY';
-  const isEditMode = isInquiry && !!boardId;
+  const isEditMode = !!boardId;
   const listPath = isInquiry ? '/boards' : '/updates';
+  const detailPath = isInquiry ? `/boards/${boardId}` : `/updates/${boardId}`;
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -64,6 +65,11 @@ const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
   const [isCheckingAccess, setIsCheckingAccess] = useState(isEditMode && !isMock);
 
   const { accessToken, clearAuth } = useAuthStore();
+
+  const isAdmin = useMemo(() => {
+    const role = extractRoleFromToken(accessToken);
+    return role === 'ROLE_ADMIN';
+  }, [accessToken]);
 
   useEffect(() => {
     if (!isEditMode || isMock) return;
@@ -75,16 +81,21 @@ const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
           navigate('/login', { replace: true });
           return;
         }
-        const { data } = await axiosInstance.get<BoardEditData>(`/boards/${boardId}`);
-        if (!data.isWriter) {
+        if (!isInquiry && !isAdmin) {
           CustomToast.error(t('수정 권한이 없습니다.'));
-          navigate(`/boards/${boardId}`, { replace: true });
+          navigate(detailPath, { replace: true });
+          return;
+        }
+        const { data } = await axiosInstance.get<BoardEditData>(`/boards/${boardId}`);
+        if (isInquiry && !data.isWriter) {
+          CustomToast.error(t('수정 권한이 없습니다.'));
+          navigate(detailPath, { replace: true });
           return;
         }
         setTitle(data.title);
         setContent(data.content);
       } catch {
-        navigate('/boards', { replace: true });
+        navigate(listPath, { replace: true });
       } finally {
         setIsCheckingAccess(false);
       }
@@ -129,9 +140,15 @@ const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
         );
         navigate(isEditMode ? `/boards/${boardId}` : '/boards', { replace: true });
       } else {
-        await axiosInstance.post('/admin/boards/update-logs', { title, content });
-        CustomToast.success(t(`게시글이 성공적으로 ${t('등록')}되었습니다.`));
-        navigate('/updates', { replace: true });
+        if (isEditMode) {
+          await axiosInstance.put(`/admin/boards/update-logs/${boardId}`, { title, content });
+        } else {
+          await axiosInstance.post('/admin/boards/update-logs', { title, content });
+        }
+        CustomToast.success(
+          t(`게시글이 성공적으로 ${isEditMode ? t('수정') : t('등록')}되었습니다.`),
+        );
+        navigate(isEditMode ? `/updates/${boardId}` : '/updates', { replace: true });
       }
     } catch {
       // 인터셉터에서 에러 토스트 처리
@@ -159,7 +176,9 @@ const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
     ? isEditMode
       ? t('문의 수정')
       : t('새 문의 작성')
-    : t('변경사항 작성');
+    : isEditMode
+      ? t('변경사항 수정')
+      : t('변경사항 작성');
 
   return (
     <>
@@ -230,7 +249,7 @@ const BoardWrite = ({ category = 'INQUIRY' }: BoardWriteProps) => {
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => navigate(isEditMode ? `/boards/${boardId}` : listPath)}
+                    onClick={() => navigate(isEditMode ? detailPath : listPath)}
                   >
                     <X className="mr-1 size-4" />
                     {t('취소')}

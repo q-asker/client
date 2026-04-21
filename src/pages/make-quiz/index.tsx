@@ -73,6 +73,28 @@ interface QuizTypeOption {
   icon: LucideIcon;
 }
 
+/** Gemini 그라데이션 4-point 스파크 */
+const GeminiSparkIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    viewBox="0 0 16 16"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="qa-gemini-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#1C7ED6" />
+        <stop offset="50%" stopColor="#9B72CB" />
+        <stop offset="100%" stopColor="#D96570" />
+      </linearGradient>
+    </defs>
+    <path
+      fill="url(#qa-gemini-grad)"
+      d="M8 0C8 4 4 8 0 8C4 8 8 12 8 16C8 12 12 8 16 8C12 8 8 4 8 0Z"
+    />
+  </svg>
+);
+
 /** Sidebar Wizard 디자인 — 스텝 인디케이터 + 카드 컨텐츠 */
 const MakeQuiz: React.FC = () => {
   const { t, currentLanguage } = useTranslation('make-quiz');
@@ -699,8 +721,17 @@ const MakeQuiz: React.FC = () => {
                 </div>
               ) : (
                 <>
+                  {/* 상단: AI 파트너십 배지 */}
+                  <div className="flex items-center justify-center gap-1.5 px-5 pt-5 sm:px-8 sm:pt-6">
+                    <span className="text-[11px] text-muted-foreground sm:text-xs">Powered by</span>
+                    <GeminiSparkIcon className="size-3.5 sm:size-4" />
+                    <span className="text-[11px] font-semibold text-foreground sm:text-xs">
+                      Gemini
+                    </span>
+                  </div>
+
                   {/* 상단: 업로드 영역 */}
-                  <div className="flex flex-col items-center px-5 pt-10 pb-5 text-center sm:px-8 sm:pt-12 sm:pb-6">
+                  <div className="flex flex-col items-center px-5 pt-6 pb-5 text-center sm:px-8 sm:pt-8 sm:pb-6">
                     {/* 아이콘 */}
                     <div className="relative mb-4 sm:mb-5">
                       <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 sm:size-20">

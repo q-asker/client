@@ -47,11 +47,10 @@ const BoardDetail = ({ category = 'INQUIRY' }: BoardDetailProps) => {
   const { accessToken, clearAuth } = useAuthStore();
 
   const isAdmin = useMemo(() => {
-    if (!isInquiry) return false;
     if (isMock) return true;
     const role = extractRoleFromToken(accessToken);
     return role === 'ROLE_ADMIN';
-  }, [accessToken, isMock, isInquiry]);
+  }, [accessToken, isMock]);
 
   const formatDate = (isoString: string | null): string => {
     if (!isoString) return '-';
@@ -285,7 +284,7 @@ const BoardDetail = ({ category = 'INQUIRY' }: BoardDetailProps) => {
         )}
 
         {/* 관리자 답변 폼 — 문의 게시판 + 관리자만 */}
-        {isAdmin && (
+        {isInquiry && isAdmin && (
           <div className="sticky bottom-4 z-10 mt-6">
             <div className="rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur-md">
               <div className="flex items-center gap-2">
@@ -350,6 +349,20 @@ const BoardDetail = ({ category = 'INQUIRY' }: BoardDetailProps) => {
               >
                 <Trash2 className="size-3.5" />
                 {t('삭제')}
+              </Button>
+            </div>
+          )}
+
+          {!isInquiry && isAdmin && (
+            <div className="flex gap-2 max-md:w-full">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate(`/updates/edit/${boardId}`)}
+                className="gap-1 max-md:flex-1"
+              >
+                <Pencil className="size-3.5" />
+                {t('수정')}
               </Button>
             </div>
           )}

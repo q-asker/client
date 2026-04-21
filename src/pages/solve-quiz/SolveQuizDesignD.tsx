@@ -46,7 +46,7 @@ const BlankSlot: React.FC<{
     {value ? (
       <span className="truncate font-medium">{value}</span>
     ) : (
-      <span className="inline-block h-[1.2em] w-px animate-pulse bg-muted-foreground/50" />
+      <span className="inline-block h-[1.2em] w-px" />
     )}
   </span>
 );
