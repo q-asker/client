@@ -46,6 +46,15 @@ export const usePrepareQuizSettingsStore = create<
     {
       name: 'prepare-quiz-settings',
       storage: createExpiringStorage() as never,
+      version: 1,
+      migrate: (persistedState, fromVersion) => {
+        const state = persistedState as Partial<PrepareQuizSettingsState>;
+        // v0 → v1: questionCount 25 → 20 조정
+        if (fromVersion < 1 && state.questionCount === 25) {
+          state.questionCount = 20;
+        }
+        return state;
+      },
       partialize: (state) => ({
         pageMode: state.pageMode,
         isPreviewVisible: state.isPreviewVisible,

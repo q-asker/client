@@ -102,6 +102,19 @@ const SolveQuizDesignD: React.FC = () => {
     return localStorage.getItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`) || '';
   });
 
+  // 메모 공개 상태
+  const [showNote, setShowNote] = useState(() => {
+    const saved = localStorage.getItem(`solve_show_note_${problemSetId}`);
+    return saved ? saved === 'true' : true;
+  });
+
+  // 메모 토글 시 저장
+  const toggleNote = () => {
+    const nextValue = !showNote;
+    setShowNote(nextValue);
+    localStorage.setItem(`solve_show_note_${problemSetId}`, String(nextValue));
+  };
+
   // BLANK 문제 전용 상태
   const [typedAnswer, setTypedAnswer] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -109,6 +122,7 @@ const SolveQuizDesignD: React.FC = () => {
   const listboxId = useId();
 
   const isBlank = quiz.currentQuiz.type === 'BLANK';
+  const isOX = quiz.currentQuiz.type === 'OX';
 
   /** BLANK 문제의 제목을 빈칸 슬롯 포함 React 노드로 렌더링 */
   const renderBlankTitle = useCallback(
@@ -149,7 +163,7 @@ const SolveQuizDesignD: React.FC = () => {
       quiz.currentQuiz?.selections,
     );
 
-    if (alreadyAnswered) {
+    if (alreadyAnswered || isOX) {
       setShowSelections(true);
     } else if (isBlank) {
       setShowSelections(false);
@@ -174,6 +188,7 @@ const SolveQuizDesignD: React.FC = () => {
     quiz.currentQuestion,
     problemSetId,
     isBlank,
+    isOX,
     quiz.currentQuiz?.userAnswer,
     quiz.currentQuiz?.selections,
   ]);
@@ -381,81 +396,66 @@ const SolveQuizDesignD: React.FC = () => {
     </div>
   );
 
-  /** 선택지 영역 렌더링 (DesignB와 동일) */
-  const renderSelections = () => {
-    const selections = (
-      <div className="flex flex-col gap-3 max-md:mt-2 max-md:gap-2">
-        {quiz.currentQuiz.selections.map((opt, idx) => (
-          <div
-            key={opt.id}
-            className={cn(
-              'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
-              'hover:bg-muted',
-              'max-md:min-h-12 max-md:px-3 max-md:py-4',
-              quiz.selectedOption === opt.id && 'ring-2 ring-primary ring-offset-0',
-            )}
-            onClick={() => quizActions.handleOptionSelect(opt.id)}
-          >
-            <span className="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs">
-              {idx + 1}
-            </span>
-            <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
-              <MarkdownText>{opt.content}</MarkdownText>
-            </span>
-          </div>
-        ))}
-      </div>
-    );
-
-    // 선택지 숨김/공개 토글 로직
-    if (!showSelections) {
-      return (
-        <div className="flex flex-col items-center gap-2">
-          <button
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-none bg-muted py-4 text-center text-sm font-medium text-foreground transition-colors duration-200 hover:bg-muted/80"
-            onClick={toggleSelections}
-          >
-            <ChevronDown className="size-4" />
-            {t('선택지 보기')}
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="flex flex-col gap-3">
+  /** 선택지 영역 렌더링 */
+  const renderSelections = () => (
+    <div className="flex flex-col gap-2">
+      {/* 선택지 토글 버튼 — OX 타입은 숨김 */}
+      {!isOX && (
         <button
           className="cursor-pointer self-start border-none bg-transparent px-1 py-0 text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
           onClick={toggleSelections}
         >
           <span className="inline-flex items-center gap-1">
-            <ChevronUp className="size-3" />
-            {t('선택지 숨기기')}
+            {showSelections ? (
+              <>
+                <ChevronUp className="size-3" />
+                {t('선택지 숨기기')}
+              </>
+            ) : (
+              <>
+                <ChevronDown className="size-3" />
+                {t('선택지 보기')}
+              </>
+            )}
           </span>
         </button>
-        <div
-          className="animate-[fadeSlideIn_0.3s_ease-out]"
-          style={{
-            animation: 'fadeSlideIn 0.3s ease-out',
-          }}
-        >
-          {selections}
+      )}
+
+      {/* 선택지 리스트 (확장/축소 애니메이션) */}
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows] duration-300 ease-out',
+          showSelections || isOX ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        )}
+        inert={(!showSelections && !isOX) || undefined}
+        aria-hidden={!showSelections && !isOX}
+      >
+        <div className="overflow-hidden">
+          <div className="flex flex-col gap-3 max-md:gap-2">
+            {quiz.currentQuiz.selections.map((opt, idx) => (
+              <div
+                key={opt.id}
+                className={cn(
+                  'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
+                  'hover:bg-muted',
+                  'max-md:min-h-12 max-md:px-3 max-md:py-4',
+                  quiz.selectedOption === opt.id && 'ring-2 ring-primary ring-offset-0',
+                )}
+                onClick={() => quizActions.handleOptionSelect(opt.id)}
+              >
+                <span className="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs">
+                  {idx + 1}
+                </span>
+                <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
+                  <MarkdownText>{opt.content}</MarkdownText>
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-        <style>{`
-          @keyframes fadeSlideIn {
-            from {
-              opacity: 0;
-              transform: translateY(8px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}</style>
       </div>
-    );
-  };
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -760,22 +760,56 @@ const SolveQuizDesignD: React.FC = () => {
                 )}
               </div>
 
-              {/* 메모 영역 (항상 노출) — 문제와 선택지 사이 */}
-              <div className="overflow-hidden">
-                <div className="relative rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 shadow-sm">
-                  <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-primary/70">
-                    <NotebookPen className="size-3.5" />
-                    {t('메모')}
+              {/* 메모 영역 — 문제와 선택지 사이 (BLANK, OX 문제 제외) */}
+              {!isBlank && !isOX && (
+                <div className="flex flex-col gap-2">
+                  {/* 메모 토글 버튼 */}
+                  <button
+                    className="cursor-pointer self-start border-none bg-transparent px-1 py-0 text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                    onClick={toggleNote}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {showNote ? (
+                        <>
+                          <ChevronUp className="size-3" />
+                          {t('정답 적어보기 숨기기')}
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="size-3" />
+                          {t('메모 보기')}
+                        </>
+                      )}
+                    </span>
+                  </button>
+
+                  {/* 메모 입력 영역 (확장/축소) */}
+                  <div
+                    className={cn(
+                      'grid transition-[grid-template-rows] duration-300 ease-out',
+                      showNote ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+                    )}
+                    inert={!showNote || undefined}
+                    aria-hidden={!showNote}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="relative rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 shadow-sm">
+                        <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-primary/70">
+                          <NotebookPen className="size-3.5" />
+                          {t('정답 적어보기')}
+                        </div>
+                        <textarea
+                          value={note}
+                          onChange={handleNoteChange}
+                          placeholder={t('정답 내용을 입력하세요')}
+                          rows={3}
+                          className="w-full resize-none border-none bg-transparent p-0 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-0"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <textarea
-                    value={note}
-                    onChange={handleNoteChange}
-                    placeholder={t('메모 내용을 입력하세요')}
-                    rows={3}
-                    className="w-full resize-none border-none bg-transparent p-0 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-0"
-                  />
                 </div>
-              </div>
+              )}
 
               {/* 선택지 영역: BLANK이면 직접 입력 UI, 아니면 기존 선택지 */}
               {isBlank ? renderBlankInput() : renderSelections()}

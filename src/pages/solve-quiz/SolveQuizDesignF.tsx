@@ -595,12 +595,12 @@ const SolveQuizDesignF: React.FC = () => {
                 <div className="relative rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 shadow-sm">
                   <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-primary/70">
                     <NotebookPen className="size-3.5" />
-                    {t('메모')}
+                    {t('정답 적어보기')}
                   </div>
                   <textarea
                     value={note}
                     onChange={handleNoteChange}
-                    placeholder={t('메모 내용을 입력하세요')}
+                    placeholder={t('정답 내용을 입력하세요')}
                     rows={3}
                     className="w-full resize-none border-none bg-transparent p-0 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-0"
                   />
