@@ -777,7 +777,7 @@ const SolveQuizDesignD: React.FC = () => {
                       ) : (
                         <>
                           <ChevronDown className="size-3" />
-                          {t('메모 보기')}
+                          {t('정답 적어보기')}
                         </>
                       )}
                     </span>

@@ -628,7 +628,7 @@ const MakeQuiz: React.FC = () => {
                               setCustomInstruction(e.target.value.slice(0, 500))
                             }
                             placeholder={t(
-                              'AI에게 원하는 지시사항을 입력하세요. (선택 사항) \n 예) ~스타일로 만들어줘 \n 예) ~ 문제유형으로 만들어줘',
+                              'AI에게 원하는 지시사항을 입력하세요. (선택 사항) \n 예) ~스타일로 만들어줘 \n 예) 주관식으로 만들어줘',
                             )}
                             rows={4}
                             maxLength={500}
