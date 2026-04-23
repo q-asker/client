@@ -52,8 +52,8 @@ const BlankSlot: React.FC<{
   </span>
 );
 
-/** D안: 타이핑 우선 + 선택지 폴백 */
-const SolveQuizDesignD: React.FC = () => {
+/** 퀴즈 풀이 디자인: 타이핑 우선 + 선택지 폴백 */
+const SolveQuizDesign: React.FC = () => {
   const { t } = useTranslation('solve-quiz');
   const navigate = useNavigate();
   const { problemSetId } = useParams<{ problemSetId: string }>();
@@ -153,49 +153,50 @@ const SolveQuizDesignD: React.FC = () => {
     [typedAnswer, quiz.selectedOption, t],
   );
 
-  // 문제 전환 시 상태 초기화 및 로드
-  useEffect(() => {
-    // 메모 로드
-    const savedNote =
-      localStorage.getItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`) || '';
-    setNote(savedNote);
+  // 문제 전환 시 상태 동기화 (Flash 방지용 render-phase update)
+  const [prevQuestionNum, setPrevQuestionNum] = useState(quiz.currentQuestion);
+  if (quiz.currentQuestion !== prevQuestionNum) {
+    setPrevQuestionNum(quiz.currentQuestion);
 
-    // 선택지 공개 상태 로드
-    const savedToggle = localStorage.getItem(`solve_show_selections_${problemSetId}`);
+    // 1. 선택지 공개 상태 동기화
     const alreadyAnswered = !isUnanswered(
       quiz.currentQuiz?.userAnswer,
       quiz.currentQuiz?.selections,
     );
-
     if (alreadyAnswered || isOX) {
       setShowSelections(true);
     } else if (isBlank) {
       setShowSelections(false);
     } else {
-      setShowSelections(savedToggle ? savedToggle === 'true' : true);
+      const savedToggle = localStorage.getItem(`solve_show_selections_${problemSetId}`);
+      setShowSelections(savedToggle !== null ? savedToggle === 'true' : true);
     }
 
-    // BLANK 문제 처리
+    // 2. 메모 로드
+    const savedNote =
+      localStorage.getItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`) || '';
+    setNote(savedNote);
+
+    // 3. BLANK 문제 답안 로드
     if (isBlank) {
       const answered = quiz.currentQuiz.selections.find(
         (sel) => String(sel.id) === String(quiz.currentQuiz.userAnswer),
       );
       setTypedAnswer(answered ? answered.content : '');
+    } else {
+      setTypedAnswer('');
+    }
+  }
+
+  // 문제 전환 후 포커스 처리 (포커스는 사이드 이펙트이므로 useEffect 유지)
+  useEffect(() => {
+    if (isBlank && !isUnanswered(quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections)) {
       const isTouch = window.matchMedia('(pointer: coarse)').matches;
       if (!isTouch) {
         setTimeout(() => inputRef.current?.focus(), 100);
       }
-    } else {
-      setTypedAnswer('');
     }
-  }, [
-    quiz.currentQuestion,
-    problemSetId,
-    isBlank,
-    isOX,
-    quiz.currentQuiz?.userAnswer,
-    quiz.currentQuiz?.selections,
-  ]);
+  }, [quiz.currentQuestion, isBlank, quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections]);
 
   // 메모 저장
   const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -256,16 +257,15 @@ const SolveQuizDesignD: React.FC = () => {
     </button>
   );
 
-  /** 선택지 클릭 시 입력 필드에도 반영 + 자동 닫기 */
+  /** 선택지 클릭 시 입력 필드에도 반영 */
   const handleBlankOptionSelect = (optId: string) => {
     quizActions.handleOptionSelect(optId);
     const selected = quiz.currentQuiz.selections.find((sel) => sel.id === optId);
     if (selected) {
       setTypedAnswer(selected.content);
     }
-    // 선택 후 선택지 닫기 + 입력 필드로 포커스 복귀
-    setShowSelections(false);
-    setTimeout(() => inputRef.current?.focus(), 310);
+    // 입력 필드로 포커스 복귀
+    setTimeout(() => inputRef.current?.focus(), 100);
   };
 
   /** BLANK 문제의 직접 입력 + 폴백 선택지 영역 */
@@ -330,15 +330,8 @@ const SolveQuizDesignD: React.FC = () => {
         {showSelections ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
       </button>
 
-      {/* Phase 2: 선택지 리스트 (확장/축소 애니메이션) */}
-      <div
-        className={cn(
-          'grid transition-[grid-template-rows] duration-300 ease-out',
-          showSelections ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-        )}
-        inert={!showSelections || undefined}
-        aria-hidden={!showSelections}
-      >
+      {/* Phase 2: 선택지 리스트 (즉시 노출/숨김) */}
+      {showSelections && (
         <div className="overflow-hidden px-1 pt-1 pb-4">
           <div
             id={listboxId}
@@ -396,46 +389,35 @@ const SolveQuizDesignD: React.FC = () => {
             ))}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
   /** 선택지 영역 렌더링 */
   const renderSelections = () => (
-    <div className="flex flex-col gap-2">
-      {/* 선택지 토글 버튼 — OX 타입은 숨김 */}
+    <div className="flex flex-col gap-3">
+      {/* 선택지 토글 버튼 - OX 타입은 제외 */}
       {!isOX && (
         <button
-          className="cursor-pointer self-start border-none bg-transparent px-1 py-0 text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
+          className={cn(
+            'flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border-none px-4 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.98]',
+            showSelections
+              ? 'bg-primary/10 text-primary hover:bg-primary/15'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground',
+          )}
           onClick={toggleSelections}
+          aria-expanded={showSelections}
+          aria-controls="selections-listbox"
         >
-          <span className="inline-flex items-center gap-1">
-            {showSelections ? (
-              <>
-                <ChevronUp className="size-3" />
-                {t('선택지 숨기기')}
-              </>
-            ) : (
-              <>
-                <ChevronDown className="size-3" />
-                {t('선택지 보기')}
-              </>
-            )}
-          </span>
+          {showSelections ? t('선택지 숨기기') : t('선택지 보기')}
+          {showSelections ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </button>
       )}
 
-      {/* 선택지 리스트 (확장/축소 애니메이션) */}
-      <div
-        className={cn(
-          'grid transition-[grid-template-rows] duration-300 ease-out',
-          showSelections || isOX ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-        )}
-        inert={(!showSelections && !isOX) || undefined}
-        aria-hidden={!showSelections && !isOX}
-      >
+      {/* 선택지 리스트 (즉시 노출/숨김) */}
+      {(showSelections || isOX) && (
         <div className="overflow-hidden px-1 pt-1 pb-4">
-          <div className="flex flex-col gap-3 max-md:gap-2">
+          <div id="selections-listbox" className="flex flex-col gap-3 max-md:gap-2">
             {quiz.currentQuiz.selections.map((opt, idx) => (
               <div
                 key={opt.id}
@@ -457,7 +439,7 @@ const SolveQuizDesignD: React.FC = () => {
             ))}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
@@ -1046,4 +1028,4 @@ const SolveQuizDesignD: React.FC = () => {
   );
 };
 
-export default SolveQuizDesignD;
+export default SolveQuizDesign;
