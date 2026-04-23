@@ -77,12 +77,16 @@ const SolveQuizDesignD: React.FC = () => {
   });
   const { quiz } = state;
   const { quiz: quizActions } = actions;
+  const appliedInstruction = quiz.currentQuiz?.appliedInstruction ?? null;
 
   const remainingCount =
     isStreaming && totalCount > 0 ? Math.max(0, totalCount - quiz.totalQuestions) : 0;
 
   // 제목 편집 상태
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  // AI 지시사항 공개 상태
+  const [showInstruction, setShowInstruction] = useState(false);
 
   // 선택지 공개 상태
   const [showSelections, setShowSelections] = useState(() => {
@@ -335,7 +339,7 @@ const SolveQuizDesignD: React.FC = () => {
         inert={!showSelections || undefined}
         aria-hidden={!showSelections}
       >
-        <div className="overflow-hidden">
+        <div className="overflow-hidden px-1 pt-1 pb-4">
           <div
             id={listboxId}
             className="flex flex-col gap-3 max-md:gap-2"
@@ -430,7 +434,7 @@ const SolveQuizDesignD: React.FC = () => {
         inert={(!showSelections && !isOX) || undefined}
         aria-hidden={!showSelections && !isOX}
       >
-        <div className="overflow-hidden">
+        <div className="overflow-hidden px-1 pt-1 pb-4">
           <div className="flex flex-col gap-3 max-md:gap-2">
             {quiz.currentQuiz.selections.map((opt, idx) => (
               <div
@@ -474,7 +478,7 @@ const SolveQuizDesignD: React.FC = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="w-full max-w-lg overflow-hidden rounded-3xl bg-card shadow-2xl"
+              className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-card shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* 다이얼로그 헤더 */}
@@ -489,7 +493,7 @@ const SolveQuizDesignD: React.FC = () => {
               </div>
 
               {/* 다이얼로그 콘텐츠 */}
-              <div className="p-6">
+              <div className="flex-1 overflow-y-auto p-6">
                 {/* 상단 통계 정보 */}
                 <div className="mb-8 grid grid-cols-2 gap-4 rounded-2xl bg-muted p-5 max-md:grid-cols-1 max-md:gap-3">
                   <div className="flex items-center justify-between">
@@ -649,6 +653,40 @@ const SolveQuizDesignD: React.FC = () => {
         </div>
       )}
 
+      {/* AI 지시사항 배너 (모바일) */}
+      {appliedInstruction && (
+        <div className="mx-auto w-[95%] pt-3 lg:hidden">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 px-3.5 py-2.5">
+            <button
+              className="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-xs font-semibold text-primary/70"
+              onClick={() => setShowInstruction((prev) => !prev)}
+            >
+              <span className="flex items-center gap-1.5">
+                <span>✦</span>
+                {t('AI 지시사항 반영 결과')}
+              </span>
+              {showInstruction ? (
+                <ChevronUp className="size-3.5" />
+              ) : (
+                <ChevronDown className="size-3.5" />
+              )}
+            </button>
+            <div
+              className={cn(
+                'grid transition-[grid-template-rows] duration-300 ease-out',
+                showInstruction ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+              )}
+            >
+              <div className="overflow-hidden">
+                <p className="m-0 pt-2 text-xs leading-relaxed text-foreground/70">
+                  {appliedInstruction}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 문제 번호 네비게이션 (모바일) — 타이머 바로 아래 */}
       <div className="mx-auto w-[95%] pt-4 lg:hidden">
         <div className="rounded-2xl bg-card p-4 shadow-card">
@@ -777,7 +815,7 @@ const SolveQuizDesignD: React.FC = () => {
                       ) : (
                         <>
                           <ChevronDown className="size-3" />
-                          {t('메모 보기')}
+                          {t('정답 적어보기')}
                         </>
                       )}
                     </span>
@@ -827,6 +865,38 @@ const SolveQuizDesignD: React.FC = () => {
 
         {/* 우측 패널: 네비게이션 + 실시간 통계 (col-span-4) — lg 이상에서만 표시 */}
         <aside className="hidden lg:col-span-4 lg:flex lg:flex-col lg:gap-5">
+          {/* AI 지시사항 카드 */}
+          {appliedInstruction && (
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4">
+              <button
+                className="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-xs font-semibold text-primary/70"
+                onClick={() => setShowInstruction((prev) => !prev)}
+              >
+                <span className="flex items-center gap-1.5">
+                  <span>✦</span>
+                  {t('AI 지시사항 반영 결과')}
+                </span>
+                {showInstruction ? (
+                  <ChevronUp className="size-3.5" />
+                ) : (
+                  <ChevronDown className="size-3.5" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  'grid transition-[grid-template-rows] duration-300 ease-out',
+                  showInstruction ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+                )}
+              >
+                <div className="overflow-hidden">
+                  <p className="m-0 pt-2.5 text-sm leading-relaxed text-foreground/80">
+                    {appliedInstruction}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 실시간 통계 카드 */}
           <div className="rounded-2xl bg-card p-5 shadow-card">
             <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">

@@ -207,6 +207,7 @@ export const trackMakeQuizEvents = {
     questionType: string,
     quizLevel: string,
     pageMode: string,
+    language?: string,
     startPage?: number | null,
     endPage?: number | null,
   ): void => {
@@ -215,6 +216,7 @@ export const trackMakeQuizEvents = {
       question_type: questionType,
       quiz_level: quizLevel,
       page_mode: pageMode,
+      language: language || null,
       start_page: startPage || null,
       end_page: endPage || null,
     });
