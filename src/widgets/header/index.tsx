@@ -32,13 +32,12 @@ const navItemClass =
 
 const Header = () => {
   const {
-    state: { t, isAuthenticated, hasHydrated, currentLanguage },
-    actions: { handleQuizManagement, handleLanguageChange },
+    state: { t, isAuthenticated, hasHydrated },
+    actions: { handleQuizManagement },
   } = useHeader();
   const { theme, setTheme } = useTheme();
   const { presets, currentPresetId, applyPreset } = useThemePreset();
   const [isThemeOpen, setIsThemeOpen] = useState(false);
-  const [isLangOpen, setIsLangOpen] = useState(false);
   const [showNavTooltip, setShowNavTooltip] = useState(false);
 
   useClickOutside({
@@ -46,13 +45,6 @@ const Header = () => {
     triggerId: ['themeButton', 'mobileThemeButton'],
     onOutsideClick: () => setIsThemeOpen(false),
     isEnabled: isThemeOpen,
-  });
-
-  useClickOutside({
-    containerId: ['langDropdown', 'mobileLangDropdown'],
-    triggerId: ['langButton', 'mobileLangButton'],
-    onOutsideClick: () => setIsLangOpen(false),
-    isEnabled: isLangOpen,
   });
 
   useEffect(() => {
@@ -165,43 +157,6 @@ const Header = () => {
     </motion.div>
   );
 
-  const LangDropdownContent = ({ id, dropUp = false }: { id: string; dropUp?: boolean }) => (
-    <motion.div
-      id={id}
-      initial={{ opacity: 0, scale: 0.96, y: dropUp ? 6 : -6 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96, y: dropUp ? 6 : -6 }}
-      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-      className={cn(
-        'absolute right-0 z-[1001] min-w-[140px] overflow-hidden rounded-lg border border-border/70 bg-card/95 shadow-lg backdrop-blur-xl',
-        dropUp ? 'bottom-full mb-2' : 'top-[calc(100%+10px)]',
-      )}
-    >
-      <div className="p-1.5">
-        {(['ko', 'en'] as const).map((lang) => (
-          <button
-            key={lang}
-            type="button"
-            className={cn(
-              'flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none px-3 py-2 text-left text-sm font-medium transition-all duration-150',
-              currentLanguage === lang
-                ? 'bg-primary/10 text-primary'
-                : 'bg-transparent text-muted-foreground hover:bg-muted/80 hover:text-foreground',
-            )}
-            onClick={() => {
-              handleLanguageChange(lang);
-              setIsLangOpen(false);
-            }}
-          >
-            <span className="flex-1">{lang === 'ko' ? t('한국어') : 'English'}</span>
-            <span className="text-xs opacity-50">{lang.toUpperCase()}</span>
-            {currentLanguage === lang && <Check className="size-3.5 shrink-0" />}
-          </button>
-        ))}
-      </div>
-    </motion.div>
-  );
-
   return (
     <>
       <div className="relative bg-background shadow-sm">
@@ -213,26 +168,8 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* 모바일: 언어 + 프로필/로그인 */}
+          {/* 모바일: 프로필/로그인 */}
           <div className="flex items-center gap-2 md:hidden">
-            {/* 모바일 언어 선택 */}
-            <div className="relative">
-              <button
-                id="mobileLangButton"
-                type="button"
-                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2 py-1.5 text-muted-foreground transition-colors hover:bg-primary/8 hover:text-foreground"
-                onClick={() => setIsLangOpen((prev) => !prev)}
-                aria-expanded={isLangOpen}
-                aria-haspopup="true"
-              >
-                <Globe className="size-4" />
-                <span className="text-xs font-bold">{currentLanguage.toUpperCase()}</span>
-              </button>
-              <AnimatePresence>
-                {isLangOpen && <LangDropdownContent id="mobileLangDropdown" />}
-              </AnimatePresence>
-            </div>
-
             <AuthButton variant="header-mobile" idPrefix="mobile" />
           </div>
 
@@ -301,27 +238,6 @@ const Header = () => {
 
             {/* 인증 영역 */}
             <AuthButton variant="header" idPrefix="desktop" />
-
-            {/* 구분선 */}
-            <div className="mx-1 h-5 w-px bg-border" />
-
-            {/* 언어 선택 */}
-            <div className="relative">
-              <button
-                id="langButton"
-                type="button"
-                className={cn(navItemClass, 'gap-1')}
-                onClick={() => setIsLangOpen((prev) => !prev)}
-                aria-expanded={isLangOpen}
-                aria-haspopup="true"
-              >
-                <Globe className="size-4" />
-                <span className="text-xs">{currentLanguage.toUpperCase()}</span>
-              </button>
-              <AnimatePresence>
-                {isLangOpen && <LangDropdownContent id="langDropdown" />}
-              </AnimatePresence>
-            </div>
           </div>
         </div>
       </div>
