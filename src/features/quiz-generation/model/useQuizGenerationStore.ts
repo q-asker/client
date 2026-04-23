@@ -58,6 +58,7 @@ interface GenerateQuestionsParams {
   questionCount: number;
   quizLevel: string;
   selectedPages: number[];
+  language?: 'KO' | 'EN';
   customInstruction?: string;
 }
 
@@ -328,6 +329,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
         questionCount,
         quizLevel,
         selectedPages,
+        language,
         customInstruction,
       }: GenerateQuestionsParams) => {
         if (!uploadedUrl) {
@@ -357,7 +359,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
               quizType: questionType,
               difficultyType: quizLevel,
               pageNumbers: selectedPages,
-              ...(currentLanguage === 'en' ? { language: 'EN' } : {}),
+              language: language || (currentLanguage === 'en' ? 'EN' : 'KO'),
               ...(customInstruction?.trim() ? { customInstruction: customInstruction.trim() } : {}),
             },
             onSuccess: () => {},

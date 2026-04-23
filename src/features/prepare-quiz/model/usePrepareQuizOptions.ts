@@ -8,11 +8,13 @@ export interface PrepareQuizOptionsState {
   questionType: QuestionType;
   questionCount: number;
   quizLevel: QuizLevel;
+  language: 'KO' | 'EN';
 }
 
 export interface PrepareQuizOptionsActions {
   handleQuestionTypeChange: (nextType: QuestionType, label: string) => void;
   handleQuestionCountChange: (nextCount: number) => void;
+  handleLanguageChange: (nextLanguage: 'KO' | 'EN') => void;
   resetOptions: () => void;
 }
 
@@ -24,8 +26,10 @@ export interface PrepareQuizOptionsReturn {
 export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
   const questionType = usePrepareQuizSettingsStore((s) => s.questionType);
   const questionCount = usePrepareQuizSettingsStore((s) => s.questionCount);
+  const language = usePrepareQuizSettingsStore((s) => s.language);
   const setQuestionType = usePrepareQuizSettingsStore((s) => s.setQuestionType);
   const setQuestionCount = usePrepareQuizSettingsStore((s) => s.setQuestionCount);
+  const setLanguage = usePrepareQuizSettingsStore((s) => s.setLanguage);
   const quizLevel = getQuizLevel(questionType);
 
   const handleQuestionTypeChange = useCallback(
@@ -48,10 +52,21 @@ export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
     [questionCount, setQuestionCount],
   );
 
+  const handleLanguageChange = useCallback(
+    (nextLanguage: 'KO' | 'EN') => {
+      if (language !== nextLanguage) {
+        trackPrepareQuizEvents.changeQuizOption('language', nextLanguage);
+        setLanguage(nextLanguage);
+      }
+    },
+    [language, setLanguage],
+  );
+
   const resetOptions = useCallback(() => {
     const store = usePrepareQuizSettingsStore.getState();
     store.setQuestionType(defaultType);
     store.setQuestionCount(10);
+    store.setLanguage('KO');
   }, []);
 
   return {
@@ -59,10 +74,12 @@ export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
       questionType,
       questionCount,
       quizLevel,
+      language,
     },
     actions: {
       handleQuestionTypeChange,
       handleQuestionCountChange,
+      handleLanguageChange,
       resetOptions,
     },
   };
