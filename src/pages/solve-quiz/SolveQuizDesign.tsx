@@ -635,55 +635,6 @@ const SolveQuizDesign: React.FC = () => {
         </div>
       )}
 
-      {/* AI 지시사항 배너 (모바일) */}
-      {appliedInstruction && (
-        <div className="mx-auto w-[95%] pt-3 lg:hidden">
-          <div className="rounded-xl border border-primary/20 bg-primary/5 px-3.5 py-2.5">
-            <button
-              className="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-xs font-semibold text-primary/70"
-              onClick={() => setShowInstruction((prev) => !prev)}
-            >
-              <span className="flex items-center gap-1.5">
-                <span>✦</span>
-                {t('AI 지시사항 반영 결과')}
-              </span>
-              {showInstruction ? (
-                <ChevronUp className="size-3.5" />
-              ) : (
-                <ChevronDown className="size-3.5" />
-              )}
-            </button>
-            <div
-              className={cn(
-                'grid transition-[grid-template-rows] duration-300 ease-out',
-                showInstruction ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-              )}
-            >
-              <div className="overflow-hidden">
-                <p className="m-0 pt-2 text-xs leading-relaxed text-foreground/70">
-                  {appliedInstruction}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 문제 번호 네비게이션 (모바일) — 타이머 바로 아래 */}
-      <div className="mx-auto w-[95%] pt-4 lg:hidden">
-        <div className="rounded-2xl bg-card p-4 shadow-card">
-          <h3 className="mb-3 border-b border-border pb-2.5 text-sm font-semibold text-foreground">
-            {t('문제 목록')}
-          </h3>
-          <div className="grid grid-cols-[repeat(auto-fill,2.25rem)] justify-center gap-2">
-            {quiz.quizzes.map((q) => renderQuestionButton(q, 'top-'))}
-            {Array.from({ length: remainingCount }).map((_, index) =>
-              renderPendingButton(index, 'top-'),
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* 메인 콘텐츠 — lg 이상 2컬럼 */}
       <main className="mx-auto flex w-[95%] max-w-[1200px] flex-col py-6 lg:grid lg:grid-cols-12 lg:gap-6">
         {/* 좌측 패널: 문제 + 선택지 (col-span-8) */}
@@ -838,15 +789,25 @@ const SolveQuizDesign: React.FC = () => {
 
           {/* 확인 버튼 */}
           <button
-            className="mt-auto cursor-pointer rounded-2xl border-none bg-primary py-3.5 text-base font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90 max-md:mt-4 max-md:w-full"
+            className="cursor-pointer rounded-2xl border-none bg-primary py-3.5 text-base font-medium text-primary-foreground transition-colors duration-200 hover:opacity-90 max-md:mt-4 max-md:w-full"
             onClick={quizActions.handleSubmit}
           >
             {t('확인')}
           </button>
-        </section>
 
-        {/* 우측 패널: 네비게이션 + 실시간 통계 (col-span-4) — lg 이상에서만 표시 */}
-        <aside className="hidden lg:col-span-4 lg:flex lg:flex-col lg:gap-5">
+          {/* 문제 목록 */}
+          <div className="rounded-2xl bg-card p-5 shadow-card">
+            <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
+              {t('문제 목록')}
+            </h3>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(2.25rem,1fr))] gap-2">
+              {quiz.quizzes.map((q) => renderQuestionButton(q, 'main-'))}
+              {Array.from({ length: remainingCount }).map((_, index) =>
+                renderPendingButton(index, 'main-'),
+              )}
+            </div>
+          </div>
+
           {/* AI 지시사항 카드 */}
           {appliedInstruction && (
             <div className="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4">
@@ -878,7 +839,10 @@ const SolveQuizDesign: React.FC = () => {
               </div>
             </div>
           )}
+        </section>
 
+        {/* 우측 패널: 네비게이션 + 실시간 통계 (col-span-4) — lg 이상에서만 표시 */}
+        <aside className="hidden lg:col-span-4 lg:flex lg:flex-col lg:gap-5">
           {/* 실시간 통계 카드 */}
           <div className="rounded-2xl bg-card p-5 shadow-card">
             <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
@@ -941,19 +905,6 @@ const SolveQuizDesign: React.FC = () => {
             >
               {t('제출하기')}
             </button>
-          </div>
-
-          {/* 문제 번호 네비게이션 카드 */}
-          <div className="sticky top-6 rounded-2xl bg-card p-5 shadow-card">
-            <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
-              {t('문제 목록')}
-            </h3>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(2.25rem,1fr))] gap-2">
-              {quiz.quizzes.map((q) => renderQuestionButton(q, 'sidebar-'))}
-              {Array.from({ length: remainingCount }).map((_, index) =>
-                renderPendingButton(index, 'sidebar-'),
-              )}
-            </div>
           </div>
         </aside>
 
