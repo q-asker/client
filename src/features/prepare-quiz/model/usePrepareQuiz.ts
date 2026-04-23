@@ -120,6 +120,7 @@ export const usePrepareQuiz = ({
         questionCount: options.state.questionCount,
         quizLevel: options.state.quizLevel,
         selectedPages: pages.state.selectedPages,
+        language: options.state.language,
         customInstruction,
       });
     },
@@ -129,6 +130,7 @@ export const usePrepareQuiz = ({
       options.state.questionCount,
       options.state.questionType,
       options.state.quizLevel,
+      options.state.language,
       pages.state.selectedPages,
       t,
       upload.state.uploadedUrl,

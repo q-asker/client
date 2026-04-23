@@ -14,6 +14,8 @@ interface PrepareQuizSettingsState {
   questionType: QuestionType;
   /** 퀴즈 문제 수 */
   questionCount: number;
+  /** 퀴즈 언어 */
+  language: 'KO' | 'EN';
 }
 
 interface PrepareQuizSettingsActions {
@@ -21,6 +23,7 @@ interface PrepareQuizSettingsActions {
   setIsPreviewVisible: (visible: boolean) => void;
   setQuestionType: (type: QuestionType) => void;
   setQuestionCount: (count: number) => void;
+  setLanguage: (language: 'KO' | 'EN') => void;
   reset: () => void;
 }
 
@@ -29,6 +32,7 @@ const initialState: PrepareQuizSettingsState = {
   isPreviewVisible: true,
   questionType: defaultType,
   questionCount: 10,
+  language: 'KO',
 };
 
 export const usePrepareQuizSettingsStore = create<
@@ -41,6 +45,7 @@ export const usePrepareQuizSettingsStore = create<
       setIsPreviewVisible: (visible) => set({ isPreviewVisible: visible }),
       setQuestionType: (type) => set({ questionType: type }),
       setQuestionCount: (count) => set({ questionCount: count }),
+      setLanguage: (language) => set({ language }),
       reset: () => set(initialState),
     }),
     {
@@ -60,6 +65,7 @@ export const usePrepareQuizSettingsStore = create<
         isPreviewVisible: state.isPreviewVisible,
         questionType: state.questionType,
         questionCount: state.questionCount,
+        language: state.language,
       }),
     },
   ),
