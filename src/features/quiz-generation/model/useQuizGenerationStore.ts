@@ -34,6 +34,7 @@ export interface Quiz {
   selections: QuizSelection[];
   userAnswer?: string | null;
   inReview?: boolean;
+  appliedInstruction?: string | null;
 }
 
 export interface FileInfo {
