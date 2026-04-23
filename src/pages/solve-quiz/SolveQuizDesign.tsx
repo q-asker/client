@@ -125,8 +125,8 @@ const SolveQuizDesign: React.FC = () => {
   const firstSelectionRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
 
-  const isBlank = quiz.currentQuiz.type === 'BLANK';
-  const isOX = quiz.currentQuiz.type === 'OX';
+  const isBlank = quiz.currentQuiz?.type === 'BLANK';
+  const isOX = quiz.currentQuiz?.type === 'OX';
 
   /** BLANK 문제의 제목을 빈칸 슬롯 포함 React 노드로 렌더링 */
   const renderBlankTitle = useCallback(
@@ -179,8 +179,8 @@ const SolveQuizDesign: React.FC = () => {
 
     // 3. BLANK 문제 답안 로드
     if (isBlank) {
-      const answered = quiz.currentQuiz.selections.find(
-        (sel) => String(sel.id) === String(quiz.currentQuiz.userAnswer),
+      const answered = quiz.currentQuiz?.selections?.find(
+        (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
       );
       setTypedAnswer(answered ? answered.content : '');
     } else {
@@ -260,7 +260,7 @@ const SolveQuizDesign: React.FC = () => {
   /** 선택지 클릭 시 입력 필드에도 반영 */
   const handleBlankOptionSelect = (optId: string) => {
     quizActions.handleOptionSelect(optId);
-    const selected = quiz.currentQuiz.selections.find((sel) => sel.id === optId);
+    const selected = quiz.currentQuiz?.selections?.find((sel) => sel.id === optId);
     if (selected) {
       setTypedAnswer(selected.content);
     }
@@ -339,7 +339,7 @@ const SolveQuizDesign: React.FC = () => {
             role="listbox"
             aria-label={t('선택지 보기')}
           >
-            {quiz.currentQuiz.selections.map((opt, idx) => (
+            {quiz.currentQuiz?.selections?.map((opt, idx) => (
               <div
                 key={opt.id}
                 ref={idx === 0 ? firstSelectionRef : undefined}
@@ -418,7 +418,7 @@ const SolveQuizDesign: React.FC = () => {
       {(showSelections || isOX) && (
         <div className="overflow-hidden px-1 pt-1 pb-4">
           <div id="selections-listbox" className="flex flex-col gap-3 max-md:gap-2">
-            {quiz.currentQuiz.selections.map((opt, idx) => (
+            {quiz.currentQuiz?.selections?.map((opt, idx) => (
               <div
                 key={opt.id}
                 className={cn(
@@ -683,7 +683,7 @@ const SolveQuizDesign: React.FC = () => {
                     onClick={quizActions.handleCheckToggle}
                     className={cn(
                       'flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-none px-2 py-1 text-xs font-semibold transition-all duration-200',
-                      quiz.currentQuiz.inReview
+                      quiz.currentQuiz?.inReview
                         ? 'bg-warning/12 text-warning'
                         : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
                     )}
@@ -692,7 +692,7 @@ const SolveQuizDesign: React.FC = () => {
                       width="14"
                       height="14"
                       viewBox="0 0 24 24"
-                      fill={quiz.currentQuiz.inReview ? 'currentColor' : 'none'}
+                      fill={quiz.currentQuiz?.inReview ? 'currentColor' : 'none'}
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
@@ -708,22 +708,24 @@ const SolveQuizDesign: React.FC = () => {
                 <div className="p-5 pt-2 pb-6">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
                     {isBlank ? (
-                      renderBlankTitle(quiz.currentQuiz.title.split('\n')[0])
+                      renderBlankTitle(quiz.currentQuiz?.title.split('\n')[0] ?? '')
                     ) : (
-                      <MarkdownText>{quiz.currentQuiz.title.split('\n')[0]}</MarkdownText>
+                      <MarkdownText>{quiz.currentQuiz?.title.split('\n')[0] ?? ''}</MarkdownText>
                     )}
                   </div>
                 </div>
 
                 {/* 문제 본문 (코드, 힌트 등) */}
-                {quiz.currentQuiz.title.includes('\n') && (
+                {quiz.currentQuiz?.title.includes('\n') && (
                   <div className="px-5 pt-3 pb-6">
                     <div className="m-0 break-words text-base leading-relaxed text-foreground">
                       {isBlank ? (
-                        renderBlankTitle(quiz.currentQuiz.title.split('\n').slice(1).join('\n'))
+                        renderBlankTitle(
+                          quiz.currentQuiz?.title.split('\n').slice(1).join('\n') ?? '',
+                        )
                       ) : (
                         <MarkdownText>
-                          {quiz.currentQuiz.title.split('\n').slice(1).join('\n')}
+                          {quiz.currentQuiz?.title.split('\n').slice(1).join('\n') ?? ''}
                         </MarkdownText>
                       )}
                     </div>
@@ -795,20 +797,58 @@ const SolveQuizDesign: React.FC = () => {
             {t('확인')}
           </button>
 
-          {/* 문제 목록 */}
-          <div className="rounded-2xl bg-card p-5 shadow-card">
-            <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
-              {t('문제 목록')}
-            </h3>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(2.25rem,1fr))] gap-2">
-              {quiz.quizzes.map((q) => renderQuestionButton(q, 'main-'))}
-              {Array.from({ length: remainingCount }).map((_, index) =>
-                renderPendingButton(index, 'main-'),
-              )}
+          {/* 모바일 전용: 문제 목록 + AI 지시사항 (lg 미만에서만 표시) */}
+          <div className="flex flex-col gap-4 lg:hidden">
+            {/* 문제 목록 */}
+            <div className="rounded-2xl bg-card p-5 shadow-card">
+              <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
+                {t('문제 목록')}
+              </h3>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(2.25rem,1fr))] gap-2">
+                {quiz.quizzes.map((q) => renderQuestionButton(q, 'main-'))}
+                {Array.from({ length: remainingCount }).map((_, index) =>
+                  renderPendingButton(index, 'main-'),
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* AI 지시사항 카드 */}
+            {/* AI 지시사항 카드 */}
+            {appliedInstruction && (
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4">
+                <button
+                  className="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-xs font-semibold text-primary/70"
+                  onClick={() => setShowInstruction((prev) => !prev)}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span>✦</span>
+                    {t('AI 지시사항 반영 결과')}
+                  </span>
+                  {showInstruction ? (
+                    <ChevronUp className="size-3.5" />
+                  ) : (
+                    <ChevronDown className="size-3.5" />
+                  )}
+                </button>
+                <div
+                  className={cn(
+                    'grid transition-[grid-template-rows] duration-300 ease-out',
+                    showInstruction ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+                  )}
+                >
+                  <div className="overflow-hidden">
+                    <p className="m-0 pt-2.5 text-sm leading-relaxed text-foreground/80">
+                      {appliedInstruction}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* 우측 패널: 네비게이션 + 실시간 통계 (col-span-4) — lg 이상에서만 표시 */}
+        <aside className="hidden lg:col-span-4 lg:flex lg:flex-col lg:gap-5">
+          {/* PC 전용: AI 지시사항 카드 */}
           {appliedInstruction && (
             <div className="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4">
               <button
@@ -839,10 +879,7 @@ const SolveQuizDesign: React.FC = () => {
               </div>
             </div>
           )}
-        </section>
 
-        {/* 우측 패널: 네비게이션 + 실시간 통계 (col-span-4) — lg 이상에서만 표시 */}
-        <aside className="hidden lg:col-span-4 lg:flex lg:flex-col lg:gap-5">
           {/* 실시간 통계 카드 */}
           <div className="rounded-2xl bg-card p-5 shadow-card">
             <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
@@ -905,6 +942,19 @@ const SolveQuizDesign: React.FC = () => {
             >
               {t('제출하기')}
             </button>
+          </div>
+
+          {/* PC 전용: 문제 번호 네비게이션 카드 */}
+          <div className="sticky top-6 rounded-2xl bg-card p-5 shadow-card">
+            <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
+              {t('문제 목록')}
+            </h3>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(2.25rem,1fr))] gap-2">
+              {quiz.quizzes.map((q) => renderQuestionButton(q, 'sidebar-'))}
+              {Array.from({ length: remainingCount }).map((_, index) =>
+                renderPendingButton(index, 'sidebar-'),
+              )}
+            </div>
           </div>
         </aside>
 
