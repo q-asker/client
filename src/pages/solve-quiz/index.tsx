@@ -1,29 +1,12 @@
-import React, { lazy, Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
 
-const DesignB = lazy(() => import('./SolveQuizDesignB'));
-const DesignC = lazy(() => import('./SolveQuizDesignC'));
-const DesignD = lazy(() => import('./SolveQuizDesignD'));
-const DesignE = lazy(() => import('./SolveQuizDesignE'));
-const DesignF = lazy(() => import('./SolveQuizDesignF'));
+const SolveQuizDesign = lazy(() => import('./SolveQuizDesign'));
 
-const designMap: Record<string, React.LazyExoticComponent<React.FC>> = {
-  B: DesignB,
-  C: DesignC,
-  D: DesignD,
-  E: DesignE,
-  F: DesignF,
-};
-
-/** ?design=C|D|E|F 쿼리 파라미터로 디자인 변형 전환 */
+/** 퀴즈 풀이 페이지: 단일 디자인으로 통합 */
 const SolveQuizPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const designKey = (searchParams.get('design') ?? 'D').toUpperCase();
-  const Design = designMap[designKey] ?? DesignD;
-
   return (
     <Suspense fallback={null}>
-      <Design />
+      <SolveQuizDesign />
     </Suspense>
   );
 };
