@@ -1049,9 +1049,7 @@ const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
             <>
               <textarea
                 value={content}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setContent(e.target.value)
-                }
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
                 placeholder={t('불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.')}
                 rows={3}
                 className="w-full resize-none rounded-sm border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
