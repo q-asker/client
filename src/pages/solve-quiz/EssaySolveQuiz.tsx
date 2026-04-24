@@ -1,59 +1,22 @@
 import { useTranslation } from 'i18nexus';
 import InlineEdit from '@/shared/ui/components/inline-edit';
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
-import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
-import { ChevronDown, ChevronUp, LogIn, PenLine } from 'lucide-react';
+import { ChevronDown, ChevronUp, LogIn, MessageCircle } from 'lucide-react';
+import { Card, CardContent } from '@/shared/ui/components/card';
+import axiosInstance from '#shared/api';
+import EssayInput from './EssayInput';
 import CustomToast from '#shared/toast';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { AnimatePresence, motion } from 'framer-motion';
 
-/** 빈칸 위치 감지 (렌더링용) */
-const BLANK_REGEX = /_{3,}/;
-
-/** 빈칸 슬롯 — 문제 제목 내 `_______`을 시각적 슬롯으로 렌더링 */
-const BlankSlot: React.FC<{
-  value: string;
-  hasSelection: boolean;
-  onClick?: () => void;
-  ariaLabel?: string;
-}> = ({ value, hasSelection, onClick, ariaLabel }) => (
-  <span
-    className={cn(
-      'inline-flex max-w-[20rem] cursor-pointer items-baseline border-b-2 px-1 py-0.5 transition-all duration-300',
-      value
-        ? hasSelection
-          ? 'border-primary bg-primary/8 text-primary'
-          : 'border-primary/50 bg-primary/5 text-primary/80'
-        : 'min-w-[4rem] border-muted-foreground/40',
-    )}
-    title={value || undefined}
-    onClick={onClick}
-    role="button"
-    tabIndex={0}
-    aria-label={ariaLabel}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onClick?.();
-      }
-    }}
-  >
-    {value ? (
-      <span className="truncate font-medium">{value}</span>
-    ) : (
-      <span className="inline-block h-[1.2em] w-px" />
-    )}
-  </span>
-);
-
-/** 퀴즈 풀이 디자인: 타이핑 우선 + 선택지 폴백 */
-const SolveQuizDesign: React.FC = () => {
+/** 서술형(ESSAY) 전용 퀴즈 풀이 페이지 */
+const EssaySolveQuiz: React.FC = () => {
   const { t } = useTranslation('solve-quiz');
   const navigate = useNavigate();
   const { problemSetId } = useParams<{ problemSetId: string }>();
@@ -79,6 +42,7 @@ const SolveQuizDesign: React.FC = () => {
   const { quiz: quizActions } = actions;
   const appliedInstruction = quiz.currentQuiz?.appliedInstruction ?? null;
 
+  // 스트리밍 대기 중인 문제 수
   const remainingCount =
     isStreaming && totalCount > 0 ? Math.max(0, totalCount - quiz.totalQuestions) : 0;
 
@@ -87,90 +51,6 @@ const SolveQuizDesign: React.FC = () => {
 
   // AI 지시사항 공개 상태
   const [showInstruction, setShowInstruction] = useState(false);
-
-  // 선택지 공개 상태 (전역 설정)
-  const [showSelections, setShowSelections] = useState(() => {
-    const saved = localStorage.getItem('solve_show_selections');
-    return saved ? saved === 'true' : true;
-  });
-
-  // 선택지 토글 시 저장
-  const toggleSelections = () => {
-    const nextValue = !showSelections;
-    setShowSelections(nextValue);
-    localStorage.setItem('solve_show_selections', String(nextValue));
-  };
-
-  // BLANK 문제 전용 상태
-  const [typedAnswer, setTypedAnswer] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const firstSelectionRef = useRef<HTMLDivElement>(null);
-  const listboxId = useId();
-
-  const isBlank = quiz.currentQuiz?.type === 'BLANK';
-  const isOX = quiz.currentQuiz?.type === 'OX';
-
-  /** BLANK 문제의 제목을 빈칸 슬롯 포함 React 노드로 렌더링 */
-  const renderBlankTitle = useCallback(
-    (text: string) => {
-      const match = text.match(BLANK_REGEX);
-      if (!match || match.index === undefined) {
-        return <MarkdownText>{text}</MarkdownText>;
-      }
-      const before = text.slice(0, match.index);
-      const after = text.slice(match.index + match[0].length);
-      return (
-        <span className="[&_.markdown-text]:inline [&_.markdown-text>span]:inline">
-          {before && <MarkdownText>{before}</MarkdownText>}
-          <BlankSlot
-            value={typedAnswer}
-            hasSelection={!!quiz.selectedOption}
-            onClick={() => inputRef.current?.focus()}
-            ariaLabel={t('빈칸을 클릭하여 답 입력')}
-          />
-          {after && <MarkdownText>{after}</MarkdownText>}
-        </span>
-      );
-    },
-    [typedAnswer, quiz.selectedOption, t],
-  );
-
-  // 문제 전환 시 상태 동기화 (Flash 방지용 render-phase update)
-  const [prevQuestionNum, setPrevQuestionNum] = useState(quiz.currentQuestion);
-  if (quiz.currentQuestion !== prevQuestionNum) {
-    setPrevQuestionNum(quiz.currentQuestion);
-
-    // 1. 선택지 공개 상태 동기화 (BLANK 문제만 토글 사용)
-    if (isBlank) {
-      const alreadyAnswered = !isUnanswered(
-        quiz.currentQuiz?.userAnswer,
-        quiz.currentQuiz?.selections,
-      );
-      setShowSelections(alreadyAnswered);
-    } else {
-      setShowSelections(true);
-    }
-
-    // 2. BLANK 문제 답안 로드
-    if (isBlank) {
-      const answered = quiz.currentQuiz?.selections?.find(
-        (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
-      );
-      setTypedAnswer(answered ? answered.content : '');
-    } else {
-      setTypedAnswer('');
-    }
-  }
-
-  // 문제 전환 후 포커스 처리 (포커스는 사이드 이펙트이므로 useEffect 유지)
-  useEffect(() => {
-    if (isBlank && !isUnanswered(quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections)) {
-      const isTouch = window.matchMedia('(pointer: coarse)').matches;
-      if (!isTouch) {
-        setTimeout(() => inputRef.current?.focus(), 100);
-      }
-    }
-  }, [quiz.currentQuestion, isBlank, quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections]);
 
   // 퀴즈 제목을 브라우저 탭 타이틀에 반영
   useEffect(() => {
@@ -182,6 +62,7 @@ const SolveQuizDesign: React.FC = () => {
     };
   }, [quiz.title]);
 
+  // 언마운트 시 스트리밍 상태 초기화
   useEffect(() => {
     return () => {
       resetQuizGeneration();
@@ -193,7 +74,8 @@ const SolveQuizDesign: React.FC = () => {
     q: (typeof quiz.quizzes)[number],
     keyPrefix = '',
   ): React.ReactElement => {
-    const unanswered = isUnanswered(q.userAnswer, q.selections);
+    const unanswered =
+      !q.userAnswer || !String(q.userAnswer).trim() || String(q.userAnswer) === '0';
     return (
       <button
         key={`${keyPrefix}${q.number}`}
@@ -213,7 +95,7 @@ const SolveQuizDesign: React.FC = () => {
     );
   };
 
-  /** 대기 중인 문제 번호 버튼 렌더링 */
+  /** 대기 중인 문제 번호 버튼 렌더링 (스트리밍 중) */
   const renderPendingButton = (index: number, keyPrefix = ''): React.ReactElement => (
     <button
       key={`${keyPrefix}pending-${index}`}
@@ -222,169 +104,6 @@ const SolveQuizDesign: React.FC = () => {
     >
       ...
     </button>
-  );
-
-  /** 선택지 클릭 시 입력 필드에도 반영 */
-  const handleBlankOptionSelect = (optId: string) => {
-    quizActions.handleOptionSelect(optId);
-    const selected = quiz.currentQuiz?.selections?.find((sel) => sel.id === optId);
-    if (selected) {
-      setTypedAnswer(selected.content);
-    }
-    // 입력 필드로 포커스 복귀
-    setTimeout(() => inputRef.current?.focus(), 100);
-  };
-
-  /** BLANK 문제의 직접 입력 + 폴백 선택지 영역 */
-  const renderBlankInput = () => (
-    <div className="flex flex-col gap-3 max-md:mt-2">
-      {/* Phase 1: 직접 입력 필드 */}
-      <div className="relative flex flex-col gap-2">
-        <div className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground/60">
-          <PenLine className="size-4" />
-        </div>
-        <input
-          ref={inputRef}
-          type="text"
-          value={typedAnswer}
-          onChange={(e) => setTypedAnswer(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              // Enter 키로 선택지 토글
-              e.preventDefault();
-              setShowSelections((prev) => {
-                if (!prev) {
-                  setTimeout(() => firstSelectionRef.current?.focus(), 310);
-                }
-                return !prev;
-              });
-            } else if (e.key === 'Escape') {
-              // Escape 키로 포커스 해제
-              e.preventDefault();
-              inputRef.current?.blur();
-            }
-          }}
-          placeholder={t('답을 직접 입력하세요')}
-          aria-label={t('답을 직접 입력하세요')}
-          className={cn(
-            'h-14 w-full rounded-2xl border border-input bg-card pl-10 pr-12 text-base text-foreground shadow-card max-md:pr-4',
-            'placeholder:text-muted-foreground/50',
-            'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-0',
-            'transition-all duration-200',
-          )}
-        />
-        {/* Enter 키 힌트 뱃지 (데스크톱만 표시) */}
-        <div className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 max-md:hidden">
-          <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-            Enter
-          </kbd>
-        </div>
-      </div>
-
-      {/* 선택지 토글 버튼 */}
-      <button
-        className={cn(
-          'flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border-none px-4 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.98]',
-          showSelections
-            ? 'bg-primary/10 text-primary hover:bg-primary/15'
-            : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground',
-        )}
-        onClick={toggleSelections}
-        aria-expanded={showSelections}
-        aria-controls={listboxId}
-      >
-        {showSelections ? t('선택지 숨기기') : t('선택지 보기')}
-        {showSelections ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-      </button>
-
-      {/* Phase 2: 선택지 리스트 (즉시 노출/숨김) */}
-      {showSelections && (
-        <div className="overflow-hidden px-1 pt-1 pb-4">
-          <div
-            id={listboxId}
-            className="flex flex-col gap-3 max-md:gap-2"
-            role="listbox"
-            aria-label={t('선택지 보기')}
-          >
-            {quiz.currentQuiz?.selections?.map((opt, idx) => (
-              <div
-                key={opt.id}
-                ref={idx === 0 ? firstSelectionRef : undefined}
-                tabIndex={showSelections ? 0 : -1}
-                role="option"
-                aria-selected={quiz.selectedOption === opt.id}
-                className={cn(
-                  'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
-                  'hover:bg-muted',
-                  'max-md:min-h-12 max-md:px-3 max-md:py-4',
-                  quiz.selectedOption === opt.id && 'ring-2 ring-primary ring-offset-1',
-                )}
-                onClick={() => handleBlankOptionSelect(opt.id)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleBlankOptionSelect(opt.id);
-                  } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    const next = e.currentTarget.nextElementSibling as HTMLElement | null;
-                    next?.focus();
-                  } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    const prev = e.currentTarget.previousElementSibling as HTMLElement | null;
-                    prev?.focus();
-                  } else if (e.key === 'Escape') {
-                    e.preventDefault();
-                    setShowSelections(false);
-                    setTimeout(() => inputRef.current?.focus(), 310);
-                  }
-                }}
-              >
-                <span
-                  className={cn(
-                    'mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs',
-                    quiz.selectedOption === opt.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted',
-                  )}
-                >
-                  {idx + 1}
-                </span>
-                <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
-                  <MarkdownText>{opt.content}</MarkdownText>
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  /** 선택지 영역 렌더링 */
-  const renderSelections = () => (
-    <div className="overflow-hidden px-1 pt-1 pb-4">
-      <div className="flex flex-col gap-3 max-md:gap-2">
-        {quiz.currentQuiz?.selections?.map((opt, idx) => (
-          <div
-            key={opt.id}
-            className={cn(
-              'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
-              'hover:bg-muted',
-              'max-md:min-h-12 max-md:px-3 max-md:py-4',
-              quiz.selectedOption === opt.id && 'ring-2 ring-primary ring-offset-0',
-            )}
-            onClick={() => quizActions.handleOptionSelect(opt.id)}
-          >
-            <span className="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs">
-              {idx + 1}
-            </span>
-            <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
-              <MarkdownText>{opt.content}</MarkdownText>
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 
   return (
@@ -457,15 +176,12 @@ const SolveQuizDesign: React.FC = () => {
                   <h3 className="mb-4 text-lg font-semibold text-foreground">{t('선택한 답안')}</h3>
                   <div className="max-h-[300px] overflow-y-auto rounded-2xl border border-border p-3">
                     {quiz.quizzes.map((quizItem) => {
-                      const unanswered = isUnanswered(quizItem.userAnswer, quizItem.selections);
+                      const ua = quizItem.userAnswer;
+                      const uaStr = ua != null && ua !== 0 ? String(ua) : '';
+                      const unanswered = !uaStr.trim();
                       const selectedAnswer = unanswered
                         ? t('미선택')
-                        : quizItem.selections?.find(
-                            (sel) => String(sel.id) === String(quizItem.userAnswer),
-                          )?.content ||
-                          t('{{quizItem_userAnswer}}번', {
-                            quizItem_userAnswer: quizItem.userAnswer ?? '',
-                          });
+                        : uaStr.slice(0, 50) + (uaStr.length > 50 ? '...' : '');
 
                       return (
                         <div
@@ -581,7 +297,7 @@ const SolveQuizDesign: React.FC = () => {
 
       {/* 메인 콘텐츠 — lg 이상 2컬럼 */}
       <main className="mx-auto flex w-[95%] max-w-[1200px] flex-col py-6 lg:grid lg:grid-cols-12 lg:gap-6">
-        {/* 좌측 패널: 문제 + 선택지 (col-span-8) */}
+        {/* 좌측 패널: 문제 + 서술형 입력 (col-span-8) */}
         <section className="flex flex-col gap-4 lg:col-span-8">
           {/* 질문 네비게이션 */}
           <nav className="flex items-center justify-between max-md:gap-2">
@@ -611,15 +327,11 @@ const SolveQuizDesign: React.FC = () => {
                 <Skeleton className="mb-2 h-5 w-3/4 rounded" />
                 <Skeleton className="h-32 w-full rounded-lg" />
               </div>
-              <div className="space-y-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="h-14 w-full rounded-xl" />
-                ))}
-              </div>
+              <Skeleton className="h-40 w-full rounded-2xl" />
             </div>
           ) : (
             <>
-              {/* 문제 영역 — 시각적으로 하나의 카드 */}
+              {/* 문제 카드 */}
               <div className="w-full overflow-hidden rounded-2xl bg-card shadow-card">
                 {/* 검토 버튼 */}
                 <div className="flex justify-end px-5 pt-4 pb-0">
@@ -648,37 +360,33 @@ const SolveQuizDesign: React.FC = () => {
                   </button>
                 </div>
 
-                {/* 질문 제목 — BLANK 문제일 때 빈칸 슬롯으로 시각화 */}
+                {/* 질문 제목 */}
                 <div className="p-5 pt-2 pb-6">
                   <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                    {isBlank ? (
-                      renderBlankTitle(quiz.currentQuiz?.title.split('\n')[0] ?? '')
-                    ) : (
-                      <MarkdownText>{quiz.currentQuiz?.title.split('\n')[0] ?? ''}</MarkdownText>
-                    )}
+                    <MarkdownText>{quiz.currentQuiz?.title.split('\n')[0] ?? ''}</MarkdownText>
                   </div>
                 </div>
 
-                {/* 문제 본문 (코드, 힌트 등) */}
+                {/* 문제 본문 (코드, 힌트 등 — 줄바꿈이 있는 경우) */}
                 {quiz.currentQuiz?.title.includes('\n') && (
                   <div className="px-5 pt-3 pb-6">
                     <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                      {isBlank ? (
-                        renderBlankTitle(
-                          quiz.currentQuiz?.title.split('\n').slice(1).join('\n') ?? '',
-                        )
-                      ) : (
-                        <MarkdownText>
-                          {quiz.currentQuiz?.title.split('\n').slice(1).join('\n') ?? ''}
-                        </MarkdownText>
-                      )}
+                      <MarkdownText>
+                        {quiz.currentQuiz?.title.split('\n').slice(1).join('\n') ?? ''}
+                      </MarkdownText>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* 선택지 영역: BLANK이면 직접 입력 UI, 아니면 기존 선택지 */}
-              {isBlank ? renderBlankInput() : renderSelections()}
+              {/* 서술형 답안 입력·채점 영역 */}
+              {quiz.currentQuiz && (
+                <EssayInput
+                  problemSetId={problemSetId ?? ''}
+                  currentQuiz={quiz.currentQuiz}
+                  onAnswerChange={quizActions.handleOptionSelect}
+                />
+              )}
             </>
           )}
 
@@ -736,6 +444,9 @@ const SolveQuizDesign: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* 건의함 */}
+            <FeedbackBox t={t} />
           </div>
         </section>
 
@@ -838,16 +549,21 @@ const SolveQuizDesign: React.FC = () => {
           </div>
 
           {/* PC 전용: 문제 번호 네비게이션 카드 */}
-          <div className="sticky top-6 rounded-2xl bg-card p-5 shadow-card">
-            <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
-              {t('문제 목록')}
-            </h3>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(2.25rem,1fr))] gap-2">
-              {quiz.quizzes.map((q) => renderQuestionButton(q, 'sidebar-'))}
-              {Array.from({ length: remainingCount }).map((_, index) =>
-                renderPendingButton(index, 'sidebar-'),
-              )}
+          <div className="sticky top-6 flex flex-col gap-5">
+            <div className="rounded-2xl bg-card p-5 shadow-card">
+              <h3 className="mb-4 border-b border-border pb-3 text-sm font-semibold text-foreground">
+                {t('문제 목록')}
+              </h3>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(2.25rem,1fr))] gap-2">
+                {quiz.quizzes.map((q) => renderQuestionButton(q, 'sidebar-'))}
+                {Array.from({ length: remainingCount }).map((_, index) =>
+                  renderPendingButton(index, 'sidebar-'),
+                )}
+              </div>
             </div>
+
+            {/* 건의함 */}
+            <FeedbackBox t={t} />
           </div>
         </aside>
 
@@ -922,4 +638,71 @@ const SolveQuizDesign: React.FC = () => {
   );
 };
 
-export default SolveQuizDesign;
+/* ─── 건의함 컴포넌트 ─── */
+const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
+  const [content, setContent] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!content.trim()) return;
+    setIsSubmitting(true);
+    try {
+      await axiosInstance.post('/feedback', { content: content.trim() });
+      setSubmitted(true);
+      setContent('');
+      CustomToast.success(t('소중한 의견 감사합니다!'));
+    } catch {
+      CustomToast.error(t('전송에 실패했습니다. 다시 시도해주세요.'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Card className="overflow-hidden rounded-2xl border border-border">
+      <div className="flex items-center gap-2 px-4 py-3 sm:px-6">
+        <MessageCircle className="size-4 text-primary" />
+        <p className="text-sm font-semibold text-foreground">
+          {t('베타 버전입니다! 건의사항 / 피드백 있으면 부탁드립니다!')}
+        </p>
+      </div>
+
+      <CardContent className="px-4 pb-4 sm:px-6 sm:pb-5">
+        {submitted ? (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">{t('소중한 의견 감사합니다!')}</p>
+            <button
+              onClick={() => setSubmitted(false)}
+              className="cursor-pointer text-xs text-muted-foreground underline transition-colors hover:text-foreground"
+            >
+              {t('추가 피드백 작성')}
+            </button>
+          </div>
+        ) : (
+          <>
+            <textarea
+              value={content}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
+              placeholder={t('불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.')}
+              rows={3}
+              className="w-full resize-none rounded-sm border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+
+            <div className="mt-2 flex justify-end">
+              <button
+                onClick={handleSubmit}
+                disabled={!content.trim() || isSubmitting}
+                className="cursor-pointer rounded-xl border-none bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmitting ? t('전송 중...') : t('전송')}
+              </button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default EssaySolveQuiz;

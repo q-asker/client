@@ -25,7 +25,24 @@ export interface QuizSelection {
   correct?: boolean;
 }
 
-export type QuizType = 'BLANK' | 'MULTIPLE' | 'OX';
+export type QuizType = 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY';
+
+/** 서술형 채점 요소별 점수 */
+export interface ElementScore {
+  element: string;
+  maxPoints: number;
+  earnedPoints: number;
+  level: string;
+  feedback: string;
+}
+
+/** 서술형 AI 채점 결과 */
+export interface GradeResult {
+  elementScores: ElementScore[];
+  totalScore: number;
+  maxScore: number;
+  overallFeedback: string;
+}
 
 export interface Quiz {
   number: number;
@@ -35,6 +52,8 @@ export interface Quiz {
   userAnswer?: string | null;
   inReview?: boolean;
   appliedInstruction?: string | null;
+  modelAnswer?: string | null;
+  gradeResult?: GradeResult | null;
 }
 
 export interface FileInfo {
@@ -56,7 +75,6 @@ interface GenerateQuestionsParams {
   fileName: string;
   questionType: string;
   questionCount: number;
-  quizLevel: string;
   selectedPages: number[];
   language?: 'KO' | 'EN';
   customInstruction?: string;
@@ -68,7 +86,6 @@ interface StartGenerationParams {
     title: string;
     quizCount: number;
     quizType: string;
-    difficultyType: string;
     pageNumbers: number[];
     language?: string;
     customInstruction?: string;
@@ -327,7 +344,6 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
         fileName,
         questionType,
         questionCount,
-        quizLevel,
         selectedPages,
         language,
         customInstruction,
@@ -357,7 +373,6 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
               title: fileName,
               quizCount: questionCount,
               quizType: questionType,
-              difficultyType: quizLevel,
               pageNumbers: selectedPages,
               language: language || (currentLanguage === 'en' ? 'EN' : 'KO'),
               ...(customInstruction?.trim() ? { customInstruction: customInstruction.trim() } : {}),

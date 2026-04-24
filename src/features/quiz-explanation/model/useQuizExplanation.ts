@@ -4,8 +4,8 @@ import { pdfjs } from 'react-pdf';
 import CustomToast from '#shared/toast';
 import axiosInstance from '#shared/api';
 import { trackQuizEvents } from '#shared/lib/analytics';
-import { loadResult } from '#features/solve-quiz';
-import type { Quiz } from '#features/quiz-generation';
+import { loadResult, loadEssayGradeResults } from '#features/solve-quiz';
+import type { Quiz, GradeResult } from '#features/quiz-generation';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -71,6 +71,8 @@ interface ExplanationState {
 interface UiState {
   isLoading: boolean;
   uploadedUrl: string;
+  isEssay: boolean;
+  essayGradeResults: Record<number, GradeResult>;
 }
 
 interface QuizActions {
@@ -121,6 +123,7 @@ export const useQuizExplanation = ({
   problemSetId,
 }: UseQuizExplanationParams): UseQuizExplanationReturn => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [essayGradeResults, setEssayGradeResults] = useState<Record<number, GradeResult>>({});
   const [explanationData, setExplanationData] = useState<RawExplanation>({});
   const [showPdf, setShowPdf] = useState(false);
   const [pdfWidth, setPdfWidth] = useState(600);
@@ -147,13 +150,20 @@ export const useQuizExplanation = ({
 
         // localStorage 채점 결과에서 답안 병합
         const savedResult = loadResult(problemSetId);
+        const localGrades = loadEssayGradeResults(problemSetId);
+        setEssayGradeResults(localGrades);
+
         const merged = savedResult
           ? serverQuizzes.map((q) => ({
               ...q,
               userAnswer: savedResult.answers[q.number] ?? q.userAnswer,
               inReview: savedResult.inReview?.[q.number] ?? false,
+              gradeResult: localGrades[q.number] ?? q.gradeResult ?? null,
             }))
-          : serverQuizzes;
+          : serverQuizzes.map((q) => ({
+              ...q,
+              gradeResult: localGrades[q.number] ?? q.gradeResult ?? null,
+            }));
 
         setQuizzes(merged);
         setExplanationData(explanationRes.data);
@@ -173,17 +183,28 @@ export const useQuizExplanation = ({
     ? explanationData.results
     : [];
 
+  const isEssay = useMemo(() => {
+    return quizzes.length > 0 && quizzes[0]?.type === 'ESSAY';
+  }, [quizzes]);
+
   const filteredQuizzes = useMemo(() => {
     if (!showWrongOnly) return quizzes;
 
     return quizzes.filter((q) => {
-      if (q.userAnswer === undefined || q.userAnswer === null) return false;
+      // ESSAY: gradeResult 기반 필터링 (80% 미만이면 오답)
+      if (q.type === 'ESSAY') {
+        const gr = q.gradeResult;
+        if (!gr) return true; // 채점 안 된 건 오답 취급
+        const ratio = gr.maxScore > 0 ? gr.totalScore / gr.maxScore : 0;
+        return ratio < 0.8;
+      }
 
+      // 기존 선택형 필터링
+      if (q.userAnswer === undefined || q.userAnswer === null) return false;
       const correctOption = q.selections.find(
         (opt) => (opt as unknown as { correct: boolean }).correct === true,
       );
       if (!correctOption) return false;
-
       return Number(q.userAnswer) !== Number(correctOption.id);
     });
   }, [quizzes, showWrongOnly]);
@@ -342,6 +363,8 @@ export const useQuizExplanation = ({
       ui: {
         isLoading,
         uploadedUrl: explanationData.fileUrl ?? '',
+        isEssay,
+        essayGradeResults,
       },
     },
     actions: {

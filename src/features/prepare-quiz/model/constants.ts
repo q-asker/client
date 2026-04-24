@@ -6,10 +6,10 @@ export interface LevelDescription {
 }
 
 /** 퀴즈 유형 키 */
-export type QuestionType = 'BLANK' | 'OX' | 'MULTIPLE';
+export type QuestionType = 'BLANK' | 'OX' | 'MULTIPLE' | 'ESSAY';
 
 /** 퀴즈 난이도 키 */
-export type QuizLevel = 'RECALL' | 'SKILLS' | 'STRATEGIC';
+export type QuizLevel = 'RECALL' | 'SKILLS' | 'STRATEGIC' | 'ANALYTICAL';
 
 /** 번역 함수 타입 */
 type TranslationFn = (value: string, variables?: Record<string, string | number>) => string;
@@ -33,6 +33,11 @@ export const getLevelDescriptions = (
       '예) 다음 표를 보고 물음에 답하시오.\n\n| 연도 | 수출액 | 수입액 |\n|------|--------|--------|\n| 2023 | 120억 | 80억 |\n| 2024 | 90억 | 110억 |\n\n무역수지가 적자로 전환된 연도는?',
     ),
     options: [t('2023년'), t('2024년'), t('알 수 없다'), t('해당 없음')],
+  },
+  ANALYTICAL: {
+    title: t('개념을 자신의 언어로 설명하는 서술형 문제'),
+    question: t('예) 광합성 과정에서 빛 반응과 암반응의 차이점을 설명하시오.'),
+    options: [],
   },
 });
 
@@ -60,6 +65,7 @@ export const levelMapping: Record<QuestionType, QuizLevel> = {
   BLANK: 'RECALL',
   OX: 'SKILLS',
   MULTIPLE: 'STRATEGIC',
+  ESSAY: 'ANALYTICAL',
 };
 
 export const defaultType: QuestionType = 'MULTIPLE';
