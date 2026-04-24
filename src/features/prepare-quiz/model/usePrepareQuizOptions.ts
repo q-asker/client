@@ -1,13 +1,12 @@
 import { useCallback } from 'react';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
-import type { QuestionType, QuizLevel } from './constants';
+import type { QuestionType } from './constants';
 import { defaultType } from './constants';
-import { usePrepareQuizSettingsStore, getQuizLevel } from './usePrepareQuizSettingsStore';
+import { usePrepareQuizSettingsStore } from './usePrepareQuizSettingsStore';
 
 export interface PrepareQuizOptionsState {
   questionType: QuestionType;
   questionCount: number;
-  quizLevel: QuizLevel;
   language: 'KO' | 'EN';
 }
 
@@ -30,16 +29,19 @@ export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
   const setQuestionType = usePrepareQuizSettingsStore((s) => s.setQuestionType);
   const setQuestionCount = usePrepareQuizSettingsStore((s) => s.setQuestionCount);
   const setLanguage = usePrepareQuizSettingsStore((s) => s.setLanguage);
-  const quizLevel = getQuizLevel(questionType);
 
   const handleQuestionTypeChange = useCallback(
     (nextType: QuestionType, label: string) => {
       if (questionType !== nextType) {
         trackPrepareQuizEvents.changeQuizOption('question_type', label);
         setQuestionType(nextType);
+        // 서술형은 5 또는 10문제만 허용
+        if (nextType === 'ESSAY' && questionCount > 10) {
+          setQuestionCount(10);
+        }
       }
     },
-    [questionType, setQuestionType],
+    [questionType, questionCount, setQuestionType, setQuestionCount],
   );
 
   const handleQuestionCountChange = useCallback(
@@ -73,7 +75,6 @@ export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
     state: {
       questionType,
       questionCount,
-      quizLevel,
       language,
     },
     actions: {

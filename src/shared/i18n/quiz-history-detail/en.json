@@ -1,5 +1,11 @@
 {
   "기록을 불러오는데 실패했습니다.": "Failed to load records.",
+  "내 답변": "My Answer",
   "목록으로": "Back to List",
-  "해설 보기": "View Explanation"
+  "부분 정답": "Partial",
+  "정답": "Correct",
+  "점": "pts",
+  "총점": "Total",
+  "해설 보기": "View Explanation",
+  "모범답안": "Model Answer"
 }

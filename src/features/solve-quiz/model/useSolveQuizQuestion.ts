@@ -59,15 +59,17 @@ export const useSolveQuizQuestion = ({
   const handleOptionSelect = useCallback(
     (id: string): void => {
       const currentQuiz = quizzes[currentQuestion - 1];
+      const isEssay = currentQuiz?.type === 'ESSAY';
       const selected = currentQuiz?.selections?.find((s) => s.id === id);
 
-      if (!selected) return;
+      // ESSAY는 selections 없이 직접 텍스트를 저장, 그 외는 선택지 일치 필요
+      if (!isEssay && !selected) return;
 
       trackQuizEvents.selectAnswer(
         problemSetId,
         currentQuestion,
         id,
-        (selected as QuizSelection & { correct?: boolean }).correct || false,
+        (selected as QuizSelection & { correct?: boolean })?.correct || false,
       );
 
       setQuizzes((prev) =>

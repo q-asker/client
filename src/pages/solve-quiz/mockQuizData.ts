@@ -173,6 +173,40 @@ export const MOCK_QUIZZES: Quiz[] = [
  * BLANK(빈칸 채우기) 타입 mock 퀴즈 데이터.
  * URL에 ?mock=true&design=C|D|E|F 추가 시 BLANK 전용 UI를 테스트할 수 있다.
  */
+/**
+ * ESSAY(서술형) 타입 mock 퀴즈 데이터.
+ * URL에 ?mock=true&essay=true 추가 시 ESSAY 전용 UI를 테스트할 수 있다.
+ */
+export const MOCK_ESSAY_QUIZZES: Quiz[] = [
+  {
+    number: 1,
+    type: 'ESSAY',
+    title:
+      '**TCP 3-Way Handshake**의 각 단계(SYN, SYN+ACK, ACK)에서 클라이언트와 서버가 수행하는 동작을 설명하고, 이 과정이 필요한 이유를 서술하시오.',
+    selections: [],
+    modelAnswer:
+      'TCP 3-Way Handshake는 클라이언트와 서버 간의 신뢰성 있는 연결을 수립하기 위한 과정이다. 1단계에서 클라이언트는 SYN 플래그가 설정된 세그먼트를 서버에 전송하여 연결을 요청한다. 2단계에서 서버는 SYN+ACK 세그먼트로 응답하여 연결 요청을 수락하고 자신도 연결을 요청한다. 3단계에서 클라이언트는 ACK 세그먼트를 전송하여 서버의 연결 요청을 확인한다. 이 과정은 양방향 통신 채널을 확립하고, 초기 순서 번호(ISN)를 교환하며, 양측 모두 데이터를 송수신할 준비가 되었음을 확인하기 위해 필요하다.',
+  },
+  {
+    number: 2,
+    type: 'ESSAY',
+    title:
+      '**React**에서 `useEffect`와 `useLayoutEffect`의 차이점을 설명하고, 각각 어떤 상황에서 사용하는 것이 적절한지 예시를 들어 서술하시오.',
+    selections: [],
+    modelAnswer:
+      'useEffect는 브라우저가 화면을 그린(paint) 후에 비동기적으로 실행되는 반면, useLayoutEffect는 DOM 변경 후 브라우저가 화면을 그리기 전에 동기적으로 실행된다. useEffect는 데이터 페칭, 이벤트 리스너 등록, 타이머 설정 등 화면 렌더링을 차단할 필요가 없는 부수 효과에 적합하다. useLayoutEffect는 DOM 측정(요소 크기, 위치), 스크롤 위치 조정, 깜빡임 방지가 필요한 DOM 조작 등에 적합하다.',
+  },
+  {
+    number: 3,
+    type: 'ESSAY',
+    title:
+      '**SOLID 원칙** 중 **단일 책임 원칙(SRP)**과 **개방-폐쇄 원칙(OCP)**을 각각 설명하고, 이 원칙들이 왜 중요한지 실제 코드 설계 관점에서 서술하시오.',
+    selections: [],
+    modelAnswer:
+      '단일 책임 원칙(SRP)은 클래스는 하나의 책임만 가져야 하며, 변경의 이유가 하나여야 한다는 원칙이다. 개방-폐쇄 원칙(OCP)은 소프트웨어 요소는 확장에는 열려 있고 수정에는 닫혀 있어야 한다는 원칙이다. SRP는 코드의 응집도를 높이고 변경의 영향 범위를 줄여 유지보수를 용이하게 한다. OCP는 기존 코드를 수정하지 않고 새로운 기능을 추가할 수 있게 하여, 안정성을 유지하면서 확장성을 확보한다.',
+  },
+];
+
 export const MOCK_BLANK_QUIZZES: Quiz[] = [
   {
     number: 1,

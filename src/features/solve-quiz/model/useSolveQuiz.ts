@@ -134,7 +134,15 @@ export const useSolveQuiz = ({
   }, [solveQuizzes, question.state.currentQuestion]);
 
   const unansweredCount = useMemo(
-    () => solveQuizzes.filter((q) => isUnanswered(q.userAnswer, q.selections)).length,
+    () =>
+      solveQuizzes.filter((q) => {
+        // ESSAY는 텍스트 답안이므로 선택지 매칭이 아닌 빈 값 여부로 판정
+        if (q.type === 'ESSAY') {
+          const ua = q.userAnswer;
+          return !ua || !String(ua).trim() || String(ua) === '0';
+        }
+        return isUnanswered(q.userAnswer, q.selections);
+      }).length,
     [solveQuizzes],
   );
   const reviewCount = useMemo(() => solveQuizzes.filter((q) => q.inReview).length, [solveQuizzes]);
