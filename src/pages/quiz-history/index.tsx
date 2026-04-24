@@ -22,10 +22,11 @@ import {
   LogIn,
 } from 'lucide-react';
 
-const QUIZ_TYPE_LABEL: Record<'MULTIPLE' | 'BLANK' | 'OX', string> = {
+const QUIZ_TYPE_LABEL: Record<'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY', string> = {
   MULTIPLE: '객관식',
   OX: 'OX',
   BLANK: '빈칸',
+  ESSAY: '서술형',
 };
 
 const QuizHistory = () => {
@@ -229,7 +230,9 @@ const QuizHistory = () => {
                         <div className="text-center text-sm font-semibold">
                           {record.completed && record.score !== null ? (
                             <span className="text-foreground">
-                              {Math.round((record.score / record.totalCount) * 100)}
+                              {record.quizType === 'ESSAY'
+                                ? record.score
+                                : Math.round((record.score / record.totalCount) * 100)}
                               {t('점')}
                             </span>
                           ) : (
@@ -315,7 +318,9 @@ const QuizHistory = () => {
                           </div>
                           {record.completed && record.score !== null ? (
                             <span className="shrink-0 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
-                              {Math.round((record.score / record.totalCount) * 100)}
+                              {record.quizType === 'ESSAY'
+                                ? record.score
+                                : Math.round((record.score / record.totalCount) * 100)}
                               {t('점')}
                             </span>
                           ) : (

@@ -12,7 +12,7 @@ export interface HistoryItem {
   title: string;
   createdAt: string;
   historyId: string | null;
-  quizType: 'MULTIPLE' | 'BLANK' | 'OX';
+  quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY';
   totalCount: number;
   completed: boolean;
   score: number | null;
@@ -149,7 +149,7 @@ export const useQuizHistory = ({
 
   const navigateToDetail = (record: HistoryItem): void => {
     if (!record.historyId) return;
-    navigate(`/history/${record.historyId}`);
+    navigate(`/history/${record.historyId}`, { state: { quizType: record.quizType } });
   };
 
   const navigateToQuiz = (record: HistoryItem): void => {
@@ -157,7 +157,11 @@ export const useQuizHistory = ({
       trackQuizHistoryEvents.clickRetryQuiz(
         record.problemSetId,
         '',
-        record.score !== null ? Math.round((record.score / record.totalCount) * 100) : 0,
+        record.score !== null
+          ? record.quizType === 'ESSAY'
+            ? record.score
+            : Math.round((record.score / record.totalCount) * 100)
+          : 0,
       );
     } else {
       trackQuizHistoryEvents.clickResumeQuiz(record.problemSetId, '', record.totalCount);
@@ -254,7 +258,11 @@ export const useQuizHistory = ({
       scoredQuizzes.length > 0
         ? Math.round(
             scoredQuizzes.reduce(
-              (sum, item) => sum + Math.round(((item.score ?? 0) / item.totalCount) * 100),
+              (sum, item) =>
+                sum +
+                (item.quizType === 'ESSAY'
+                  ? (item.score ?? 0)
+                  : Math.round(((item.score ?? 0) / item.totalCount) * 100)),
               0,
             ) / scoredQuizzes.length,
           )

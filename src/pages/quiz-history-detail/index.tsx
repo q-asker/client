@@ -1,76 +1,69 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import axiosInstance from '#shared/api';
-import { saveResult } from '#features/solve-quiz';
 import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
-import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
-import { ArrowLeft, Calendar, Home } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import type { HistoryDetailData, EssayHistoryDetailData } from './types';
 
-// ── 타입 ──
+const ChoiceHistoryDetail = lazy(() => import('./ChoiceHistoryDetail'));
+const EssayHistoryDetail = lazy(() => import('./EssayHistoryDetail'));
 
-interface Selection {
-  id: number;
-  content: string;
-  correct: boolean;
-}
-
-interface Problem {
-  number: number;
-  title: string;
-  userAnswer: number;
-  correct: boolean;
-  inReview: boolean;
-  selections: Selection[];
-}
-
-interface HistoryDetail {
-  historyId: string;
-  problemSetId: string;
-  quizType: 'MULTIPLE' | 'BLANK' | 'OX';
-  totalCount: number;
-  score: number;
-  totalTime: string;
-  takenAt: string;
-  problems: Problem[];
-}
-
-// ── 컴포넌트 ──
-
-const QuizHistoryDetail = () => {
-  const { t, currentLanguage } = useTranslation('quiz-history-detail');
+/** quizType을 감지하여 ESSAY / 선택형 히스토리 상세를 분기 렌더 */
+const QuizHistoryDetail: React.FC = () => {
+  const { t } = useTranslation('quiz-history-detail');
   const { historyId } = useParams<{ historyId: string }>();
   const navigate = useNavigate();
-  const [detail, setDetail] = useState<HistoryDetail | null>(null);
+  const location = useLocation();
+  const routeQuizType = (location.state as { quizType?: string } | null)?.quizType;
+
+  const [choiceDetail, setChoiceDetail] = useState<HistoryDetailData | null>(null);
+  const [essayDetail, setEssayDetail] = useState<EssayHistoryDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!historyId) return;
-    axiosInstance
-      .get<HistoryDetail>(`/history/${historyId}`)
-      .then((res) => setDetail(res.data))
-      .catch((err: { response?: { status?: number } }) => {
-        if (err.response?.status === 401) {
-          navigate('/login');
-        } else {
-          setError(true);
-        }
-      })
-      .finally(() => setLoading(false));
-  }, [historyId]);
 
-  const formatDate = (dateString: string) => {
-    const locale = currentLanguage?.startsWith('en') ? 'en-US' : 'ko-KR';
-    return new Date(dateString).toLocaleDateString(locale, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+    const handleError = (err: { response?: { status?: number } }) => {
+      if (err.response?.status === 401) {
+        navigate('/login');
+      } else {
+        setError(true);
+      }
+    };
+
+    // route state로 quizType을 알면 바로 분기
+    if (routeQuizType === 'ESSAY') {
+      axiosInstance
+        .get<EssayHistoryDetailData>(`/history/${historyId}/essay`)
+        .then((res) => setEssayDetail(res.data))
+        .catch(handleError)
+        .finally(() => setLoading(false));
+    } else if (routeQuizType) {
+      // 선택형 확정
+      axiosInstance
+        .get<HistoryDetailData>(`/history/${historyId}`)
+        .then((res) => setChoiceDetail(res.data))
+        .catch(handleError)
+        .finally(() => setLoading(false));
+    } else {
+      // 직접 URL 접근 — 선택형 API로 quizType 감지 후 분기
+      axiosInstance
+        .get<{ quizType: string }>(`/history/${historyId}`)
+        .then((res) => {
+          if (res.data.quizType === 'ESSAY') {
+            return axiosInstance
+              .get<EssayHistoryDetailData>(`/history/${historyId}/essay`)
+              .then((essayRes) => setEssayDetail(essayRes.data));
+          }
+          setChoiceDetail(res.data as unknown as HistoryDetailData);
+        })
+        .catch(handleError)
+        .finally(() => setLoading(false));
+    }
+  }, [historyId]);
 
   if (loading) {
     return (
@@ -88,7 +81,7 @@ const QuizHistoryDetail = () => {
     );
   }
 
-  if (error || !detail) {
+  if (error || (!choiceDetail && !essayDetail)) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
         <p className="text-muted-foreground">{t('기록을 불러오는데 실패했습니다.')}</p>
@@ -100,58 +93,14 @@ const QuizHistoryDetail = () => {
     );
   }
 
-  const scorePercent = Math.round((detail.score / detail.totalCount) * 100);
-
   return (
-    <>
-      <QuizScoreBoard
-        scorePercent={scorePercent}
-        totalCount={detail.totalCount}
-        correctCount={detail.score}
-        totalTime={detail.totalTime}
-        heroSubtitle={
-          <div className="flex items-center justify-center gap-1.5 text-sm text-primary-foreground/60">
-            <Calendar className="size-3.5" />
-            {formatDate(detail.takenAt)}
-          </div>
-        }
-        actionButton={
-          <div className="flex flex-col gap-2">
-            <Button
-              size="lg"
-              className="w-full text-base"
-              onClick={() => {
-                const answers: Record<number, string | null> = {};
-                const inReview: Record<number, boolean> = {};
-                detail.problems.forEach((p) => {
-                  answers[p.number] = p.userAnswer != null ? String(p.userAnswer) : null;
-                  inReview[p.number] = p.inReview ?? false;
-                });
-                saveResult(detail.problemSetId, {
-                  answers,
-                  inReview,
-                  totalTime: detail.totalTime,
-                  title: '',
-                  savedAt: Date.now(),
-                });
-                navigate(`/explanation/${detail.problemSetId}`);
-              }}
-            >
-              {t('해설 보기')}
-            </Button>
-            <button
-              type="button"
-              className="group mx-auto flex items-center gap-1.5 pt-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => navigate('/history')}
-            >
-              <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
-              {t('목록으로')}
-            </button>
-          </div>
-        }
-        problems={detail.problems}
-      />
-    </>
+    <Suspense fallback={null}>
+      {essayDetail ? (
+        <EssayHistoryDetail detail={essayDetail} />
+      ) : choiceDetail ? (
+        <ChoiceHistoryDetail detail={choiceDetail} />
+      ) : null}
+    </Suspense>
   );
 };
 

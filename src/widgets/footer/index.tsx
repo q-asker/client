@@ -55,7 +55,7 @@ const Footer = () => {
                 className="flex cursor-pointer items-center gap-2 rounded-md border border-border/50 bg-transparent px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-border hover:text-foreground"
               >
                 <Globe className="size-3.5" />
-                <span>{currentLanguage === 'ko' ? '한국어' : 'English'}</span>
+                <span>{currentLanguage === 'ko' ? t('한국어') : 'English'}</span>
                 <ChevronUp
                   className={cn(
                     'size-3 transition-transform duration-200',
@@ -87,7 +87,7 @@ const Footer = () => {
                               : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                           )}
                         >
-                          {lang === 'ko' ? '한국어' : 'English'}
+                          {lang === 'ko' ? t('한국어') : 'English'}
                           {currentLanguage === lang && <Check className="size-3" />}
                         </button>
                       ))}

@@ -36,7 +36,8 @@ if (typeof window !== 'undefined') {
 import { useNavigate } from 'react-router-dom';
 import RecentChanges from '#widgets/recent-changes';
 import { cn } from '@/shared/ui/lib/utils';
-import type { QuestionType, QuizLevel } from '#features/prepare-quiz';
+import type { QuestionType } from '#features/prepare-quiz';
+import { levelMapping } from '#features/prepare-quiz';
 import {
   ListChecks,
   PenLine,
@@ -126,7 +127,7 @@ const MakeQuiz: React.FC = () => {
   // 생성 완료 후 서버에서 ProblemSet 정보 조회
   interface ProblemSetSummary {
     title: string;
-    quizType: 'MULTIPLE' | 'BLANK' | 'OX';
+    quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY';
     totalCount: number;
   }
   const [problemSetInfo, setProblemSetInfo] = useState<ProblemSetSummary | null>(null);
@@ -188,13 +189,14 @@ const MakeQuiz: React.FC = () => {
   };
 
   const quizTypes: QuizTypeOption[] = [
+    { key: 'ESSAY', label: t('서술형'), icon: FileText },
     { key: 'MULTIPLE', label: t('객관식'), icon: ListChecks },
     { key: 'BLANK', label: t('빈칸 넣기'), icon: PenLine },
     { key: 'OX', label: t('OX 퀴즈'), icon: CircleDot },
   ];
 
   const currentLevel: { title: string; question: string; options: string[] } | undefined =
-    levelDescriptions[options.quizLevel as QuizLevel];
+    levelDescriptions[levelMapping[options.questionType as QuestionType]];
 
   // Hydration 완료 전 — 레이아웃만 표시하여 업로드↔퀴즈 화면 플래싱 방지
   if (!isHydrated) {
@@ -538,26 +540,29 @@ const MakeQuiz: React.FC = () => {
                         {t('문제')}
                       </span>
                       <div className="mt-4 w-full max-w-md">
-                        <input
-                          type="range"
-                          min="5"
-                          max="20"
-                          step="5"
-                          value={options.questionCount}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            const newCount: number = +e.target.value;
-                            optionActions.handleQuestionCountChange(newCount);
-                          }}
-                          aria-label={t('문제 수')}
-                          className="h-1.5 w-full accent-primary md:h-1"
-                        />
-
-                        <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-                          <span>5</span>
-                          <span>10</span>
-                          <span>15</span>
-                          <span>20</span>
-                        </div>
+                        {options.questionType === 'ESSAY' ? null : (
+                          <>
+                            <input
+                              type="range"
+                              min="5"
+                              max="20"
+                              step="5"
+                              value={options.questionCount}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                const newCount: number = +e.target.value;
+                                optionActions.handleQuestionCountChange(newCount);
+                              }}
+                              aria-label={t('문제 수')}
+                              className="h-1.5 w-full accent-primary md:h-1"
+                            />
+                            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+                              <span>5</span>
+                              <span>10</span>
+                              <span>15</span>
+                              <span>20</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </CardContent>

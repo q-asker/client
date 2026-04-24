@@ -8,11 +8,12 @@ import { trackQuizEvents } from '#shared/lib/analytics';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import type { Quiz } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
+import { clearEssayGradeResults, clearEssayAttempts } from './solveQuizProgress';
 
 /** API 응답 데이터 타입 */
 interface ProblemSetResponse {
   generationStatus: 'COMPLETED' | 'GENERATING';
-  quizType?: 'BLANK' | 'MULTIPLE' | 'OX';
+  quizType?: 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY';
   quiz: Quiz[];
   totalCount: number;
   sessionId: string;
@@ -47,7 +48,10 @@ interface UseSolveQuizDataReturn {
 }
 
 /** quizType을 각 quiz 항목에 전파 */
-const applyQuizType = (quizzes: Quiz[], quizType?: 'BLANK' | 'MULTIPLE' | 'OX'): Quiz[] => {
+const applyQuizType = (
+  quizzes: Quiz[],
+  quizType?: 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY',
+): Quiz[] => {
   if (!quizType) return quizzes;
   return quizzes.map((q) => (q.type ? q : { ...q, type: quizType }));
 };
@@ -91,10 +95,11 @@ export const useSolveQuizData = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [title, setTitle] = useState<string>('');
   const [historyId, setHistoryId] = useState<string | null>(null);
-  const [quizType, setQuizType] = useState<'BLANK' | 'MULTIPLE' | 'OX' | undefined>();
+  const [quizType, setQuizType] = useState<'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY' | undefined>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
   const isMockBlank = searchParams.get('blank') === 'true';
+  const isMockEssay = searchParams.get('essay') === 'true';
   const reconnectStream = useQuizGenerationStore((state) => state.reconnectStream);
   const setProblemSetInfo = useQuizGenerationStore((state) => state.setProblemSetInfo);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -110,9 +115,15 @@ export const useSolveQuizData = ({
     /* mock 모드: API 호출 없이 mock 데이터 사용 */
     if (isMock) {
       import('../../../pages/solve-quiz/mockQuizData').then((mod) => {
-        const data = isMockBlank ? mod.MOCK_BLANK_QUIZZES : mod.MOCK_QUIZZES;
+        const data = isMockEssay
+          ? mod.MOCK_ESSAY_QUIZZES
+          : isMockBlank
+            ? mod.MOCK_BLANK_QUIZZES
+            : mod.MOCK_QUIZZES;
         setLocalQuizzes(mergeWithProgress(data, savedProgress));
-        setTitle(isMockBlank ? t('BLANK Mock 퀴즈') : t('Mock 퀴즈'));
+        setTitle(
+          isMockEssay ? t('ESSAY Mock 퀴즈') : isMockBlank ? t('BLANK Mock 퀴즈') : t('Mock 퀴즈'),
+        );
         setIsLoading(false);
       });
       return;
@@ -162,7 +173,19 @@ export const useSolveQuizData = ({
         const typedQuizzes = applyQuizType(res.data.quiz, res.data.quizType);
 
         if (status === 'COMPLETED') {
-          setLocalQuizzes(mergeWithProgress(typedQuizzes, savedProgress));
+          if (res.data.quizType === 'ESSAY') {
+            // 서술형: 답안·채점 결과 초기화 (다시풀기)
+            const quizzesToLoad = typedQuizzes.map((q) => ({
+              ...q,
+              userAnswer: null,
+              gradeResult: null,
+            }));
+            clearEssayGradeResults(problemSetId);
+            clearEssayAttempts(problemSetId);
+            setLocalQuizzes(mergeWithProgress(quizzesToLoad, savedProgress));
+          } else {
+            setLocalQuizzes(mergeWithProgress(typedQuizzes, savedProgress));
+          }
           setIsLoading(false);
         }
         if (status === 'GENERATING') {
