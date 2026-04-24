@@ -9,6 +9,7 @@ export {
   loadEssayAttempts,
   saveEssayAttempts,
   clearEssayAttempts,
+  cleanupExpiredItems,
 } from './model/solveQuizProgress';
 export type { SavedResult } from './model/solveQuizProgress';
 export { useEssayGrading } from './model/useEssayGrading';

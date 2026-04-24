@@ -204,3 +204,53 @@ export const clearEssayAttempts = (problemSetId: string): void => {
     // localStorage 에러 무시
   }
 };
+
+// ── 만료 항목 일괄 정리 ──
+
+const CLEANUP_KEY = 'solve_last_cleanup';
+const EXPIRING_PREFIXES = [RESULT_KEY_PREFIX, ESSAY_GRADE_KEY_PREFIX, ESSAY_ATTEMPTS_KEY_PREFIX];
+
+/** 만료된 localStorage 항목 일괄 삭제 (하루 1회) */
+export const cleanupExpiredItems = (): void => {
+  try {
+    const lastCleanup = Number(localStorage.getItem(CLEANUP_KEY) || 0);
+    if (Date.now() - lastCleanup < EXPIRATION_MS) return;
+
+    const now = Date.now();
+    const keysToRemove: string[] = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !EXPIRING_PREFIXES.some((p) => key.startsWith(p))) continue;
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const parsed = JSON.parse(raw) as { savedAt?: number };
+        if (parsed.savedAt && now - parsed.savedAt > EXPIRATION_MS) {
+          keysToRemove.push(key);
+        }
+      } catch {
+        // 파싱 실패 항목도 정리
+        keysToRemove.push(key);
+      }
+    }
+
+    // solveQuizProgress도 체크
+    try {
+      const raw = localStorage.getItem(PROGRESS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { savedAt?: number };
+        if (parsed.savedAt && now - parsed.savedAt > EXPIRATION_MS) {
+          keysToRemove.push(PROGRESS_KEY);
+        }
+      }
+    } catch {
+      keysToRemove.push(PROGRESS_KEY);
+    }
+
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+    localStorage.setItem(CLEANUP_KEY, String(now));
+  } catch {
+    // localStorage 에러 무시
+  }
+};
