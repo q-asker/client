@@ -88,9 +88,9 @@ const SolveQuizDesign: React.FC = () => {
   // AI 지시사항 공개 상태
   const [showInstruction, setShowInstruction] = useState(false);
 
-  // 선택지 공개 상태
+  // 선택지 공개 상태 (전역 설정)
   const [showSelections, setShowSelections] = useState(() => {
-    const saved = localStorage.getItem(`solve_show_selections_${problemSetId}`);
+    const saved = localStorage.getItem('solve_show_selections');
     return saved ? saved === 'true' : true;
   });
 
@@ -98,17 +98,15 @@ const SolveQuizDesign: React.FC = () => {
   const toggleSelections = () => {
     const nextValue = !showSelections;
     setShowSelections(nextValue);
-    localStorage.setItem(`solve_show_selections_${problemSetId}`, String(nextValue));
+    localStorage.setItem('solve_show_selections', String(nextValue));
   };
 
-  // 메모 상태
-  const [note, setNote] = useState(() => {
-    return localStorage.getItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`) || '';
-  });
+  // 메모 상태 (세션 내에서만 유지)
+  const [note, setNote] = useState('');
 
-  // 메모 공개 상태
+  // 메모 공개 상태 (전역 설정)
   const [showNote, setShowNote] = useState(() => {
-    const saved = localStorage.getItem(`solve_show_note_${problemSetId}`);
+    const saved = localStorage.getItem('solve_show_note');
     return saved ? saved === 'true' : true;
   });
 
@@ -116,7 +114,7 @@ const SolveQuizDesign: React.FC = () => {
   const toggleNote = () => {
     const nextValue = !showNote;
     setShowNote(nextValue);
-    localStorage.setItem(`solve_show_note_${problemSetId}`, String(nextValue));
+    localStorage.setItem('solve_show_note', String(nextValue));
   };
 
   // BLANK 문제 전용 상태
@@ -168,14 +166,12 @@ const SolveQuizDesign: React.FC = () => {
     } else if (isBlank) {
       setShowSelections(false);
     } else {
-      const savedToggle = localStorage.getItem(`solve_show_selections_${problemSetId}`);
+      const savedToggle = localStorage.getItem('solve_show_selections');
       setShowSelections(savedToggle !== null ? savedToggle === 'true' : true);
     }
 
-    // 2. 메모 로드
-    const savedNote =
-      localStorage.getItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`) || '';
-    setNote(savedNote);
+    // 2. 메모 초기화 (문제 전환 시 빈 상태로)
+    setNote('');
 
     // 3. BLANK 문제 답안 로드
     if (isBlank) {
@@ -198,11 +194,9 @@ const SolveQuizDesign: React.FC = () => {
     }
   }, [quiz.currentQuestion, isBlank, quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections]);
 
-  // 메모 저장
+  // 메모 변경 (세션 내에서만 유지)
   const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    setNote(value);
-    localStorage.setItem(`solve_note_${problemSetId}_${quiz.currentQuestion}`, value);
+    setNote(e.target.value);
   };
 
   // 퀴즈 제목을 브라우저 탭 타이틀에 반영
