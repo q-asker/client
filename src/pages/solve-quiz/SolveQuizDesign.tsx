@@ -6,7 +6,7 @@ import { useSolveQuiz } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
-import { ChevronDown, ChevronUp, LogIn, NotebookPen, PenLine } from 'lucide-react';
+import { ChevronDown, ChevronUp, LogIn, PenLine } from 'lucide-react';
 import CustomToast from '#shared/toast';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
@@ -101,22 +101,6 @@ const SolveQuizDesign: React.FC = () => {
     localStorage.setItem('solve_show_selections', String(nextValue));
   };
 
-  // 메모 상태 (세션 내에서만 유지)
-  const [note, setNote] = useState('');
-
-  // 메모 공개 상태 (전역 설정)
-  const [showNote, setShowNote] = useState(() => {
-    const saved = localStorage.getItem('solve_show_note');
-    return saved ? saved === 'true' : true;
-  });
-
-  // 메모 토글 시 저장
-  const toggleNote = () => {
-    const nextValue = !showNote;
-    setShowNote(nextValue);
-    localStorage.setItem('solve_show_note', String(nextValue));
-  };
-
   // BLANK 문제 전용 상태
   const [typedAnswer, setTypedAnswer] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -156,24 +140,18 @@ const SolveQuizDesign: React.FC = () => {
   if (quiz.currentQuestion !== prevQuestionNum) {
     setPrevQuestionNum(quiz.currentQuestion);
 
-    // 1. 선택지 공개 상태 동기화
-    const alreadyAnswered = !isUnanswered(
-      quiz.currentQuiz?.userAnswer,
-      quiz.currentQuiz?.selections,
-    );
-    if (alreadyAnswered || isOX) {
-      setShowSelections(true);
-    } else if (isBlank) {
-      setShowSelections(false);
+    // 1. 선택지 공개 상태 동기화 (BLANK 문제만 토글 사용)
+    if (isBlank) {
+      const alreadyAnswered = !isUnanswered(
+        quiz.currentQuiz?.userAnswer,
+        quiz.currentQuiz?.selections,
+      );
+      setShowSelections(alreadyAnswered);
     } else {
-      const savedToggle = localStorage.getItem('solve_show_selections');
-      setShowSelections(savedToggle !== null ? savedToggle === 'true' : true);
+      setShowSelections(true);
     }
 
-    // 2. 메모 초기화 (문제 전환 시 빈 상태로)
-    setNote('');
-
-    // 3. BLANK 문제 답안 로드
+    // 2. BLANK 문제 답안 로드
     if (isBlank) {
       const answered = quiz.currentQuiz?.selections?.find(
         (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
@@ -193,11 +171,6 @@ const SolveQuizDesign: React.FC = () => {
       }
     }
   }, [quiz.currentQuestion, isBlank, quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections]);
-
-  // 메모 변경 (세션 내에서만 유지)
-  const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNote(e.target.value);
-  };
 
   // 퀴즈 제목을 브라우저 탭 타이틀에 반영
   useEffect(() => {
@@ -389,51 +362,28 @@ const SolveQuizDesign: React.FC = () => {
 
   /** 선택지 영역 렌더링 */
   const renderSelections = () => (
-    <div className="flex flex-col gap-3">
-      {/* 선택지 토글 버튼 - OX 타입은 제외 */}
-      {!isOX && (
-        <button
-          className={cn(
-            'flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border-none px-4 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.98]',
-            showSelections
-              ? 'bg-primary/10 text-primary hover:bg-primary/15'
-              : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground',
-          )}
-          onClick={toggleSelections}
-          aria-expanded={showSelections}
-          aria-controls="selections-listbox"
-        >
-          {showSelections ? t('선택지 숨기기') : t('선택지 보기')}
-          {showSelections ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-        </button>
-      )}
-
-      {/* 선택지 리스트 (즉시 노출/숨김) */}
-      {(showSelections || isOX) && (
-        <div className="overflow-hidden px-1 pt-1 pb-4">
-          <div id="selections-listbox" className="flex flex-col gap-3 max-md:gap-2">
-            {quiz.currentQuiz?.selections?.map((opt, idx) => (
-              <div
-                key={opt.id}
-                className={cn(
-                  'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
-                  'hover:bg-muted',
-                  'max-md:min-h-12 max-md:px-3 max-md:py-4',
-                  quiz.selectedOption === opt.id && 'ring-2 ring-primary ring-offset-0',
-                )}
-                onClick={() => quizActions.handleOptionSelect(opt.id)}
-              >
-                <span className="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs">
-                  {idx + 1}
-                </span>
-                <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
-                  <MarkdownText>{opt.content}</MarkdownText>
-                </span>
-              </div>
-            ))}
+    <div className="overflow-hidden px-1 pt-1 pb-4">
+      <div className="flex flex-col gap-3 max-md:gap-2">
+        {quiz.currentQuiz?.selections?.map((opt, idx) => (
+          <div
+            key={opt.id}
+            className={cn(
+              'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
+              'hover:bg-muted',
+              'max-md:min-h-12 max-md:px-3 max-md:py-4',
+              quiz.selectedOption === opt.id && 'ring-2 ring-primary ring-offset-0',
+            )}
+            onClick={() => quizActions.handleOptionSelect(opt.id)}
+          >
+            <span className="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs">
+              {idx + 1}
+            </span>
+            <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
+              <MarkdownText>{opt.content}</MarkdownText>
+            </span>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 
@@ -726,57 +676,6 @@ const SolveQuizDesign: React.FC = () => {
                   </div>
                 )}
               </div>
-
-              {/* 메모 영역 — 문제와 선택지 사이 (BLANK, OX 문제 제외) */}
-              {!isBlank && !isOX && (
-                <div className="flex flex-col gap-2">
-                  {/* 메모 토글 버튼 */}
-                  <button
-                    className="cursor-pointer self-start border-none bg-transparent px-1 py-0 text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
-                    onClick={toggleNote}
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      {showNote ? (
-                        <>
-                          <ChevronUp className="size-3" />
-                          {t('정답 적어보기 숨기기')}
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown className="size-3" />
-                          {t('정답 적어보기')}
-                        </>
-                      )}
-                    </span>
-                  </button>
-
-                  {/* 메모 입력 영역 (확장/축소) */}
-                  <div
-                    className={cn(
-                      'grid transition-[grid-template-rows] duration-300 ease-out',
-                      showNote ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-                    )}
-                    inert={!showNote || undefined}
-                    aria-hidden={!showNote}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="relative rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 shadow-sm">
-                        <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-primary/70">
-                          <NotebookPen className="size-3.5" />
-                          {t('정답 적어보기')}
-                        </div>
-                        <textarea
-                          value={note}
-                          onChange={handleNoteChange}
-                          placeholder={t('정답 내용을 입력하세요')}
-                          rows={3}
-                          className="w-full resize-none border-none bg-transparent p-0 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-0"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* 선택지 영역: BLANK이면 직접 입력 UI, 아니면 기존 선택지 */}
               {isBlank ? renderBlankInput() : renderSelections()}

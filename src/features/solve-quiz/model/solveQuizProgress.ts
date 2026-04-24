@@ -235,6 +235,16 @@ export const cleanupExpiredItems = (): void => {
       }
     }
 
+    // 레거시 키 정리 (전역화 이전의 per-problemSetId 키들)
+    const LEGACY_PREFIXES = ['solve_show_selections_', 'solve_show_note_', 'solve_note_'];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (LEGACY_PREFIXES.some((p) => key.startsWith(p))) {
+        keysToRemove.push(key);
+      }
+    }
+
     // solveQuizProgress도 체크
     try {
       const raw = localStorage.getItem(PROGRESS_KEY);
