@@ -174,14 +174,18 @@ export const useSolveQuizData = ({
 
         if (status === 'COMPLETED') {
           if (res.data.quizType === 'ESSAY') {
-            // 서술형: 답안·채점 결과 초기화 (다시풀기)
+            // 서술형: savedProgress가 있으면 새로고침이므로 채점 결과 유지
+            const hasEssayProgress =
+              savedProgress && Object.values(savedProgress.answers).some((a) => a != null);
+            if (!hasEssayProgress) {
+              clearEssayGradeResults(problemSetId);
+              clearEssayAttempts(problemSetId);
+            }
             const quizzesToLoad = typedQuizzes.map((q) => ({
               ...q,
               userAnswer: null,
               gradeResult: null,
             }));
-            clearEssayGradeResults(problemSetId);
-            clearEssayAttempts(problemSetId);
             setLocalQuizzes(mergeWithProgress(quizzesToLoad, savedProgress));
           } else {
             setLocalQuizzes(mergeWithProgress(typedQuizzes, savedProgress));

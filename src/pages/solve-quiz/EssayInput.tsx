@@ -59,11 +59,13 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
     setEditing({});
   }, [problemSetId]);
 
-  // 문제 전환 시 답안 동기화
-  useEffect(() => {
+  // 문제 전환 시 답안 동기화 (render-phase update로 플래싱 방지)
+  const [prevQuizNumber, setPrevQuizNumber] = useState(currentQuiz.number);
+  if (currentQuiz.number !== prevQuizNumber) {
+    setPrevQuizNumber(currentQuiz.number);
     const ua = currentQuiz.userAnswer;
     setAnswer(typeof ua === 'string' && ua.trim() ? ua : '');
-  }, [currentQuiz.number]);
+  }
 
   const quizNumber = currentQuiz.number;
   const isGrading = isQuestionGrading(quizNumber);
