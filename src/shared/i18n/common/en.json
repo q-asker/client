@@ -385,5 +385,9 @@
   "다이어그램 로딩 중...": "Loading diagram...",
   "한국어": "Korean",
   "해설 정보를 불러오지 못했습니다.": "Failed to load explanation information.",
-  "네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.": "Yes. OCR is supported, allowing analysis of scanned or photo-based documents."
+  "네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.": "Yes. OCR is supported, allowing analysis of scanned or photo-based documents.",
+  "ESSAY Mock 퀴즈": "ESSAY Mock Quiz",
+  "개념을 자신의 언어로 설명하는 서술형 문제": "Essay questions that explain concepts in your own words",
+  "예) 광합성 과정에서 빛 반응과 암반응의 차이점을 설명하시오.": "e.g.) Explain the differences between light reactions and dark reactions in photosynthesis.",
+  "채점 중 오류가 발생했습니다.": "An error occurred during grading."
 }

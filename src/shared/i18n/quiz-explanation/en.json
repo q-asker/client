@@ -13,5 +13,10 @@
   "페이지": "Page",
   "해설": "Explanation",
   "현재는 pdf 파일만 지원합니다.": "Currently only PDF files are supported.",
-  "홈으로": "Home"
+  "홈으로": "Home",
+  "내 답변": "My Answer",
+  "모범답안": "Model Answer",
+  "AI 피드백": "AI Feedback",
+  "부분 정답": "Partial",
+  "점": "pts"
 }

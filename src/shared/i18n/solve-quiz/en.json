@@ -44,5 +44,20 @@
   "정답 내용을 입력하세요": "Enter your answer here",
   "정답 적어보기 숨기기": "Hide Answer Box",
   "메모 보기": "Show Memo",
-  "AI 지시사항 반영 결과": "AI Instructions Applied"
+  "AI 지시사항 반영 결과": "AI Instructions Applied",
+  "답변을 입력하세요": "Enter your answer",
+  "채점하기": "Grade",
+  "채점 중...": "Grading...",
+  "시도": "Attempt",
+  "채점 실패": "Grading failed",
+  "점": "pts",
+  "글자": "chars",
+  "다시 작성": "Retry",
+  "베타 버전입니다! 건의사항 / 피드백 있으면 부탁드립니다!": "This is a beta version! Please share any suggestions or feedback!",
+  "불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.": "Feel free to leave any inconveniences or ideas for improvement.",
+  "소중한 의견 감사합니다!": "Thank you for your valuable feedback!",
+  "전송": "Send",
+  "전송 중...": "Sending...",
+  "전송에 실패했습니다. 다시 시도해주세요.": "Failed to send. Please try again.",
+  "추가 피드백 작성": "Write more feedback"
 }
