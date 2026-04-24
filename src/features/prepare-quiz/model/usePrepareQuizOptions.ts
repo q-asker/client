@@ -35,9 +35,9 @@ export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
       if (questionType !== nextType) {
         trackPrepareQuizEvents.changeQuizOption('question_type', label);
         setQuestionType(nextType);
-        // 서술형은 5문제 고정
-        if (nextType === 'ESSAY') {
-          setQuestionCount(5);
+        // 서술형은 5 또는 10문제만 허용
+        if (nextType === 'ESSAY' && questionCount > 10) {
+          setQuestionCount(10);
         }
       }
     },

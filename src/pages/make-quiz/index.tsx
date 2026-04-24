@@ -540,7 +540,27 @@ const MakeQuiz: React.FC = () => {
                         {t('문제')}
                       </span>
                       <div className="mt-4 w-full max-w-md">
-                        {options.questionType === 'ESSAY' ? null : (
+                        {options.questionType === 'ESSAY' ? (
+                          <>
+                            <input
+                              type="range"
+                              min="5"
+                              max="10"
+                              step="5"
+                              value={options.questionCount}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                const newCount: number = +e.target.value;
+                                optionActions.handleQuestionCountChange(newCount);
+                              }}
+                              aria-label={t('문제 수')}
+                              className="h-1.5 w-full accent-primary md:h-1"
+                            />
+                            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+                              <span>5</span>
+                              <span>10</span>
+                            </div>
+                          </>
+                        ) : (
                           <>
                             <input
                               type="range"
