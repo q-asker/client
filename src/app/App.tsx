@@ -34,6 +34,7 @@ import PageViewTracker from '#app/ui/PageViewTracker';
 import { useInitGA } from '#app/model/useInitGA';
 import { configureAuth } from '#shared/api';
 import { useAuthStore, authService } from '#entities/auth';
+import { cleanupExpiredItems } from '#features/solve-quiz';
 
 // Google Analytics 측정 ID (실제 GA4 측정 ID로 교체 필요)
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
@@ -44,7 +45,7 @@ const SEO_CONFIG = {
     '/': {
       title: '[한국어 특화] Q-Asker: AI가 한국어로 시험 문제 바로 만들어줘요!',
       description:
-        'PDF, PPT, Word만 올리면 객관식, OX, 빈칸 채우기 시험 문제를 AI가 내주는 무료 사이트입니다. 회원가입 없이 무료로 시작하세요!',
+        'PDF, PPT, Word만 올리면 객관식, OX, 빈칸 채우기, 서술형 시험 문제를 AI가 내주는 무료 사이트입니다. 회원가입 없이 무료로 시작하세요!',
       ogLocale: 'ko_KR',
       ogImageAlt: 'Q-Asker AI 퀴즈 생성 서비스 소개 이미지',
       twitterImageAlt: 'Q-Asker AI 퀴즈 생성 서비스 소개 이미지',
@@ -121,7 +122,7 @@ const SEO_CONFIG = {
             height: 512,
           },
           description:
-            'AI가 시험 문제를 만들어주는 무료 퀴즈 생성 서비스. PDF, PPT, Word 파일로 객관식·OX·빈칸 채우기 문제를 자동 생성합니다.',
+            "AI가 시험 문제를 만들어주는 무료 퀴즈 생성 서비스. PDF, PPT, Word 파일로 객관식·OX·빈칸 채우기·서술형 문제를 자동 생성합니다. Bloom's Taxonomy 교육학 이론 기반으로 체계적인 문제를 생성합니다.",
           contactPoint: {
             '@type': 'ContactPoint',
             email: 'contact@q-asker.com',
@@ -140,7 +141,7 @@ const SEO_CONFIG = {
               name: 'Q-Asker는 정말 무료인가요?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: '네, Q-Asker의 AI 퀴즈 생성은 현재 완전 무료입니다. 회원가입 없이 PDF, PPT, Word 파일(최대 30MB)을 업로드하면 빈칸 채우기, OX, 객관식 문제를 5~20개까지 자동 생성할 수 있습니다. 별도 결제나 구독 없이 누구나 자유롭게 이용 가능합니다.',
+                text: "네, Q-Asker의 AI 퀴즈 생성은 현재 완전 무료입니다. 회원가입 없이 PDF, PPT, Word 파일(최대 30MB)을 업로드하면 빈칸 채우기, OX, 객관식, 서술형 문제를 5~20개까지 자동 생성할 수 있습니다. Bloom's Taxonomy 교육학 이론 기반으로 체계적인 문제를 생성합니다. 별도 결제나 구독 없이 누구나 자유롭게 이용 가능합니다.",
               },
             },
             {
@@ -172,7 +173,7 @@ const SEO_CONFIG = {
               name: '한 번에 몇 문제까지 생성할 수 있나요?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: '한 번에 5개, 10개, 15개, 20개 중 선택하여 생성할 수 있습니다. 빈칸 채우기, OX, 객관식 3가지 유형을 선택할 수 있으며, 페이지 범위를 지정하면 특정 구간의 내용에 집중한 문제를 생성할 수 있어 더 효율적인 학습이 가능합니다.',
+                text: "한 번에 5개, 10개, 15개, 20개 중 선택하여 생성할 수 있습니다. 빈칸 채우기, OX, 객관식, 서술형 4가지 유형을 선택할 수 있으며, Bloom's Taxonomy 교육학 이론 기반으로 체계적인 문제를 생성합니다. 페이지 범위를 지정하면 특정 구간의 내용에 집중한 문제를 생성할 수 있어 더 효율적인 학습이 가능합니다.",
               },
             },
             {
@@ -193,7 +194,7 @@ const SEO_CONFIG = {
           applicationCategory: 'EducationalApplication',
           operatingSystem: 'Web Browser',
           description:
-            'PDF, PPT, Word만 올리면 객관식, OX, 빈칸 채우기 시험 문제를 AI가 내주는 무료 사이트입니다. 회원가입 없이 무료로 시작하세요!',
+            'PDF, PPT, Word만 올리면 객관식, OX, 빈칸 채우기, 서술형 시험 문제를 AI가 내주는 무료 사이트입니다. 회원가입 없이 무료로 시작하세요!',
           inLanguage: ['ko', 'en'],
           image: {
             '@type': 'ImageObject',
@@ -215,7 +216,8 @@ const SEO_CONFIG = {
             'PPT 문제 만들기',
             'Word 문제 생성',
             'OCR 지원 (이미지 문서도 가능)',
-            '객관식, OX, 빈칸 채우기 문제 유형',
+            '객관식, OX, 빈칸 채우기, 서술형 문제 유형',
+            "Bloom's Taxonomy 교육학 이론 기반 체계적 문제 생성",
             '퀴즈 히스토리 관리',
           ],
         },
@@ -224,7 +226,7 @@ const SEO_CONFIG = {
           '@type': 'WebPage',
           name: '[한국어 특화] Q-Asker: AI가 한국어로 시험 문제 바로 만들어줘요!',
           description:
-            'PDF, PPT, Word만 올리면 객관식, OX, 빈칸 채우기 시험 문제를 AI가 내주는 무료 사이트입니다. 회원가입 없이 무료로 시작하세요!',
+            'PDF, PPT, Word만 올리면 객관식, OX, 빈칸 채우기, 서술형 시험 문제를 AI가 내주는 무료 사이트입니다. 회원가입 없이 무료로 시작하세요!',
           url: 'https://www.q-asker.com',
           inLanguage: 'ko',
           isPartOf: {
@@ -288,7 +290,7 @@ const SEO_CONFIG = {
     '/': {
       title: 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word',
       description:
-        'Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare perfectly for exams with Fill-in-the-blank, True/False, and Multiple-choice questions. Start for free now without signing up.',
+        'Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare perfectly for exams with Fill-in-the-blank, True/False, Multiple-choice, and Essay questions. Start for free now without signing up!',
       ogLocale: 'en_US',
       ogImageAlt: 'Q-Asker AI quiz generator preview',
       twitterImageAlt: 'Q-Asker AI quiz generator preview',
@@ -365,7 +367,7 @@ const SEO_CONFIG = {
             height: 512,
           },
           description:
-            'AI-powered quiz generation service. Instantly create fill-in-the-blank, true/false, and multiple-choice questions from PDF, PPT, and Word files.',
+            "AI-powered quiz generation service. Instantly create fill-in-the-blank, true/false, multiple-choice, and essay questions from PDF, PPT, and Word files. Generates systematic questions based on Bloom's Taxonomy educational theory.",
           contactPoint: {
             '@type': 'ContactPoint',
             email: 'contact@q-asker.com',
@@ -384,7 +386,7 @@ const SEO_CONFIG = {
               name: 'Is Q-Asker really free?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: "Yes, Q-Asker's AI quiz generation is completely free. Upload PDF, PPT, or Word files (up to 30MB) and generate 5-25 fill-in-the-blank, true/false, or multiple-choice questions instantly. No signup, payment, or subscription required.",
+                text: "Yes, Q-Asker's AI quiz generation is completely free. Upload PDF, PPT, or Word files (up to 30MB) and generate 5-20 fill-in-the-blank, true/false, multiple-choice, or essay questions instantly. Generates systematic questions based on Bloom's Taxonomy educational theory. No signup, payment, or subscription required.",
               },
             },
             {
@@ -416,7 +418,7 @@ const SEO_CONFIG = {
               name: 'How many questions can I generate at once?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'You can choose to generate 5, 10, 15, 20, or 25 questions per session. Three question types are available: fill-in-the-blank, true/false, and multiple-choice. Specifying a page range focuses the AI on specific sections, producing more targeted and accurate questions for efficient studying.',
+                text: "You can choose to generate 5, 10, 15, or 20 questions per session. Four question types are available: fill-in-the-blank, true/false, multiple-choice, and essay. Questions are generated based on Bloom's Taxonomy educational theory for systematic learning. Specifying a page range focuses the AI on specific sections, producing more targeted and accurate questions for efficient studying.",
               },
             },
             {
@@ -437,7 +439,7 @@ const SEO_CONFIG = {
           applicationCategory: 'EducationalApplication',
           operatingSystem: 'Web Browser',
           description:
-            'Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare for exams with fill-in-the-blank, true/false, and multiple-choice questions.',
+            "Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare for exams with fill-in-the-blank, true/false, multiple-choice, and essay questions. Generates systematic questions based on Bloom's Taxonomy educational theory.",
           inLanguage: ['ko', 'en'],
           image: {
             '@type': 'ImageObject',
@@ -459,7 +461,8 @@ const SEO_CONFIG = {
             'PPT Quiz Creator',
             'Word Document Quiz Converter',
             'OCR Support',
-            'Fill-in-the-blank / True-False / Multiple-choice',
+            'Fill-in-the-blank / True-False / Multiple-choice / Essay',
+            "Systematic question generation based on Bloom's Taxonomy",
             'Quiz History Management',
           ],
         },
@@ -468,7 +471,7 @@ const SEO_CONFIG = {
           '@type': 'WebPage',
           name: 'Q-Asker: Free AI Quiz Generator for PDF, PPT, Word',
           description:
-            'Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare for exams with fill-in-the-blank, true/false, and multiple-choice questions.',
+            "Upload PDF, PPT, and Word files to automatically generate AI quizzes. Prepare for exams with fill-in-the-blank, true/false, multiple-choice, and essay questions. Generates systematic questions based on Bloom's Taxonomy educational theory.",
           url: 'https://www.q-asker.com/en',
           inLanguage: 'en',
           isPartOf: {
@@ -666,6 +669,11 @@ const App = () => {
   // 프리렌더링: React 마운트 완료 시 이벤트 발행
   useEffect(() => {
     document.dispatchEvent(new Event('prerender-ready'));
+  }, []);
+
+  // 만료된 퀴즈 localStorage 항목 정리 (하루 1회)
+  useEffect(() => {
+    cleanupExpiredItems();
   }, []);
 
   return (
