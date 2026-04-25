@@ -50,13 +50,10 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
   // 채점 결과·시도 횟수·편집 모드 (문제별)
   const [gradeResults, setGradeResults] = useState<Record<number, GradeResult>>({});
   const [attempts, setAttempts] = useState<Record<number, number>>({});
-  const [editing, setEditing] = useState<Record<number, boolean>>({});
-
   // problemSetId 변경 시 state 초기화 + localStorage 복원
   useEffect(() => {
     setGradeResults(loadEssayGradeResults(problemSetId));
     setAttempts(loadEssayAttempts(problemSetId));
-    setEditing({});
   }, [problemSetId]);
 
   // 문제 전환 시 답안 동기화 (render-phase update로 플래싱 방지)
@@ -71,8 +68,6 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
   const isGrading = isQuestionGrading(quizNumber);
   const gradeError = getGradeError(quizNumber);
   const grade = gradeResults[quizNumber] ?? currentQuiz.gradeResult ?? null;
-  const isEditing = editing[quizNumber] ?? false;
-  const isGraded = !!grade && !isEditing;
   const attemptCount = attempts[quizNumber] ?? 0;
   const hasRetry = attemptCount < MAX_ESSAY_ATTEMPTS;
 
@@ -86,17 +81,9 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
       setGradeResults((prev) => ({ ...prev, [quizNumber]: result }));
       const newAttempts = { ...attempts, [quizNumber]: nextAttempt };
       setAttempts(newAttempts);
-      setEditing((prev) => ({ ...prev, [quizNumber]: false }));
       saveEssayGradeResult(problemSetId, quizNumber, result);
       saveEssayAttempts(problemSetId, newAttempts);
     }
-  };
-
-  /** 재시도: 결과를 유지하면서 답안 편집 모드로 전환 */
-  const handleRetry = () => {
-    if (attemptCount >= MAX_ESSAY_ATTEMPTS) return;
-    setEditing((prev) => ({ ...prev, [quizNumber]: true }));
-    setTimeout(() => textareaRef.current?.focus(), 100);
   };
 
   return (
@@ -113,7 +100,7 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
             onAnswerChange(value);
           }}
           placeholder={t('답변을 입력하세요')}
-          readOnly={isGraded}
+          readOnly={!hasRetry}
           maxLength={MAX_ESSAY_LENGTH}
           rows={6}
           className={cn(
@@ -121,7 +108,7 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
             'placeholder:text-muted-foreground/50',
             'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-0',
             'transition-all duration-200',
-            isGraded && 'cursor-default bg-muted/30',
+            !hasRetry && 'cursor-default bg-muted/30',
           )}
         />
         {/* 글자수 카운터 */}
@@ -130,12 +117,20 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
         </div>
       </div>
 
-      {/* 채점 버튼 */}
-      {!isGraded && (
-        <div className="flex items-center gap-3">
+      {/* 채점/재시도 버튼 */}
+      <div className="flex flex-col gap-2">
+        {attemptCount > 0 && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="font-medium">
+              {t('시도')} {attemptCount}/{MAX_ESSAY_ATTEMPTS}
+            </span>
+            {hasRetry && <span>· 💡 {t('시도에 따라 단계별 힌트가 제시됩니다!')}</span>}
+          </div>
+        )}
+        {hasRetry && (
           <button
             className={cn(
-              'flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl border-none px-6 py-3.5 text-base font-medium transition-all duration-200',
+              'flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-none px-6 py-3.5 text-base font-medium transition-all duration-200',
               answer.trim()
                 ? 'bg-primary text-primary-foreground hover:opacity-90'
                 : 'cursor-not-allowed bg-muted text-muted-foreground',
@@ -151,17 +146,12 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
             ) : (
               <>
                 <Send className="size-4" />
-                {t('채점하기')}
+                {attemptCount > 0 ? t('다시 채점하기') : t('채점하기')}
               </>
             )}
           </button>
-          {attemptCount > 0 && (
-            <span className="shrink-0 text-xs text-muted-foreground">
-              {t('시도')} {attemptCount}/{MAX_ESSAY_ATTEMPTS}
-            </span>
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
       {/* 채점 에러 */}
       {gradeError && (
@@ -178,25 +168,12 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
             borderColor(grade.totalScore, grade.maxScore),
           )}
         >
-          {/* 헤더: 총점 + 시도 횟수 + 재시도 */}
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-lg font-bold text-foreground">
-                {grade.totalScore}/{grade.maxScore}
-                {t('점')}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {t('시도')} {attemptCount}/{MAX_ESSAY_ATTEMPTS}
-              </span>
-            </div>
-            {hasRetry && (
-              <button
-                className="cursor-pointer rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                onClick={handleRetry}
-              >
-                {t('다시 작성')}
-              </button>
-            )}
+          {/* 총점 */}
+          <div className="mb-4">
+            <span className="text-lg font-bold text-foreground">
+              {grade.totalScore}/{grade.maxScore}
+              {t('점')}
+            </span>
           </div>
 
           {/* 요소별 점수 */}
