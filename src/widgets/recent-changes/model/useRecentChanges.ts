@@ -5,7 +5,7 @@ import type { BoardPost } from '../../../shared/types/board';
 import { MOCK_UPDATE_LOG_POSTS } from '../../../pages/board/mockBoardData';
 
 /** 미리보기용 최대 표시 건수 */
-const PREVIEW_SIZE = 3;
+const PREVIEW_SIZE = 5;
 
 interface UseRecentChangesReturn {
   state: {
