@@ -191,8 +191,8 @@ const MakeQuiz: React.FC = () => {
   const quizTypes: QuizTypeOption[] = [
     { key: 'ESSAY', label: t('서술형'), icon: FileText },
     { key: 'MULTIPLE', label: t('객관식'), icon: ListChecks },
-    { key: 'BLANK', label: t('빈칸 넣기'), icon: PenLine },
     { key: 'OX', label: t('OX 퀴즈'), icon: CircleDot },
+    { key: 'BLANK', label: t('빈칸 넣기'), icon: PenLine },
   ];
 
   const currentLevel: { title: string; question: string; options: string[] } | undefined =

@@ -3,6 +3,7 @@ import InlineEdit from '@/shared/ui/components/inline-edit';
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
+import type { ProblemSetResponse } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
@@ -53,7 +54,9 @@ const BlankSlot: React.FC<{
 );
 
 /** 퀴즈 풀이 디자인: 타이핑 우선 + 선택지 폴백 */
-const SolveQuizDesign: React.FC = () => {
+const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> = ({
+  prefetchedData,
+}) => {
   const { t } = useTranslation('solve-quiz');
   const navigate = useNavigate();
   const { problemSetId } = useParams<{ problemSetId: string }>();
@@ -74,6 +77,7 @@ const SolveQuizDesign: React.FC = () => {
     navigate,
     problemSetId: problemSetId ?? '',
     quizzes,
+    prefetchedData,
   });
   const { quiz } = state;
   const { quiz: quizActions } = actions;
