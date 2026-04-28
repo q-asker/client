@@ -3,6 +3,7 @@ import InlineEdit from '@/shared/ui/components/inline-edit';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
+import type { ProblemSetResponse } from '#features/solve-quiz';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
 import { ChevronDown, ChevronUp, LogIn, MessageCircle } from 'lucide-react';
@@ -16,7 +17,9 @@ import { Skeleton } from '@/shared/ui/components/skeleton';
 import { AnimatePresence, motion } from 'framer-motion';
 
 /** 서술형(ESSAY) 전용 퀴즈 풀이 페이지 */
-const EssaySolveQuiz: React.FC = () => {
+const EssaySolveQuiz: React.FC<{ prefetchedData?: ProblemSetResponse | null }> = ({
+  prefetchedData,
+}) => {
   const { t } = useTranslation('solve-quiz');
   const navigate = useNavigate();
   const { problemSetId } = useParams<{ problemSetId: string }>();
@@ -37,6 +40,7 @@ const EssaySolveQuiz: React.FC = () => {
     navigate,
     problemSetId: problemSetId ?? '',
     quizzes,
+    prefetchedData,
   });
   const { quiz } = state;
   const { quiz: quizActions } = actions;

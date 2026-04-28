@@ -11,7 +11,7 @@ import { useAuthStore } from '#entities/auth';
 import { clearEssayGradeResults, clearEssayAttempts } from './solveQuizProgress';
 
 /** API 응답 데이터 타입 */
-interface ProblemSetResponse {
+export interface ProblemSetResponse {
   generationStatus: 'COMPLETED' | 'GENERATING';
   quizType?: 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY';
   quiz: Quiz[];
@@ -29,6 +29,8 @@ interface UseSolveQuizDataParams {
     answers: Record<number, string | null>;
     checks: Record<number, boolean>;
   } | null;
+  /** index.tsx에서 미리 받아온 응답 — 있으면 중복 fetch를 건너뜀 */
+  prefetchedData?: ProblemSetResponse | null;
 }
 
 /** Shadow Copy 확인 응답 */
@@ -89,6 +91,7 @@ export const useSolveQuizData = ({
   quizzes,
   navigate,
   savedProgress,
+  prefetchedData,
 }: UseSolveQuizDataParams): UseSolveQuizDataReturn => {
   const { t } = useTranslation('common');
   const [localQuizzes, setLocalQuizzes] = useState<Quiz[]>([]);
@@ -132,11 +135,13 @@ export const useSolveQuizData = ({
     const fetchQuiz = async (): Promise<void> => {
       try {
         trackQuizEvents.startQuiz(problemSetId);
-        const res = await axiosInstance.get<ProblemSetResponse>(`/problem-set/${problemSetId}`);
-        const status = res.data.generationStatus;
+        const data =
+          prefetchedData ??
+          (await axiosInstance.get<ProblemSetResponse>(`/problem-set/${problemSetId}`)).data;
+        const status = data.generationStatus;
 
         // Shadow Copy 확인: 로그인 사용자면 히스토리 제목 우선, 없으면 problemSet 제목
-        let quizTitle = res.data.title;
+        let quizTitle = data.title;
         let resolvedHistoryId: string | null = null;
         if (accessToken) {
           try {
@@ -167,13 +172,13 @@ export const useSolveQuizData = ({
         }
         setTitle(quizTitle);
 
-        if (res.data.quizType) {
-          setQuizType(res.data.quizType);
+        if (data.quizType) {
+          setQuizType(data.quizType);
         }
-        const typedQuizzes = applyQuizType(res.data.quiz, res.data.quizType);
+        const typedQuizzes = applyQuizType(data.quiz, data.quizType);
 
         if (status === 'COMPLETED') {
-          if (res.data.quizType === 'ESSAY') {
+          if (data.quizType === 'ESSAY') {
             // 서술형: savedProgress가 있으면 새로고침이므로 채점 결과 유지
             const hasEssayProgress =
               savedProgress && Object.values(savedProgress.answers).some((a) => a != null);
@@ -195,13 +200,13 @@ export const useSolveQuizData = ({
         if (status === 'GENERATING') {
           setProblemSetInfo({
             problemSetId,
-            totalCount: res.data.totalCount,
+            totalCount: data.totalCount,
             isStreaming: true,
           });
           if (Array.isArray(typedQuizzes) && typedQuizzes.length > 0) {
             setLocalQuizzes(mergeWithProgress(typedQuizzes, savedProgress));
           }
-          const sessionId = res.data.sessionId;
+          const sessionId = data.sessionId;
           reconnectStream(sessionId);
           setIsLoading(false);
         }
