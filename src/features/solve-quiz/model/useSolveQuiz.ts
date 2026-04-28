@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { NavigateFunction } from 'react-router';
 import { useSolveQuizData } from './useSolveQuizData';
+import type { ProblemSetResponse } from './useSolveQuizData';
 import { useSolveQuizQuestion } from './useSolveQuizQuestion';
 import { isUnanswered } from '../lib/isUnanswered';
 import { useSolveQuizSubmit } from './useSolveQuizSubmit';
@@ -19,6 +20,7 @@ interface UseSolveQuizParams {
   navigate: NavigateFunction;
   problemSetId: string;
   quizzes?: Quiz[];
+  prefetchedData?: ProblemSetResponse | null;
 }
 
 interface UseSolveQuizReturn {
@@ -62,6 +64,7 @@ export const useSolveQuiz = ({
   navigate,
   problemSetId,
   quizzes = [],
+  prefetchedData,
 }: UseSolveQuizParams): UseSolveQuizReturn => {
   const savedProgress = useMemo(() => loadProgress(problemSetId), [problemSetId]);
   const initialOffsetMs = savedProgress?.elapsedMs ?? 0;
@@ -78,6 +81,7 @@ export const useSolveQuiz = ({
     quizzes,
     navigate,
     savedProgress,
+    prefetchedData,
   });
   const { currentTime, elapsedMs } = useSolveQuizTimer(initialOffsetMs);
   const totalQuestions = solveQuizzes.length;
