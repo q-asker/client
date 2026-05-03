@@ -32,12 +32,18 @@ import { I18nProvider, useLanguageSwitcher, useTranslation } from 'i18nexus';
 import { loadNamespace } from '#shared/i18n';
 import PageViewTracker from '#app/ui/PageViewTracker';
 import { useInitGA } from '#app/model/useInitGA';
+import { useInitClarity } from '#app/model/useInitClarity';
 import { configureAuth } from '#shared/api';
 import { useAuthStore, authService } from '#entities/auth';
 import { cleanupExpiredItems } from '#features/solve-quiz';
 
 // Google Analytics 측정 ID (실제 GA4 측정 ID로 교체 필요)
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
+
+// Microsoft Clarity 프로젝트 ID — prod에서만 활성화
+const CLARITY_PROJECT_ID = import.meta.env.PROD
+  ? (import.meta.env.VITE_CLARITY_PROJECT_ID as string | undefined)
+  : undefined;
 
 const SUPPORTED_LANGUAGES = new Set(['ko', 'en']);
 const SEO_CONFIG = {
@@ -665,6 +671,7 @@ const getInitialLanguage = (): string => {
 
 const App = () => {
   useInitGA(GA_MEASUREMENT_ID);
+  useInitClarity(CLARITY_PROJECT_ID);
 
   // 프리렌더링: React 마운트 완료 시 이벤트 발행
   useEffect(() => {
