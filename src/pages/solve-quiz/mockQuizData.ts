@@ -268,4 +268,28 @@ export const MOCK_BLANK_QUIZZES: Quiz[] = [
       { id: '4', content: 'Transaction', correct: false },
     ],
   },
+  {
+    number: 6,
+    type: 'BLANK',
+    title:
+      'TCP 3-Way Handshake는 _______ → _______ → ACK 순서로 진행되며, 양쪽 모두의 연결 의사를 확인한다.',
+    selections: [
+      { id: '1', content: 'SYN, SYN+ACK', correct: true },
+      { id: '2', content: 'SYN, FIN', correct: false },
+      { id: '3', content: 'FIN, RST', correct: false },
+      { id: '4', content: 'RST, ACK', correct: false },
+    ],
+  },
+  {
+    number: 7,
+    type: 'BLANK',
+    title:
+      'HTTP에서 _______ 메서드는 리소스를 조회하고, _______ 메서드는 새로운 리소스를 생성하며, _______ 메서드는 리소스를 삭제한다.',
+    selections: [
+      { id: '1', content: 'GET, POST, DELETE', correct: true },
+      { id: '2', content: 'POST, GET, PUT', correct: false },
+      { id: '3', content: 'GET, PUT, PATCH', correct: false },
+      { id: '4', content: 'HEAD, POST, DELETE', correct: false },
+    ],
+  },
 ];
