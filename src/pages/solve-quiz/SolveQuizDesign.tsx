@@ -14,16 +14,19 @@ import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { AnimatePresence, motion } from 'framer-motion';
 
-/** 빈칸 위치 감지 (렌더링용) */
-const BLANK_REGEX = /_{3,}/;
+/** 빈칸 위치 감지 (렌더링용) — global flag로 모든 매치를 탐색 */
+const BLANK_REGEX = /_{3,}/g;
+
+const countBlanks = (text: string): number => (text.match(BLANK_REGEX) ?? []).length;
 
 /** 빈칸 슬롯 — 문제 제목 내 `_______`을 시각적 슬롯으로 렌더링 */
 const BlankSlot: React.FC<{
   value: string;
   hasSelection: boolean;
+  active?: boolean;
   onClick?: () => void;
   ariaLabel?: string;
-}> = ({ value, hasSelection, onClick, ariaLabel }) => (
+}> = ({ value, hasSelection, active, onClick, ariaLabel }) => (
   <span
     className={cn(
       'inline-flex max-w-[20rem] cursor-pointer items-baseline border-b-2 px-1 py-0.5 transition-all duration-300',
@@ -32,6 +35,7 @@ const BlankSlot: React.FC<{
           ? 'border-primary bg-primary/8 text-primary'
           : 'border-primary/50 bg-primary/5 text-primary/80'
         : 'min-w-[4rem] border-muted-foreground/40',
+      active && 'ring-2 ring-primary/40 rounded-sm',
     )}
     title={value || undefined}
     onClick={onClick}
@@ -105,38 +109,67 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
     localStorage.setItem('solve_show_selections', String(nextValue));
   };
 
-  // BLANK 문제 전용 상태
-  const [typedAnswer, setTypedAnswer] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  // BLANK 문제 전용 상태 — 다중 빈칸 지원을 위해 배열로 관리
+  const [typedAnswers, setTypedAnswers] = useState<string[]>(['']);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const firstSelectionRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
 
   const isBlank = quiz.currentQuiz?.type === 'BLANK';
   const isOX = quiz.currentQuiz?.type === 'OX';
 
-  /** BLANK 문제의 제목을 빈칸 슬롯 포함 React 노드로 렌더링 */
+  // 현재 문제의 빈칸 개수 (제목 + 본문 합산)
+  const blankCount = isBlank ? Math.max(1, countBlanks(quiz.currentQuiz?.title ?? '')) : 0;
+  const isMultiBlank = blankCount > 1;
+
+  /** BLANK 문제 텍스트에서 모든 `_______`을 BlankSlot으로 치환해 렌더링 */
   const renderBlankTitle = useCallback(
-    (text: string) => {
-      const match = text.match(BLANK_REGEX);
-      if (!match || match.index === undefined) {
+    (text: string, startIndex: number) => {
+      const parts: React.ReactNode[] = [];
+      const re = /_{3,}/g;
+      let lastIdx = 0;
+      let blankIdx = startIndex;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(text)) !== null) {
+        const before = text.slice(lastIdx, m.index);
+        if (before) {
+          parts.push(<MarkdownText key={`pre-${blankIdx}`}>{before}</MarkdownText>);
+        }
+        const i = blankIdx;
+        const value = typedAnswers[i] ?? '';
+        parts.push(
+          <BlankSlot
+            key={`slot-${i}`}
+            value={value}
+            hasSelection={!!value}
+            active={isMultiBlank && focusedIndex === i}
+            onClick={() => {
+              setFocusedIndex(i);
+              inputRefs.current[i]?.focus();
+            }}
+            ariaLabel={
+              isMultiBlank
+                ? t('{{n}}번째 빈칸을 클릭하여 답 입력', { n: i + 1 })
+                : t('빈칸을 클릭하여 답 입력')
+            }
+          />,
+        );
+        lastIdx = m.index + m[0].length;
+        blankIdx++;
+      }
+      if (parts.length === 0) {
         return <MarkdownText>{text}</MarkdownText>;
       }
-      const before = text.slice(0, match.index);
-      const after = text.slice(match.index + match[0].length);
+      const after = text.slice(lastIdx);
+      if (after) {
+        parts.push(<MarkdownText key={`after-${blankIdx}`}>{after}</MarkdownText>);
+      }
       return (
-        <span className="[&_.markdown-text]:inline [&_.markdown-text>span]:inline">
-          {before && <MarkdownText>{before}</MarkdownText>}
-          <BlankSlot
-            value={typedAnswer}
-            hasSelection={!!quiz.selectedOption}
-            onClick={() => inputRef.current?.focus()}
-            ariaLabel={t('빈칸을 클릭하여 답 입력')}
-          />
-          {after && <MarkdownText>{after}</MarkdownText>}
-        </span>
+        <span className="[&_.markdown-text]:inline [&_.markdown-text>span]:inline">{parts}</span>
       );
     },
-    [typedAnswer, quiz.selectedOption, t],
+    [typedAnswers, isMultiBlank, focusedIndex, t],
   );
 
   // 문제 전환 시 상태 동기화 (Flash 방지용 render-phase update)
@@ -144,8 +177,8 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
   if (quiz.currentQuestion !== prevQuestionNum) {
     setPrevQuestionNum(quiz.currentQuestion);
 
-    // 1. 선택지 공개 상태 동기화 (BLANK 문제만 토글 사용)
-    if (isBlank) {
+    // 1. 선택지 공개 상태 동기화 (단일 빈칸일 때만 토글 사용, 다중 빈칸은 토글/리스트 미사용)
+    if (isBlank && !isMultiBlank) {
       const alreadyAnswered = !isUnanswered(
         quiz.currentQuiz?.userAnswer,
         quiz.currentQuiz?.selections,
@@ -157,24 +190,41 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
 
     // 2. BLANK 문제 답안 로드
     if (isBlank) {
-      const answered = quiz.currentQuiz?.selections?.find(
-        (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
-      );
-      setTypedAnswer(answered ? answered.content : '');
+      if (isMultiBlank) {
+        // 다중 빈칸: 제출/저장 미구현 — 로컬 상태만 빈칸 개수에 맞춰 초기화
+        setTypedAnswers(Array.from({ length: blankCount }, () => ''));
+      } else {
+        const answered = quiz.currentQuiz?.selections?.find(
+          (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
+        );
+        setTypedAnswers([answered ? answered.content : '']);
+      }
+      setFocusedIndex(0);
     } else {
-      setTypedAnswer('');
+      setTypedAnswers(['']);
+      setFocusedIndex(0);
     }
   }
 
   // 문제 전환 후 포커스 처리 (포커스는 사이드 이펙트이므로 useEffect 유지)
   useEffect(() => {
-    if (isBlank && !isUnanswered(quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections)) {
+    if (
+      isBlank &&
+      !isMultiBlank &&
+      !isUnanswered(quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections)
+    ) {
       const isTouch = window.matchMedia('(pointer: coarse)').matches;
       if (!isTouch) {
-        setTimeout(() => inputRef.current?.focus(), 100);
+        setTimeout(() => inputRefs.current[0]?.focus(), 100);
       }
     }
-  }, [quiz.currentQuestion, isBlank, quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections]);
+  }, [
+    quiz.currentQuestion,
+    isBlank,
+    isMultiBlank,
+    quiz.currentQuiz?.userAnswer,
+    quiz.currentQuiz?.selections,
+  ]);
 
   // 퀴즈 제목을 브라우저 탭 타이틀에 반영
   useEffect(() => {
@@ -228,64 +278,112 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
     </button>
   );
 
-  /** 선택지 클릭 시 입력 필드에도 반영 */
+  /** 선택지 content를 콤마 기준으로 분리 — 각 토큰이 i번째 빈칸 답안 */
+  const parseSelectionParts = (content: string): string[] =>
+    content.split(',').map((s) => s.trim());
+
+  /** 선택지 클릭 시 입력 필드에 반영 — 다중 빈칸은 콤마 파싱으로 모든 칸 일괄 채움 */
   const handleBlankOptionSelect = (optId: string) => {
-    quizActions.handleOptionSelect(optId);
     const selected = quiz.currentQuiz?.selections?.find((sel) => sel.id === optId);
-    if (selected) {
-      setTypedAnswer(selected.content);
+    if (!selected) return;
+    if (isMultiBlank) {
+      const parts = parseSelectionParts(selected.content);
+      setTypedAnswers(Array.from({ length: blankCount }, (_, i) => parts[i] ?? ''));
+      // 마지막 빈칸으로 포커스 이동
+      const lastIdx = blankCount - 1;
+      setFocusedIndex(lastIdx);
+      setTimeout(() => inputRefs.current[lastIdx]?.focus(), 100);
+    } else {
+      quizActions.handleOptionSelect(optId);
+      setTypedAnswers([selected.content]);
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
     }
-    // 입력 필드로 포커스 복귀
-    setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  /** BLANK 문제의 직접 입력 + 폴백 선택지 영역 */
+  /** i번째 입력칸 onChange */
+  const updateTypedAnswer = (idx: number, value: string) => {
+    setTypedAnswers((prev) => {
+      const next =
+        prev.length === blankCount
+          ? [...prev]
+          : Array.from({ length: blankCount }, (_, i) => prev[i] ?? '');
+      next[idx] = value;
+      return next;
+    });
+  };
+
+  /** BLANK 문제의 직접 입력 + (단일 빈칸 한정) 폴백 선택지 영역 */
   const renderBlankInput = () => (
     <div className="flex flex-col gap-3 max-md:mt-2">
-      {/* Phase 1: 직접 입력 필드 */}
-      <div className="relative flex flex-col gap-2">
-        <div className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground/60">
-          <PenLine className="size-4" />
-        </div>
-        <input
-          ref={inputRef}
-          type="text"
-          value={typedAnswer}
-          onChange={(e) => setTypedAnswer(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              // Enter 키로 선택지 토글
-              e.preventDefault();
-              setShowSelections((prev) => {
-                if (!prev) {
-                  setTimeout(() => firstSelectionRef.current?.focus(), 310);
+      {/* Phase 1: 직접 입력 필드 — 빈칸 개수만큼 세로로 나열 */}
+      <div className="flex flex-col gap-2">
+        {Array.from({ length: blankCount }, (_, i) => (
+          <div key={i} className="flex flex-col gap-1">
+            {isMultiBlank && (
+              <label
+                className="px-1 text-xs font-medium text-muted-foreground"
+                htmlFor={`blank-input-${i}`}
+              >
+                {t('{{n}}번째 빈칸', { n: i + 1 })}
+              </label>
+            )}
+            <div className="relative">
+              <div className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground/60">
+                <PenLine className="size-4" />
+              </div>
+              <input
+                id={`blank-input-${i}`}
+                ref={(el) => {
+                  inputRefs.current[i] = el;
+                }}
+                type="text"
+                value={typedAnswers[i] ?? ''}
+                onChange={(e) => updateTypedAnswer(i, e.target.value)}
+                onFocus={() => setFocusedIndex(i)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // 단일/다중 동일: 선택지 토글
+                    setShowSelections((prev) => {
+                      if (!prev) {
+                        setTimeout(() => firstSelectionRef.current?.focus(), 310);
+                      }
+                      return !prev;
+                    });
+                  } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    inputRefs.current[i]?.blur();
+                  }
+                }}
+                placeholder={
+                  isMultiBlank
+                    ? t('{{n}}번째 빈칸의 답을 입력하세요', { n: i + 1 })
+                    : t('답을 직접 입력하세요')
                 }
-                return !prev;
-              });
-            } else if (e.key === 'Escape') {
-              // Escape 키로 포커스 해제
-              e.preventDefault();
-              inputRef.current?.blur();
-            }
-          }}
-          placeholder={t('답을 직접 입력하세요')}
-          aria-label={t('답을 직접 입력하세요')}
-          className={cn(
-            'h-14 w-full rounded-2xl border border-input bg-card pl-10 pr-12 text-base text-foreground shadow-card max-md:pr-4',
-            'placeholder:text-muted-foreground/50',
-            'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-0',
-            'transition-all duration-200',
-          )}
-        />
-        {/* Enter 키 힌트 뱃지 (데스크톱만 표시) */}
-        <div className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 max-md:hidden">
-          <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-            Enter
-          </kbd>
-        </div>
+                aria-label={
+                  isMultiBlank
+                    ? t('{{n}}번째 빈칸의 답을 입력하세요', { n: i + 1 })
+                    : t('답을 직접 입력하세요')
+                }
+                className={cn(
+                  'h-14 w-full rounded-2xl border border-input bg-card pl-10 pr-12 text-base text-foreground shadow-card max-md:pr-4',
+                  'placeholder:text-muted-foreground/50',
+                  'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-0',
+                  'transition-all duration-200',
+                )}
+              />
+              {/* Enter 키 힌트 뱃지 (데스크톱만 표시) */}
+              <div className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 max-md:hidden">
+                <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  Enter
+                </kbd>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* 선택지 토글 버튼 */}
+      {/* 선택지 토글 + 리스트 — 단일/다중 빈칸 동일 동작 */}
       <button
         className={cn(
           'flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border-none px-4 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.98]',
@@ -301,7 +399,6 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
         {showSelections ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
       </button>
 
-      {/* Phase 2: 선택지 리스트 (즉시 노출/숨김) */}
       {showSelections && (
         <div className="overflow-hidden px-1 pt-1 pb-4">
           <div
@@ -310,54 +407,63 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
             role="listbox"
             aria-label={t('선택지 보기')}
           >
-            {quiz.currentQuiz?.selections?.map((opt, idx) => (
-              <div
-                key={opt.id}
-                ref={idx === 0 ? firstSelectionRef : undefined}
-                tabIndex={showSelections ? 0 : -1}
-                role="option"
-                aria-selected={quiz.selectedOption === opt.id}
-                className={cn(
-                  'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
-                  'hover:bg-muted',
-                  'max-md:min-h-12 max-md:px-3 max-md:py-4',
-                  quiz.selectedOption === opt.id && 'ring-2 ring-primary ring-offset-1',
-                )}
-                onClick={() => handleBlankOptionSelect(opt.id)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleBlankOptionSelect(opt.id);
-                  } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    const next = e.currentTarget.nextElementSibling as HTMLElement | null;
-                    next?.focus();
-                  } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    const prev = e.currentTarget.previousElementSibling as HTMLElement | null;
-                    prev?.focus();
-                  } else if (e.key === 'Escape') {
-                    e.preventDefault();
-                    setShowSelections(false);
-                    setTimeout(() => inputRef.current?.focus(), 310);
-                  }
-                }}
-              >
-                <span
+            {quiz.currentQuiz?.selections?.map((opt, idx) => {
+              // 다중 빈칸: 콤마 파싱 후 모든 토큰이 typedAnswers와 일치하면 강조
+              // 단일 빈칸: 기존 selectedOption 사용
+              const isHighlighted = isMultiBlank
+                ? (() => {
+                    const parts = parseSelectionParts(opt.content);
+                    if (parts.length !== blankCount) return false;
+                    return parts.every((p, i) => (typedAnswers[i] ?? '') === p);
+                  })()
+                : quiz.selectedOption === opt.id;
+              return (
+                <div
+                  key={opt.id}
+                  ref={idx === 0 ? firstSelectionRef : undefined}
+                  tabIndex={showSelections ? 0 : -1}
+                  role="option"
+                  aria-selected={isHighlighted}
                   className={cn(
-                    'mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs',
-                    quiz.selectedOption === opt.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted',
+                    'flex min-h-14 cursor-pointer items-center rounded-2xl bg-card px-4 py-5 shadow-card transition-colors duration-200',
+                    'hover:bg-muted',
+                    'max-md:min-h-12 max-md:px-3 max-md:py-4',
+                    isHighlighted && 'ring-2 ring-primary ring-offset-1',
                   )}
+                  onClick={() => handleBlankOptionSelect(opt.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleBlankOptionSelect(opt.id);
+                    } else if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      const next = e.currentTarget.nextElementSibling as HTMLElement | null;
+                      next?.focus();
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      const prev = e.currentTarget.previousElementSibling as HTMLElement | null;
+                      prev?.focus();
+                    } else if (e.key === 'Escape') {
+                      e.preventDefault();
+                      setShowSelections(false);
+                      setTimeout(() => inputRefs.current[focusedIndex]?.focus(), 310);
+                    }
+                  }}
                 >
-                  {idx + 1}
-                </span>
-                <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
-                  <MarkdownText>{opt.content}</MarkdownText>
-                </span>
-              </div>
-            ))}
+                  <span
+                    className={cn(
+                      'mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium max-md:mr-3 max-md:h-6 max-md:w-6 max-md:text-xs',
+                      isHighlighted ? 'bg-primary text-primary-foreground' : 'bg-muted',
+                    )}
+                  >
+                    {idx + 1}
+                  </span>
+                  <span className="min-w-0 flex-1 break-words pr-3 text-base leading-[1.8] text-foreground max-md:pr-2 max-md:text-sm max-md:leading-relaxed">
+                    <MarkdownText>{opt.content}</MarkdownText>
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -653,32 +759,37 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
                 </div>
 
                 {/* 질문 제목 — BLANK 문제일 때 빈칸 슬롯으로 시각화 */}
-                <div className="p-5 pt-2 pb-6">
-                  <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                    {isBlank ? (
-                      renderBlankTitle(quiz.currentQuiz?.title.split('\n')[0] ?? '')
-                    ) : (
-                      <MarkdownText>{quiz.currentQuiz?.title.split('\n')[0] ?? ''}</MarkdownText>
-                    )}
-                  </div>
-                </div>
+                {(() => {
+                  const fullTitle = quiz.currentQuiz?.title ?? '';
+                  const titleHead = fullTitle.split('\n')[0] ?? '';
+                  const titleBody = fullTitle.split('\n').slice(1).join('\n');
+                  const headBlankCount = isBlank ? countBlanks(titleHead) : 0;
+                  return (
+                    <>
+                      <div className="p-5 pt-2 pb-6">
+                        <div className="m-0 break-words text-base leading-relaxed text-foreground">
+                          {isBlank ? (
+                            renderBlankTitle(titleHead, 0)
+                          ) : (
+                            <MarkdownText>{titleHead}</MarkdownText>
+                          )}
+                        </div>
+                      </div>
 
-                {/* 문제 본문 (코드, 힌트 등) */}
-                {quiz.currentQuiz?.title.includes('\n') && (
-                  <div className="px-5 pt-3 pb-6">
-                    <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                      {isBlank ? (
-                        renderBlankTitle(
-                          quiz.currentQuiz?.title.split('\n').slice(1).join('\n') ?? '',
-                        )
-                      ) : (
-                        <MarkdownText>
-                          {quiz.currentQuiz?.title.split('\n').slice(1).join('\n') ?? ''}
-                        </MarkdownText>
+                      {fullTitle.includes('\n') && (
+                        <div className="px-5 pt-3 pb-6">
+                          <div className="m-0 break-words text-base leading-relaxed text-foreground">
+                            {isBlank ? (
+                              renderBlankTitle(titleBody, headBlankCount)
+                            ) : (
+                              <MarkdownText>{titleBody}</MarkdownText>
+                            )}
+                          </div>
+                        </div>
                       )}
-                    </div>
-                  </div>
-                )}
+                    </>
+                  );
+                })()}
               </div>
 
               {/* 선택지 영역: BLANK이면 직접 입력 UI, 아니면 기존 선택지 */}

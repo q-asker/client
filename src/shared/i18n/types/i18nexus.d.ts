@@ -840,6 +840,9 @@ declare type QuizResultKeys =
 declare type SolveQuizKeys =
   | '?'
   | 'AI 지시사항 반영 결과'
+  | '{{n}}번째 빈칸'
+  | '{{n}}번째 빈칸을 클릭하여 답 입력'
+  | '{{n}}번째 빈칸의 답을 입력하세요'
   | '{{quizItem_userAnswer}}번'
   | '개'
   | '검토'
@@ -849,6 +852,7 @@ declare type SolveQuizKeys =
   | '기록 중'
   | '기록 중 아님'
   | '다시 작성'
+  | '다시 채점하기'
   | '다음'
   | '닫기'
   | '답변을 입력하세요'
@@ -873,6 +877,7 @@ declare type SolveQuizKeys =
   | '소거'
   | '소중한 의견 감사합니다!'
   | '시도'
+  | '시도에 따라 단계별 힌트가 제시됩니다!'
   | '안푼 문제:'
   | '이전'
   | '입력 내용과 선택한 답안이 다릅니다'
@@ -902,6 +907,9 @@ declare type SolveQuizKeys =
 
 /** Interpolation variables for "solve-quiz" namespace keys */
 declare type SolveQuizKeyVariables = {
+  '{{n}}번째 빈칸': 'n';
+  '{{n}}번째 빈칸을 클릭하여 답 입력': 'n';
+  '{{n}}번째 빈칸의 답을 입력하세요': 'n';
   '{{quizItem_userAnswer}}번': 'quizItem_userAnswer';
   '매칭됨: {{matchedContent}}': 'matchedContent';
 };
