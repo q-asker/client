@@ -19,6 +19,9 @@ const BLANK_REGEX = /_{3,}/g;
 
 const countBlanks = (text: string): number => (text.match(BLANK_REGEX) ?? []).length;
 
+/** 선택지 content를 콤마 기준으로 분리 — 각 토큰이 i번째 빈칸 답안 */
+const parseSelectionParts = (content: string): string[] => content.split(',').map((s) => s.trim());
+
 /** 빈칸 슬롯 — 문제 제목 내 `_______`을 시각적 슬롯으로 렌더링 */
 const BlankSlot: React.FC<{
   value: string;
@@ -177,8 +180,8 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
   if (quiz.currentQuestion !== prevQuestionNum) {
     setPrevQuestionNum(quiz.currentQuestion);
 
-    // 1. 선택지 공개 상태 동기화 (단일 빈칸일 때만 토글 사용, 다중 빈칸은 토글/리스트 미사용)
-    if (isBlank && !isMultiBlank) {
+    // 1. 선택지 공개 상태 동기화 — BLANK는 답이 있을 때만 펼침, 그 외(MULTIPLE/OX)는 항상 펼침
+    if (isBlank) {
       const alreadyAnswered = !isUnanswered(
         quiz.currentQuiz?.userAnswer,
         quiz.currentQuiz?.selections,
@@ -188,15 +191,15 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
       setShowSelections(true);
     }
 
-    // 2. BLANK 문제 답안 로드
+    // 2. BLANK 문제 답안 로드 — 단일/다중 모두 userAnswer 기준으로 복원
     if (isBlank) {
+      const answered = quiz.currentQuiz?.selections?.find(
+        (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
+      );
       if (isMultiBlank) {
-        // 다중 빈칸: 제출/저장 미구현 — 로컬 상태만 빈칸 개수에 맞춰 초기화
-        setTypedAnswers(Array.from({ length: blankCount }, () => ''));
+        const parts = answered ? parseSelectionParts(answered.content) : [];
+        setTypedAnswers(Array.from({ length: blankCount }, (_, i) => parts[i] ?? ''));
       } else {
-        const answered = quiz.currentQuiz?.selections?.find(
-          (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
-        );
         setTypedAnswers([answered ? answered.content : '']);
       }
       setFocusedIndex(0);
@@ -278,23 +281,18 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
     </button>
   );
 
-  /** 선택지 content를 콤마 기준으로 분리 — 각 토큰이 i번째 빈칸 답안 */
-  const parseSelectionParts = (content: string): string[] =>
-    content.split(',').map((s) => s.trim());
-
-  /** 선택지 클릭 시 입력 필드에 반영 — 다중 빈칸은 콤마 파싱으로 모든 칸 일괄 채움 */
+  /** 선택지 클릭 시 입력 필드에 반영 — 단일/다중 모두 userAnswer를 selectedOption으로 설정 */
   const handleBlankOptionSelect = (optId: string) => {
     const selected = quiz.currentQuiz?.selections?.find((sel) => sel.id === optId);
     if (!selected) return;
+    quizActions.handleOptionSelect(optId);
     if (isMultiBlank) {
       const parts = parseSelectionParts(selected.content);
       setTypedAnswers(Array.from({ length: blankCount }, (_, i) => parts[i] ?? ''));
-      // 마지막 빈칸으로 포커스 이동
       const lastIdx = blankCount - 1;
       setFocusedIndex(lastIdx);
       setTimeout(() => inputRefs.current[lastIdx]?.focus(), 100);
     } else {
-      quizActions.handleOptionSelect(optId);
       setTypedAnswers([selected.content]);
       setTimeout(() => inputRefs.current[0]?.focus(), 100);
     }
@@ -408,15 +406,7 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
             aria-label={t('선택지 보기')}
           >
             {quiz.currentQuiz?.selections?.map((opt, idx) => {
-              // 다중 빈칸: 콤마 파싱 후 모든 토큰이 typedAnswers와 일치하면 강조
-              // 단일 빈칸: 기존 selectedOption 사용
-              const isHighlighted = isMultiBlank
-                ? (() => {
-                    const parts = parseSelectionParts(opt.content);
-                    if (parts.length !== blankCount) return false;
-                    return parts.every((p, i) => (typedAnswers[i] ?? '') === p);
-                  })()
-                : quiz.selectedOption === opt.id;
+              const isHighlighted = quiz.selectedOption === opt.id;
               return (
                 <div
                   key={opt.id}
