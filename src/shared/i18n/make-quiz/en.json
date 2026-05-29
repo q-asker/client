@@ -165,5 +165,7 @@
   "AI에게 원하는 지시사항을 작성하고": "Write any specific instructions for the AI",
   "전송": "Send",
   "전송 중...": "Sending...",
-  "전송에 실패했습니다. 다시 시도해주세요.": "Failed to send. Please try again."
+  "전송에 실패했습니다. 다시 시도해주세요.": "Failed to send. Please try again.",
+  "변경 시행 안내": "Policy Update Notice",
+  "새로운 이용약관·개인정보 처리방침이 2026-05-29부터 시행됩니다.": "Updated Terms of Service and Privacy Policy take effect on 2026-05-29."
 }

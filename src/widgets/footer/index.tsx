@@ -103,6 +103,12 @@ const Footer = () => {
             <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
               {t('문의 및 피드백')}
             </span>
+            <Link
+              to="/boards"
+              className="text-sm text-foreground no-underline transition-colors duration-200 hover:underline"
+            >
+              {t('문의하기')}
+            </Link>
             <a
               href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
               target="_blank"

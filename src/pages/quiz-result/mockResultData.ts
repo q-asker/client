@@ -85,4 +85,3 @@ export const MOCK_RESULT_QUIZZES: QuizItem[] = [
 ];
 
 export const MOCK_TOTAL_TIME = '00:03:42';
-export const MOCK_UPLOADED_URL = '';
