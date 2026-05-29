@@ -13,6 +13,7 @@ async function prerender() {
     staticDir: DIST_DIR,
     renderer: new PuppeteerRenderer({
       headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
       renderAfterDocumentEvent: 'prerender-ready',
     }),
   });

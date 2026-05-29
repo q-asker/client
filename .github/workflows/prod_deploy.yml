@@ -25,23 +25,19 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
-      - name: Puppeteer Chrome 캐시
-        uses: actions/cache@v4
+      - name: Chrome 설치
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v2
         with:
-          path: node_modules/.cache/puppeteer
-          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          chrome-version: stable
+          install-dependencies: true
 
       - name: 의존성 설치 및 빌드
         env:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
+          PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: |
           npm install
-          if [ -d node_modules/.cache/puppeteer ] && ! find node_modules/.cache/puppeteer -name chrome -type f -executable 2>/dev/null | grep -q .; then
-            echo "캐시된 Chrome 실행파일 없음 — 캐시 정리"
-            rm -rf node_modules/.cache/puppeteer
-          fi
-          npx puppeteer install
-          find node_modules/.cache/puppeteer -name chrome -type f -executable | head -1 || (echo "Chrome 설치 검증 실패" && exit 1)
           echo "${{ env.ENV }}" > .env.prod
           npm run build
 
