@@ -32,8 +32,13 @@ jobs:
           key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: 의존성 설치 및 빌드
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
         run: |
           npm install
+          for dir in node_modules/.cache/puppeteer/chrome/linux-*; do
+            [ -d "$dir" ] && [ ! -f "$dir/chrome-linux64/chrome" ] && rm -rf "$dir"
+          done
           npx puppeteer browsers install chrome
           echo "${{ env.ENV }}" > .env.prod
           npm run build
