@@ -167,5 +167,8 @@
   "전송 중...": "Sending...",
   "전송에 실패했습니다. 다시 시도해주세요.": "Failed to send. Please try again.",
   "변경 시행 안내": "Policy Update Notice",
-  "새로운 이용약관·개인정보 처리방침이 2026-05-29부터 시행됩니다.": "Updated Terms of Service and Privacy Policy take effect on 2026-05-29."
+  "새로운 이용약관·개인정보 처리방침이 2026-05-29부터 시행됩니다.": "Updated Terms of Service and Privacy Policy take effect on 2026-05-29.",
+  ", ": " and ",
+  "에 동의하는 것입니다.": ".",
+  "퀴즈 생성시": "By generating a quiz, you agree to our"
 }
