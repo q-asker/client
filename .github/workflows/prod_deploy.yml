@@ -36,11 +36,12 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
         run: |
           npm install
-          if ! npx puppeteer install; then
-            echo "Chrome 설치 실패 — 캐시 정리 후 재시도"
+          if [ -d node_modules/.cache/puppeteer ] && ! find node_modules/.cache/puppeteer -name chrome -type f -executable 2>/dev/null | grep -q .; then
+            echo "캐시된 Chrome 실행파일 없음 — 캐시 정리"
             rm -rf node_modules/.cache/puppeteer
-            npx puppeteer install
           fi
+          npx puppeteer install
+          find node_modules/.cache/puppeteer -name chrome -type f -executable | head -1 || (echo "Chrome 설치 검증 실패" && exit 1)
           echo "${{ env.ENV }}" > .env.prod
           npm run build
 
