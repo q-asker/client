@@ -893,6 +893,17 @@ const MakeQuiz: React.FC = () => {
                       </div>
                     </div>
                     <p className="mt-3 text-center text-[10px] leading-relaxed text-muted-foreground/70">
+                      {t('퀴즈 생성시')}{' '}
+                      <Link to="/terms-of-service" className="text-foreground hover:underline">
+                        {t('서비스 이용약관')}
+                      </Link>
+                      {t(', ')}
+                      <Link to="/privacy-policy" className="text-foreground hover:underline">
+                        {t('개인정보 처리방침')}
+                      </Link>
+                      {t('에 동의하는 것입니다.')}
+                    </p>
+                    <p className="mt-2 text-center text-[10px] leading-relaxed text-muted-foreground/70">
                       {t('파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.')}
                       <span className="hidden sm:inline">{' · '}</span>
                       <br className="sm:hidden" />
