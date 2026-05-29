@@ -25,9 +25,16 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
+      - name: Puppeteer Chrome 캐시
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: 의존성 설치 및 빌드
         run: |
           npm install
+          npx puppeteer browsers install chrome
           echo "${{ env.ENV }}" > .env.prod
           npm run build
 
