@@ -36,10 +36,11 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
         run: |
           npm install
-          for dir in node_modules/.cache/puppeteer/chrome/linux-*; do
-            [ -d "$dir" ] && [ ! -f "$dir/chrome-linux64/chrome" ] && rm -rf "$dir"
-          done
-          npx puppeteer browsers install chrome
+          if ! npx puppeteer install; then
+            echo "Chrome 설치 실패 — 캐시 정리 후 재시도"
+            rm -rf node_modules/.cache/puppeteer
+            npx puppeteer install
+          fi
           echo "${{ env.ENV }}" > .env.prod
           npm run build
 
