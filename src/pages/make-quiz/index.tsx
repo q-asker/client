@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
 import Footer from '#widgets/footer';
@@ -34,7 +34,6 @@ if (typeof window !== 'undefined') {
   }
 }
 import { useNavigate } from 'react-router-dom';
-import RecentChanges from '#widgets/recent-changes';
 import { cn } from '@/shared/ui/lib/utils';
 import type { QuestionType } from '#features/prepare-quiz';
 import { levelMapping } from '#features/prepare-quiz';
@@ -108,6 +107,7 @@ const MakeQuiz: React.FC = () => {
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, isWaitingForFirstQuiz, pdfOptions } = state;
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const pdfDataState = usePdfData(upload.uploadedUrl, upload.localPdfFile);
   const storedFileInfo = useQuizGenerationStore((state) => state.fileInfo);
 
@@ -824,16 +824,21 @@ const MakeQuiz: React.FC = () => {
 
                   {/* 상단: 업로드 영역 */}
                   <div className="flex flex-col items-center px-5 pt-6 pb-5 text-center sm:px-8 sm:pt-8 sm:pb-6">
-                    {/* 아이콘 */}
-                    <div className="relative mb-4 sm:mb-5">
-                      <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 sm:size-20">
+                    {/* 아이콘 (클릭 시 파일 선택 다이얼로그) */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      aria-label={t('파일 선택하기')}
+                      className="relative mb-4 cursor-pointer border-0 bg-transparent p-0 sm:mb-5"
+                    >
+                      <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 transition-colors duration-200 hover:bg-primary/15 sm:size-20">
                         <ArrowUpFromLine
                           className="size-6 text-primary sm:size-8"
                           strokeWidth={1.5}
                         />
                       </div>
-                      <div className="absolute -inset-2 animate-pulse rounded-full border border-primary/20" />
-                    </div>
+                      <div className="pointer-events-none absolute -inset-2 animate-pulse rounded-full border border-primary/20" />
+                    </button>
 
                     {/* "퀴즈를 생성하기 위해" + 모바일: "파일을 업로드하세요", 데스크톱: "파일을 여기에 드래그하세요" */}
                     <p className="mb-1 text-sm font-medium text-muted-foreground sm:text-base">
@@ -859,6 +864,7 @@ const MakeQuiz: React.FC = () => {
                       <Upload className="size-4" strokeWidth={2} />
                       {t('파일 선택하기')}
                       <input
+                        ref={fileInputRef}
                         type="file"
                         accept={acceptExtensions}
                         onChange={uploadActions.handleFileInput}
@@ -1044,10 +1050,10 @@ const MakeQuiz: React.FC = () => {
           </motion.div>
         )}
         {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
-          <>
-            <RecentChanges />
-            <HelpToggle t={t} isOpen={isHelpOpen} onToggle={() => setIsHelpOpen((p) => !p)} />
-          </>
+          <HelpToggle t={t} isOpen={isHelpOpen} onToggle={() => setIsHelpOpen((p) => !p)} />
+        )}
+        {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
+          <PolicyUpdateNotice t={t} />
         )}
       </div>
 
@@ -1076,6 +1082,28 @@ const MakeQuiz: React.FC = () => {
 };
 
 export default MakeQuiz;
+
+/* ─── 약관·처리방침 변경 시행 안내 ─── */
+const PolicyUpdateNotice: React.FC<{
+  t: (key: string) => string;
+}> = ({ t }) => (
+  <section className="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-border/50 pt-6 text-center text-xs text-muted-foreground sm:text-sm">
+    <span className="font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
+      {t('변경 시행 안내')}
+    </span>
+    <span className="text-muted-foreground/40">·</span>
+    <span className="text-foreground">
+      {t('새로운 이용약관·개인정보 처리방침이 2026-05-29부터 시행됩니다.')}
+    </span>
+    <Link to="/terms-of-service" className="font-medium text-primary hover:underline">
+      {t('서비스 이용약관')}
+    </Link>
+    <span className="text-muted-foreground/40">·</span>
+    <Link to="/privacy-policy" className="font-medium text-primary hover:underline">
+      {t('개인정보 처리방침')}
+    </Link>
+  </section>
+);
 
 /* ─── 건의함 컴포넌트 ─── */
 const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
