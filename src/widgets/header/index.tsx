@@ -1,17 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import {
-  MessageSquare,
-  ClipboardList,
-  X,
-  Sun,
-  Moon,
-  Monitor,
-  Check,
-  Palette,
-  Globe,
-} from 'lucide-react';
+import { Megaphone, ClipboardList, X, Sun, Moon, Monitor, Check, Palette } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useHeader } from './model/useHeader';
 import { useClickOutside } from '#shared/lib/useClickOutside';
@@ -175,6 +165,14 @@ const Header = () => {
 
           {/* 데스크톱 네비게이션 */}
           <div className="hidden items-center gap-1 md:flex md:gap-3">
+            <Link to="/updates" className={navItemClass}>
+              <Megaphone className="mr-1.5 size-4" />
+              <strong>{t('공지')}</strong>
+            </Link>
+
+            {/* 구분선 */}
+            <div className="mx-1 h-5 w-px bg-border" />
+
             {/* 테마 버튼 */}
             <div className="relative">
               <button
@@ -192,14 +190,6 @@ const Header = () => {
                 {isThemeOpen && <ThemeDropdownContent id="themeDropdown" />}
               </AnimatePresence>
             </div>
-
-            {/* 구분선 */}
-            <div className="mx-1 h-5 w-px bg-border" />
-
-            <Link to="/boards" className={navItemClass}>
-              <MessageSquare className="mr-1.5 size-4" />
-              <strong>{t('문의하기')}</strong>
-            </Link>
 
             {/* 구분선 */}
             <div className="mx-1 h-5 w-px bg-border" />
@@ -245,11 +235,11 @@ const Header = () => {
       {/* 모바일 고정 하단 네비게이션 */}
       <nav className="fixed inset-x-0 bottom-0 z-[998] flex border-t border-border/60 bg-background/90 backdrop-blur-xl md:hidden">
         <Link
-          to="/boards"
+          to="/updates"
           className="flex flex-1 flex-col items-center justify-center gap-0.5 border-r border-border/60 py-2.5 text-muted-foreground no-underline transition-colors active:text-primary"
         >
-          <MessageSquare className="size-5" />
-          <span className="text-[10px] font-semibold">{t('문의하기')}</span>
+          <Megaphone className="size-5" />
+          <span className="text-[10px] font-semibold">{t('공지')}</span>
         </Link>
 
         <div className="relative flex flex-1 border-r border-border/60">

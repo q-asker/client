@@ -4,10 +4,10 @@
   "등록 중...": "Submitting...",
   "등록하기": "Submit",
   "로그인이 필요합니다.": "Login is required.",
-  "마크다운으로 변경사항을 작성해주세요.": "Please write changes in Markdown.",
+  "마크다운으로 변경사항을 작성해주세요.": "Please write the notice in Markdown.",
   "문의 내용을 상세히 적어주세요.": "Please describe your inquiry in detail.",
   "문의 수정": "Edit Inquiry",
-  "변경사항 작성": "Write Changes",
+  "변경사항 작성": "Write Notice",
   "새 문의 작성": "Write New Inquiry",
   "수정": "Edit",
   "수정 권한이 없습니다.": "You don't have permission to edit.",
@@ -21,5 +21,5 @@
   "제목과 내용을 모두 입력해주세요.": "Please enter both title and content.",
   "제목을 입력해주세요": "Please enter a title",
   "취소": "Cancel",
-  "변경사항 수정": "Edit Changes"
+  "변경사항 수정": "Edit Notice"
 }
