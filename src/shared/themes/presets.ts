@@ -450,6 +450,8 @@ const claudePreset: ThemePreset = {
   },
 };
 
+export const DEFAULT_PRESET_ID = 'claude';
+
 export const presets: ThemePreset[] = [
   defaultPreset,
   claudePreset,
@@ -458,3 +460,6 @@ export const presets: ThemePreset[] = [
   cyberpunkPreset,
   northernLightsPreset,
 ];
+
+export const getDefaultPreset = (): ThemePreset =>
+  presets.find((p) => p.id === DEFAULT_PRESET_ID) ?? presets[0];
