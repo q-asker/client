@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
-import { presets, THEME_CSS_KEYS } from './presets';
+import { DEFAULT_PRESET_ID, getDefaultPreset, presets, THEME_CSS_KEYS } from './presets';
 import type { ThemePreset } from './types';
 
 const STORAGE_KEY = 'q-asker-theme';
 const STORAGE_VARS_KEY = 'q-asker-theme-vars';
+const NEXT_THEMES_STORAGE_KEY = 'theme';
 
 // CSS 변수를 document에 적용
 const applyVarsToDocument = (vars: Record<string, string>) => {
@@ -50,18 +51,40 @@ const clearPersistedVars = () => {
   }
 };
 
+// 저장된 next-themes 설정 + 시스템 선호도로 다크 모드 추정 (마운트 전용)
+const detectIsDarkBeforeMount = (): boolean => {
+  try {
+    const stored = localStorage.getItem(NEXT_THEMES_STORAGE_KEY);
+    if (stored === 'dark') return true;
+    if (stored === 'light') return false;
+  } catch {
+    // localStorage 접근 불가 → 시스템 선호도 폴백
+  }
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+};
+
 /**
  * React 마운트 전에 호출하여 저장된 테마 CSS 변수를 즉시 적용한다.
  * main.tsx에서 createRoot() 전에 호출해야 플래싱이 방지된다.
+ * 저장된 프리셋이 없으면 기본 프리셋(claude)을 적용한다.
  */
 export const restoreThemeBeforeMount = () => {
   try {
     const savedVars = localStorage.getItem(STORAGE_VARS_KEY);
-    if (!savedVars) return;
-    const vars = JSON.parse(savedVars) as Record<string, string>;
+    if (savedVars) {
+      const vars = JSON.parse(savedVars) as Record<string, string>;
+      applyVarsToDocument(vars);
+      return;
+    }
+    const savedPresetId = localStorage.getItem(STORAGE_KEY);
+    if (savedPresetId === 'default') return;
+    const fallback = getDefaultPreset();
+    if (fallback.id === 'default') return;
+    const isDark = detectIsDarkBeforeMount();
+    const vars = isDark ? fallback.darkVars : fallback.lightVars;
     applyVarsToDocument(vars);
   } catch {
-    // 복원 실패 시 기본 테마로 폴백
+    // 복원 실패 시 globals.css 원본으로 폴백
   }
 };
 
@@ -71,13 +94,13 @@ export const useThemePreset = () => {
 
   const [currentPresetId, setCurrentPresetId] = useState<string>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) ?? 'default';
+      return localStorage.getItem(STORAGE_KEY) ?? DEFAULT_PRESET_ID;
     } catch {
-      return 'default';
+      return DEFAULT_PRESET_ID;
     }
   });
 
-  const currentPreset = presets.find((p) => p.id === currentPresetId) ?? presets[0];
+  const currentPreset = presets.find((p) => p.id === currentPresetId) ?? getDefaultPreset();
 
   // 프리셋 적용
   const applyPreset = useCallback(
