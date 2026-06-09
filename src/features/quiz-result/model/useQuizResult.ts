@@ -119,16 +119,24 @@ export const useQuizResult = ({
     trackResultEvents.viewResult(problemSetId, correctCount, quizzes.length, totalTime);
     trackQuizEvents.completeQuiz(problemSetId, correctCount, quizzes.length, totalTime);
 
-    const userAnswers = quizzes.map((q) => ({
-      number: q.number,
-      userAnswer: isEssay ? 0 : q.userAnswer != null ? Number(q.userAnswer) : 0,
-      textAnswer: isEssay
-        ? q.userAnswer && String(q.userAnswer) !== '0'
-          ? String(q.userAnswer)
-          : ''
-        : null,
-      inReview: q.inReview ?? false,
-    }));
+    const userAnswers = quizzes.map((q) => {
+      const isRealBlank = q.type === 'REAL_BLANK';
+      const isTextMode = isEssay || isRealBlank;
+      return {
+        number: q.number,
+        userAnswer: isTextMode ? 0 : q.userAnswer != null ? Number(q.userAnswer) : 0,
+        textAnswer: isEssay
+          ? q.userAnswer && String(q.userAnswer) !== '0'
+            ? String(q.userAnswer)
+            : ''
+          : isRealBlank
+            ? q.userAnswer && String(q.userAnswer) !== '0'
+              ? String(q.userAnswer)
+              : ''
+            : null,
+        inReview: q.inReview ?? false,
+      };
+    });
 
     // ESSAY: 획득 총점, 선택형: 정답 수
     const score = isEssay ? (essayScore?.totalScore ?? 0) : correctCount;
