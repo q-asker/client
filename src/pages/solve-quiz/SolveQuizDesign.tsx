@@ -198,12 +198,15 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
 
     // 2. BLANK/REAL_BLANK 문제 답안 로드 — 단일/다중 모두 userAnswer 기준으로 복원
     if (isRealBlank) {
-      const raw = quiz.currentQuiz?.userAnswer ?? '';
+      // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
+      const rawAnswer = quiz.currentQuiz?.userAnswer;
+      const rawStr = rawAnswer == null ? '' : String(rawAnswer);
+      const raw = rawStr === '0' ? '' : rawStr;
       if (isMultiBlank) {
-        const tokens = deserializeRealBlankTokens(String(raw));
+        const tokens = deserializeRealBlankTokens(raw);
         setTypedAnswers(Array.from({ length: blankCount }, (_, i) => tokens[i] ?? ''));
       } else {
-        setTypedAnswers([raw ? String(raw) : '']);
+        setTypedAnswers([raw]);
       }
       setFocusedIndex(0);
     } else if (isBlank) {
