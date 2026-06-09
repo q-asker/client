@@ -111,12 +111,17 @@ export const usePrepareQuiz = ({
 
   const generateQuestions = useCallback(
     (customInstruction?: string) => {
+      // BLANK + 선택지 숨김 토글 ON → 서버에는 'REAL_BLANK' 전송
+      const effectiveQuestionType =
+        options.state.questionType === 'BLANK' && options.state.blankHideSelections
+          ? 'REAL_BLANK'
+          : options.state.questionType;
       generationActions.generateQuestions({
         t,
         currentLanguage,
         uploadedUrl: upload.state.uploadedUrl,
         fileName: upload.state.file?.name ?? '',
-        questionType: options.state.questionType,
+        questionType: effectiveQuestionType,
         questionCount: options.state.questionCount,
         selectedPages: pages.state.selectedPages,
         language: options.state.language,
@@ -129,6 +134,7 @@ export const usePrepareQuiz = ({
       options.state.questionCount,
       options.state.questionType,
       options.state.language,
+      options.state.blankHideSelections,
       pages.state.selectedPages,
       t,
       upload.state.uploadedUrl,

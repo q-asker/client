@@ -13,7 +13,7 @@ import { clearEssayGradeResults, clearEssayAttempts } from './solveQuizProgress'
 /** API 응답 데이터 타입 */
 export interface ProblemSetResponse {
   generationStatus: 'COMPLETED' | 'GENERATING';
-  quizType?: 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY';
+  quizType?: 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY' | 'REAL_BLANK';
   quiz: Quiz[];
   totalCount: number;
   sessionId: string;
@@ -52,7 +52,7 @@ interface UseSolveQuizDataReturn {
 /** quizType을 각 quiz 항목에 전파 */
 const applyQuizType = (
   quizzes: Quiz[],
-  quizType?: 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY',
+  quizType?: 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY' | 'REAL_BLANK',
 ): Quiz[] => {
   if (!quizType) return quizzes;
   return quizzes.map((q) => (q.type ? q : { ...q, type: quizType }));
@@ -70,9 +70,10 @@ const mergeWithProgress = (
   if (!progress) return serverQuizzes;
   return serverQuizzes.map((q) => {
     const savedAnswer = progress.answers[q.number];
-    // localStorage 복원 시 string으로 변환된 답안을 서버 selection ID 원본 타입에 맞춤
+    // localStorage 복원 시 string으로 변환된 답안을 서버 selection ID 원본 타입에 맞춤.
+    // REAL_BLANK는 직접 입력 텍스트가 답이므로 selection ID 매칭을 우회한다.
     let restoredAnswer: string | null | undefined = savedAnswer ?? q.userAnswer;
-    if (savedAnswer != null && q.selections?.length > 0) {
+    if (savedAnswer != null && q.type !== 'REAL_BLANK' && q.selections?.length > 0) {
       const matched = q.selections.find((s) => String(s.id) === String(savedAnswer));
       if (matched) {
         restoredAnswer = matched.id;
@@ -98,11 +99,14 @@ export const useSolveQuizData = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [title, setTitle] = useState<string>('');
   const [historyId, setHistoryId] = useState<string | null>(null);
-  const [quizType, setQuizType] = useState<'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY' | undefined>();
+  const [quizType, setQuizType] = useState<
+    'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY' | 'REAL_BLANK' | undefined
+  >();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
   const isMockBlank = searchParams.get('blank') === 'true';
   const isMockEssay = searchParams.get('essay') === 'true';
+  const isMockRealBlank = searchParams.get('real_blank') === 'true';
   const reconnectStream = useQuizGenerationStore((state) => state.reconnectStream);
   const setProblemSetInfo = useQuizGenerationStore((state) => state.setProblemSetInfo);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -118,14 +122,22 @@ export const useSolveQuizData = ({
     /* mock 모드: API 호출 없이 mock 데이터 사용 */
     if (isMock) {
       import('../../../pages/solve-quiz/mockQuizData').then((mod) => {
-        const data = isMockEssay
-          ? mod.MOCK_ESSAY_QUIZZES
-          : isMockBlank
-            ? mod.MOCK_BLANK_QUIZZES
-            : mod.MOCK_QUIZZES;
+        const data = isMockRealBlank
+          ? mod.MOCK_REAL_BLANK_QUIZZES
+          : isMockEssay
+            ? mod.MOCK_ESSAY_QUIZZES
+            : isMockBlank
+              ? mod.MOCK_BLANK_QUIZZES
+              : mod.MOCK_QUIZZES;
         setLocalQuizzes(mergeWithProgress(data, savedProgress));
         setTitle(
-          isMockEssay ? t('ESSAY Mock 퀴즈') : isMockBlank ? t('BLANK Mock 퀴즈') : t('Mock 퀴즈'),
+          isMockRealBlank
+            ? t('REAL_BLANK Mock 퀴즈')
+            : isMockEssay
+              ? t('ESSAY Mock 퀴즈')
+              : isMockBlank
+                ? t('BLANK Mock 퀴즈')
+                : t('Mock 퀴즈'),
         );
         setIsLoading(false);
       });

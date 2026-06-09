@@ -1,4 +1,5 @@
 {
+  "REAL_BLANK Mock 퀴즈": "REAL_BLANK Mock Quiz",
   "{{quizItem_userAnswer}}번": "No. {{quizItem_userAnswer}}",
   "개": "questions",
   "?": "Help",

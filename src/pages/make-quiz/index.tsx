@@ -57,6 +57,8 @@ import {
   HelpCircle,
   ChevronDown,
   MessageCircle,
+  SquareCheck,
+  Square,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
@@ -127,7 +129,7 @@ const MakeQuiz: React.FC = () => {
   // 생성 완료 후 서버에서 ProblemSet 정보 조회
   interface ProblemSetSummary {
     title: string;
-    quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY';
+    quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY' | 'REAL_BLANK';
     totalCount: number;
   }
   const [problemSetInfo, setProblemSetInfo] = useState<ProblemSetSummary | null>(null);
@@ -487,6 +489,29 @@ const MakeQuiz: React.FC = () => {
                       ))}
                     </div>
 
+                    {/* BLANK 전용: '선택지 없애기' 체크박스 — REAL_BLANK 토글 */}
+                    {options.questionType === 'BLANK' && (
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={options.blankHideSelections}
+                        aria-pressed={options.blankHideSelections}
+                        onClick={() =>
+                          optionActions.setBlankHideSelections(!options.blankHideSelections)
+                        }
+                        className={cn(
+                          'mt-3 inline-flex cursor-pointer items-center gap-2 self-start rounded-xl border-none bg-transparent px-0 py-1 text-sm font-medium text-foreground transition-transform duration-100 active:scale-95',
+                        )}
+                      >
+                        {options.blankHideSelections ? (
+                          <SquareCheck className="size-4 text-primary" strokeWidth={2} />
+                        ) : (
+                          <Square className="size-4 text-muted-foreground" strokeWidth={2} />
+                        )}
+                        <span>{t('선택지 없애기')}</span>
+                      </button>
+                    )}
+
                     {/* 난이도 미리보기 카드 */}
                     <div className="mt-3 rounded-2xl border border-border bg-muted p-3 sm:mt-4 sm:p-4">
                       <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -497,23 +522,26 @@ const MakeQuiz: React.FC = () => {
                           {currentLevel?.question ?? ''}
                         </MarkdownText>
                       </div>
-                      {currentLevel?.options && currentLevel.options.length > 0 && (
-                        <div className="mt-3 flex flex-col gap-1.5">
-                          {currentLevel.options.map((option: string, index: number) => (
-                            <div
-                              key={`${option}-${index}`}
-                              className="flex items-center rounded-xl bg-background px-3 py-2"
-                            >
-                              <span className="mr-3 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                                {index + 1}
-                              </span>
-                              <span className="whitespace-pre-wrap break-keep text-sm leading-relaxed text-foreground md:break-words">
-                                {option}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      {/* BLANK + blankHideSelections=ON일 때 선택지 영역을 렌더링하지 않음 */}
+                      {currentLevel?.options &&
+                        currentLevel.options.length > 0 &&
+                        !(options.questionType === 'BLANK' && options.blankHideSelections) && (
+                          <div className="mt-3 flex flex-col gap-1.5">
+                            {currentLevel.options.map((option: string, index: number) => (
+                              <div
+                                key={`${option}-${index}`}
+                                className="flex items-center rounded-xl bg-background px-3 py-2"
+                              >
+                                <span className="mr-3 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                                  {index + 1}
+                                </span>
+                                <span className="whitespace-pre-wrap break-keep text-sm leading-relaxed text-foreground md:break-words">
+                                  {option}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                     </div>
                   </CardContent>
                 </Card>
