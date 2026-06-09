@@ -198,12 +198,15 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
 
     // 2. BLANK/REAL_BLANK 문제 답안 로드 — 단일/다중 모두 userAnswer 기준으로 복원
     if (isRealBlank) {
-      const raw = quiz.currentQuiz?.userAnswer ?? '';
+      // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
+      const rawAnswer = quiz.currentQuiz?.userAnswer;
+      const rawStr = rawAnswer == null ? '' : String(rawAnswer);
+      const raw = rawStr === '0' ? '' : rawStr;
       if (isMultiBlank) {
-        const tokens = deserializeRealBlankTokens(String(raw));
+        const tokens = deserializeRealBlankTokens(raw);
         setTypedAnswers(Array.from({ length: blankCount }, (_, i) => tokens[i] ?? ''));
       } else {
-        setTypedAnswers([raw ? String(raw) : '']);
+        setTypedAnswers([raw]);
       }
       setFocusedIndex(0);
     } else if (isBlank) {
@@ -576,16 +579,27 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
 
                 {/* 하단 문제별 선택 답안 */}
                 <div>
-                  <h3 className="mb-4 text-lg font-semibold text-foreground">{t('선택한 답안')}</h3>
+                  <h3 className="mb-4 text-lg font-semibold text-foreground">{t('입력한 답안')}</h3>
                   <div className="max-h-[300px] overflow-y-auto rounded-2xl border border-border p-3">
                     {quiz.quizzes.map((quizItem) => {
-                      const unanswered = isUnanswered(quizItem.userAnswer, quizItem.selections);
                       const isRealBlankItem = quizItem.type === 'REAL_BLANK';
+                      // REAL_BLANK는 selection id 매칭이 아니라 직접 입력 텍스트의 공백 여부로 판정한다.
+                      // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다.
+                      const realBlankRaw = isRealBlankItem
+                        ? (() => {
+                            const raw =
+                              quizItem.userAnswer == null ? '' : String(quizItem.userAnswer);
+                            return raw === '0' ? '' : raw;
+                          })()
+                        : '';
+                      const unanswered = isRealBlankItem
+                        ? realBlankRaw === ''
+                        : isUnanswered(quizItem.userAnswer, quizItem.selections);
                       const selectedAnswer = unanswered
                         ? t('미선택')
                         : isRealBlankItem
                           ? // REAL_BLANK: 직렬화된 토큰을 보기 쉽게 콤마로 표시
-                            deserializeRealBlankTokens(String(quizItem.userAnswer ?? '')).join(', ')
+                            deserializeRealBlankTokens(realBlankRaw).join(', ')
                           : quizItem.selections?.find(
                               (sel) => String(sel.id) === String(quizItem.userAnswer),
                             )?.content ||

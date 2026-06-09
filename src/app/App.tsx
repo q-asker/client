@@ -147,7 +147,7 @@ const SEO_CONFIG = {
               name: 'Q-Asker는 정말 무료인가요?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: "네, Q-Asker의 AI 퀴즈 생성은 현재 완전 무료입니다. 회원가입 없이 PDF, PPT, Word 파일(최대 30MB)을 업로드하면 빈칸 채우기, OX, 객관식, 서술형 문제를 5~20개까지 자동 생성할 수 있습니다. Bloom's Taxonomy 교육학 이론 기반으로 체계적인 문제를 생성합니다. 별도 결제나 구독 없이 누구나 자유롭게 이용 가능합니다.",
+                text: "네, Q-Asker의 AI 퀴즈 생성은 현재 완전 무료입니다. 회원가입 없이 PDF, PPT, Word 파일(최대 50MB)을 업로드하면 빈칸 채우기, OX, 객관식, 서술형 문제를 5~20개까지 자동 생성할 수 있습니다. Bloom's Taxonomy 교육학 이론 기반으로 체계적인 문제를 생성합니다. 별도 결제나 구독 없이 누구나 자유롭게 이용 가능합니다.",
               },
             },
             {
@@ -392,7 +392,7 @@ const SEO_CONFIG = {
               name: 'Is Q-Asker really free?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: "Yes, Q-Asker's AI quiz generation is completely free. Upload PDF, PPT, or Word files (up to 30MB) and generate 5-20 fill-in-the-blank, true/false, multiple-choice, or essay questions instantly. Generates systematic questions based on Bloom's Taxonomy educational theory. No signup, payment, or subscription required.",
+                text: "Yes, Q-Asker's AI quiz generation is completely free. Upload PDF, PPT, or Word files (up to 50MB) and generate 5-20 fill-in-the-blank, true/false, multiple-choice, or essay questions instantly. Generates systematic questions based on Bloom's Taxonomy educational theory. No signup, payment, or subscription required.",
               },
             },
             {

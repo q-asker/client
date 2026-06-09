@@ -132,7 +132,7 @@ export const loadEssayGradeResults = (problemSetId: string): Record<number, Grad
       localStorage.removeItem(key);
       return {};
     }
-    return saved.data;
+    return saved.data ?? {};
   } catch {
     return {};
   }
@@ -190,7 +190,7 @@ export const loadEssayAttempts = (problemSetId: string): Record<number, number> 
       localStorage.removeItem(key);
       return {};
     }
-    return saved.data;
+    return saved.data ?? {};
   } catch {
     return {};
   }

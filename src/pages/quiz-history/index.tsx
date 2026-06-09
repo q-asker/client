@@ -22,10 +22,11 @@ import {
   LogIn,
 } from 'lucide-react';
 
-const QUIZ_TYPE_LABEL: Record<'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY', string> = {
+const QUIZ_TYPE_LABEL: Record<'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY' | 'REAL_BLANK', string> = {
   MULTIPLE: '객관식',
   OX: 'OX',
   BLANK: '빈칸',
+  REAL_BLANK: '빈칸',
   ESSAY: '서술형',
 };
 

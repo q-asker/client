@@ -12,7 +12,7 @@ export interface HistoryItem {
   title: string;
   createdAt: string;
   historyId: string | null;
-  quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY';
+  quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY' | 'REAL_BLANK';
   totalCount: number;
   completed: boolean;
   score: number | null;
