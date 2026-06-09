@@ -2,6 +2,27 @@ import { useEffect, useMemo, useRef } from 'react';
 import axiosInstance from '#shared/api';
 import { trackQuizEvents, trackResultEvents } from '#shared/lib/analytics';
 import type { Quiz } from '#features/quiz-generation';
+import {
+  gradeRealBlank,
+  gradeRealBlankMulti,
+  deserializeRealBlankTokens,
+} from '#shared/lib/blank-scoring';
+
+/** REAL_BLANK 정답 텍스트(다중 빈칸은 콤마 구분) → 토큰 배열 */
+const parseCorrectTokens = (content: string): string[] => content.split(',').map((s) => s.trim());
+
+/** REAL_BLANK 문제 1개를 채점 */
+const isRealBlankCorrect = (quiz: Quiz): boolean => {
+  const correctSel = quiz.selections.find((s) => s.correct === true);
+  if (!correctSel) return false;
+  const correctTokens = parseCorrectTokens(correctSel.content);
+  const userRaw = quiz.userAnswer != null ? String(quiz.userAnswer) : '';
+  if (correctTokens.length <= 1) {
+    return gradeRealBlank(userRaw, correctSel.content);
+  }
+  const userTokens = deserializeRealBlankTokens(userRaw);
+  return gradeRealBlankMulti(userTokens, correctTokens);
+};
 
 // ── 타입 정의 ──
 
@@ -73,6 +94,9 @@ export const useQuizResult = ({
   const correctCount = useMemo(() => {
     if (isEssay) return essayScore?.correctCount ?? 0;
     return quizzes.reduce((count, q) => {
+      if (q.type === 'REAL_BLANK') {
+        return count + (isRealBlankCorrect(q) ? 1 : 0);
+      }
       const selected = q.selections.find((s) => String(s.id) === String(q.userAnswer));
       return count + (selected?.correct ? 1 : 0);
     }, 0);
@@ -95,16 +119,24 @@ export const useQuizResult = ({
     trackResultEvents.viewResult(problemSetId, correctCount, quizzes.length, totalTime);
     trackQuizEvents.completeQuiz(problemSetId, correctCount, quizzes.length, totalTime);
 
-    const userAnswers = quizzes.map((q) => ({
-      number: q.number,
-      userAnswer: isEssay ? 0 : q.userAnswer != null ? Number(q.userAnswer) : 0,
-      textAnswer: isEssay
-        ? q.userAnswer && String(q.userAnswer) !== '0'
-          ? String(q.userAnswer)
-          : ''
-        : null,
-      inReview: q.inReview ?? false,
-    }));
+    const userAnswers = quizzes.map((q) => {
+      const isRealBlank = q.type === 'REAL_BLANK';
+      const isTextMode = isEssay || isRealBlank;
+      return {
+        number: q.number,
+        userAnswer: isTextMode ? 0 : q.userAnswer != null ? Number(q.userAnswer) : 0,
+        textAnswer: isEssay
+          ? q.userAnswer && String(q.userAnswer) !== '0'
+            ? String(q.userAnswer)
+            : ''
+          : isRealBlank
+            ? q.userAnswer && String(q.userAnswer) !== '0'
+              ? String(q.userAnswer)
+              : ''
+            : null,
+        inReview: q.inReview ?? false,
+      };
+    });
 
     // ESSAY: 획득 총점, 선택형: 정답 수
     const score = isEssay ? (essayScore?.totalScore ?? 0) : correctCount;

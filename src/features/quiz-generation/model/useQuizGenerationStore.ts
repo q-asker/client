@@ -25,7 +25,7 @@ export interface QuizSelection {
   correct?: boolean;
 }
 
-export type QuizType = 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY';
+export type QuizType = 'BLANK' | 'MULTIPLE' | 'OX' | 'ESSAY' | 'REAL_BLANK';
 
 /** 서술형 채점 요소별 점수 */
 export interface ElementScore {

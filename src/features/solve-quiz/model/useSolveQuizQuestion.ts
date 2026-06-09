@@ -60,10 +60,11 @@ export const useSolveQuizQuestion = ({
     (id: string): void => {
       const currentQuiz = quizzes[currentQuestion - 1];
       const isEssay = currentQuiz?.type === 'ESSAY';
+      const isRealBlank = currentQuiz?.type === 'REAL_BLANK';
       const selected = currentQuiz?.selections?.find((s) => s.id === id);
 
-      // ESSAY는 selections 없이 직접 텍스트를 저장, 그 외는 선택지 일치 필요
-      if (!isEssay && !selected) return;
+      // ESSAY/REAL_BLANK는 selections 없이 직접 텍스트를 저장, 그 외는 선택지 일치 필요
+      if (!isEssay && !isRealBlank && !selected) return;
 
       trackQuizEvents.selectAnswer(
         problemSetId,

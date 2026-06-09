@@ -140,8 +140,8 @@ export const useSolveQuiz = ({
   const unansweredCount = useMemo(
     () =>
       solveQuizzes.filter((q) => {
-        // ESSAY는 텍스트 답안이므로 선택지 매칭이 아닌 빈 값 여부로 판정
-        if (q.type === 'ESSAY') {
+        // ESSAY/REAL_BLANK는 텍스트 답안이므로 선택지 매칭이 아닌 빈 값 여부로 판정
+        if (q.type === 'ESSAY' || q.type === 'REAL_BLANK') {
           const ua = q.userAnswer;
           return !ua || !String(ua).trim() || String(ua) === '0';
         }

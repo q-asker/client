@@ -39,3 +39,6 @@ shrimp-rules.md
 .claude/
 screenshots/
 .gstack/
+
+# GAN harness artifacts (local-only)
+gan-harness/
