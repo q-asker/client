@@ -177,7 +177,7 @@ const EssaySolveQuiz: React.FC<{ prefetchedData?: ProblemSetResponse | null }> =
 
                 {/* 하단 문제별 선택 답안 */}
                 <div>
-                  <h3 className="mb-4 text-lg font-semibold text-foreground">{t('선택한 답안')}</h3>
+                  <h3 className="mb-4 text-lg font-semibold text-foreground">{t('입력한 답안')}</h3>
                   <div className="max-h-[300px] overflow-y-auto rounded-2xl border border-border p-3">
                     {quiz.quizzes.map((quizItem) => {
                       const ua = quizItem.userAnswer;

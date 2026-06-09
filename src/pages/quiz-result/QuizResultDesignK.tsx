@@ -98,7 +98,9 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
     if (q.type === 'REAL_BLANK') {
       const correctSel = q.selections.find((s) => s.correct === true);
       const correctTokens = correctSel ? correctSel.content.split(',').map((s) => s.trim()) : [];
-      const userRaw = q.userAnswer != null ? String(q.userAnswer) : '';
+      // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
+      const userRawAnswer = q.userAnswer == null ? '' : String(q.userAnswer);
+      const userRaw = userRawAnswer === '0' ? '' : userRawAnswer;
       const correct =
         correctTokens.length <= 1
           ? gradeRealBlank(userRaw, correctSel?.content ?? '')

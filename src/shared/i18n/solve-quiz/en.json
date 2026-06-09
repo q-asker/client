@@ -27,7 +27,7 @@
   "{{n}}번째 빈칸의 답을 입력하세요": "Enter the answer for blank {{n}}",
   "선택지 보기": "Show Options",
   "선택지 숨기기": "Hide Options",
-  "선택한 답안": "Selected Answer",
+  "입력한 답안": "Your Answer",
   "소거": "Eliminate",
   "안푼 문제:": "Unanswered questions:",
   "이전": "Previous",
