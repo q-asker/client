@@ -18,5 +18,7 @@
   "모범답안": "Model Answer",
   "AI 피드백": "AI Feedback",
   "부분 정답": "Partial",
-  "점": "pts"
+  "점": "pts",
+  "내 답안": "Your answer",
+  "미답안": "No answer"
 }

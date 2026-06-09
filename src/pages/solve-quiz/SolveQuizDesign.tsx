@@ -7,6 +7,7 @@ import type { ProblemSetResponse } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
+import { serializeRealBlankTokens, deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
 import { ChevronDown, ChevronUp, LogIn, PenLine } from 'lucide-react';
 import CustomToast from '#shared/toast';
 import { cn } from '@/shared/ui/lib/utils';
@@ -120,10 +121,12 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
   const listboxId = useId();
 
   const isBlank = quiz.currentQuiz?.type === 'BLANK';
+  const isRealBlank = quiz.currentQuiz?.type === 'REAL_BLANK';
+  const isAnyBlank = isBlank || isRealBlank;
   const isOX = quiz.currentQuiz?.type === 'OX';
 
   // 현재 문제의 빈칸 개수 (제목 + 본문 합산)
-  const blankCount = isBlank ? Math.max(1, countBlanks(quiz.currentQuiz?.title ?? '')) : 0;
+  const blankCount = isAnyBlank ? Math.max(1, countBlanks(quiz.currentQuiz?.title ?? '')) : 0;
   const isMultiBlank = blankCount > 1;
 
   /** BLANK 문제 텍스트에서 모든 `_______`을 BlankSlot으로 치환해 렌더링 */
@@ -180,8 +183,10 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
   if (quiz.currentQuestion !== prevQuestionNum) {
     setPrevQuestionNum(quiz.currentQuestion);
 
-    // 1. 선택지 공개 상태 동기화 — BLANK는 답이 있을 때만 펼침, 그 외(MULTIPLE/OX)는 항상 펼침
-    if (isBlank) {
+    // 1. 선택지 공개 상태 동기화 — BLANK는 답이 있을 때만 펼침, REAL_BLANK는 항상 닫힘, 그 외(MULTIPLE/OX)는 항상 펼침
+    if (isRealBlank) {
+      setShowSelections(false);
+    } else if (isBlank) {
       const alreadyAnswered = !isUnanswered(
         quiz.currentQuiz?.userAnswer,
         quiz.currentQuiz?.selections,
@@ -191,8 +196,20 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
       setShowSelections(true);
     }
 
-    // 2. BLANK 문제 답안 로드 — 단일/다중 모두 userAnswer 기준으로 복원
-    if (isBlank) {
+    // 2. BLANK/REAL_BLANK 문제 답안 로드 — 단일/다중 모두 userAnswer 기준으로 복원
+    if (isRealBlank) {
+      // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
+      const rawAnswer = quiz.currentQuiz?.userAnswer;
+      const rawStr = rawAnswer == null ? '' : String(rawAnswer);
+      const raw = rawStr === '0' ? '' : rawStr;
+      if (isMultiBlank) {
+        const tokens = deserializeRealBlankTokens(raw);
+        setTypedAnswers(Array.from({ length: blankCount }, (_, i) => tokens[i] ?? ''));
+      } else {
+        setTypedAnswers([raw]);
+      }
+      setFocusedIndex(0);
+    } else if (isBlank) {
       const answered = quiz.currentQuiz?.selections?.find(
         (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
       );
@@ -212,7 +229,7 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
   // 문제 전환 후 포커스 처리 (포커스는 사이드 이펙트이므로 useEffect 유지)
   useEffect(() => {
     if (
-      isBlank &&
+      isAnyBlank &&
       !isMultiBlank &&
       !isUnanswered(quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections)
     ) {
@@ -223,7 +240,7 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
     }
   }, [
     quiz.currentQuestion,
-    isBlank,
+    isAnyBlank,
     isMultiBlank,
     quiz.currentQuiz?.userAnswer,
     quiz.currentQuiz?.selections,
@@ -306,6 +323,12 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
           ? [...prev]
           : Array.from({ length: blankCount }, (_, i) => prev[i] ?? '');
       next[idx] = value;
+
+      // REAL_BLANK: 직접 입력값을 userAnswer에 저장 (단일=원문, 다중=구분자로 직렬화)
+      if (isRealBlank) {
+        const serialized = isMultiBlank ? serializeRealBlankTokens(next) : (next[0] ?? '');
+        quizActions.handleOptionSelect(serialized);
+      }
       return next;
     });
   };
@@ -381,23 +404,25 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
         ))}
       </div>
 
-      {/* 선택지 토글 + 리스트 — 단일/다중 빈칸 동일 동작 */}
-      <button
-        className={cn(
-          'flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border-none px-4 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.98]',
-          showSelections
-            ? 'bg-primary/10 text-primary hover:bg-primary/15'
-            : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground',
-        )}
-        onClick={toggleSelections}
-        aria-expanded={showSelections}
-        aria-controls={listboxId}
-      >
-        {showSelections ? t('선택지 숨기기') : t('선택지 보기')}
-        {showSelections ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-      </button>
+      {/* 선택지 토글 + 리스트 — 단일/다중 빈칸 동일 동작. REAL_BLANK는 선택지가 없으므로 미표시 */}
+      {!isRealBlank && (
+        <button
+          className={cn(
+            'flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border-none px-4 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.98]',
+            showSelections
+              ? 'bg-primary/10 text-primary hover:bg-primary/15'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground',
+          )}
+          onClick={toggleSelections}
+          aria-expanded={showSelections}
+          aria-controls={listboxId}
+        >
+          {showSelections ? t('선택지 숨기기') : t('선택지 보기')}
+          {showSelections ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+        </button>
+      )}
 
-      {showSelections && (
+      {!isRealBlank && showSelections && (
         <div className="overflow-hidden px-1 pt-1 pb-4">
           <div
             id={listboxId}
@@ -554,18 +579,33 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
 
                 {/* 하단 문제별 선택 답안 */}
                 <div>
-                  <h3 className="mb-4 text-lg font-semibold text-foreground">{t('선택한 답안')}</h3>
+                  <h3 className="mb-4 text-lg font-semibold text-foreground">{t('입력한 답안')}</h3>
                   <div className="max-h-[300px] overflow-y-auto rounded-2xl border border-border p-3">
                     {quiz.quizzes.map((quizItem) => {
-                      const unanswered = isUnanswered(quizItem.userAnswer, quizItem.selections);
+                      const isRealBlankItem = quizItem.type === 'REAL_BLANK';
+                      // REAL_BLANK는 selection id 매칭이 아니라 직접 입력 텍스트의 공백 여부로 판정한다.
+                      // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다.
+                      const realBlankRaw = isRealBlankItem
+                        ? (() => {
+                            const raw =
+                              quizItem.userAnswer == null ? '' : String(quizItem.userAnswer);
+                            return raw === '0' ? '' : raw;
+                          })()
+                        : '';
+                      const unanswered = isRealBlankItem
+                        ? realBlankRaw === ''
+                        : isUnanswered(quizItem.userAnswer, quizItem.selections);
                       const selectedAnswer = unanswered
                         ? t('미선택')
-                        : quizItem.selections?.find(
-                            (sel) => String(sel.id) === String(quizItem.userAnswer),
-                          )?.content ||
-                          t('{{quizItem_userAnswer}}번', {
-                            quizItem_userAnswer: quizItem.userAnswer ?? '',
-                          });
+                        : isRealBlankItem
+                          ? // REAL_BLANK: 직렬화된 토큰을 보기 쉽게 콤마로 표시
+                            deserializeRealBlankTokens(realBlankRaw).join(', ')
+                          : quizItem.selections?.find(
+                              (sel) => String(sel.id) === String(quizItem.userAnswer),
+                            )?.content ||
+                            t('{{quizItem_userAnswer}}번', {
+                              quizItem_userAnswer: quizItem.userAnswer ?? '',
+                            });
 
                       return (
                         <div
@@ -753,12 +793,12 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
                   const fullTitle = quiz.currentQuiz?.title ?? '';
                   const titleHead = fullTitle.split('\n')[0] ?? '';
                   const titleBody = fullTitle.split('\n').slice(1).join('\n');
-                  const headBlankCount = isBlank ? countBlanks(titleHead) : 0;
+                  const headBlankCount = isAnyBlank ? countBlanks(titleHead) : 0;
                   return (
                     <>
                       <div className="p-5 pt-2 pb-6">
                         <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                          {isBlank ? (
+                          {isAnyBlank ? (
                             renderBlankTitle(titleHead, 0)
                           ) : (
                             <MarkdownText>{titleHead}</MarkdownText>
@@ -769,7 +809,7 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
                       {fullTitle.includes('\n') && (
                         <div className="px-5 pt-3 pb-6">
                           <div className="m-0 break-words text-base leading-relaxed text-foreground">
-                            {isBlank ? (
+                            {isAnyBlank ? (
                               renderBlankTitle(titleBody, headBlankCount)
                             ) : (
                               <MarkdownText>{titleBody}</MarkdownText>
@@ -782,8 +822,8 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
                 })()}
               </div>
 
-              {/* 선택지 영역: BLANK이면 직접 입력 UI, 아니면 기존 선택지 */}
-              {isBlank ? renderBlankInput() : renderSelections()}
+              {/* 선택지 영역: BLANK/REAL_BLANK이면 직접 입력 UI, 아니면 기존 선택지 */}
+              {isAnyBlank ? renderBlankInput() : renderSelections()}
             </>
           )}
 

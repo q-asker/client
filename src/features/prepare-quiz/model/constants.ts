@@ -41,7 +41,7 @@ export const getLevelDescriptions = (
   },
 });
 
-export const MAX_FILE_SIZE: number = 30 * 1024 * 1024;
+export const MAX_FILE_SIZE: number = 50 * 1024 * 1024;
 export const MAX_SELECT_PAGES: number = 150;
 export const SUPPORTED_EXTENSIONS: string[] = ['pdf', 'ppt', 'pptx', 'doc', 'docx'];
 

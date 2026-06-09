@@ -16,6 +16,8 @@ interface PrepareQuizSettingsState {
   questionCount: number;
   /** 퀴즈 언어 */
   language: 'KO' | 'EN';
+  /** 빈칸(BLANK) 유형일 때 선택지를 숨기고 REAL_BLANK로 생성할지 여부 */
+  blankHideSelections: boolean;
 }
 
 interface PrepareQuizSettingsActions {
@@ -24,6 +26,7 @@ interface PrepareQuizSettingsActions {
   setQuestionType: (type: QuestionType) => void;
   setQuestionCount: (count: number) => void;
   setLanguage: (language: 'KO' | 'EN') => void;
+  setBlankHideSelections: (value: boolean) => void;
   reset: () => void;
 }
 
@@ -33,6 +36,7 @@ const initialState: PrepareQuizSettingsState = {
   questionType: defaultType,
   questionCount: 10,
   language: 'KO',
+  blankHideSelections: false,
 };
 
 export const usePrepareQuizSettingsStore = create<
@@ -46,17 +50,22 @@ export const usePrepareQuizSettingsStore = create<
       setQuestionType: (type) => set({ questionType: type }),
       setQuestionCount: (count) => set({ questionCount: count }),
       setLanguage: (language) => set({ language }),
+      setBlankHideSelections: (value) => set({ blankHideSelections: value }),
       reset: () => set(initialState),
     }),
     {
       name: 'prepare-quiz-settings',
       storage: createExpiringStorage() as never,
-      version: 1,
+      version: 2,
       migrate: (persistedState, fromVersion) => {
         const state = persistedState as Partial<PrepareQuizSettingsState>;
         // v0 → v1: questionCount 25 → 20 조정
         if (fromVersion < 1 && state.questionCount === 25) {
           state.questionCount = 20;
+        }
+        // v1 → v2: blankHideSelections 기본값 주입
+        if (fromVersion < 2 && state.blankHideSelections === undefined) {
+          state.blankHideSelections = false;
         }
         return state;
       },
@@ -66,6 +75,7 @@ export const usePrepareQuizSettingsStore = create<
         questionType: state.questionType,
         questionCount: state.questionCount,
         language: state.language,
+        blankHideSelections: state.blankHideSelections,
       }),
     },
   ),

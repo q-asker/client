@@ -212,7 +212,7 @@ const QuizScoreBoard = ({
                     <div className="space-y-2 px-4 pb-3 pt-0.5 max-md:px-3.5 max-md:pb-3.5">
                       <div className="rounded-md bg-muted/40 px-3 py-2 max-md:py-2.5">
                         <span className="text-[0.7rem] text-muted-foreground max-md:text-xs">
-                          {t('선택한 답:')}
+                          {t('입력한 답:')}
                         </span>
                         <div
                           className={cn(

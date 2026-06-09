@@ -9,6 +9,11 @@ import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
 import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
 import { Home } from 'lucide-react';
 import type { Quiz } from '#features/quiz-generation';
+import {
+  gradeRealBlank,
+  gradeRealBlankMulti,
+  deserializeRealBlankTokens,
+} from '#shared/lib/blank-scoring';
 
 /** 부모에서 전달받는 서버 데이터 */
 interface ServerData {
@@ -89,6 +94,37 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
   );
 
   const problems: ScoreBoardProblem[] = quizzes.map((q) => {
+    // REAL_BLANK: 직접 입력 텍스트를 답안으로 비교 (공백 제거 + 소문자 정규화 후 일치)
+    if (q.type === 'REAL_BLANK') {
+      const correctSel = q.selections.find((s) => s.correct === true);
+      const correctTokens = correctSel ? correctSel.content.split(',').map((s) => s.trim()) : [];
+      // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
+      const userRawAnswer = q.userAnswer == null ? '' : String(q.userAnswer);
+      const userRaw = userRawAnswer === '0' ? '' : userRawAnswer;
+      const correct =
+        correctTokens.length <= 1
+          ? gradeRealBlank(userRaw, correctSel?.content ?? '')
+          : gradeRealBlankMulti(deserializeRealBlankTokens(userRaw), correctTokens);
+      // 사용자 답안을 사람이 읽을 수 있는 형태로 변환 (다중 빈칸은 콤마 결합)
+      const userDisplay = userRaw
+        ? correctTokens.length > 1
+          ? deserializeRealBlankTokens(userRaw).join(', ')
+          : userRaw
+        : '';
+      // score-board가 userAnswer ID로 selection을 찾으므로, 가상 selection을 prepend
+      const virtualSelections =
+        userDisplay !== ''
+          ? [{ id: '__real_blank_user__', content: userDisplay }, ...q.selections]
+          : q.selections;
+      return {
+        number: q.number,
+        title: q.title,
+        correct,
+        userAnswer: userDisplay !== '' ? '__real_blank_user__' : '',
+        inReview: savedResult?.inReview?.[q.number] ?? false,
+        selections: virtualSelections,
+      };
+    }
     const selected = q.selections.find((s) => String(s.id) === String(q.userAnswer));
     return {
       number: q.number,

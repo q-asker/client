@@ -57,6 +57,8 @@ import {
   HelpCircle,
   ChevronDown,
   MessageCircle,
+  SquareCheck,
+  Square,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
@@ -66,6 +68,9 @@ import InlineEdit from '@/shared/ui/components/inline-edit';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { TextAnimate } from '@/shared/ui/components/text-animate';
 import { BorderBeam } from '@/shared/ui/components/border-beam';
+
+/** 최근 작성 프롬프트 localStorage 키 (최신 1개만 유지) */
+const RECENT_PROMPT_KEY = 'recentMakeQuizPrompt';
 
 /** 퀴즈 유형 옵션 */
 interface QuizTypeOption {
@@ -127,7 +132,7 @@ const MakeQuiz: React.FC = () => {
   // 생성 완료 후 서버에서 ProblemSet 정보 조회
   interface ProblemSetSummary {
     title: string;
-    quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY';
+    quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY' | 'REAL_BLANK';
     totalCount: number;
   }
   const [problemSetInfo, setProblemSetInfo] = useState<ProblemSetSummary | null>(null);
@@ -169,6 +174,32 @@ const MakeQuiz: React.FC = () => {
 
   // AI 커스텀 지시사항
   const [customInstruction, setCustomInstruction] = useState('');
+
+  // 최근 작성 프롬프트 (localStorage에서 최신 1개만 유지)
+  const [recentPrompt, setRecentPrompt] = useState<string>(() => {
+    try {
+      return localStorage.getItem(RECENT_PROMPT_KEY) ?? '';
+    } catch {
+      return '';
+    }
+  });
+
+  const handleGenerateQuestionsClick = () => {
+    const trimmed = customInstruction.trim();
+    if (trimmed) {
+      try {
+        localStorage.setItem(RECENT_PROMPT_KEY, customInstruction);
+        setRecentPrompt(customInstruction);
+      } catch {
+        // localStorage 에러 무시
+      }
+    }
+    generationActions.generateQuestions(customInstruction);
+  };
+
+  const handleLoadRecentPrompt = () => {
+    setCustomInstruction(recentPrompt.slice(0, 500));
+  };
 
   // 제목 인라인 편집
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -487,6 +518,34 @@ const MakeQuiz: React.FC = () => {
                       ))}
                     </div>
 
+                    {/* BLANK 전용: '선택지 없애기' 체크박스 — REAL_BLANK 토글 */}
+                    {options.questionType === 'BLANK' && (
+                      <div className="mt-3 flex flex-col items-start gap-1">
+                        <button
+                          type="button"
+                          role="checkbox"
+                          aria-checked={options.blankHideSelections}
+                          aria-pressed={options.blankHideSelections}
+                          onClick={() =>
+                            optionActions.setBlankHideSelections(!options.blankHideSelections)
+                          }
+                          className={cn(
+                            'inline-flex cursor-pointer items-center gap-2 rounded-xl border-none bg-transparent px-0 py-1 text-sm font-medium text-foreground transition-transform duration-100 active:scale-95',
+                          )}
+                        >
+                          {options.blankHideSelections ? (
+                            <SquareCheck className="size-4 text-primary" strokeWidth={2} />
+                          ) : (
+                            <Square className="size-4 text-muted-foreground" strokeWidth={2} />
+                          )}
+                          <span>{t('선택지 없애기')}</span>
+                        </button>
+                        <p className="text-xs leading-snug text-muted-foreground">
+                          {t('표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.')}
+                        </p>
+                      </div>
+                    )}
+
                     {/* 난이도 미리보기 카드 */}
                     <div className="mt-3 rounded-2xl border border-border bg-muted p-3 sm:mt-4 sm:p-4">
                       <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -497,23 +556,26 @@ const MakeQuiz: React.FC = () => {
                           {currentLevel?.question ?? ''}
                         </MarkdownText>
                       </div>
-                      {currentLevel?.options && currentLevel.options.length > 0 && (
-                        <div className="mt-3 flex flex-col gap-1.5">
-                          {currentLevel.options.map((option: string, index: number) => (
-                            <div
-                              key={`${option}-${index}`}
-                              className="flex items-center rounded-xl bg-background px-3 py-2"
-                            >
-                              <span className="mr-3 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                                {index + 1}
-                              </span>
-                              <span className="whitespace-pre-wrap break-keep text-sm leading-relaxed text-foreground md:break-words">
-                                {option}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      {/* BLANK + blankHideSelections=ON일 때 선택지 영역을 렌더링하지 않음 */}
+                      {currentLevel?.options &&
+                        currentLevel.options.length > 0 &&
+                        !(options.questionType === 'BLANK' && options.blankHideSelections) && (
+                          <div className="mt-3 flex flex-col gap-1.5">
+                            {currentLevel.options.map((option: string, index: number) => (
+                              <div
+                                key={`${option}-${index}`}
+                                className="flex items-center rounded-xl bg-background px-3 py-2"
+                              >
+                                <span className="mr-3 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                                  {index + 1}
+                                </span>
+                                <span className="whitespace-pre-wrap break-keep text-sm leading-relaxed text-foreground md:break-words">
+                                  {option}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                     </div>
                   </CardContent>
                 </Card>
@@ -632,18 +694,31 @@ const MakeQuiz: React.FC = () => {
                 {/* ─── 스텝 4: 문제 생성 ─── */}
                 <Card className="rounded-2xl border border-border">
                   <CardHeader>
-                    <CardTitle>
-                      <p className="mb-0.5 text-sm font-normal text-muted-foreground">
-                        {t('AI에게 원하는 지시사항을 작성하고')}
-                      </p>
-                      <TextAnimate
-                        animation="slideUp"
-                        by="word"
-                        className="text-xl font-semibold tracking-tight md:text-xl"
-                      >
-                        {t('문제를 생성하세요')}
-                      </TextAnimate>
-                    </CardTitle>
+                    <div className="flex items-start justify-between gap-3">
+                      <CardTitle>
+                        <p className="mb-0.5 text-sm font-normal text-muted-foreground">
+                          {t('AI에게 원하는 지시사항을 작성하고')}
+                        </p>
+                        <TextAnimate
+                          animation="slideUp"
+                          by="word"
+                          className="text-xl font-semibold tracking-tight md:text-xl"
+                        >
+                          {t('문제를 생성하세요')}
+                        </TextAnimate>
+                      </CardTitle>
+                      {!isWaitingForFirstQuiz &&
+                        recentPrompt &&
+                        recentPrompt !== customInstruction && (
+                          <button
+                            type="button"
+                            onClick={handleLoadRecentPrompt}
+                            className="shrink-0 cursor-pointer rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            {t('최근 작성 프롬프트 불러오기')}
+                          </button>
+                        )}
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <AnimatePresence mode="wait">
@@ -708,7 +783,7 @@ const MakeQuiz: React.FC = () => {
                           <div className="mt-4 flex flex-col items-center gap-3 sm:mt-6">
                             <button
                               className="w-full cursor-pointer rounded-2xl border-none bg-primary py-4 text-base font-bold text-primary-foreground transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground sm:py-5 sm:text-lg"
-                              onClick={() => generationActions.generateQuestions(customInstruction)}
+                              onClick={handleGenerateQuestionsClick}
                               disabled={
                                 !upload.uploadedUrl ||
                                 isWaitingForFirstQuiz ||
@@ -1064,7 +1139,7 @@ const MakeQuiz: React.FC = () => {
           <HelpToggle t={t} isOpen={isHelpOpen} onToggle={() => setIsHelpOpen((p) => !p)} />
         )}
         {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
-          <PolicyUpdateNotice t={t} />
+          <LatestUpdateNotice t={t} />
         )}
       </div>
 
@@ -1094,27 +1169,68 @@ const MakeQuiz: React.FC = () => {
 
 export default MakeQuiz;
 
-/* ─── 약관·처리방침 변경 시행 안내 ─── */
-const PolicyUpdateNotice: React.FC<{
+/* ─── 최근 변경사항 최신 1건 안내 ─── */
+interface LatestUpdatePost {
+  boardId: string;
+  title: string;
+  createdAt: string;
+}
+
+const LatestUpdateNotice: React.FC<{
   t: (key: string) => string;
-}> = ({ t }) => (
-  <section className="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-border/50 pt-6 text-center text-xs text-muted-foreground sm:text-sm">
-    <span className="font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
-      {t('변경 시행 안내')}
-    </span>
-    <span className="text-muted-foreground/40">·</span>
-    <span className="text-foreground">
-      {t('새로운 이용약관·개인정보 처리방침이 2026-05-29부터 시행됩니다.')}
-    </span>
-    <Link to="/terms-of-service" className="font-medium text-primary hover:underline">
-      {t('서비스 이용약관')}
-    </Link>
-    <span className="text-muted-foreground/40">·</span>
-    <Link to="/privacy-policy" className="font-medium text-primary hover:underline">
-      {t('개인정보 처리방침')}
-    </Link>
-  </section>
-);
+}> = ({ t }) => {
+  const [latest, setLatest] = useState<LatestUpdatePost | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    axiosInstance
+      .get('/boards', {
+        params: { category: 'UPDATE_LOG', page: 0, size: 1, sort: 'createdAt,desc' },
+      })
+      .then((res) => {
+        if (cancelled) return;
+        const post = res.data?.posts?.[0];
+        if (post) {
+          setLatest({ boardId: post.boardId, title: post.title, createdAt: post.createdAt });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!latest) return null;
+
+  const formattedDate = latest.createdAt
+    ? new Date(latest.createdAt).toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
+    : '';
+
+  return (
+    <section className="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-border/50 pt-6 text-center text-xs text-muted-foreground sm:text-sm">
+      <span className="font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
+        {t('최근 변경사항')}
+      </span>
+      <span className="text-muted-foreground/40">·</span>
+      <Link
+        to={`/updates/${latest.boardId}`}
+        className="font-medium text-foreground no-underline transition-colors hover:text-primary"
+      >
+        {latest.title}
+      </Link>
+      {formattedDate && (
+        <>
+          <span className="text-muted-foreground/40">·</span>
+          <span className="text-muted-foreground/80">{formattedDate}</span>
+        </>
+      )}
+    </section>
+  );
+};
 
 /* ─── 건의함 컴포넌트 ─── */
 const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
@@ -1287,9 +1403,9 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
             </p>
             <p className="sr-only">
               {currentLanguage === 'en'
-                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 30MB, select a page range and question count (5–20), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
+                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 50MB, select a page range and question count (5–20), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
                 : t(
-                    'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 30MB 파일을 업로드하고 페이지 범위와 문제 수(5~20개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.',
+                    'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 50MB 파일을 업로드하고 페이지 범위와 문제 수(5~20개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.',
                   )}
             </p>
           </div>

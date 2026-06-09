@@ -207,6 +207,41 @@ export const MOCK_ESSAY_QUIZZES: Quiz[] = [
   },
 ];
 
+/**
+ * REAL_BLANK(주관식 빈칸) 타입 mock 퀴즈 데이터.
+ * URL에 ?mock=true&real_blank=true 추가 시 REAL_BLANK 전용 UI를 테스트할 수 있다.
+ *
+ * 정답은 `selections[].correct === true` 항목의 `content`를 사용하며,
+ * 다중 빈칸은 콤마(`,`)로 토큰을 구분한다 (기존 BLANK와 동일 포맷).
+ */
+export const MOCK_REAL_BLANK_QUIZZES: Quiz[] = [
+  {
+    number: 1,
+    type: 'REAL_BLANK',
+    title: '대한민국의 수도는 _______이다.',
+    selections: [{ id: '1', content: '서울', correct: true }],
+  },
+  {
+    number: 2,
+    type: 'REAL_BLANK',
+    title:
+      'TCP 3-Way Handshake는 _______ → _______ → ACK 순서로 진행되며, 양쪽 모두의 연결 의사를 확인한다.',
+    selections: [{ id: '1', content: 'SYN, SYN+ACK', correct: true }],
+  },
+  {
+    number: 3,
+    type: 'REAL_BLANK',
+    title: 'JavaScript의 단일 스레드 이벤트 모델을 처리하는 메커니즘은 _______이다.',
+    selections: [{ id: '1', content: 'Event Loop', correct: true }],
+  },
+  {
+    number: 4,
+    type: 'REAL_BLANK',
+    title: '원주율 π의 소수점 둘째 자리까지의 근사값은 _______ 이다.',
+    selections: [{ id: '1', content: '3.14', correct: true }],
+  },
+];
+
 export const MOCK_BLANK_QUIZZES: Quiz[] = [
   {
     number: 1,
