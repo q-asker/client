@@ -1138,9 +1138,7 @@ const MakeQuiz: React.FC = () => {
         {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
           <HelpToggle t={t} isOpen={isHelpOpen} onToggle={() => setIsHelpOpen((p) => !p)} />
         )}
-        {!upload.uploadedUrl && !generation.problemSetId && !isWaitingForFirstQuiz && (
-          <LatestUpdateNotice t={t} />
-        )}
+        <LatestUpdateNotice t={t} />
       </div>
 
       {/* ─── SEO 콘텐츠 섹션: 도움말 토글로 제어 ─── */}
