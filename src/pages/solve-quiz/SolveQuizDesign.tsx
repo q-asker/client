@@ -119,6 +119,8 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const firstSelectionRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
+  // BLANK 직접 입력값을 문제번호별로 보존 — userAnswer(선택지 ID)에 저장되지 않는 임의 입력을 캐시한다
+  const blankTypedCacheRef = useRef<Record<number, string[]>>({});
 
   const isBlank = quiz.currentQuiz?.type === 'BLANK';
   const isRealBlank = quiz.currentQuiz?.type === 'REAL_BLANK';
@@ -210,14 +212,21 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
       }
       setFocusedIndex(0);
     } else if (isBlank) {
-      const answered = quiz.currentQuiz?.selections?.find(
-        (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
-      );
-      if (isMultiBlank) {
-        const parts = answered ? parseSelectionParts(answered.content) : [];
-        setTypedAnswers(Array.from({ length: blankCount }, (_, i) => parts[i] ?? ''));
+      // 1) 직접 입력 캐시 우선 복원 — 임의 타이핑은 userAnswer에 저장되지 않으므로 캐시에서 가져온다
+      const cached = blankTypedCacheRef.current[quiz.currentQuestion];
+      if (cached) {
+        setTypedAnswers(Array.from({ length: blankCount }, (_, i) => cached[i] ?? ''));
       } else {
-        setTypedAnswers([answered ? answered.content : '']);
+        // 2) fallback — userAnswer(선택지 ID)에 매칭되는 선택지 텍스트로 복원
+        const answered = quiz.currentQuiz?.selections?.find(
+          (sel) => String(sel.id) === String(quiz.currentQuiz?.userAnswer),
+        );
+        if (isMultiBlank) {
+          const parts = answered ? parseSelectionParts(answered.content) : [];
+          setTypedAnswers(Array.from({ length: blankCount }, (_, i) => parts[i] ?? ''));
+        } else {
+          setTypedAnswers([answered ? answered.content : '']);
+        }
       }
       setFocusedIndex(0);
     } else {
@@ -303,15 +312,22 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
     const selected = quiz.currentQuiz?.selections?.find((sel) => sel.id === optId);
     if (!selected) return;
     quizActions.handleOptionSelect(optId);
+    let nextTyped: string[];
     if (isMultiBlank) {
       const parts = parseSelectionParts(selected.content);
-      setTypedAnswers(Array.from({ length: blankCount }, (_, i) => parts[i] ?? ''));
+      nextTyped = Array.from({ length: blankCount }, (_, i) => parts[i] ?? '');
+      setTypedAnswers(nextTyped);
       const lastIdx = blankCount - 1;
       setFocusedIndex(lastIdx);
       setTimeout(() => inputRefs.current[lastIdx]?.focus(), 100);
     } else {
-      setTypedAnswers([selected.content]);
+      nextTyped = [selected.content];
+      setTypedAnswers(nextTyped);
       setTimeout(() => inputRefs.current[0]?.focus(), 100);
+    }
+    // 선택지로 입력값이 대체되었으므로 캐시도 동기화 (BLANK 한정)
+    if (isBlank) {
+      blankTypedCacheRef.current[quiz.currentQuestion] = nextTyped;
     }
   };
 
@@ -328,6 +344,9 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
       if (isRealBlank) {
         const serialized = isMultiBlank ? serializeRealBlankTokens(next) : (next[0] ?? '');
         quizActions.handleOptionSelect(serialized);
+      } else if (isBlank) {
+        // BLANK: userAnswer(선택지 ID)에 저장되지 않으므로 문제번호별 캐시에 보존
+        blankTypedCacheRef.current[quiz.currentQuestion] = next;
       }
       return next;
     });

@@ -56,7 +56,7 @@ FSD(Feature-Sliced Design) 아키텍처를 따른다.
 ```
 src/
 ├── app/              # 앱 진입점, 라우팅, 전역 설정 (App.tsx, main.tsx, globals.css)
-│   ├── model/        # GA 초기화, Clarity 초기화, 페이지 타이틀 관리
+│   ├── model/        # GA·Clarity 초기화, 페이지 타이틀 관리
 │   └── ui/           # PageViewTracker
 ├── pages/            # 라우트별 페이지 컴포넌트
 │   ├── make-quiz/    # 퀴즈 생성 (메인 페이지, / /ko /en)
@@ -73,7 +73,7 @@ src/
 └── shared/           # 공유 유틸리티
     ├── api/          # Axios 인스턴스 + 인터셉터 (인증 토큰 자동 첨부/리프레시)
     ├── i18n/         # 다국어 번역 JSON (ko.json, en.json)
-    ├── lib/          # 유틸 훅/함수 (analytics, timer, useClickOutside, blank-scoring)
+    ├── lib/          # 유틸 훅/함수 (analytics, clarity, blank-scoring, timer, useClickOutside)
     ├── themes/       # 테마 프리셋 관리 (tweakcn 기반, useThemePreset 훅)
     ├── toast/        # 커스텀 토스트
     └── ui/           # Shadcn/MagicUI 컴포넌트, 로고
@@ -97,7 +97,7 @@ src/
 
 ### 디자인 변형 패턴
 
-페이지별로 디자인 변형 컴포넌트가 존재한다. `index.tsx`에서 lazy-load로 현재 활성 변형을 렌더링한다. 퀴즈 풀기(`SolveQuizDesign`), 결과(`QuizResultDesignK`) 등 페이지마다 독립적인 변형 이름을 사용한다.
+위젯/페이지에 `DesignA`, `DesignB`, `MagicA`, `MagicB` 등 디자인 변형 컴포넌트가 존재한다. `index.tsx`에서 현재 활성 변형을 export한다.
 
 ### 디자인 토큰 (tweakcn 스펙 준수)
 
@@ -117,7 +117,7 @@ src/
 
 ### 디자인 변형 표준화
 
-각 변형은 lazy-loaded 컴포넌트로 구현된다. 결과 페이지는 퀴즈 타입(ESSAY/선택형)에 따라 컴포넌트를 분기 렌더링한다.
+모든 페이지는 **Design A-H, Magic A-D** 12개 디자인 변형을 지원한다. 각 변형은 lazy-loaded 컴포넌트로 구현되며, query parameter로 활성화된다.
 
 ## 환경 변수
 
@@ -125,7 +125,7 @@ src/
 
 - `VITE_BASE_URL` — API 서버 URL
 - `VITE_GA_MEASUREMENT_ID` — Google Analytics 측정 ID
-- `VITE_CLARITY_PROJECT_ID` — Microsoft Clarity 프로젝트 ID (prod 환경에서만 활성화)
+- `VITE_CLARITY_PROJECT_ID` — Microsoft Clarity 프로젝트 ID (프로덕션 전용)
 
 ## 개발 도구 및 설정
 
