@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'i18nexus';
 import { Loader2, Send } from 'lucide-react';
 import { cn } from '@/shared/ui/lib/utils';
+import MarkdownText from '@/shared/ui/components/markdown-text';
 import {
   useEssayGrading,
   saveEssayGradeResult,
@@ -196,13 +197,17 @@ const EssayInput: React.FC<EssayInputProps> = ({ problemSetId, currentQuiz, onAn
                     </span>
                   </div>
                 </div>
-                <p className="m-0 text-xs leading-relaxed text-muted-foreground">{el.feedback}</p>
+                <MarkdownText className="text-xs leading-relaxed text-muted-foreground">
+                  {el.feedback}
+                </MarkdownText>
               </div>
             ))}
           </div>
 
           {/* 종합 피드백 */}
-          <p className="m-0 text-sm leading-relaxed text-foreground/80">{grade.overallFeedback}</p>
+          <MarkdownText className="text-sm leading-relaxed text-foreground/80">
+            {grade.overallFeedback}
+          </MarkdownText>
         </div>
       )}
     </div>

@@ -117,7 +117,7 @@ src/
 
 ### 디자인 변형 표준화
 
-모든 페이지는 **Design A-H, Magic A-D** 12개 디자인 변형을 지원한다. 각 변형은 lazy-loaded 컴포넌트로 구현되며, query parameter로 활성화된다.
+`index.tsx`에서 퀴즈 타입(ESSAY / 선택형)을 감지하여 lazy-loaded 컴포넌트를 분기 렌더한다 (예: `SolveQuizDesign` / `EssaySolveQuiz`, `QuizResultDesignK` / `EssayQuizResult`). 일부 레거시 페이지(`login-redirect`, `privacy-policy`)에는 개별 디자인 변형 컴포넌트(`DesignB`, `MagicB`)가 남아 있다.
 
 ## 환경 변수
 
