@@ -351,9 +351,9 @@ const EssayQuizExplanation: React.FC = () => {
                               </span>
                             </div>
                           </div>
-                          <p className="m-0 text-xs leading-relaxed text-foreground/70">
+                          <MarkdownText className="text-xs leading-relaxed text-foreground/70">
                             {el.feedback}
-                          </p>
+                          </MarkdownText>
                         </div>
                       );
                     })}
@@ -361,9 +361,9 @@ const EssayQuizExplanation: React.FC = () => {
 
                   {/* 종합 피드백 */}
                   <div className="rounded-xl bg-muted/40 p-4">
-                    <p className="m-0 text-sm leading-relaxed text-foreground/80">
+                    <MarkdownText className="text-sm leading-relaxed text-foreground/80">
                       {currentGradeResult.overallFeedback}
-                    </p>
+                    </MarkdownText>
                   </div>
                 </div>
               </BlurFade>

@@ -316,9 +316,9 @@ const EssayHistoryDetail = ({ detail }: EssayHistoryDetailProps) => {
 
                       {/* 종합 피드백 */}
                       {gr?.overallFeedback && (
-                        <p className="m-0 text-sm leading-relaxed text-foreground/80">
+                        <MarkdownText className="text-sm leading-relaxed text-foreground/80">
                           {gr.overallFeedback}
-                        </p>
+                        </MarkdownText>
                       )}
                     </div>
                   </div>
