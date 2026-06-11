@@ -216,6 +216,7 @@ const EssayQuizResult = ({ serverData }: EssayQuizResultProps) => {
               : getScoreColor(ratio);
             const isOpen = openSet.has(q.number);
             const textAnswer = (q as Quiz & { textAnswer?: string }).textAnswer ?? q.userAnswer;
+            const modelAnswer = q.modelAnswer ?? q.selections?.[0]?.content ?? null;
 
             return (
               <div
@@ -319,13 +320,13 @@ const EssayQuizResult = ({ serverData }: EssayQuizResultProps) => {
                       </div>
 
                       {/* 모범답안 */}
-                      {q.modelAnswer && (
+                      {modelAnswer && (
                         <div className="rounded-md border border-green-500/20 bg-green-500/5 px-3 py-2 max-md:py-2.5">
                           <span className="text-[0.7rem] text-green-600 max-md:text-xs">
                             {t('모범답안')}
                           </span>
                           <div className="mt-0.5 text-sm text-foreground">
-                            <MarkdownText>{q.modelAnswer}</MarkdownText>
+                            <MarkdownText>{modelAnswer}</MarkdownText>
                           </div>
                         </div>
                       )}
