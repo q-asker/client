@@ -1139,6 +1139,7 @@ const MakeQuiz: React.FC = () => {
           <HelpToggle t={t} isOpen={isHelpOpen} onToggle={() => setIsHelpOpen((p) => !p)} />
         )}
         <LatestUpdateNotice t={t} />
+        <KakaoAdFitBanner />
       </div>
 
       {/* ─── SEO 콘텐츠 섹션: 도움말 토글로 제어 ─── */}
@@ -1227,6 +1228,57 @@ const LatestUpdateNotice: React.FC<{
         </>
       )}
     </section>
+  );
+};
+
+/* ─── Kakao AdFit 가로형 광고 (모바일 320x100 / 데스크탑 728x90) ─── */
+const KakaoAdFitBanner: React.FC = () => {
+  const adRef = useRef<HTMLDivElement>(null);
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 768px)');
+    const update = () => setIsDesktop(mql.matches);
+    update();
+    mql.addEventListener('change', update);
+    return () => mql.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (isDesktop === null) return;
+    const container = adRef.current;
+    if (!container) return;
+
+    const ins = document.createElement('ins');
+    ins.className = 'kakao_ad_area';
+    ins.style.display = 'none';
+    if (isDesktop) {
+      ins.setAttribute('data-ad-unit', 'DAN-Hi4ug548PElX4T1G');
+      ins.setAttribute('data-ad-width', '728');
+      ins.setAttribute('data-ad-height', '90');
+    } else {
+      ins.setAttribute('data-ad-unit', 'DAN-Nv74xpShWqKAL1Y9');
+      ins.setAttribute('data-ad-width', '320');
+      ins.setAttribute('data-ad-height', '100');
+    }
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = '//t1.kakaocdn.net/kas/static/ba.min.js';
+    script.async = true;
+
+    container.appendChild(ins);
+    container.appendChild(script);
+
+    return () => {
+      container.innerHTML = '';
+    };
+  }, [isDesktop]);
+
+  return (
+    <div className="mt-6 flex w-full justify-center">
+      <div ref={adRef} />
+    </div>
   );
 };
 
