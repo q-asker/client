@@ -64,7 +64,9 @@ src/
 │   ├── quiz-result/  # 결과 확인 (/result/:problemSetId)
 │   ├── quiz-explanation/ # 해설 (/explanation/:problemSetId)
 │   ├── quiz-history/ # 히스토리 (/history)
-│   ├── board*/       # 게시판 (/boards, /boards/:boardId, /boards/write)
+│   ├── quiz-history-detail/ # 히스토리 상세 (/history/:historyId)
+│   ├── board*/       # 게시판 (/boards, /boards/:boardId, /boards/write, /boards/edit/:boardId)
+│   ├── updates*/     # 변경 로그 (/updates, /updates/:boardId, /updates/write)
 │   ├── login-*/      # 로그인 (/login, /login/redirect)
 │   └── ...
 ├── widgets/          # 페이지 조합 위젯 (header, footer, help, recent-changes)
@@ -72,7 +74,7 @@ src/
 ├── entities/         # 도메인 모델 (auth — store, service, types)
 └── shared/           # 공유 유틸리티
     ├── api/          # Axios 인스턴스 + 인터셉터 (인증 토큰 자동 첨부/리프레시)
-    ├── i18n/         # 다국어 번역 JSON (ko.json, en.json)
+    ├── i18n/         # 다국어 번역 JSON — 네임스페이스별 서브폴더(common, make-quiz, solve-quiz 등), 각 폴더에 ko.json + en.json
     ├── lib/          # 유틸 훅/함수 (analytics, clarity, blank-scoring, timer, useClickOutside)
     ├── themes/       # 테마 프리셋 관리 (tweakcn 기반, useThemePreset 훅)
     ├── toast/        # 커스텀 토스트
