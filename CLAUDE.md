@@ -65,8 +65,7 @@ src/
 │   ├── quiz-explanation/ # 해설 (/explanation/:problemSetId)
 │   ├── quiz-history/ # 히스토리 (/history)
 │   ├── quiz-history-detail/ # 히스토리 상세 (/history/:historyId)
-│   ├── board*/       # 게시판 (/boards, /boards/:boardId, /boards/write, /boards/edit/:boardId)
-│   ├── updates*/     # 변경 로그 (/updates, /updates/:boardId, /updates/write)
+│   ├── board*/       # 게시판·변경 로그 재사용 (/boards, /boards/:boardId, /boards/write, /boards/edit/:boardId, /updates, /updates/:boardId, /updates/write, /updates/edit/:boardId)
 │   ├── login-*/      # 로그인 (/login, /login/redirect)
 │   └── ...
 ├── widgets/          # 페이지 조합 위젯 (header, footer, help, recent-changes)
