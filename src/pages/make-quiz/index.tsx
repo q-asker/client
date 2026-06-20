@@ -57,8 +57,6 @@ import {
   HelpCircle,
   ChevronDown,
   MessageCircle,
-  SquareCheck,
-  Square,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
@@ -518,31 +516,42 @@ const MakeQuiz: React.FC = () => {
                       ))}
                     </div>
 
-                    {/* BLANK 전용: '선택지 없애기' 체크박스 — REAL_BLANK 토글 */}
+                    {/* BLANK 전용: '선택지 추가' 토글 — ON이면 선택지 표시 */}
                     {options.questionType === 'BLANK' && (
-                      <div className="mt-3 flex flex-col items-start gap-1">
+                      <div className="mt-3 flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-muted px-4 py-3 sm:mt-4 sm:px-5 sm:py-4">
                         <button
                           type="button"
-                          role="checkbox"
-                          aria-checked={options.blankHideSelections}
-                          aria-pressed={options.blankHideSelections}
+                          role="switch"
+                          aria-checked={!options.blankHideSelections}
                           onClick={() =>
                             optionActions.setBlankHideSelections(!options.blankHideSelections)
                           }
-                          className={cn(
-                            'inline-flex cursor-pointer items-center gap-2 rounded-xl border-none bg-transparent px-0 py-1 text-sm font-medium text-foreground transition-transform duration-100 active:scale-95',
-                          )}
+                          className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl border-none bg-transparent px-0 py-1 text-sm font-medium text-foreground"
                         >
-                          {options.blankHideSelections ? (
-                            <SquareCheck className="size-4 text-primary" strokeWidth={2} />
-                          ) : (
-                            <Square className="size-4 text-muted-foreground" strokeWidth={2} />
-                          )}
-                          <span>{t('선택지 없애기')}</span>
+                          <span>{t('선택지 추가')}</span>
+                          <span
+                            className={cn(
+                              'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200',
+                              !options.blankHideSelections
+                                ? 'bg-primary'
+                                : 'bg-muted-foreground/30',
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                'inline-block size-5 transform rounded-full bg-white shadow-sm transition-transform duration-200',
+                                !options.blankHideSelections
+                                  ? 'translate-x-[1.375rem]'
+                                  : 'translate-x-0.5',
+                              )}
+                            />
+                          </span>
                         </button>
-                        <p className="text-xs leading-snug text-muted-foreground">
-                          {t('표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.')}
-                        </p>
+                        {options.blankHideSelections && (
+                          <p className="text-center text-xs leading-snug text-muted-foreground">
+                            {t('표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.')}
+                          </p>
+                        )}
                       </div>
                     )}
 
@@ -1139,6 +1148,7 @@ const MakeQuiz: React.FC = () => {
           <HelpToggle t={t} isOpen={isHelpOpen} onToggle={() => setIsHelpOpen((p) => !p)} />
         )}
         <LatestUpdateNotice t={t} />
+        <KakaoAdFitBanner />
       </div>
 
       {/* ─── SEO 콘텐츠 섹션: 도움말 토글로 제어 ─── */}
@@ -1227,6 +1237,57 @@ const LatestUpdateNotice: React.FC<{
         </>
       )}
     </section>
+  );
+};
+
+/* ─── Kakao AdFit 가로형 광고 (모바일 320x100 / 데스크탑 728x90) ─── */
+const KakaoAdFitBanner: React.FC = () => {
+  const adRef = useRef<HTMLDivElement>(null);
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 768px)');
+    const update = () => setIsDesktop(mql.matches);
+    update();
+    mql.addEventListener('change', update);
+    return () => mql.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (isDesktop === null) return;
+    const container = adRef.current;
+    if (!container) return;
+
+    const ins = document.createElement('ins');
+    ins.className = 'kakao_ad_area';
+    ins.style.display = 'none';
+    if (isDesktop) {
+      ins.setAttribute('data-ad-unit', 'DAN-Hi4ug548PElX4T1G');
+      ins.setAttribute('data-ad-width', '728');
+      ins.setAttribute('data-ad-height', '90');
+    } else {
+      ins.setAttribute('data-ad-unit', 'DAN-Nv74xpShWqKAL1Y9');
+      ins.setAttribute('data-ad-width', '320');
+      ins.setAttribute('data-ad-height', '100');
+    }
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = '//t1.kakaocdn.net/kas/static/ba.min.js';
+    script.async = true;
+
+    container.appendChild(ins);
+    container.appendChild(script);
+
+    return () => {
+      container.innerHTML = '';
+    };
+  }, [isDesktop]);
+
+  return (
+    <div className="mt-6 flex w-full justify-center">
+      <div ref={adRef} />
+    </div>
   );
 };
 
