@@ -147,7 +147,7 @@ const SEO_CONFIG = {
               name: 'Q-Asker는 정말 무료인가요?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: "네, Q-Asker의 AI 퀴즈 생성은 현재 완전 무료입니다. 회원가입 없이 PDF, PPT, Word 파일(최대 50MB)을 업로드하면 빈칸 채우기, OX, 객관식, 서술형 문제를 5~20개까지 자동 생성할 수 있습니다. Bloom's Taxonomy 교육학 이론 기반으로 체계적인 문제를 생성합니다. 별도 결제나 구독 없이 누구나 자유롭게 이용 가능합니다.",
+                text: "네, Q-Asker의 AI 퀴즈 생성은 현재 완전 무료입니다. 회원가입 없이 PDF, PPT, Word 파일(최대 50MB)을 업로드하면 빈칸 채우기, OX, 객관식 문제는 5~30개, 서술형은 5~10개까지 자동 생성할 수 있습니다. Bloom's Taxonomy 교육학 이론 기반으로 체계적인 문제를 생성합니다. 별도 결제나 구독 없이 누구나 자유롭게 이용 가능합니다.",
               },
             },
             {
@@ -179,7 +179,7 @@ const SEO_CONFIG = {
               name: '한 번에 몇 문제까지 생성할 수 있나요?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: "한 번에 5개, 10개, 15개, 20개 중 선택하여 생성할 수 있습니다. 빈칸 채우기, OX, 객관식, 서술형 4가지 유형을 선택할 수 있으며, Bloom's Taxonomy 교육학 이론 기반으로 체계적인 문제를 생성합니다. 페이지 범위를 지정하면 특정 구간의 내용에 집중한 문제를 생성할 수 있어 더 효율적인 학습이 가능합니다.",
+                text: "한 번에 5개, 10개, 15개, 20개, 25개, 30개 중 선택하여 생성할 수 있습니다. 빈칸 채우기, OX, 객관식, 서술형 4가지 유형을 선택할 수 있으며, Bloom's Taxonomy 교육학 이론 기반으로 체계적인 문제를 생성합니다. 페이지 범위를 지정하면 특정 구간의 내용에 집중한 문제를 생성할 수 있어 더 효율적인 학습이 가능합니다.",
               },
             },
             {
@@ -392,7 +392,7 @@ const SEO_CONFIG = {
               name: 'Is Q-Asker really free?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: "Yes, Q-Asker's AI quiz generation is completely free. Upload PDF, PPT, or Word files (up to 50MB) and generate 5-20 fill-in-the-blank, true/false, multiple-choice, or essay questions instantly. Generates systematic questions based on Bloom's Taxonomy educational theory. No signup, payment, or subscription required.",
+                text: "Yes, Q-Asker's AI quiz generation is completely free. Upload PDF, PPT, or Word files (up to 50MB) and generate 5-30 fill-in-the-blank, true/false, or multiple-choice questions (or 5-10 essay questions) instantly. Generates systematic questions based on Bloom's Taxonomy educational theory. No signup, payment, or subscription required.",
               },
             },
             {
@@ -424,7 +424,7 @@ const SEO_CONFIG = {
               name: 'How many questions can I generate at once?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: "You can choose to generate 5, 10, 15, or 20 questions per session. Four question types are available: fill-in-the-blank, true/false, multiple-choice, and essay. Questions are generated based on Bloom's Taxonomy educational theory for systematic learning. Specifying a page range focuses the AI on specific sections, producing more targeted and accurate questions for efficient studying.",
+                text: "You can choose to generate 5, 10, 15, 20, 25, or 30 questions per session. Four question types are available: fill-in-the-blank, true/false, multiple-choice, and essay. Questions are generated based on Bloom's Taxonomy educational theory for systematic learning. Specifying a page range focuses the AI on specific sections, producing more targeted and accurate questions for efficient studying.",
               },
             },
             {

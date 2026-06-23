@@ -53,7 +53,7 @@ const Help = () => {
       number: 2,
       titleKey: t('2단계: 퀴즈 옵션 설정'),
       items: [
-        { icon: FileText, labelKey: t('문제 수량: '), textKey: t('5 ~ 20개 (5개 단위)') },
+        { icon: FileText, labelKey: t('문제 수량: '), textKey: t('5 ~ 30개 (5개 단위)') },
         { icon: FileText, labelKey: t('페이지 범위: '), textKey: t('전체 또는 특정 페이지 지정') },
         { icon: Target, labelKey: t('문제 유형: '), textKey: t('빈칸 채우기, OX, 객관식 중 선택') },
       ],
