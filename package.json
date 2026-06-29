@@ -75,6 +75,7 @@
     "#widgets/*": "./src/widgets/*/index.tsx",
     "#shared/*": "./src/shared/*/index.ts",
     "#shared/lib/*": "./src/shared/lib/*.ts",
-    "#shared/i18n": "./src/shared/i18n/index.ts"
+    "#shared/i18n": "./src/shared/i18n/index.ts",
+    "#shared/ui/logo": "./src/shared/ui/logo/index.tsx"
   }
 }

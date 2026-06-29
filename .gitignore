@@ -38,7 +38,5 @@ shrimp-rules.md
 .mcp.json
 .claude/
 screenshots/
-.gstack/
-
-# GAN harness artifacts (local-only)
-gan-harness/
+.specify
+specs

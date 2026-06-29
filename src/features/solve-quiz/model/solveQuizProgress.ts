@@ -81,15 +81,6 @@ export const loadResult = (problemSetId: string): SavedResult | null => {
   }
 };
 
-/** 채점 결과 삭제 */
-export const clearResult = (problemSetId: string): void => {
-  try {
-    localStorage.removeItem(`${RESULT_KEY_PREFIX}${problemSetId}`);
-  } catch {
-    // localStorage 에러 무시
-  }
-};
-
 // ── ESSAY 채점 결과 저장 ──
 
 import type { GradeResult } from '#features/quiz-generation';

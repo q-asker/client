@@ -68,13 +68,13 @@ src/
 │   ├── board*/       # 게시판·변경 로그 재사용 (/boards, /boards/:boardId, /boards/write, /boards/edit/:boardId, /updates, /updates/:boardId, /updates/write, /updates/edit/:boardId)
 │   ├── login-*/      # 로그인 (/login, /login/redirect)
 │   └── ...
-├── widgets/          # 페이지 조합 위젯 (header, footer, help, recent-changes)
+├── widgets/          # 페이지 조합 위젯 (header, footer)
 ├── features/         # 비즈니스 로직 훅 (prepare-quiz, solve-quiz, quiz-generation 등)
 ├── entities/         # 도메인 모델 (auth — store, service, types)
 └── shared/           # 공유 유틸리티
     ├── api/          # Axios 인스턴스 + 인터셉터 (인증 토큰 자동 첨부/리프레시)
-    ├── i18n/         # 다국어 번역 JSON — 네임스페이스별 서브폴더(common, make-quiz, solve-quiz 등), 각 폴더에 ko.json + en.json
-    ├── lib/          # 유틸 훅/함수 (analytics, clarity, blank-scoring, timer, useClickOutside)
+    ├── i18n/         # 다국어 번역 JSON — 평탄화 단일 파일(ko.json, en.json) + index.ts 어댑터 + types/
+    ├── lib/          # 유틸 훅/함수 (analytics, clarity, blank-scoring, timer, useClickOutside, expiringStorage, lastEndpointStorage, usePdfData)
     ├── themes/       # 테마 프리셋 관리 (tweakcn 기반, useThemePreset 훅)
     ├── toast/        # 커스텀 토스트
     └── ui/           # Shadcn/MagicUI 컴포넌트, 로고
@@ -94,6 +94,7 @@ src/
 - `#shared/*` → `src/shared/*/index.ts`
 - `#shared/lib/*` → `src/shared/lib/*.ts`
 - `#shared/i18n` → `src/shared/i18n/index.ts`
+- `#shared/ui/logo` → `src/shared/ui/logo/index.tsx`
 - `@/*` → `src/*` (tsconfig paths, Shadcn 컴포넌트 내부 참조용)
 
 ### 디자인 변형 패턴
@@ -138,4 +139,14 @@ src/
   - `pre-commit`: `npx prettier --check .` — 포맷 위반 시 커밋 차단
   - `pre-push`: `npx prettier --check .` — push 전 포맷 안전망
 - **Prerender**: `vite-plugin-prerender` — 빌드 시 `/`, `/ko`, `/en` 프리렌더링
-- **SEO**: `index.html` + `App.tsx`에서 JSON-LD 구조화 데이터, Open Graph, 다국어 alternate 관리
+- **SEO**: `index.html` + `src/app/seo.tsx`에서 JSON-LD 구조화 데이터, Open Graph, 다국어 alternate 관리
+
+<!-- SPECKIT START -->
+Completed feature: `specs/001-codebase-restructure/` (FROZEN 2026-06-29)
+
+코드베이스 재구조화 1차 완료. 산출물 아카이브:
+- 명세·결정 기록: `specs/001-codebase-restructure/{spec,plan,research,data-model,quickstart,tasks,decisions}.md`
+- 핵심 결과: 파일 수 151 → 114 (-37). dead export 0건. 모든 candidate(44건) `apply`(16)/`reject`(26)/`defer`(2) 종결
+
+후속 정리(`features/auth` single-export barrel 통합 등)는 별도 spec에서 처리한다. 새 candidate 추가는 본 ledger에 직접 등재하지 말고 새 spec을 생성한다.
+<!-- SPECKIT END -->
