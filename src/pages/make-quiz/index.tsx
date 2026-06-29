@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
@@ -6,7 +6,6 @@ import Header from '#widgets/header';
 import Footer from '#widgets/footer';
 import {
   usePrepareQuiz,
-  getLevelDescriptions,
   MAX_FILE_SIZE,
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
@@ -17,8 +16,10 @@ import { usePdfData } from '#shared/lib/usePdfData';
 import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { useAuthStore } from '#entities/auth';
-import MarkdownText from '@/shared/ui/components/markdown-text';
 import MockPageGrid from './MockPageGrid';
+import QuizOptionsPanel from './QuizOptionsPanel';
+import QuizGenerationCard from './QuizGenerationCard';
+import ProblemSetResultCard from './ProblemSetResultCard';
 
 // PDF 뷰어를 파일 업로드 후에만 로드 (초기 번들 106KB 절감)
 const pdfImport = () => import('./PdfPageSelector');
@@ -35,12 +36,7 @@ if (typeof window !== 'undefined') {
 }
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/shared/ui/lib/utils';
-import type { QuestionType } from '#features/prepare-quiz';
-import { levelMapping } from '#features/prepare-quiz';
 import {
-  ListChecks,
-  PenLine,
-  CircleDot,
   Package,
   CheckCircle,
   FileText,
@@ -58,24 +54,9 @@ import {
   ChevronDown,
   MessageCircle,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
-import { Badge } from '@/shared/ui/components/badge';
-import { Button } from '@/shared/ui/components/button';
-import InlineEdit from '@/shared/ui/components/inline-edit';
-import { Skeleton } from '@/shared/ui/components/skeleton';
 import { TextAnimate } from '@/shared/ui/components/text-animate';
 import { BorderBeam } from '@/shared/ui/components/border-beam';
-
-/** 최근 작성 프롬프트 localStorage 키 (최신 1개만 유지) */
-const RECENT_PROMPT_KEY = 'recentMakeQuizPrompt';
-
-/** 퀴즈 유형 옵션 */
-interface QuizTypeOption {
-  key: QuestionType;
-  label: string;
-  icon: LucideIcon;
-}
 
 /** Gemini 그라데이션 4-point 스파크 */
 const GeminiSparkIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -105,7 +86,6 @@ const MakeQuiz: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
-  const levelDescriptions = useMemo(() => getLevelDescriptions(t), [t]);
   const acceptExtensions: string = ACCEPT_FILE_TYPES;
   const { state, actions } = usePrepareQuiz({ t, currentLanguage, navigate });
   const { upload, options, pages, generation, isWaitingForFirstQuiz, pdfOptions } = state;
@@ -123,36 +103,8 @@ const MakeQuiz: React.FC = () => {
     return unsub;
   }, []);
   const isAuthenticated = !!useAuthStore((state) => state.accessToken);
-  const generatedQuizCount = useQuizGenerationStore((state) => state.quizzes.length);
   const safeFileName: string = upload.file?.name || storedFileInfo?.name || t('업로드된 파일');
   const safeFileSize: number | undefined = upload.file?.size ?? storedFileInfo?.size;
-
-  // 생성 완료 후 서버에서 ProblemSet 정보 조회
-  interface ProblemSetSummary {
-    title: string;
-    quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY' | 'REAL_BLANK';
-    totalCount: number;
-  }
-  const [problemSetInfo, setProblemSetInfo] = useState<ProblemSetSummary | null>(null);
-
-  useEffect(() => {
-    if (!generation.problemSetId) {
-      setProblemSetInfo(null);
-      return;
-    }
-    let cancelled = false;
-    axiosInstance
-      .get<ProblemSetSummary>(`/problem-set/${generation.problemSetId}`)
-      .then(({ data }) => {
-        if (!cancelled) setProblemSetInfo(data);
-      })
-      .catch(() => {
-        // 조회 실패 시 무시 — 클라이언트 정보 폴백
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [generation.problemSetId]);
   const {
     upload: uploadActions,
     options: optionActions,
@@ -169,63 +121,6 @@ const MakeQuiz: React.FC = () => {
     if (shouldShowFeedback) setHasFeedbackBoxShown(true);
     if (!shouldShowFeedback) setHasFeedbackBoxShown(false);
   }, [shouldShowFeedback]);
-
-  // AI 커스텀 지시사항
-  const [customInstruction, setCustomInstruction] = useState('');
-
-  // 최근 작성 프롬프트 (localStorage에서 최신 1개만 유지)
-  const [recentPrompt, setRecentPrompt] = useState<string>(() => {
-    try {
-      return localStorage.getItem(RECENT_PROMPT_KEY) ?? '';
-    } catch {
-      return '';
-    }
-  });
-
-  const handleGenerateQuestionsClick = () => {
-    const trimmed = customInstruction.trim();
-    if (trimmed) {
-      try {
-        localStorage.setItem(RECENT_PROMPT_KEY, customInstruction);
-        setRecentPrompt(customInstruction);
-      } catch {
-        // localStorage 에러 무시
-      }
-    }
-    generationActions.generateQuestions(customInstruction);
-  };
-
-  const handleLoadRecentPrompt = () => {
-    setCustomInstruction(recentPrompt.slice(0, 500));
-  };
-
-  // 제목 인라인 편집
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-
-  const submitTitleEdit = async (trimmed: string) => {
-    if (!generation.problemSetId) return;
-    try {
-      const { data } = await axiosInstance.patch<{ title: string }>(
-        `/problem-set/${generation.problemSetId}/title`,
-        { title: trimmed },
-      );
-      // 서버 응답으로 로컬 상태 즉시 반영
-      setProblemSetInfo((prev) => (prev ? { ...prev, title: data.title } : prev));
-      CustomToast.success(t('제목이 변경되었습니다.'));
-    } catch (error) {
-      console.error(t('제목 변경 실패:'), error);
-    }
-  };
-
-  const quizTypes: QuizTypeOption[] = [
-    { key: 'ESSAY', label: t('서술형'), icon: FileText },
-    { key: 'MULTIPLE', label: t('객관식'), icon: ListChecks },
-    { key: 'OX', label: t('OX 퀴즈'), icon: CircleDot },
-    { key: 'BLANK', label: t('빈칸 넣기'), icon: PenLine },
-  ];
-
-  const currentLevel: { title: string; question: string; options: string[] } | undefined =
-    levelDescriptions[levelMapping[options.questionType as QuestionType]];
 
   // Hydration 완료 전 — 레이아웃만 표시하여 업로드↔퀴즈 화면 플래싱 방지
   if (!isHydrated) {
@@ -478,342 +373,18 @@ const MakeQuiz: React.FC = () => {
 
               {/* 우측: 스텝 인디케이터 + 카드 컨텐츠 */}
               <div className="mt-4 space-y-4 sm:mt-6 sm:space-y-6 lg:mt-0">
-                {/* ─── 스텝 1: 퀴즈 타입 ─── */}
-                <Card className="rounded-2xl border border-border">
-                  <CardHeader>
-                    <CardTitle>
-                      <TextAnimate
-                        animation="slideUp"
-                        by="word"
-                        className="text-xl font-semibold tracking-tight md:text-xl"
-                      >
-                        {t('퀴즈 타입을 선택하세요')}
-                      </TextAnimate>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {/* 세그먼트 컨트롤 */}
-                    <div className="flex overflow-hidden rounded-2xl border border-border">
-                      {quizTypes.map((type, index) => (
-                        <button
-                          key={type.key}
-                          className={cn(
-                            'flex-1 cursor-pointer border-none px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-200',
-                            index < quizTypes.length - 1 && 'border-r border-border',
-                            options.questionType === type.key
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-background hover:bg-muted',
-                          )}
-                          onClick={() => {
-                            optionActions.handleQuestionTypeChange(type.key, type.label);
-                          }}
-                        >
-                          <span className="inline-flex items-center justify-center gap-1 sm:gap-1.5">
-                            <type.icon className="size-4" strokeWidth={1.8} />
-                            <span className="text-xs sm:text-sm">{type.label}</span>
-                          </span>
-                        </button>
-                      ))}
-                    </div>
+                <QuizOptionsPanel t={t} options={options} optionActions={optionActions} />
 
-                    {/* BLANK 전용: '선택지 추가' 토글 — ON이면 선택지 표시 */}
-                    {options.questionType === 'BLANK' && (
-                      <div className="mt-3 flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-muted px-4 py-3 sm:mt-4 sm:px-5 sm:py-4">
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-checked={!options.blankHideSelections}
-                          onClick={() =>
-                            optionActions.setBlankHideSelections(!options.blankHideSelections)
-                          }
-                          className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl border-none bg-transparent px-0 py-1 text-sm font-medium text-foreground"
-                        >
-                          <span>{t('선택지 추가')}</span>
-                          <span
-                            className={cn(
-                              'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200',
-                              !options.blankHideSelections
-                                ? 'bg-primary'
-                                : 'bg-muted-foreground/30',
-                            )}
-                          >
-                            <span
-                              className={cn(
-                                'inline-block size-5 transform rounded-full bg-white shadow-sm transition-transform duration-200',
-                                !options.blankHideSelections
-                                  ? 'translate-x-[1.375rem]'
-                                  : 'translate-x-0.5',
-                              )}
-                            />
-                          </span>
-                        </button>
-                        {options.blankHideSelections && (
-                          <p className="text-center text-xs leading-snug text-muted-foreground">
-                            {t('표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.')}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* 난이도 미리보기 카드 */}
-                    <div className="mt-3 rounded-2xl border border-border bg-muted p-3 sm:mt-4 sm:p-4">
-                      <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        {currentLevel?.title}
-                      </div>
-                      <div className="rounded-xl bg-background p-3">
-                        <MarkdownText className="break-keep text-sm leading-relaxed text-foreground md:break-words">
-                          {currentLevel?.question ?? ''}
-                        </MarkdownText>
-                      </div>
-                      {/* BLANK + blankHideSelections=ON일 때 선택지 영역을 렌더링하지 않음 */}
-                      {currentLevel?.options &&
-                        currentLevel.options.length > 0 &&
-                        !(options.questionType === 'BLANK' && options.blankHideSelections) && (
-                          <div className="mt-3 flex flex-col gap-1.5">
-                            {currentLevel.options.map((option: string, index: number) => (
-                              <div
-                                key={`${option}-${index}`}
-                                className="flex items-center rounded-xl bg-background px-3 py-2"
-                              >
-                                <span className="mr-3 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                                  {index + 1}
-                                </span>
-                                <span className="whitespace-pre-wrap break-keep text-sm leading-relaxed text-foreground md:break-words">
-                                  {option}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* ─── 스텝 2: 문제 개수 ─── */}
-                <Card className="rounded-2xl border border-border">
-                  <CardHeader className="py-4">
-                    <CardTitle>
-                      <TextAnimate
-                        animation="slideUp"
-                        by="word"
-                        className="text-xl font-semibold tracking-tight md:text-xl"
-                      >
-                        {t('문제 개수를 지정하세요')}
-                      </TextAnimate>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pb-5 pt-0">
-                    <div className="flex flex-col items-center rounded-2xl border border-border bg-muted p-4 sm:p-6">
-                      <div className="text-[2.5rem] font-black leading-none tracking-tight text-primary sm:text-[3rem]">
-                        {options.questionCount}
-                      </div>
-                      <span className="mt-1 text-sm font-medium text-muted-foreground">
-                        {t('문제')}
-                      </span>
-                      <div className="mt-4 w-full max-w-md">
-                        {options.questionType === 'ESSAY' ? (
-                          <>
-                            <input
-                              type="range"
-                              min="5"
-                              max="10"
-                              step="5"
-                              value={options.questionCount}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                const newCount: number = +e.target.value;
-                                optionActions.handleQuestionCountChange(newCount);
-                              }}
-                              aria-label={t('문제 수')}
-                              className="h-1.5 w-full accent-primary md:h-1"
-                            />
-                            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-                              <span>5</span>
-                              <span>10</span>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <input
-                              type="range"
-                              min="5"
-                              max="30"
-                              step="5"
-                              value={options.questionCount}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                const newCount: number = +e.target.value;
-                                optionActions.handleQuestionCountChange(newCount);
-                              }}
-                              aria-label={t('문제 수')}
-                              className="h-1.5 w-full accent-primary md:h-1"
-                            />
-                            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-                              <span>5</span>
-                              <span>10</span>
-                              <span>15</span>
-                              <span>20</span>
-                              <span>25</span>
-                              <span>30</span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* ─── 스텝 3: 언어 설정 ─── */}
-                <Card className="rounded-2xl border border-border">
-                  <CardHeader>
-                    <CardTitle>
-                      <TextAnimate
-                        animation="slideUp"
-                        by="word"
-                        className="text-xl font-semibold tracking-tight md:text-xl"
-                      >
-                        {t('생성할 언어를 선택하세요')}
-                      </TextAnimate>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {/* 세그먼트 컨트롤 */}
-                    <div className="flex overflow-hidden rounded-2xl border border-border">
-                      {(['KO', 'EN'] as const).map((lang, index) => (
-                        <button
-                          key={lang}
-                          className={cn(
-                            'flex-1 cursor-pointer border-none px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-200',
-                            index < 1 && 'border-r border-border',
-                            options.language === lang
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-background hover:bg-muted',
-                          )}
-                          onClick={() => {
-                            optionActions.handleLanguageChange(lang);
-                          }}
-                        >
-                          <span className="inline-flex items-center justify-center gap-1.5">
-                            <span className="text-xs sm:text-sm">
-                              {lang === 'KO' ? t('한국어') : t('영어')}
-                            </span>
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* ─── 스텝 4: 문제 생성 ─── */}
-                <Card className="rounded-2xl border border-border">
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-3">
-                      <CardTitle>
-                        <p className="mb-0.5 text-sm font-normal text-muted-foreground">
-                          {t('AI에게 원하는 지시사항을 작성하고')}
-                        </p>
-                        <TextAnimate
-                          animation="slideUp"
-                          by="word"
-                          className="text-xl font-semibold tracking-tight md:text-xl"
-                        >
-                          {t('문제를 생성하세요')}
-                        </TextAnimate>
-                      </CardTitle>
-                      {!isWaitingForFirstQuiz &&
-                        recentPrompt &&
-                        recentPrompt !== customInstruction && (
-                          <button
-                            type="button"
-                            onClick={handleLoadRecentPrompt}
-                            className="shrink-0 cursor-pointer rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                          >
-                            {t('최근 작성 프롬프트 불러오기')}
-                          </button>
-                        )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <AnimatePresence mode="wait">
-                      {isWaitingForFirstQuiz ? (
-                        /* 생성 중: 버튼이 위로 올라가며 스피너로 전환 */
-                        <motion.div
-                          key="generating"
-                          initial={{ opacity: 0, y: 40 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4, ease: 'easeOut' }}
-                          className="flex min-h-[80px] flex-col items-center justify-center rounded-2xl border border-border bg-muted p-4 text-center sm:min-h-[100px] sm:p-6"
-                        >
-                          <div className="mb-4 size-12 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
-                          <p className="m-0 text-sm md:text-sm">
-                            {t('문제 생성 중...')}
-                            {Math.floor(generation.generationElapsedTime / 1000)}
-                            {t('초')}
-                            <br />
-                            <span className="mt-1.5 inline-block text-xs text-muted-foreground/60">
-                              {t('생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.')}
-                              <br />
-                              {t('AI는 실수를 할 수 있습니다. 학습 보조 도구로 활용해 주세요.')}
-                            </span>
-                          </p>
-                          {generation.showWaitMessage && (
-                            <motion.p
-                              initial={{ opacity: 0, y: 8 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.3, delay: 0.2 }}
-                              className="pt-2.5 text-sm text-muted-foreground"
-                            >
-                              {t('현재 생성중입니다 조금만 더 기다려주세요!')}
-                            </motion.p>
-                          )}
-                        </motion.div>
-                      ) : (
-                        /* 대기: 커스텀 지시사항 입력 + 버튼 */
-                        <motion.div
-                          key="idle"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0, y: -20, transition: { duration: 0.25 } }}
-                        >
-                          <textarea
-                            value={customInstruction}
-                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                              setCustomInstruction(e.target.value.slice(0, 500))
-                            }
-                            placeholder={t(
-                              'AI에게 원하는 지시사항을 입력하세요. (선택 사항) \n 예) ~스타일로 만들어줘 \n 예) ~유형으로 만들어줘',
-                            )}
-                            rows={4}
-                            maxLength={500}
-                            className="w-full resize-none rounded-2xl border border-border bg-muted px-4 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-                          />
-
-                          <p className="mt-1 text-right text-xs text-muted-foreground">
-                            {customInstruction.length} / 500
-                          </p>
-
-                          {/* 생성 버튼 */}
-                          <div className="mt-4 flex flex-col items-center gap-3 sm:mt-6">
-                            <button
-                              className="w-full cursor-pointer rounded-2xl border-none bg-primary py-4 text-base font-bold text-primary-foreground transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground sm:py-5 sm:text-lg"
-                              onClick={handleGenerateQuestionsClick}
-                              disabled={
-                                !upload.uploadedUrl ||
-                                isWaitingForFirstQuiz ||
-                                !pages.selectedPages.length
-                              }
-                            >
-                              {t('문제 생성하기')}
-                            </button>
-                            {!pages.selectedPages.length && pages.numPages === null && (
-                              <p className="mt-1 text-center text-sm text-muted-foreground">
-                                {t('페이지 정보를 불러오는 중입니다. 잠시만 기다려주세요.')}
-                              </p>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </CardContent>
-                </Card>
+                <QuizGenerationCard
+                  t={t}
+                  isWaitingForFirstQuiz={isWaitingForFirstQuiz}
+                  generationElapsedTime={generation.generationElapsedTime}
+                  showWaitMessage={generation.showWaitMessage}
+                  uploadedUrl={upload.uploadedUrl}
+                  selectedPagesLength={pages.selectedPages.length}
+                  numPages={pages.numPages}
+                  generateQuestions={generationActions.generateQuestions}
+                />
               </div>
             </motion.div>
           ) : !upload.uploadedUrl && !generation.problemSetId ? (
@@ -1038,102 +609,15 @@ const MakeQuiz: React.FC = () => {
 
           {/* ─── 생성 완료 결과 ─── */}
           {generation.problemSetId && (
-            <motion.div
-              key="result"
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.45, ease: 'easeOut' }}
-            >
-              <Card className="mx-auto mt-4 max-w-lg overflow-hidden rounded-2xl border border-border sm:mt-8">
-                {/* 히어로 영역: 파일명 + 유형 + 문제 수 */}
-                <div className="flex flex-col items-center gap-2 px-4 pt-5 sm:px-6 sm:pt-6">
-                  {problemSetInfo ? (
-                    <>
-                      {/* 파일명 — 서버 응답 */}
-                      <div className="flex w-full max-w-[360px] items-center justify-center gap-2 text-foreground">
-                        {!isEditingTitle && <FileText className="size-5 shrink-0" />}
-                        <InlineEdit
-                          value={problemSetInfo.title}
-                          editing={isEditingTitle}
-                          onStartEdit={() => setIsEditingTitle(true)}
-                          onCancel={() => setIsEditingTitle(false)}
-                          onSubmit={submitTitleEdit}
-                          size="md"
-                          textClassName="max-w-[260px] truncate text-base font-bold sm:max-w-[360px] sm:text-lg"
-                          hideEditButton={!isAuthenticated}
-                        />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
-                          <ListChecks className="size-3.5" />
-                          <span className="text-sm font-medium">
-                            {quizTypes.find((qt) => qt.key === problemSetInfo.quizType)?.label ||
-                              t('객관식')}
-                          </span>
-                        </Badge>
-                      </div>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-2xl font-black tabular-nums text-primary sm:text-3xl">
-                          {problemSetInfo.totalCount}
-                        </span>
-                        <span className="text-sm font-medium text-muted-foreground">
-                          {t('문제')}
-                        </span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <Skeleton className="h-7 w-48 rounded-md" />
-                      <Skeleton className="h-7 w-20 rounded-full" />
-                      <Skeleton className="h-9 w-24 rounded-md" />
-                    </>
-                  )}
-                </div>
-
-                {/* CTA */}
-                <div className="px-4 pt-2 pb-4 sm:px-6 sm:pt-2 sm:pb-6">
-                  <button
-                    className="w-full cursor-pointer rounded-xl border-none bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-sm shadow-primary/20 transition-all duration-200 hover:shadow-md hover:shadow-primary/30"
-                    onClick={generationActions.handleNavigateToQuiz}
-                  >
-                    {t('문제 풀기')}
-                  </button>
-
-                  {/* 보조 액션 */}
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    <button
-                      className="cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            String(t('현재 생성된 퀴즈가 사라집니다. 계속하시겠습니까?')),
-                          )
-                        ) {
-                          commonActions.handleReCreate();
-                          pdfDataState.refreshCopy();
-                        }
-                      }}
-                    >
-                      {t('다른 문제 생성')}
-                    </button>
-                    <button
-                      className="cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-destructive/70 transition-colors duration-200 hover:bg-muted hover:text-destructive"
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            String(t('현재 생성된 퀴즈가 사라집니다. 계속하시겠습니까?')),
-                          )
-                        ) {
-                          commonActions.handleRemoveFile();
-                        }
-                      }}
-                    >
-                      {t('다른 파일 넣기')}
-                    </button>
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
+            <ProblemSetResultCard
+              t={t}
+              problemSetId={generation.problemSetId}
+              isAuthenticated={isAuthenticated}
+              handleNavigateToQuiz={generationActions.handleNavigateToQuiz}
+              handleReCreate={commonActions.handleReCreate}
+              handleRemoveFile={commonActions.handleRemoveFile}
+              refreshPdfCopy={pdfDataState.refreshCopy}
+            />
           )}
         </AnimatePresence>
         {/* 건의함 — 한 번 표시되면 리셋 전까지 유지 (상태 전환 중 언마운트 방지) */}

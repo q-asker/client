@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createExpiringStorage } from '#shared/lib/expiringStorage';
 import type { QuestionType } from './constants';
-import { defaultType, levelMapping } from './constants';
+import { defaultType } from './constants';
 import type { PageMode } from './usePrepareQuizPages';
 
 interface PrepareQuizSettingsState {
@@ -80,6 +80,3 @@ export const usePrepareQuizSettingsStore = create<
     },
   ),
 );
-
-/** 퀴즈 유형에 매핑된 난이도를 반환 */
-export const getQuizLevel = (questionType: QuestionType) => levelMapping[questionType];

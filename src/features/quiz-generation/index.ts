@@ -4,6 +4,5 @@ export type {
   QuizType,
   QuizSelection,
   FileInfo,
-  ElementScore,
   GradeResult,
 } from './model/useQuizGenerationStore';
