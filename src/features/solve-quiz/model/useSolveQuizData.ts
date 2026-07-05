@@ -63,9 +63,7 @@ const applyQuizType = (
 const mergeWithProgress = (
   serverQuizzes: Quiz[],
   progress:
-    | { answers: Record<number, string | null>; checks: Record<number, boolean> }
-    | null
-    | undefined,
+    { answers: Record<number, string | null>; checks: Record<number, boolean> } | null | undefined,
 ): Quiz[] => {
   if (!progress) return serverQuizzes;
   return serverQuizzes.map((q) => {
