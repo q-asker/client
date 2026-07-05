@@ -8,8 +8,8 @@ Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 자동 생�
 
 ## 기술 스택
 
-- **언어**: TypeScript 5.9
-- **프레임워크**: React 19 + Vite 6
+- **언어**: TypeScript 6
+- **프레임워크**: React 19 + Vite 8 (rolldown 번들러)
 - **스타일링**: Tailwind CSS 4 (Vite 플러그인)
 - **UI 컴포넌트**: Shadcn UI (new-york 스타일) + MagicUI (blur-fade, marquee, shimmer-button 등)
 - **상태 관리**: Zustand 5
@@ -25,7 +25,7 @@ Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 자동 생�
 - **테마**: next-themes (라이트/다크 모드 전환)
 - **알림**: react-toastify
 - **포맷터**: Prettier 3
-- **린터**: ESLint 9 (eslint-config-prettier 통합)
+- **린터**: ESLint 10 (eslint-config-prettier 통합)
 - **패키지 매니저**: npm
 - **Node.js**: v24
 
