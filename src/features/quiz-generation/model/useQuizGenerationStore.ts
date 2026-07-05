@@ -132,8 +132,7 @@ let generationEventSource: EventSource | null = null;
 
 type SetState = (
   partial:
-    | Partial<QuizGenerationState>
-    | ((state: QuizGenerationState) => Partial<QuizGenerationState>),
+    Partial<QuizGenerationState> | ((state: QuizGenerationState) => Partial<QuizGenerationState>),
 ) => void;
 
 // ── 유틸 함수 ──
