@@ -40,3 +40,8 @@ shrimp-rules.md
 screenshots/
 .specify
 specs
+
+# Playwright
+test-results/
+playwright-report/
+/playwright/.cache/
