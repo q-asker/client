@@ -11,7 +11,7 @@ Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 자동 생�
 - **언어**: TypeScript 6
 - **프레임워크**: React 19 + Vite 8 (rolldown 번들러)
 - **스타일링**: Tailwind CSS 4 (Vite 플러그인)
-- **UI 컴포넌트**: Shadcn UI (new-york 스타일) + MagicUI (blur-fade, marquee, shimmer-button 등)
+- **UI 컴포넌트**: Shadcn UI (new-york 스타일) + MagicUI (blur-fade, border-beam, shimmer-button, text-animate 등)
 - **상태 관리**: Zustand 5
 - **라우팅**: React Router DOM 7
 - **HTTP 클라이언트**: Axios (인터셉터 기반 인증/리프레시 토큰 처리)
@@ -138,7 +138,7 @@ src/
   - `prepare-commit-msg`: 브랜치에서 JIRA 티켓 감지 → 커밋 메시지 접두사 자동 추가
   - `pre-commit`: `npx prettier --check .` — 포맷 위반 시 커밋 차단
   - `pre-push`: `npx prettier --check .` — push 전 포맷 안전망
-- **Prerender**: `vite-plugin-prerender` — 빌드 시 `/`, `/ko`, `/en` 프리렌더링
+- **Prerender**: `scripts/prerender.cjs` (`@prerenderer/prerenderer` + `@prerenderer/renderer-puppeteer`) — 빌드 시 `/`, `/ko`, `/en`, `/history`, `/boards`, `/privacy-policy`, `/terms-of-service` 프리렌더링
 - **SEO**: `index.html` + `src/app/seo.tsx`에서 JSON-LD 구조화 데이터, Open Graph, 다국어 alternate 관리
 
 <!-- SPECKIT START -->
