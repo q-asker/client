@@ -17,7 +17,17 @@ export default defineConfig({
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    // 1단 스모크: 백엔드 불요 공개 라우트. 종료 게이트가 항상 실행.
+    { name: 'smoke', testMatch: /smoke\.spec\.ts$/, use: { ...devices['Desktop Chrome'] } },
+    // 2단 기능 E2E: 백엔드+로그인 필요. 종료 게이트 opt-in(fail-closed). smoke 외 전 스펙.
+    {
+      name: 'feature',
+      testMatch: /.*\.spec\.ts$/,
+      testIgnore: /smoke\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:5173',

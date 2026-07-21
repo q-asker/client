@@ -13,6 +13,9 @@
     "i18n:extract": "i18n-extractor",
     "i18n:type": "i18n-type",
     "i18n:sync": "npm run i18n:wrap && npm run i18n:extract && npm run i18n:type",
+    "e2e": "playwright test",
+    "e2e:smoke": "playwright test --project=smoke",
+    "e2e:feature": "playwright test --project=feature",
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {

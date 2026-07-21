@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { AxiosError } from 'axios';
 import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
 import { trackQuizHistoryEvents } from '#shared/lib/analytics';
@@ -17,7 +18,32 @@ export interface HistoryItem {
   completed: boolean;
   score: number | null;
   takenAt: string | null;
+  /** 소속 폴더 식별자(hashid). 미분류면 null */
+  folderId: string | null;
+  /** 소속 폴더 이름. 미분류면 null */
+  folderName: string | null;
 }
+
+/** 폴더 목록 항목 */
+export interface FolderItem {
+  folderId: string;
+  name: string;
+  count: number;
+}
+
+/** 폴더 목록 응답 */
+interface FolderListResponse {
+  folders: FolderItem[];
+  unclassifiedCount: number;
+}
+
+/** 목록 필터 범위: 전체 / 미분류 / 특정 폴더(folderId) */
+export type HistoryScope = 'all' | 'unclassified' | (string & {});
+
+/** 폴더 이름 최대 길이 (spec FR-014) */
+export const FOLDER_NAME_MAX = 50;
+/** 사용자당 폴더 개수 상한 (spec FR-015) */
+export const FOLDER_LIMIT = 100;
 
 /** 페이지네이션 응답 */
 interface PaginatedHistoryResponse {
@@ -57,9 +83,13 @@ interface UseQuizHistoryReturn {
   state: {
     quizHistory: HistoryItem[];
     loading: boolean;
+    listLoading: boolean;
     isAuthenticated: boolean;
     stats: QuizStats;
     pagination: PaginationState;
+    folders: FolderItem[];
+    unclassifiedCount: number;
+    selectedScope: HistoryScope;
   };
   actions: {
     navigateToDetail: (record: HistoryItem) => void;
@@ -70,6 +100,11 @@ interface UseQuizHistoryReturn {
     formatDate: (dateString: string) => string;
     handleCreateFromEmpty: () => void;
     goToPage: (page: number) => Promise<void>;
+    selectScope: (scope: HistoryScope) => Promise<void>;
+    createFolder: (name: string) => Promise<boolean>;
+    renameFolder: (folderId: string, name: string) => Promise<boolean>;
+    deleteFolder: (folderId: string) => Promise<void>;
+    assignFolder: (historyId: string, folderId: string | null) => Promise<void>;
   };
 }
 
@@ -83,22 +118,38 @@ export const useQuizHistory = ({
   const { accessToken, hasHydrated } = useAuthStore();
   const isAuthenticated = !!accessToken;
   const [quizHistory, setQuizHistory] = useState<HistoryItem[]>([]);
+  // loading: 최초 진입 전체 스켈레톤 / listLoading: 이후 필터·페이지 전환 시 목록만 갱신
   const [loading, setLoading] = useState(true);
+  const [listLoading, setListLoading] = useState(false);
+  const initialLoadedRef = useRef(false);
   const [pagination, setPagination] = useState<PaginationState>({
     currentPage: 0,
     totalPages: 0,
     totalCount: 0,
     size: PAGE_SIZE,
   });
+  const [folders, setFolders] = useState<FolderItem[]>([]);
+  const [unclassifiedCount, setUnclassifiedCount] = useState(0);
+  const [selectedScope, setSelectedScope] = useState<HistoryScope>('all');
+  const scopeRef = useRef<HistoryScope>('all');
   const startTimeRef = useRef(Date.now());
 
+  /** selectedScope → 목록 요청 파라미터(scope enum + folderId) */
+  const scopeToParams = (scope: HistoryScope): { scope: string; folderId?: string } => {
+    if (scope === 'all') return { scope: 'ALL' };
+    if (scope === 'unclassified') return { scope: 'UNCLASSIFIED' };
+    return { scope: 'FOLDER', folderId: scope };
+  };
+
   const fetchPage = useCallback(
-    async (page: number): Promise<void> => {
-      setLoading(true);
+    async (page: number, scope: HistoryScope = scopeRef.current): Promise<void> => {
+      const initial = !initialLoadedRef.current;
+      if (initial) setLoading(true);
+      else setListLoading(true);
       try {
         const response = await axiosInstance.get<PaginatedHistoryResponse | HistoryItem[]>(
           '/history',
-          { params: { page, size: PAGE_SIZE } },
+          { params: { page, size: PAGE_SIZE, ...scopeToParams(scope) } },
         );
         // 하위 호환: 배열 응답(기존 API)이면 클라이언트에서 페이지네이션 처리
         if (Array.isArray(response.data)) {
@@ -124,7 +175,12 @@ export const useQuizHistory = ({
       } catch (error) {
         console.error(t('퀴즈 기록 불러오기 실패:'), error);
       } finally {
-        setLoading(false);
+        if (initial) {
+          setLoading(false);
+          initialLoadedRef.current = true;
+        } else {
+          setListLoading(false);
+        }
       }
     },
     [t],
@@ -138,10 +194,21 @@ export const useQuizHistory = ({
     [fetchPage, pagination.totalPages],
   );
 
+  const fetchFolders = useCallback(async (): Promise<void> => {
+    try {
+      const { data } = await axiosInstance.get<FolderListResponse>('/folders');
+      setFolders(data.folders);
+      setUnclassifiedCount(data.unclassifiedCount);
+    } catch (error) {
+      console.error(t('폴더 목록 불러오기 실패:'), error);
+    }
+  }, [t]);
+
   useEffect(() => {
     if (!hasHydrated) return;
     if (isAuthenticated) {
       fetchPage(0);
+      fetchFolders();
     } else {
       setLoading(false);
     }
@@ -300,13 +367,176 @@ export const useQuizHistory = ({
     navigate('/');
   };
 
+  // ── 폴더 오류 코드 → 사용자 메시지 ──
+  const folderErrorMessage = (error: unknown): string => {
+    const code = (error as AxiosError<{ code?: string }>)?.response?.data?.code;
+    switch (code) {
+      case 'FOLDER_LIMIT_EXCEEDED':
+        return t('폴더는 최대 100개까지 만들 수 있습니다.');
+      case 'FOLDER_NAME_INVALID':
+        return t('폴더 이름은 50자 이하여야 합니다.');
+      case 'FOLDER_NOT_FOUND':
+        return t('폴더를 찾을 수 없습니다.');
+      case 'QUIZ_HISTORY_NOT_FOUND':
+        return t('기록을 찾을 수 없습니다.');
+      default:
+        return t('요청을 처리하지 못했습니다.');
+    }
+  };
+
+  const selectScope = async (scope: HistoryScope): Promise<void> => {
+    scopeRef.current = scope;
+    setSelectedScope(scope);
+    await fetchPage(0, scope);
+  };
+
+  const createFolder = async (name: string): Promise<boolean> => {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      CustomToast.error(t('폴더 이름을 입력해주세요.'));
+      return false;
+    }
+    if (trimmed.length > FOLDER_NAME_MAX) {
+      CustomToast.error(t('폴더 이름은 50자 이하여야 합니다.'));
+      return false;
+    }
+    if (folders.length >= FOLDER_LIMIT) {
+      CustomToast.error(t('폴더는 최대 100개까지 만들 수 있습니다.'));
+      return false;
+    }
+    try {
+      const { data } = await axiosInstance.post<{ folderId: string; name: string }>('/folders', {
+        name: trimmed,
+      });
+      setFolders((prev) => [...prev, { folderId: data.folderId, name: data.name, count: 0 }]);
+      CustomToast.success(t('폴더가 생성되었습니다.'));
+      return true;
+    } catch (error) {
+      CustomToast.error(folderErrorMessage(error));
+      return false;
+    }
+  };
+
+  const renameFolder = async (folderId: string, name: string): Promise<boolean> => {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      CustomToast.error(t('폴더 이름을 입력해주세요.'));
+      return false;
+    }
+    if (trimmed.length > FOLDER_NAME_MAX) {
+      CustomToast.error(t('폴더 이름은 50자 이하여야 합니다.'));
+      return false;
+    }
+    const prevFolders = folders;
+    const prevHistory = quizHistory;
+    // 낙관적: 폴더명 + 소속 기록 배지 갱신
+    setFolders((prev) => prev.map((f) => (f.folderId === folderId ? { ...f, name: trimmed } : f)));
+    setQuizHistory((prev) =>
+      prev.map((h) => (h.folderId === folderId ? { ...h, folderName: trimmed } : h)),
+    );
+    try {
+      await axiosInstance.patch(`/folders/${folderId}`, { name: trimmed });
+      CustomToast.success(t('폴더 이름이 변경되었습니다.'));
+      return true;
+    } catch (error) {
+      setFolders(prevFolders);
+      setQuizHistory(prevHistory);
+      CustomToast.error(folderErrorMessage(error));
+      return false;
+    }
+  };
+
+  const deleteFolder = async (folderId: string): Promise<void> => {
+    if (!window.confirm(t('이 폴더를 삭제할까요? 안의 기록은 미분류로 이동합니다.'))) return;
+    const prevFolders = folders;
+    const prevHistory = quizHistory;
+    const prevUnclassified = unclassifiedCount;
+    const removed = folders.find((f) => f.folderId === folderId);
+    const wasFiltered = scopeRef.current === folderId;
+    // 낙관적: 폴더 제거 + 소속 기록 미분류화 + 미분류 카운트 증가
+    setFolders((prev) => prev.filter((f) => f.folderId !== folderId));
+    setQuizHistory((prev) =>
+      prev.map((h) => (h.folderId === folderId ? { ...h, folderId: null, folderName: null } : h)),
+    );
+    if (removed) setUnclassifiedCount((c) => c + removed.count);
+    // 현재 그 폴더로 필터 중이면 전체로 전환
+    if (wasFiltered) {
+      scopeRef.current = 'all';
+      setSelectedScope('all');
+    }
+    try {
+      await axiosInstance.delete(`/folders/${folderId}`);
+      CustomToast.success(t('폴더가 삭제되었습니다.'));
+      if (wasFiltered) await fetchPage(0, 'all');
+    } catch (error) {
+      setFolders(prevFolders);
+      setQuizHistory(prevHistory);
+      setUnclassifiedCount(prevUnclassified);
+      if (wasFiltered) {
+        scopeRef.current = folderId;
+        setSelectedScope(folderId);
+      }
+      CustomToast.error(folderErrorMessage(error));
+    }
+  };
+
+  const assignFolder = async (historyId: string, folderId: string | null): Promise<void> => {
+    const record = quizHistory.find((h) => h.historyId === historyId);
+    if (!record) return;
+    const from = record.folderId; // 이전 소속
+    if (from === folderId) return; // 멱등: 변화 없음
+    const target = folderId ? folders.find((f) => f.folderId === folderId) : null;
+    const prevHistory = quizHistory;
+    const prevFolders = folders;
+    const prevUnclassified = unclassifiedCount;
+
+    // 낙관적 목록 갱신: 현재 필터 범위를 벗어나면 행 제거, 아니면 소속 갱신
+    const scope = scopeRef.current;
+    const leavesScope =
+      (scope === 'unclassified' && folderId !== null) ||
+      (scope !== 'all' && scope !== 'unclassified' && scope !== folderId);
+    setQuizHistory((prev) =>
+      leavesScope
+        ? prev.filter((h) => h.historyId !== historyId)
+        : prev.map((h) =>
+            h.historyId === historyId
+              ? { ...h, folderId, folderName: target ? target.name : null }
+              : h,
+          ),
+    );
+    // 낙관적 카운트 보정
+    setFolders((prev) =>
+      prev.map((f) => {
+        if (f.folderId === from) return { ...f, count: Math.max(0, f.count - 1) };
+        if (f.folderId === folderId) return { ...f, count: f.count + 1 };
+        return f;
+      }),
+    );
+    if (from === null) setUnclassifiedCount((c) => Math.max(0, c - 1));
+    if (folderId === null) setUnclassifiedCount((c) => c + 1);
+
+    try {
+      await axiosInstance.patch(`/history/${historyId}/folder`, { folderId });
+      CustomToast.success(folderId ? t('폴더로 이동했습니다.') : t('미분류로 이동했습니다.'));
+    } catch (error) {
+      setQuizHistory(prevHistory);
+      setFolders(prevFolders);
+      setUnclassifiedCount(prevUnclassified);
+      CustomToast.error(folderErrorMessage(error));
+    }
+  };
+
   return {
     state: {
       quizHistory,
       loading,
+      listLoading,
       isAuthenticated,
       stats,
       pagination,
+      folders,
+      unclassifiedCount,
+      selectedScope,
     },
     actions: {
       navigateToDetail,
@@ -317,6 +547,11 @@ export const useQuizHistory = ({
       formatDate,
       handleCreateFromEmpty,
       goToPage,
+      selectScope,
+      createFolder,
+      renameFolder,
+      deleteFolder,
+      assignFolder,
     },
   };
 };
