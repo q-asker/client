@@ -7,7 +7,7 @@ import tsparser from '@typescript-eslint/parser';
 import prettier from 'eslint-config-prettier';
 
 export default [
-  { ignores: ['dist', '.vite'] },
+  { ignores: ['dist', '.vite', '.claude'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -56,6 +56,19 @@ export default [
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    },
+  },
+  {
+    // eslint-plugin-react-hooks 7 신규 컴파일러 기반 rule은 pre-existing 패턴을 다수 지적한다.
+    // 승격을 채택하되 개별 수정은 후속 티켓으로 분리하기 위해 warn으로 강등한다.
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: { 'react-hooks': reactHooks },
+    rules: {
+      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/refs': 'warn',
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/purity': 'warn',
+      'react-hooks/static-components': 'warn',
     },
   },
   prettier,

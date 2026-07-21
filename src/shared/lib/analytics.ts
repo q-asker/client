@@ -264,47 +264,6 @@ export const trackResultEvents = {
   },
 };
 
-// Help 페이지 이벤트들
-export const trackHelpEvents = {
-  // 도움말 페이지 진입
-  viewHelp: (source: string): void => {
-    logEvent('view_help', {
-      source: source, // 'header', 'makeQuiz', 'direct' 등
-    });
-  },
-
-  // 뒤로가기 버튼 클릭
-  clickBack: (): void => {
-    logEvent('help_back_click');
-  },
-
-  // 퀴즈 만들러 가기 버튼 클릭
-  clickStartQuiz: (): void => {
-    logEvent('help_start_quiz_click');
-  },
-
-  // 도움말 섹션 참여도 (스크롤 깊이)
-  trackScrollDepth: (percentage: number): void => {
-    logEvent('help_scroll_depth', {
-      scroll_percentage: percentage,
-    });
-  },
-
-  // 특정 섹션에 관심 표시 (호버나 클릭)
-  interactWithSection: (sectionName: string): void => {
-    logEvent('help_section_interact', {
-      section_name: sectionName,
-    });
-  },
-
-  // 도움말 페이지 체류 시간
-  trackTimeSpent: (timeSpent: number): void => {
-    logEvent('help_time_spent', {
-      time_seconds: timeSpent,
-    });
-  },
-};
-
 // QuizHistory 페이지 이벤트들
 export const trackQuizHistoryEvents = {
   // 히스토리 페이지 진입
