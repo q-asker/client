@@ -9,6 +9,7 @@ import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
 import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
 import { Home } from 'lucide-react';
 import type { Quiz } from '#features/quiz-generation';
+import { RegenerateQuizButton } from '#features/quiz-regeneration';
 import {
   gradeRealBlank,
   gradeRealBlankMulti,
@@ -82,6 +83,7 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
       <Button size="lg" className="w-full text-base" onClick={getQuizExplanation}>
         {t('해설 보기')}
       </Button>
+      <RegenerateQuizButton problemSetId={problemSetId} className="text-base" />
       <button
         type="button"
         className="group mx-auto flex items-center gap-1.5 pt-1 text-sm text-muted-foreground transition-colors hover:text-foreground"

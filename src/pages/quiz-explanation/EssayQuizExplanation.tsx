@@ -11,6 +11,7 @@ import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
+import { RegenerateQuizButton } from '#features/quiz-regeneration';
 
 /** 점수 비율에 따른 색상 */
 const getScoreColor = (ratio: number) => {
@@ -207,7 +208,8 @@ const EssayQuizExplanation: React.FC = () => {
         </div>
 
         {/* 사이드바 하단 */}
-        <div className="shrink-0 border-t border-border p-3">
+        <div className="flex shrink-0 flex-col gap-2 border-t border-border p-3">
+          <RegenerateQuizButton problemSetId={problemSetId} size="sm" />
           <Button size="sm" className="w-full" onClick={() => commonActions.handleExit('/')}>
             {t('홈으로')}
           </Button>

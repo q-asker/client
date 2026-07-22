@@ -10,6 +10,7 @@ import { Home, Trophy, Clock, Hash, ChevronDown, CheckCircle2 } from 'lucide-rea
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import type { Quiz, GradeResult } from '#features/quiz-generation';
+import { RegenerateQuizButton } from '#features/quiz-regeneration';
 
 /** 부모에서 전달받는 서버 데이터 */
 interface ServerData {
@@ -189,6 +190,7 @@ const EssayQuizResult = ({ serverData }: EssayQuizResultProps) => {
             <Button size="lg" className="w-full text-base" onClick={getQuizExplanation}>
               {t('해설 보기')}
             </Button>
+            <RegenerateQuizButton problemSetId={problemSetId} className="text-base" />
             <button
               type="button"
               className="group mx-auto flex items-center gap-1.5 pt-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
