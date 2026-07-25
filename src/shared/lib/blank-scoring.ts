@@ -13,15 +13,17 @@
  * 1) NFKC(전각→반각·호환문자, U+3000·U+00A0 등 특수공백을 일반 공백으로)
  * 2) 소문자화 (JS toLowerCase는 로캘 무관 — 백엔드는 Locale.ROOT로 맞춤)
  * 3) 공백 전부 제거
- * 4) \p{P} 문장부호 제거 — \p{S} 심볼(+ < = > | ~ ^ $)은 보존해 C++↔C 등 구분 유지.
- *    주의: # @ % & - . 는 유니코드상 \p{P}(문장부호)라 제거된다(C# → c).
+ * 4) \p{P} 문장부호 제거 — 단 `#`은 예외로 보존.
+ *    §7.3 보존 심볼 목록(+ # = < >) 중 + = < >는 \p{S}라 애초에 안 지워지고, `#`만
+ *    유니코드상 Po(\p{P})라 명시 예외가 필요하다. → C#↔C, C++↔C 구분 유지(SC-002).
+ *    (JS는 v플래그 집합차 대신 u플래그+콜백으로 구현 — 구형 Safari 호환.)
  */
 export const normalizeBlankAnswer = (s: string): string =>
   s
     .normalize('NFKC')
     .toLowerCase()
     .replace(/\s+/gu, '')
-    .replace(/\p{P}+/gu, '');
+    .replace(/\p{P}/gu, (ch) => (ch === '#' ? ch : ''));
 
 /**
  * REAL_BLANK 다중 빈칸 직렬화 구분자.

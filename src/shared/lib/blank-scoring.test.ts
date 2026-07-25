@@ -46,16 +46,20 @@ describe('normalizeBlankAnswer (contract §7.3)', () => {
     expect(normalizeBlankAnswer('SYN-ACK')).toBe('synack'); // 하이픈은 \p{P}
   });
 
-  it('심볼(\\p{S}: + < = > | ~ ^ $)은 보존 — C++↔C 구분 유지 (SC-002 안전)', () => {
+  it('보존 심볼(+ # = < >)은 남겨 C++↔C·C#↔C 구분 유지 (SC-002 안전)', () => {
     expect(normalizeBlankAnswer('C++')).toBe('c++');
+    expect(normalizeBlankAnswer('C#')).toBe('c#'); // #은 \p{P}이지만 명시 예외로 보존
+    expect(normalizeBlankAnswer('F#')).toBe('f#');
     expect(normalizeBlankAnswer('a < b')).toBe('a<b');
     expect(normalizeBlankAnswer('a=b')).toBe('a=b');
     expect(normalizeBlankAnswer('C++')).not.toBe(normalizeBlankAnswer('C'));
+    expect(normalizeBlankAnswer('C#')).not.toBe(normalizeBlankAnswer('C'));
   });
 
-  it('# @ % & 는 \\p{P}(문장부호)라 제거된다 (C# → c)', () => {
-    expect(normalizeBlankAnswer('C#')).toBe('c');
+  it('# 외 \\p{P}(@ % & - .)는 제거된다', () => {
     expect(normalizeBlankAnswer('a@b')).toBe('ab');
+    expect(normalizeBlankAnswer('U.S.A.')).toBe('usa');
+    expect(normalizeBlankAnswer('SYN-ACK')).toBe('synack');
   });
 
   it('재현성(SC-003): 같은 입력은 항상 같은 결과', () => {
