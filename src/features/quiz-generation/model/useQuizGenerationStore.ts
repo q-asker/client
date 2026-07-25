@@ -54,6 +54,8 @@ export interface Quiz {
   appliedInstruction?: string | null;
   modelAnswer?: string | null;
   gradeResult?: GradeResult | null;
+  /** REAL_BLANK 채점 관용도: 빈칸 위치별 인정 답(동의어·통용약어·한↔영). 기존 세트/비REAL_BLANK는 없음. */
+  acceptedAnswers?: string[][] | null;
 }
 
 export interface FileInfo {

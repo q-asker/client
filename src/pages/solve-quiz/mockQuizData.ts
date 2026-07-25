@@ -220,6 +220,8 @@ export const MOCK_REAL_BLANK_QUIZZES: Quiz[] = [
     type: 'REAL_BLANK',
     title: '대한민국의 수도는 _______이다.',
     selections: [{ id: '1', content: '서울', correct: true }],
+    // 한↔영·통용 표기 인정
+    acceptedAnswers: [['Seoul', '서울특별시']],
   },
   {
     number: 2,
@@ -227,16 +229,21 @@ export const MOCK_REAL_BLANK_QUIZZES: Quiz[] = [
     title:
       'TCP 3-Way Handshake는 _______ → _______ → ACK 순서로 진행되며, 양쪽 모두의 연결 의사를 확인한다.',
     selections: [{ id: '1', content: 'SYN, SYN+ACK', correct: true }],
+    // 빈칸 위치별: 1번째 빈칸은 표기 정규화만, 2번째 빈칸은 심볼 탈락 변형을 인정 답으로
+    acceptedAnswers: [[], ['SYN ACK', 'SYNACK']],
   },
   {
     number: 3,
     type: 'REAL_BLANK',
     title: 'JavaScript의 단일 스레드 이벤트 모델을 처리하는 메커니즘은 _______이다.',
     selections: [{ id: '1', content: 'Event Loop', correct: true }],
+    // 한↔영 인정
+    acceptedAnswers: [['이벤트 루프']],
   },
   {
     number: 4,
     type: 'REAL_BLANK',
+    // 기존 세트(도입 이전) 재현 — acceptedAnswers 없음 → 표기 정규화 관용만 적용(FR-006)
     title: '원주율 π의 소수점 둘째 자리까지의 근사값은 _______ 이다.',
     selections: [{ id: '1', content: '3.14', correct: true }],
   },

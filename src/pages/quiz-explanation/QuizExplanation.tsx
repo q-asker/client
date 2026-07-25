@@ -12,11 +12,7 @@ import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
-import {
-  gradeRealBlank,
-  gradeRealBlankMulti,
-  deserializeRealBlankTokens,
-} from '#shared/lib/blank-scoring';
+import { deserializeRealBlankTokens, isRealBlankQuizCorrect } from '#shared/lib/blank-scoring';
 
 /**
  * Navigator Split — 좌측 문제 리스트 사이드바 + 3열 레이아웃.
@@ -39,22 +35,8 @@ const QuizExplanation: React.FC = () => {
   const refPages = explanation.thisExplanationObj?.referencedPages;
   const total = quiz.showWrongOnly ? quiz.filteredTotalQuestions : quiz.totalQuestions;
 
-  /** REAL_BLANK 정답 여부 (공백 제거 + 소문자 정규화 후 일치) */
-  const isRealBlankCorrect = (q: Quiz): boolean => {
-    const correctSel = q.selections.find((o) => (o as unknown as { correct: boolean }).correct);
-    if (!correctSel) return false;
-    const correctTokens = correctSel.content.split(',').map((s) => s.trim());
-    // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
-    const userRawAnswer = q.userAnswer == null ? '' : String(q.userAnswer);
-    const userRaw = userRawAnswer === '0' ? '' : userRawAnswer;
-    if (correctTokens.length <= 1) {
-      return gradeRealBlank(userRaw, correctSel.content);
-    }
-    return gradeRealBlankMulti(deserializeRealBlankTokens(userRaw), correctTokens);
-  };
-
   const isQuizCorrect = (q: Quiz) => {
-    if (q.type === 'REAL_BLANK') return isRealBlankCorrect(q);
+    if (q.type === 'REAL_BLANK') return isRealBlankQuizCorrect(q);
     const c = q.selections.find((o) => (o as unknown as { correct: boolean }).correct);
     return q.userAnswer != null && c && Number(q.userAnswer) === Number(c.id);
   };

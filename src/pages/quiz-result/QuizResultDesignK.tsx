@@ -9,11 +9,7 @@ import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
 import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
 import { Home } from 'lucide-react';
 import type { Quiz } from '#features/quiz-generation';
-import {
-  gradeRealBlank,
-  gradeRealBlankMulti,
-  deserializeRealBlankTokens,
-} from '#shared/lib/blank-scoring';
+import { deserializeRealBlankTokens, isRealBlankQuizCorrect } from '#shared/lib/blank-scoring';
 
 /** 부모에서 전달받는 서버 데이터 */
 interface ServerData {
@@ -101,10 +97,8 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
       // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
       const userRawAnswer = q.userAnswer == null ? '' : String(q.userAnswer);
       const userRaw = userRawAnswer === '0' ? '' : userRawAnswer;
-      const correct =
-        correctTokens.length <= 1
-          ? gradeRealBlank(userRaw, correctSel?.content ?? '')
-          : gradeRealBlankMulti(deserializeRealBlankTokens(userRaw), correctTokens);
+      // 채점은 단일 진실원(blank-scoring)에 위임 — 정규화·인정 답 관용 포함
+      const correct = isRealBlankQuizCorrect(q);
       // 사용자 답안을 사람이 읽을 수 있는 형태로 변환 (다중 빈칸은 콤마 결합)
       const userDisplay = userRaw
         ? correctTokens.length > 1
