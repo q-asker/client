@@ -173,7 +173,7 @@ const QuizExplanation: React.FC = () => {
             {/* REAL_BLANK 사용자 답안 박스 (선택지 위에 표시) */}
             {quiz.currentQuiz.type === 'REAL_BLANK' &&
               (() => {
-                const correct = isRealBlankCorrect(quiz.currentQuiz);
+                const correct = isRealBlankQuizCorrect(quiz.currentQuiz);
                 // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
                 const userRawAnswer =
                   quiz.currentQuiz.userAnswer == null ? '' : String(quiz.currentQuiz.userAnswer);
