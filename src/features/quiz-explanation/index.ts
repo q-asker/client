@@ -5,7 +5,7 @@ import CustomToast from '#shared/toast';
 import axiosInstance from '#shared/api';
 import { trackQuizEvents } from '#shared/lib/analytics';
 import { loadResult, loadEssayGradeResults } from '#features/solve-quiz';
-import type { Quiz, GradeResult } from '#features/quiz-generation';
+import type { Quiz, GradeResult, QuizType } from '#features/quiz-generation';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -38,6 +38,8 @@ interface PdfOptions {
 interface ProblemSetResponse {
   quiz: Quiz[];
   title: string;
+  /** 문항별 type이 없을 때(REAL_BLANK 등) 문제 세트 단위 폴백 유형 */
+  quizType?: QuizType;
 }
 
 interface UseQuizExplanationParams {
@@ -147,6 +149,7 @@ export const useQuizExplanation = ({
         ]);
 
         const serverQuizzes = quizRes.data.quiz;
+        const quizType = quizRes.data.quizType;
 
         // localStorage 채점 결과에서 답안 병합
         const savedResult = loadResult(problemSetId);
@@ -156,12 +159,14 @@ export const useQuizExplanation = ({
         const merged = savedResult
           ? serverQuizzes.map((q) => ({
               ...q,
+              type: q.type ?? quizType,
               userAnswer: savedResult.answers[q.number] ?? q.userAnswer,
               inReview: savedResult.inReview?.[q.number] ?? false,
               gradeResult: localGrades[q.number] ?? q.gradeResult ?? null,
             }))
           : serverQuizzes.map((q) => ({
               ...q,
+              type: q.type ?? quizType,
               gradeResult: localGrades[q.number] ?? q.gradeResult ?? null,
             }));
 
