@@ -6,6 +6,7 @@ import { loadResult, loadEssayGradeResults } from '#features/solve-quiz';
 import {
   MOCK_RESULT_QUIZZES,
   MOCK_REAL_BLANK_RESULT_QUIZZES,
+  MOCK_REAL_BLANK_NO_DISTRACTOR_QUIZZES,
   MOCK_TOTAL_TIME,
 } from './mockResultData';
 import { Button } from '@/shared/ui/components/button';
@@ -33,6 +34,7 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
   const isRealBlankMock = searchParams.get('real_blank') === 'true';
+  const isNoDistractorMock = searchParams.get('no_distractor') === 'true';
 
   const savedResult = useMemo(
     () => (problemSetId ? loadResult(problemSetId) : null),
@@ -46,7 +48,13 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
 
   const mergedQuizzes = useMemo(() => {
     if (isMock)
-      return (isRealBlankMock ? MOCK_REAL_BLANK_RESULT_QUIZZES : MOCK_RESULT_QUIZZES) as Quiz[];
+      return (
+        isRealBlankMock
+          ? isNoDistractorMock
+            ? MOCK_REAL_BLANK_NO_DISTRACTOR_QUIZZES
+            : MOCK_REAL_BLANK_RESULT_QUIZZES
+          : MOCK_RESULT_QUIZZES
+      ) as Quiz[];
     const serverQuizzes = serverData.quiz;
     if (savedResult) {
       return serverQuizzes.map((q) => ({
@@ -62,7 +70,7 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
       type: (q.type ?? serverData.quizType) as Quiz['type'],
       gradeResult: essayGradeResults[q.number] ?? q.gradeResult ?? null,
     }));
-  }, [isMock, isRealBlankMock, serverData, savedResult, essayGradeResults]);
+  }, [isMock, isRealBlankMock, isNoDistractorMock, serverData, savedResult, essayGradeResults]);
 
   const [quizzes] = useState<Quiz[]>(mergedQuizzes);
   const totalTime = isMock ? MOCK_TOTAL_TIME : (savedResult?.totalTime ?? '00:00:00');

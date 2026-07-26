@@ -145,3 +145,56 @@ describe('gradeRealBlankQuiz — FR-006 재현성', () => {
     }
   });
 });
+
+// 004(REAL_BLANK 전용 파이프라인 분리): 오답선지 없는 신규 REAL_BLANK 문항 회귀.
+// selections에 correct:false 항목이 전혀 없어도(distractorNorms가 항상 빈 Set) 관용 판정이
+// 그대로 동작해야 한다 — D-guard는 데이터 유무에 조건부일 뿐 문항 "버전"을 분기하지 않는다.
+describe('gradeRealBlankQuiz — 004 오답선지 0개(신규 REAL_BLANK)', () => {
+  const noDistractor = (userAnswer: string | number | null): RealBlankGradable => ({
+    userAnswer,
+    selections: [{ content: 'HTTP', correct: true }], // correct:false 항목 없음
+    acceptedAnswers: [{ answer: 'HTTP', accepted: [] }],
+  });
+
+  it('완전일치는 정답', () => {
+    expect(gradeRealBlankQuiz(noDistractor('HTTP'))).toBe(true);
+  });
+  it('표기 차이(대소문자)는 정답', () => {
+    expect(gradeRealBlankQuiz(noDistractor('http'))).toBe(true);
+  });
+  it('오탈자 허용 범위 내는 정답, 범위 밖은 오답', () => {
+    // 'HTTP'(len4→threshold1)와 편집거리 1(말미 오탈자) → 정답
+    expect(gradeRealBlankQuiz(noDistractor('HTTPS'))).toBe(true);
+    // 편집거리 2(범위 밖) → 오답
+    expect(gradeRealBlankQuiz(noDistractor('HTTPXY'))).toBe(false);
+  });
+  it('무관한 답은 오답 — 오답선지가 없어도 무근거 정답 처리되지 않는다', () => {
+    expect(gradeRealBlankQuiz(noDistractor('FTP'))).toBe(false);
+  });
+  it('미응답은 오답', () => {
+    expect(gradeRealBlankQuiz(noDistractor(''))).toBe(false);
+    expect(gradeRealBlankQuiz(noDistractor(null))).toBe(false);
+  });
+
+  it('다중 빈칸도 오답선지 없이 관용 판정이 정상 동작한다', () => {
+    const multiNoDistractor = (userAnswer: string): RealBlankGradable => ({
+      userAnswer,
+      selections: [{ content: '캡슐화, 다형성', correct: true }], // correct:false 항목 없음
+      acceptedAnswers: [
+        { answer: '캡슐화', accepted: ['encapsulation'] },
+        { answer: '다형성', accepted: ['polymorphism'] },
+      ],
+    });
+    expect(
+      gradeRealBlankQuiz(multiNoDistractor(serializeRealBlankTokens(['encapsulation', '다형성']))),
+    ).toBe(true);
+    expect(
+      gradeRealBlankQuiz(multiNoDistractor(serializeRealBlankTokens(['상속', '다형성']))),
+    ).toBe(false);
+  });
+
+  it('오답선지가 없어도 정답과 무관한 인접 개념 입력은 여전히 오답(D-guard 부재가 오탐을 만들지 않음)', () => {
+    // '상속'은 '캡슐화'의 오탈자 허용 범위 밖이라 통상 tolerance만으로도 오답 처리된다.
+    expect(gradeRealBlankQuiz(noDistractor('상속'))).toBe(false);
+  });
+});

@@ -142,3 +142,48 @@ export const MOCK_REAL_BLANK_RESULT_QUIZZES: QuizItem[] = [
     userAnswer: 'OOP',
   },
 ];
+
+/**
+ * 004(REAL_BLANK 전용 파이프라인 분리) 결과 화면 mock — 오답선지가 "전혀" 없는 세트만으로 구성
+ * (URL: ?mock=true&real_blank=true&no_distractor=true).
+ * 003 mock(MOCK_REAL_BLANK_RESULT_QUIZZES)은 오답선지 有/無가 섞여 있는데, 004는 신규 REAL_BLANK
+ * 문항이 애초에 오답선지를 만들지 않는 경우(selections에 correct:false 항목 자체가 없음)를
+ * 명시적으로 검증한다 — D-guard가 없어도 관용 판정이 정상 동작하고, 화면에 빈 오답 영역이
+ * 생기지 않아야 한다(spec Edge Case).
+ */
+export const MOCK_REAL_BLANK_NO_DISTRACTOR_QUIZZES: QuizItem[] = [
+  {
+    number: 1,
+    type: 'REAL_BLANK',
+    title: '브라우저와 서버 간 상태 없는 요청-응답 프로토콜은 _______이다.',
+    // correct:false 항목 없음 — 신규 REAL_BLANK 생성 결과와 동일한 shape
+    selections: [{ id: '1', content: 'HTTP', correct: true }],
+    acceptedAnswers: [{ answer: 'HTTP', accepted: [] }],
+    // 표기 차이(대소문자) → 정답 인정
+    userAnswer: 'http',
+  },
+  {
+    number: 2,
+    type: 'REAL_BLANK',
+    title: '객체지향에서 데이터와 메서드를 하나로 묶고 외부 접근을 제한하는 원칙은 _______이다.',
+    selections: [{ id: '1', content: '캡슐화', correct: true }],
+    acceptedAnswers: [{ answer: '캡슐화', accepted: ['encapsulation'] }],
+    // 동의어(영문 표기) → 정답 인정
+    userAnswer: 'encapsulation',
+  },
+  {
+    number: 3,
+    type: 'REAL_BLANK',
+    title:
+      'TCP 연결 종료 4-way handshake에서 클라이언트→서버, 서버→클라이언트 순서로 오가는 첫 패킷은 각각 _______, _______이다.',
+    // 다중 빈칸도 오답선지 없이 정상 동작해야 한다
+    selections: [{ id: '1', content: 'FIN, ACK', correct: true }],
+    acceptedAnswers: [
+      { answer: 'FIN', accepted: [] },
+      { answer: 'ACK', accepted: [] },
+    ],
+    // 첫 빈칸(FIN)은 정답, 두 번째 빈칸(RST)은 정답과 무관 → 문항 전체 오답.
+    // 오답선지가 없어도 D-guard 없이 tolerance만으로 오답 처리됨을 확인.
+    userAnswer: 'FINRST',
+  },
+];
