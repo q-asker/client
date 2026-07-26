@@ -5,4 +5,5 @@ export type {
   QuizSelection,
   FileInfo,
   GradeResult,
+  AcceptedAnswer,
 } from './model/useQuizGenerationStore';

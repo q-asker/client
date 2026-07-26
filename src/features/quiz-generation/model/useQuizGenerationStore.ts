@@ -44,6 +44,12 @@ export interface GradeResult {
   overallFeedback: string;
 }
 
+/** REAL_BLANK 빈칸별 허용답안(백엔드가 생성 시 확정·저장, 응답에 실려 내려옴). null=구문항/비REAL_BLANK. */
+export interface AcceptedAnswer {
+  answer: string;
+  accepted: string[];
+}
+
 export interface Quiz {
   number: number;
   title: string;
@@ -54,6 +60,8 @@ export interface Quiz {
   appliedInstruction?: string | null;
   modelAnswer?: string | null;
   gradeResult?: GradeResult | null;
+  /** REAL_BLANK 한정: 빈칸 index 순서의 허용답안. 비REAL_BLANK·구문항은 없음/null. */
+  acceptedAnswers?: AcceptedAnswer[] | null;
 }
 
 export interface FileInfo {

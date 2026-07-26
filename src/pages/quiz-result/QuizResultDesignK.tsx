@@ -3,17 +3,17 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuizResult } from '#features/quiz-result';
 import { loadResult, loadEssayGradeResults } from '#features/solve-quiz';
-import { MOCK_RESULT_QUIZZES, MOCK_TOTAL_TIME } from './mockResultData';
+import {
+  MOCK_RESULT_QUIZZES,
+  MOCK_REAL_BLANK_RESULT_QUIZZES,
+  MOCK_TOTAL_TIME,
+} from './mockResultData';
 import { Button } from '@/shared/ui/components/button';
 import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
 import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
 import { Home } from 'lucide-react';
 import type { Quiz } from '#features/quiz-generation';
-import {
-  gradeRealBlank,
-  gradeRealBlankMulti,
-  deserializeRealBlankTokens,
-} from '#shared/lib/blank-scoring';
+import { gradeRealBlankQuiz, deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
 
 /** 부모에서 전달받는 서버 데이터 */
 interface ServerData {
@@ -32,6 +32,7 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
   const { problemSetId } = useParams<{ problemSetId: string }>();
   const [searchParams] = useSearchParams();
   const isMock = searchParams.get('mock') === 'true';
+  const isRealBlankMock = searchParams.get('real_blank') === 'true';
 
   const savedResult = useMemo(
     () => (problemSetId ? loadResult(problemSetId) : null),
@@ -44,7 +45,8 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
   );
 
   const mergedQuizzes = useMemo(() => {
-    if (isMock) return MOCK_RESULT_QUIZZES as Quiz[];
+    if (isMock)
+      return (isRealBlankMock ? MOCK_REAL_BLANK_RESULT_QUIZZES : MOCK_RESULT_QUIZZES) as Quiz[];
     const serverQuizzes = serverData.quiz;
     if (savedResult) {
       return serverQuizzes.map((q) => ({
@@ -60,7 +62,7 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
       type: (q.type ?? serverData.quizType) as Quiz['type'],
       gradeResult: essayGradeResults[q.number] ?? q.gradeResult ?? null,
     }));
-  }, [isMock, serverData, savedResult, essayGradeResults]);
+  }, [isMock, isRealBlankMock, serverData, savedResult, essayGradeResults]);
 
   const [quizzes] = useState<Quiz[]>(mergedQuizzes);
   const totalTime = isMock ? MOCK_TOTAL_TIME : (savedResult?.totalTime ?? '00:00:00');
@@ -101,10 +103,8 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
       // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
       const userRawAnswer = q.userAnswer == null ? '' : String(q.userAnswer);
       const userRaw = userRawAnswer === '0' ? '' : userRawAnswer;
-      const correct =
-        correctTokens.length <= 1
-          ? gradeRealBlank(userRaw, correctSel?.content ?? '')
-          : gradeRealBlankMulti(deserializeRealBlankTokens(userRaw), correctTokens);
+      // 관용 채점 단일 오케스트레이터(표기·오탈자·동의어·D-guard 내포) — 3화면 공용
+      const correct = gradeRealBlankQuiz(q);
       // 사용자 답안을 사람이 읽을 수 있는 형태로 변환 (다중 빈칸은 콤마 결합)
       const userDisplay = userRaw
         ? correctTokens.length > 1

@@ -1,8 +1,11 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'i18nexus';
 import { saveResult } from '#features/solve-quiz';
 import { Button } from '@/shared/ui/components/button';
 import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
+import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
+import { gradeRealBlankQuiz, deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import type { HistoryDetailData } from './types';
 
@@ -13,6 +16,49 @@ interface ChoiceHistoryDetailProps {
 const ChoiceHistoryDetail = ({ detail }: ChoiceHistoryDetailProps) => {
   const { t, currentLanguage } = useTranslation('quiz-history-detail');
   const navigate = useNavigate();
+
+  const isRealBlank = detail.quizType === 'REAL_BLANK';
+
+  // REAL_BLANK는 서버 correct(정수 index 비교)가 텍스트답에 부정확하므로,
+  // 결과·해설과 동일한 단일 관용 채점 함수로 로컬 재채점한다(FR-006 판정 일치).
+  const { problems, correctCount } = useMemo<{
+    problems: ScoreBoardProblem[];
+    correctCount: number;
+  }>(() => {
+    if (!isRealBlank) {
+      return { problems: detail.problems, correctCount: detail.score };
+    }
+    let correct = 0;
+    const mapped = detail.problems.map((p): ScoreBoardProblem => {
+      const isCorrect = gradeRealBlankQuiz({
+        userAnswer: p.textAnswer,
+        selections: p.selections,
+        acceptedAnswers: p.acceptedAnswers,
+      });
+      if (isCorrect) correct++;
+      // 사용자 입력 텍스트를 읽기 좋게(다중 빈칸은 콤마 결합) — 결과 화면과 동일 방식.
+      const raw = p.textAnswer && p.textAnswer !== '0' ? p.textAnswer : '';
+      const tokens = deserializeRealBlankTokens(raw);
+      const userDisplay = raw ? (tokens.length > 1 ? tokens.join(', ') : raw) : '';
+      // score-board가 userAnswer ID로 selection을 찾으므로 가상 selection을 prepend.
+      const selections =
+        userDisplay !== ''
+          ? [{ id: '__real_blank_user__', content: userDisplay }, ...p.selections]
+          : p.selections;
+      return {
+        number: p.number,
+        title: p.title,
+        correct: isCorrect,
+        userAnswer: userDisplay !== '' ? '__real_blank_user__' : '',
+        inReview: p.inReview ?? false,
+        selections,
+      };
+    });
+    return { problems: mapped, correctCount: correct };
+  }, [isRealBlank, detail.problems, detail.score]);
+
+  const scorePercent =
+    detail.totalCount > 0 ? Math.round((correctCount / detail.totalCount) * 100) : 0;
 
   const formatDate = (dateString: string) => {
     const locale = currentLanguage?.startsWith('en') ? 'en-US' : 'ko-KR';
@@ -25,13 +71,11 @@ const ChoiceHistoryDetail = ({ detail }: ChoiceHistoryDetailProps) => {
     });
   };
 
-  const scorePercent = Math.round((detail.score / detail.totalCount) * 100);
-
   return (
     <QuizScoreBoard
       scorePercent={scorePercent}
       totalCount={detail.totalCount}
-      correctCount={detail.score}
+      correctCount={correctCount}
       totalTime={detail.totalTime}
       heroSubtitle={
         <div className="flex items-center justify-center gap-1.5 text-sm text-primary-foreground/60">
@@ -48,7 +92,12 @@ const ChoiceHistoryDetail = ({ detail }: ChoiceHistoryDetailProps) => {
               const answers: Record<number, string | null> = {};
               const inReview: Record<number, boolean> = {};
               detail.problems.forEach((p) => {
-                answers[p.number] = p.userAnswer != null ? String(p.userAnswer) : null;
+                // REAL_BLANK는 직접 입력 텍스트를 답으로 복원(선택 ID가 아님) → 해설 화면 판정 일치.
+                answers[p.number] = isRealBlank
+                  ? (p.textAnswer ?? null)
+                  : p.userAnswer != null
+                    ? String(p.userAnswer)
+                    : null;
                 inReview[p.number] = p.inReview ?? false;
               });
               saveResult(detail.problemSetId, {
@@ -73,7 +122,7 @@ const ChoiceHistoryDetail = ({ detail }: ChoiceHistoryDetailProps) => {
           </button>
         </div>
       }
-      problems={detail.problems}
+      problems={problems}
     />
   );
 };

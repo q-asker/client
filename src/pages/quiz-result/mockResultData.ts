@@ -16,6 +16,8 @@ interface QuizItem {
   title: string;
   selections: QuizSelection[];
   userAnswer?: string | null;
+  type?: 'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY' | 'REAL_BLANK';
+  acceptedAnswers?: { answer: string; accepted: string[] }[] | null;
 }
 
 export const MOCK_RESULT_QUIZZES: QuizItem[] = [
@@ -85,3 +87,58 @@ export const MOCK_RESULT_QUIZZES: QuizItem[] = [
 ];
 
 export const MOCK_TOTAL_TIME = '00:03:42';
+
+/**
+ * REAL_BLANK 관용 채점 결과 화면 mock (URL: ?mock=true&real_blank=true).
+ * 관용 인정(동의어·오탈자·표기)과 오답 유지(오답선지 입력)를 한 화면에서 대비한다.
+ * 오답선지(correct:false)는 UI에 노출되지 않지만 채점 데이터로 내려온다(실제 응답과 동일).
+ */
+export const MOCK_REAL_BLANK_RESULT_QUIZZES: QuizItem[] = [
+  {
+    number: 1,
+    type: 'REAL_BLANK',
+    title: 'JavaScript의 단일 스레드 비동기 처리를 담당하는 메커니즘은 _______이다.',
+    selections: [
+      { id: '1', content: 'Event Loop', correct: true },
+      { id: '2', content: '콜 스택', correct: false },
+    ],
+    acceptedAnswers: [
+      { answer: 'Event Loop', accepted: ['이벤트 루프', '이벤트루프', 'event-loop'] },
+    ],
+    // 동의어(한글 이표기) 입력 → 정답 인정
+    userAnswer: '이벤트루프',
+  },
+  {
+    number: 2,
+    type: 'REAL_BLANK',
+    title: '객체가 여러 형태를 가질 수 있는 객체지향 특성은 _______이다.',
+    selections: [
+      { id: '1', content: 'polymorphism', correct: true },
+      { id: '2', content: 'inheritance', correct: false },
+    ],
+    acceptedAnswers: [{ answer: 'polymorphism', accepted: ['다형성'] }],
+    // 오탈자(polymorphysm, 편집거리 1) → 정답 인정
+    userAnswer: 'polymorphysm',
+  },
+  {
+    number: 3,
+    type: 'REAL_BLANK',
+    title: '하이퍼텍스트 전송 프로토콜의 약어는 _______이다.',
+    selections: [{ id: '1', content: 'HTTP', correct: true }],
+    acceptedAnswers: [{ answer: 'HTTP', accepted: [] }],
+    // 대소문자만 다름 → 정답 인정
+    userAnswer: 'http',
+  },
+  {
+    number: 4,
+    type: 'REAL_BLANK',
+    title: '기존 코드 수정 없이 확장에 열려 있어야 한다는 설계 원칙은 _______이다.',
+    selections: [
+      { id: '1', content: 'OCP', correct: true },
+      { id: '2', content: 'OOP', correct: false },
+    ],
+    acceptedAnswers: [{ answer: 'OCP', accepted: ['개방-폐쇄 원칙'] }],
+    // 오답선지(OOP)를 입력 — 오탈자 관용이 새지 않고 오답 유지(D-guard, FR-005)
+    userAnswer: 'OOP',
+  },
+];
