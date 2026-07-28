@@ -1,5 +1,5 @@
 import { useTranslation } from 'i18nexus';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuizResult } from '#features/quiz-result';
 import { loadResult, loadEssayGradeResults } from '#features/solve-quiz';
@@ -9,11 +9,9 @@ import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
 import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
 import { Home } from 'lucide-react';
 import type { Quiz } from '#features/quiz-generation';
-import {
-  gradeRealBlank,
-  gradeRealBlankMulti,
-  deserializeRealBlankTokens,
-} from '#shared/lib/blank-scoring';
+import { deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
+import { gradeRealBlankSet, toTextAnswer } from '#shared/lib/realBlankGrading';
+import type { GradeResultItem } from '#shared/lib/realBlankGrading';
 
 /** 부모에서 전달받는 서버 데이터 */
 interface ServerData {
@@ -66,6 +64,23 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
   const totalTime = isMock ? MOCK_TOTAL_TIME : (savedResult?.totalTime ?? '00:00:00');
   const title = savedResult?.title || serverData.title;
 
+  // REAL_BLANK 세트는 서버 SSOT 채점(POST /grade)으로 판정·정답을 받는다.
+  const isRealBlankSet = quizzes.length > 0 && quizzes[0]?.type === 'REAL_BLANK';
+  const [realBlankGrades, setRealBlankGrades] = useState<
+    Map<number, GradeResultItem> | undefined
+  >();
+
+  useEffect(() => {
+    if (isMock || !isRealBlankSet || !problemSetId) return;
+    const answers = quizzes.map((q) => ({
+      number: q.number,
+      textAnswer: toTextAnswer(q.userAnswer),
+    }));
+    gradeRealBlankSet(problemSetId, answers)
+      .then(setRealBlankGrades)
+      .catch(() => setRealBlankGrades(new Map()));
+  }, [isMock, isRealBlankSet, problemSetId, quizzes]);
+
   const {
     state: { correctCount, scorePercent },
     actions: { getQuizExplanation },
@@ -75,6 +90,7 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
     quizzes,
     totalTime,
     title,
+    realBlankGrades,
   });
 
   const actionButton = (
@@ -94,32 +110,24 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
   );
 
   const problems: ScoreBoardProblem[] = quizzes.map((q) => {
-    // REAL_BLANK: 직접 입력 텍스트를 답안으로 비교 (공백 제거 + 소문자 정규화 후 일치)
+    // REAL_BLANK: 서버 SSOT 판정(correct)과 대표정답(answer)을 grade 결과에서 읽는다.
     if (q.type === 'REAL_BLANK') {
-      const correctSel = q.selections.find((s) => s.correct === true);
-      const correctTokens = correctSel ? correctSel.content.split(',').map((s) => s.trim()) : [];
-      // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
-      const userRawAnswer = q.userAnswer == null ? '' : String(q.userAnswer);
-      const userRaw = userRawAnswer === '0' ? '' : userRawAnswer;
-      const correct =
-        correctTokens.length <= 1
-          ? gradeRealBlank(userRaw, correctSel?.content ?? '')
-          : gradeRealBlankMulti(deserializeRealBlankTokens(userRaw), correctTokens);
-      // 사용자 답안을 사람이 읽을 수 있는 형태로 변환 (다중 빈칸은 콤마 결합)
-      const userDisplay = userRaw
-        ? correctTokens.length > 1
-          ? deserializeRealBlankTokens(userRaw).join(', ')
-          : userRaw
-        : '';
-      // score-board가 userAnswer ID로 selection을 찾으므로, 가상 selection을 prepend
-      const virtualSelections =
-        userDisplay !== ''
-          ? [{ id: '__real_blank_user__', content: userDisplay }, ...q.selections]
-          : q.selections;
+      const grade = realBlankGrades?.get(q.number);
+      const userRaw = toTextAnswer(q.userAnswer);
+      // 사용자 답안 표시(단일/다중 모두 U+001F 역직렬화 후 콤마 결합 — 단일은 그대로)
+      const userDisplay = userRaw ? deserializeRealBlankTokens(userRaw).join(', ') : '';
+      const answerText = grade?.answer ?? '';
+      // score-board가 selection으로 답/정답을 표시하므로 가상 selection을 조립한다.
+      const virtualSelections = [
+        ...(userDisplay !== '' ? [{ id: '__real_blank_user__', content: userDisplay }] : []),
+        ...(answerText !== ''
+          ? [{ id: '__real_blank_correct__', content: answerText, correct: true }]
+          : []),
+      ];
       return {
         number: q.number,
         title: q.title,
-        correct,
+        correct: grade?.isCorrect ?? false,
         userAnswer: userDisplay !== '' ? '__real_blank_user__' : '',
         inReview: savedResult?.inReview?.[q.number] ?? false,
         selections: virtualSelections,
@@ -135,6 +143,9 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
       selections: q.selections,
     };
   });
+
+  // REAL_BLANK 세트는 서버 채점 결과가 도착해야 점수·판정이 정확하다.
+  if (isRealBlankSet && !isMock && !realBlankGrades) return null;
 
   return (
     <QuizScoreBoard
