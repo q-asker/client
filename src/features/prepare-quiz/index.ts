@@ -1,4 +1,5 @@
 export { usePrepareQuiz } from './model/usePrepareQuiz';
+export { usePrepareQuizSettingsStore } from './model/usePrepareQuizSettingsStore';
 export {
   getLevelDescriptions,
   levelMapping,
