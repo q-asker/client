@@ -86,6 +86,13 @@ test.describe('006 이어풀기 — 같은 조건으로 이어서 더 풀기', (
     const newId = page.url().split('/quiz/')[1];
     expect(newId, '새 세트 id').toBeTruthy();
     expect(newId, 'FR-005: 원본과 다른 독립된 새 세트').not.toBe(PSID);
+
+    // 새 세트 풀이 화면이 실제로 렌더될 때까지 대기 후 캡처 (풀이 진입 완결 확인)
+    await page
+      .getByRole('button', { name: /다음|제출하기/ })
+      .first()
+      .waitFor({ timeout: 30_000 });
+    await page.waitForLoadState('networkidle');
     await shot(page, 'solve-new-set');
   });
 });
