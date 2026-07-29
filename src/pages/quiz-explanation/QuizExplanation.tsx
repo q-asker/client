@@ -14,6 +14,7 @@ import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
 import { deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
 import { toTextAnswer } from '#shared/lib/realBlankGrading';
+import { toPlainText } from '#shared/lib/markdownPreview';
 
 /**
  * Navigator Split — 좌측 문제 리스트 사이드바 + 3열 레이아웃.
@@ -143,7 +144,7 @@ const QuizExplanation: React.FC = () => {
                     cur ? 'font-semibold text-foreground' : 'text-muted-foreground',
                   )}
                 >
-                  {q.title}
+                  {toPlainText(q.title)}
                 </span>
                 {q.inReview && (
                   <span className="shrink-0 rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-medium text-warning max-lg:hidden">
