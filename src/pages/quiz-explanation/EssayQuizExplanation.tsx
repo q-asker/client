@@ -5,6 +5,7 @@ import type { DocumentProps } from 'react-pdf';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuizExplanation } from '#features/quiz-explanation';
 import { usePdfData } from '#shared/lib/usePdfData';
+import { toPlainText } from '#shared/lib/markdownPreview';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Button } from '@/shared/ui/components/button';
@@ -181,7 +182,7 @@ const EssayQuizExplanation: React.FC = () => {
                     cur ? 'font-semibold text-foreground' : 'text-muted-foreground',
                   )}
                 >
-                  {q.title}
+                  {toPlainText(q.title)}
                 </span>
                 {/* 점수 뱃지 (lg 이상에서만 표시) */}
                 {essayGr && (
