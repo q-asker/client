@@ -9,6 +9,8 @@ import { test, expect, type Page } from '@playwright/test';
  * 시드(@backend 제공): local,mock 프로파일로 생성하면 마크다운 대표 문항(GFM 표·blockquote·
  * 코드펜스·인라인 `$...$`/블록 `$$...$$` 수식)을 담은 세트가 결정론적으로 생성된다.
  * 그 세트의 encoded problemSetId를 E2E_MD_PSID로 넘긴다.
+ * 블록 수식이 display 모드(.katex-display)로 렌더되려면 `$$` 구분자가 각각 독립된 줄에 있어야
+ * 한다(한 줄 `$$...$$`는 인라인 처리) — 픽스처가 이 형태를 포함해야 한다.
  *
  * 실행:
  *   # 1) 백엔드: SPRING_PROFILES_ACTIVE=local,mock ./gradlew :app:bootRun
@@ -90,8 +92,10 @@ test.describe('문제 본문 마크다운 렌더링', () => {
     expect(await md(page, 'table td').count()).toBeGreaterThan(0);
     // 인용
     await expect(md(page, 'blockquote').first()).toBeVisible();
-    // 수식(KaTeX)
+    // 수식(KaTeX) — 인라인 `$...$`
     await expect(md(page, '.katex').first()).toBeVisible();
+    // 수식(KaTeX) — 블록 `$$...$$`은 display 모드로 렌더
+    await expect(md(page, '.katex-display').first()).toBeVisible();
     // 코드 블록
     await expect(md(page, 'pre code').first()).toBeVisible();
     // 원시 문법 미노출(SC-001)
