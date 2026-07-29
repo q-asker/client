@@ -97,6 +97,8 @@ const markdownComponents: Components = {
   h3: ({ children }) => (
     <h3 className="mb-1 mt-3 text-base font-semibold first:mt-0">{children}</h3>
   ),
+  // 이미지 — 컨테이너 폭을 넘지 않도록 제약(오버플로·레이아웃 붕괴 방지)
+  img: ({ src, alt }) => <img src={src} alt={alt} className="my-2 h-auto max-w-full rounded-lg" />,
   // 구분선
   hr: () => <hr className="my-3 border-border" />,
   // 인용
