@@ -5,6 +5,8 @@ import CustomToast from '#shared/toast';
 import axiosInstance from '#shared/api';
 import { trackQuizEvents } from '#shared/lib/analytics';
 import { loadResult, loadEssayGradeResults } from '#features/solve-quiz';
+import { gradeRealBlankSet, toTextAnswer } from '#shared/lib/realBlankGrading';
+import type { GradeResultItem } from '#shared/lib/realBlankGrading';
 import type { Quiz, GradeResult } from '#features/quiz-generation';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -53,6 +55,8 @@ interface QuizState {
   filteredTotalQuestions: number;
   currentQuiz: Quiz;
   showWrongOnly: boolean;
+  /** REAL_BLANK 세트의 서버 채점 결과(문항 번호 → 판정). 로딩 중이면 undefined */
+  realBlankGrades?: Map<number, GradeResultItem>;
 }
 
 interface PdfState {
@@ -132,6 +136,9 @@ export const useQuizExplanation = ({
   const [showWrongOnly, setShowWrongOnly] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [realBlankGrades, setRealBlankGrades] = useState<
+    Map<number, GradeResultItem> | undefined
+  >();
 
   const pdfOptions = PDF_OPTIONS;
 
@@ -167,6 +174,19 @@ export const useQuizExplanation = ({
 
         setQuizzes(merged);
         setExplanationData(explanationRes.data);
+
+        // REAL_BLANK 세트는 서버 SSOT 채점(POST /grade)으로 판정·정답을 받는다.
+        if (merged.length > 0 && merged[0]?.type === 'REAL_BLANK') {
+          const answers = merged.map((q) => ({
+            number: q.number,
+            textAnswer: toTextAnswer(q.userAnswer),
+          }));
+          try {
+            setRealBlankGrades(await gradeRealBlankSet(problemSetId, answers));
+          } catch {
+            setRealBlankGrades(new Map());
+          }
+        }
         setIsLoading(false);
       } catch {
         CustomToast.error(t('해설 정보를 불러오지 못했습니다.'));
@@ -199,6 +219,11 @@ export const useQuizExplanation = ({
         return ratio < 0.8;
       }
 
+      // REAL_BLANK: 서버 판정이 오답인 것만 (판정 로딩 전엔 오답 취급하지 않음)
+      if (q.type === 'REAL_BLANK') {
+        return realBlankGrades?.get(q.number)?.isCorrect === false;
+      }
+
       // 기존 선택형 필터링
       if (q.userAnswer === undefined || q.userAnswer === null) return false;
       const correctOption = q.selections.find(
@@ -207,7 +232,7 @@ export const useQuizExplanation = ({
       if (!correctOption) return false;
       return Number(q.userAnswer) !== Number(correctOption.id);
     });
-  }, [quizzes, showWrongOnly]);
+  }, [quizzes, showWrongOnly, realBlankGrades]);
 
   const filteredTotalQuestions = filteredQuizzes.length;
 
@@ -348,6 +373,7 @@ export const useQuizExplanation = ({
         filteredTotalQuestions,
         currentQuiz,
         showWrongOnly,
+        realBlankGrades,
       },
       pdf: {
         showPdf,

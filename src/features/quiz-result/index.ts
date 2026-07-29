@@ -2,27 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import axiosInstance from '#shared/api';
 import { trackQuizEvents, trackResultEvents } from '#shared/lib/analytics';
 import type { Quiz } from '#features/quiz-generation';
-import {
-  gradeRealBlank,
-  gradeRealBlankMulti,
-  deserializeRealBlankTokens,
-} from '#shared/lib/blank-scoring';
-
-/** REAL_BLANK 정답 텍스트(다중 빈칸은 콤마 구분) → 토큰 배열 */
-const parseCorrectTokens = (content: string): string[] => content.split(',').map((s) => s.trim());
-
-/** REAL_BLANK 문제 1개를 채점 */
-const isRealBlankCorrect = (quiz: Quiz): boolean => {
-  const correctSel = quiz.selections.find((s) => s.correct === true);
-  if (!correctSel) return false;
-  const correctTokens = parseCorrectTokens(correctSel.content);
-  const userRaw = quiz.userAnswer != null ? String(quiz.userAnswer) : '';
-  if (correctTokens.length <= 1) {
-    return gradeRealBlank(userRaw, correctSel.content);
-  }
-  const userTokens = deserializeRealBlankTokens(userRaw);
-  return gradeRealBlankMulti(userTokens, correctTokens);
-};
+import type { GradeResultItem } from '#shared/lib/realBlankGrading';
 
 // ── 타입 정의 ──
 
@@ -32,6 +12,8 @@ interface UseQuizResultParams {
   quizzes: Quiz[];
   totalTime: string;
   title: string;
+  /** REAL_BLANK 세트의 서버 채점 결과(문항 번호 → 판정). 로딩 중이면 undefined */
+  realBlankGrades?: Map<number, GradeResultItem>;
 }
 
 interface EssayScoreSummary {
@@ -62,9 +44,14 @@ export const useQuizResult = ({
   quizzes,
   totalTime,
   title,
+  realBlankGrades,
 }: UseQuizResultParams): UseQuizResultReturn => {
   const isEssay = useMemo(() => {
     return quizzes.length > 0 && quizzes[0]?.type === 'ESSAY';
+  }, [quizzes]);
+
+  const isRealBlank = useMemo(() => {
+    return quizzes.length > 0 && quizzes[0]?.type === 'REAL_BLANK';
   }, [quizzes]);
 
   const essayScore = useMemo((): EssayScoreSummary | null => {
@@ -93,14 +80,16 @@ export const useQuizResult = ({
 
   const correctCount = useMemo(() => {
     if (isEssay) return essayScore?.correctCount ?? 0;
+    if (isRealBlank) {
+      // 서버 SSOT 판정. 로딩 전이면 0(화면은 grade 준비 후 렌더).
+      if (!realBlankGrades) return 0;
+      return quizzes.reduce((c, q) => c + (realBlankGrades.get(q.number)?.isCorrect ? 1 : 0), 0);
+    }
     return quizzes.reduce((count, q) => {
-      if (q.type === 'REAL_BLANK') {
-        return count + (isRealBlankCorrect(q) ? 1 : 0);
-      }
       const selected = q.selections.find((s) => String(s.id) === String(q.userAnswer));
       return count + (selected?.correct ? 1 : 0);
     }, 0);
-  }, [quizzes, isEssay, essayScore]);
+  }, [quizzes, isEssay, essayScore, isRealBlank, realBlankGrades]);
 
   const scorePercent = useMemo(() => {
     if (isEssay && essayScore) {
@@ -114,6 +103,8 @@ export const useQuizResult = ({
   const historySavedRef = useRef(false);
   useEffect(() => {
     if (!problemSetId || quizzes.length === 0 || historySavedRef.current) return;
+    // REAL_BLANK는 서버 판정이 준비된 뒤에 저장한다(score 정합·중복 저장 방지).
+    if (isRealBlank && !realBlankGrades) return;
     historySavedRef.current = true;
 
     trackResultEvents.viewResult(problemSetId, correctCount, quizzes.length, totalTime);
@@ -144,7 +135,16 @@ export const useQuizResult = ({
     axiosInstance
       .post('/history', { problemSetId, title, userAnswers, score, totalTime })
       .catch((err) => console.error('Failed to save quiz history:', err));
-  }, [problemSetId, quizzes, correctCount, totalTime, title, isEssay]);
+  }, [
+    problemSetId,
+    quizzes,
+    correctCount,
+    totalTime,
+    title,
+    isEssay,
+    isRealBlank,
+    realBlankGrades,
+  ]);
 
   const getQuizExplanation = async (): Promise<void> => {
     trackResultEvents.clickExplanation(problemSetId);

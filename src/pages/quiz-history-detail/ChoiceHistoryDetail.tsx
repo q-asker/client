@@ -3,6 +3,9 @@ import { useTranslation } from 'i18nexus';
 import { saveResult } from '#features/solve-quiz';
 import { Button } from '@/shared/ui/components/button';
 import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
+import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
+import { deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
+import { toTextAnswer } from '#shared/lib/realBlankGrading';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import type { HistoryDetailData } from './types';
 
@@ -26,6 +29,39 @@ const ChoiceHistoryDetail = ({ detail }: ChoiceHistoryDetailProps) => {
   };
 
   const scorePercent = Math.round((detail.score / detail.totalCount) * 100);
+  const isRealBlank = detail.quizType === 'REAL_BLANK';
+
+  // REAL_BLANK는 selections가 없으므로 서버 판정(correct)·정답(answer)·입력(textAnswer)을
+  // 가상 selection으로 조립해 공용 스코어보드에 넘긴다. 선택형은 서버 문항을 그대로 사용.
+  const scoreBoardProblems: ScoreBoardProblem[] = detail.problems.map((p) => {
+    if (!isRealBlank) {
+      return {
+        number: p.number,
+        title: p.title,
+        correct: p.correct,
+        userAnswer: p.userAnswer,
+        inReview: p.inReview,
+        selections: p.selections,
+      };
+    }
+    const userRaw = toTextAnswer(p.textAnswer);
+    const userDisplay = userRaw ? deserializeRealBlankTokens(userRaw).join(', ') : '';
+    const answerText = p.answer ?? '';
+    const virtualSelections = [
+      ...(userDisplay !== '' ? [{ id: '__real_blank_user__', content: userDisplay }] : []),
+      ...(answerText !== ''
+        ? [{ id: '__real_blank_correct__', content: answerText, correct: true }]
+        : []),
+    ];
+    return {
+      number: p.number,
+      title: p.title,
+      correct: p.correct,
+      userAnswer: userDisplay !== '' ? '__real_blank_user__' : '',
+      inReview: p.inReview,
+      selections: virtualSelections,
+    };
+  });
 
   return (
     <QuizScoreBoard
@@ -48,7 +84,12 @@ const ChoiceHistoryDetail = ({ detail }: ChoiceHistoryDetailProps) => {
               const answers: Record<number, string | null> = {};
               const inReview: Record<number, boolean> = {};
               detail.problems.forEach((p) => {
-                answers[p.number] = p.userAnswer != null ? String(p.userAnswer) : null;
+                // REAL_BLANK는 입력 텍스트를 복원해야 해설 화면이 서버 재채점(POST /grade)을 부른다.
+                answers[p.number] = isRealBlank
+                  ? (p.textAnswer ?? null)
+                  : p.userAnswer != null
+                    ? String(p.userAnswer)
+                    : null;
                 inReview[p.number] = p.inReview ?? false;
               });
               saveResult(detail.problemSetId, {
@@ -73,7 +114,7 @@ const ChoiceHistoryDetail = ({ detail }: ChoiceHistoryDetailProps) => {
           </button>
         </div>
       }
-      problems={detail.problems}
+      problems={scoreBoardProblems}
     />
   );
 };
