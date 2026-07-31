@@ -78,6 +78,8 @@ interface GenerateQuestionsParams {
   selectedPages: number[];
   language?: 'KO' | 'EN';
   customInstruction?: string;
+  /** 생성 완료 콜백(선택). 이어풀기는 여기서 새 세트 풀이로 자동 진입한다. 미전달 시 기존 동작 유지. */
+  onSuccess?: () => void;
 }
 
 interface StartGenerationParams {
@@ -352,6 +354,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
         selectedPages,
         language,
         customInstruction,
+        onSuccess,
       }: GenerateQuestionsParams) => {
         if (!uploadedUrl) {
           CustomToast.error(t('파일을 먼저 업로드해주세요.'));
@@ -382,7 +385,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
               language: language || (currentLanguage === 'en' ? 'EN' : 'KO'),
               ...(customInstruction?.trim() ? { customInstruction: customInstruction.trim() } : {}),
             },
-            onSuccess: () => {},
+            onSuccess: onSuccess ?? (() => {}),
             onError: (errorMessage: unknown) => {
               // EventSource 에러는 인터셉터를 거치지 않으므로 직접 토스트 처리
               const err = errorMessage as {
