@@ -31,7 +31,7 @@ const RECENT_PROMPT_KEY = 'recentMakeQuizPrompt';
 /**
  * US2 폴백: 남은 조건을 옵션 화면(make-quiz) store에 프리필한다.
  * make-quiz는 store hydration으로 이 값을 자동 반영하므로 페이지를 건드리지 않는다.
- * REAL_BLANK는 옵션 UI 축(BLANK + 선택지 숨김)으로 역매핑한다.
+ * REAL_BLANK는 독립 유형이므로 그대로 설정한다.
  */
 const prefillOptionScreen = (cond: RegenerationCondition): void => {
   const gen = useQuizGenerationStore.getState();
@@ -39,13 +39,7 @@ const prefillOptionScreen = (cond: RegenerationCondition): void => {
   gen.setUploadedFileInfo({ name: cond.title, size: 0, extension: 'pdf' });
 
   const settings = usePrepareQuizSettingsStore.getState();
-  if (cond.quizType === 'REAL_BLANK') {
-    settings.setQuestionType('BLANK');
-    settings.setBlankHideSelections(true);
-  } else {
-    settings.setQuestionType(cond.quizType);
-    settings.setBlankHideSelections(false);
-  }
+  settings.setQuestionType(cond.quizType);
   settings.setQuestionCount(cond.quizCount);
   if (cond.language) settings.setLanguage(cond.language);
   if (cond.customInstruction) {

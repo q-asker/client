@@ -556,6 +556,8 @@
     "미리보기 켜기": "Show Preview",
     "범위 지정:": "Set Range:",
     "빈칸 넣기": "Fill in the Blank",
+    "빈칸 직접입력": "Fill in the Blank (typed)",
+    "선택지 없이 답을 직접 입력합니다. 표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.": "Type the answer directly without choices. Spelling or spacing differences may cause answers to be marked incorrect.",
     "생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.": "The number of generated questions may occasionally differ from the specified count.",
     "선택된 페이지 수:": "Selected pages:",
     "업로드된 파일": "Uploaded File",
@@ -697,9 +699,7 @@
     "에 동의하는 것입니다.": ".",
     "퀴즈 생성시": "By generating a quiz, you agree to our",
     "선택지 없애기": "Hide choices",
-    "선택지 추가": "Show choices",
-    "최근 작성 프롬프트 불러오기": "Load recent prompt",
-    "표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.": "Spelling or spacing differences may cause answers to be marked incorrect."
+    "최근 작성 프롬프트 불러오기": "Load recent prompt"
   },
   "privacy-policy": {
     "1. 수집하는 개인정보": "1. Personal Information Collected",
