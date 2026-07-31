@@ -262,6 +262,13 @@ export const trackResultEvents = {
       problem_set_id: problemSetId,
     });
   },
+
+  // "이 조건으로 더 풀기"(이어풀기) 버튼 클릭
+  clickRepeat: (problemSetId: string): void => {
+    logEvent('click_repeat_generation', {
+      problem_set_id: problemSetId,
+    });
+  },
 };
 
 // QuizHistory 페이지 이벤트들

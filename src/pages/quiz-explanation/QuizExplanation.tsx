@@ -12,6 +12,7 @@ import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
+import { RepeatQuizCta } from '#features/quiz-generation';
 import { deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
 import { toTextAnswer } from '#shared/lib/realBlankGrading';
 import { toPlainText } from '#shared/lib/markdownPreview';
@@ -157,7 +158,10 @@ const QuizExplanation: React.FC = () => {
         </div>
 
         {/* 사이드바 하단 */}
-        <div className="shrink-0 border-t border-border p-3">
+        <div className="flex shrink-0 flex-col gap-2 border-t border-border p-3">
+          {problemSetId && (
+            <RepeatQuizCta problemSetId={problemSetId} variant="default" className="w-full" />
+          )}
           <Button size="sm" className="w-full" onClick={() => commonActions.handleExit('/')}>
             {t('홈으로')}
           </Button>

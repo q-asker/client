@@ -9,6 +9,7 @@ import QuizScoreBoard from '@/shared/ui/components/quiz-score-board';
 import type { ScoreBoardProblem } from '@/shared/ui/components/quiz-score-board';
 import { Home } from 'lucide-react';
 import type { Quiz } from '#features/quiz-generation';
+import { RepeatQuizCta } from '#features/quiz-generation';
 import { deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
 import { gradeRealBlankSet, toTextAnswer } from '#shared/lib/realBlankGrading';
 import type { GradeResultItem } from '#shared/lib/realBlankGrading';
@@ -98,6 +99,7 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
       <Button size="lg" className="w-full text-base" onClick={getQuizExplanation}>
         {t('해설 보기')}
       </Button>
+      {problemSetId && <RepeatQuizCta problemSetId={problemSetId} className="w-full text-base" />}
       <button
         type="button"
         className="group mx-auto flex items-center gap-1.5 pt-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
