@@ -78,6 +78,8 @@ interface GenerateQuestionsParams {
   selectedPages: number[];
   language?: 'KO' | 'EN';
   customInstruction?: string;
+  /** 생성 완료 콜백(선택). 이어풀기는 여기서 새 세트 풀이로 자동 진입한다. 미전달 시 기존 동작 유지. */
+  onSuccess?: () => void;
 }
 
 interface StartGenerationParams {
@@ -316,7 +318,13 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
           withCredentials: true,
         });
 
+        // EventSource는 절단 시 자동 재연결하며 onopen을 매번 재발화한다. 생성 트리거 POST는
+        // 정확히 1회만 보낸다 — 재연결 재-POST는 같은 sessionId 중복 요청(서버 비멱등 에러)을
+        // 유발해 진행 중 생성이 폐기되므로. 재연결 후 유실분은 서버가 Last-Event-ID로 리플레이한다.
+        let generationRequested = false;
         generationEventSource.onopen = () => {
+          if (generationRequested) return;
+          generationRequested = true;
           axiosInstance
             .post(`/generation`, { ...requestData, sessionId }, { skipErrorToast: true } as Record<
               string,
@@ -346,6 +354,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
         selectedPages,
         language,
         customInstruction,
+        onSuccess,
       }: GenerateQuestionsParams) => {
         if (!uploadedUrl) {
           CustomToast.error(t('파일을 먼저 업로드해주세요.'));
@@ -376,7 +385,7 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
               language: language || (currentLanguage === 'en' ? 'EN' : 'KO'),
               ...(customInstruction?.trim() ? { customInstruction: customInstruction.trim() } : {}),
             },
-            onSuccess: () => {},
+            onSuccess: onSuccess ?? (() => {}),
             onError: (errorMessage: unknown) => {
               // EventSource 에러는 인터셉터를 거치지 않으므로 직접 토스트 처리
               const err = errorMessage as {

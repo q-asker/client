@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/shared/ui/components/card';
 import { Badge } from '@/shared/ui/components/badge';
 import { Trophy, Clock, CheckCircle2, XCircle, Hash, ChevronDown } from 'lucide-react';
 import MarkdownText from '@/shared/ui/components/markdown-text';
+import { AcceptedAnswersList } from '@/shared/ui/components/accepted-answers-list';
 
 // ── 타입 ──
 
@@ -22,6 +23,8 @@ export interface ScoreBoardProblem {
   userAnswer: string | number;
   inReview?: boolean;
   selections: ScoreBoardSelection[];
+  /** REAL_BLANK 채점 후 노출하는 빈칸별 허용 정답 (index 0 = 모범답). 없으면 미표시. */
+  acceptedAnswers?: string[][];
 }
 
 export interface QuizScoreBoardProps {
@@ -236,6 +239,9 @@ const QuizScoreBoard = ({
                             <MarkdownText>{correctSelection.content}</MarkdownText>
                           </div>
                         </div>
+                      )}
+                      {problem.acceptedAnswers && (
+                        <AcceptedAnswersList acceptedAnswers={problem.acceptedAnswers} />
                       )}
                     </div>
                   </div>

@@ -95,6 +95,9 @@
     "변경사항 수정": "Edit Notice"
   },
   "common": {
+    "인정된 답": "Accepted answers",
+    "모범답": "Model answer",
+    "빈칸": "Blank",
     "PDF, PPT, Word로 무료 AI 퀴즈 생성": "Free AI Quiz Generator for PDF, PPT, Word",
     "1. 빈칸 채우기로 핵심 개념을 정리하세요.": "1. Organize key concepts with fill-in-the-blank questions.",
     "1. 수집하는 개인정보": "1. Personal Information Collected",
@@ -516,6 +519,11 @@
     "서비스 점검 중입니다": "Service Under Maintenance"
   },
   "make-quiz": {
+    "이 조건으로 더 풀기": "Practice more with these settings",
+    "생성 조건을 불러오지 못했어요. 옵션 화면에서 새로 만들어주세요.": "Couldn't load the generation settings. Please create a new set from the options screen.",
+    "이어서 풀려면 남은 설정을 확인하고 문제를 생성해주세요.": "To continue, review the remaining settings and generate the questions.",
+    "문제 생성에 실패했어요. 다시 시도해주세요.": "Failed to generate questions. Please try again.",
+    "생성에 실패했어요. 자료가 만료되었을 수 있어요. 옵션 화면에서 다시 시도해주세요.": "Generation failed. The source material may have expired. Please try again from the options screen.",
     "(최대": "(up to",
     "AI는 실수를 할 수 있습니다. 학습 보조 도구로 활용해 주세요.": "AI can make mistakes. Please use it as a study aid.",
     "24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.": "Automatically deleted after 24 hours and not stored or shared separately.",
@@ -548,6 +556,8 @@
     "미리보기 켜기": "Show Preview",
     "범위 지정:": "Set Range:",
     "빈칸 넣기": "Fill in the Blank",
+    "빈칸 직접입력": "Fill in the Blank (typed)",
+    "선택지 없이 답을 직접 입력합니다. 표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.": "Type the answer directly without choices. Spelling or spacing differences may cause answers to be marked incorrect.",
     "생성된 문제의 개수는 간혹 지정한 개수와 맞지 않을 수 있습니다.": "The number of generated questions may occasionally differ from the specified count.",
     "선택된 페이지 수:": "Selected pages:",
     "업로드된 파일": "Uploaded File",
@@ -689,9 +699,7 @@
     "에 동의하는 것입니다.": ".",
     "퀴즈 생성시": "By generating a quiz, you agree to our",
     "선택지 없애기": "Hide choices",
-    "선택지 추가": "Show choices",
-    "최근 작성 프롬프트 불러오기": "Load recent prompt",
-    "표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.": "Spelling or spacing differences may cause answers to be marked incorrect."
+    "최근 작성 프롬프트 불러오기": "Load recent prompt"
   },
   "privacy-policy": {
     "1. 수집하는 개인정보": "1. Personal Information Collected",

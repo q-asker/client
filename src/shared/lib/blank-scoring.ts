@@ -1,30 +1,9 @@
 /**
- * REAL_BLANK(주관식 빈칸) 채점을 위한 순수 함수 모음.
+ * REAL_BLANK(주관식 빈칸) 사용자 입력의 직렬화 유틸.
  *
- * - 외부 의존성 없음 (React/Zustand/Axios 미사용).
- * - normalize 규칙: 모든 공백 제거 + 소문자 변환.
- * - 다중 빈칸은 토큰 수 불일치 시 즉시 전체 오답.
+ * 채점 판정은 서버 SSOT(`RealBlankGrader` / `POST /grade`)가 담당한다(FR-006).
+ * 여기서는 다중 빈칸 입력을 단일 문자열로 담고 되돌리는 직렬화만 제공한다.
  */
-
-/** 정답 비교를 위한 정규화: 공백 전부 제거 + 소문자. */
-export const normalizeBlankAnswer = (s: string): string => s.replace(/\s+/g, '').toLowerCase();
-
-/** 단일 빈칸 채점: normalize 후 완전 일치 시 true. */
-export const gradeRealBlank = (userAnswer: string, correctAnswer: string): boolean => {
-  return normalizeBlankAnswer(userAnswer) === normalizeBlankAnswer(correctAnswer);
-};
-
-/**
- * 다중 빈칸 채점: 토큰 수가 다르면 즉시 false,
- * 같은 인덱스끼리 normalize 비교하여 모두 일치할 때만 true.
- */
-export const gradeRealBlankMulti = (userTokens: string[], correctTokens: string[]): boolean => {
-  if (userTokens.length !== correctTokens.length) return false;
-  for (let i = 0; i < correctTokens.length; i++) {
-    if (!gradeRealBlank(userTokens[i] ?? '', correctTokens[i] ?? '')) return false;
-  }
-  return true;
-};
 
 /**
  * REAL_BLANK 다중 빈칸 직렬화 구분자.

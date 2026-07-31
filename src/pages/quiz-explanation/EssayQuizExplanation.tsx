@@ -5,12 +5,14 @@ import type { DocumentProps } from 'react-pdf';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuizExplanation } from '#features/quiz-explanation';
 import { usePdfData } from '#shared/lib/usePdfData';
+import { toPlainText } from '#shared/lib/markdownPreview';
 import { cn } from '@/shared/ui/lib/utils';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
+import { RepeatQuizCta } from '#features/quiz-generation';
 
 /** 점수 비율에 따른 색상 */
 const getScoreColor = (ratio: number) => {
@@ -181,7 +183,7 @@ const EssayQuizExplanation: React.FC = () => {
                     cur ? 'font-semibold text-foreground' : 'text-muted-foreground',
                   )}
                 >
-                  {q.title}
+                  {toPlainText(q.title)}
                 </span>
                 {/* 점수 뱃지 (lg 이상에서만 표시) */}
                 {essayGr && (
@@ -207,7 +209,10 @@ const EssayQuizExplanation: React.FC = () => {
         </div>
 
         {/* 사이드바 하단 */}
-        <div className="shrink-0 border-t border-border p-3">
+        <div className="flex shrink-0 flex-col gap-2 border-t border-border p-3">
+          {problemSetId && (
+            <RepeatQuizCta problemSetId={problemSetId} variant="default" className="w-full" />
+          )}
           <Button size="sm" className="w-full" onClick={() => commonActions.handleExit('/')}>
             {t('홈으로')}
           </Button>

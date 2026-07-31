@@ -12,11 +12,11 @@ import { Button } from '@/shared/ui/components/button';
 import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import type { Quiz } from '#features/quiz-generation';
-import {
-  gradeRealBlank,
-  gradeRealBlankMulti,
-  deserializeRealBlankTokens,
-} from '#shared/lib/blank-scoring';
+import { RepeatQuizCta } from '#features/quiz-generation';
+import { deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
+import { toTextAnswer } from '#shared/lib/realBlankGrading';
+import { toPlainText } from '#shared/lib/markdownPreview';
+import { AcceptedAnswersList } from '@/shared/ui/components/accepted-answers-list';
 
 /**
  * Navigator Split — 좌측 문제 리스트 사이드바 + 3열 레이아웃.
@@ -39,19 +39,9 @@ const QuizExplanation: React.FC = () => {
   const refPages = explanation.thisExplanationObj?.referencedPages;
   const total = quiz.showWrongOnly ? quiz.filteredTotalQuestions : quiz.totalQuestions;
 
-  /** REAL_BLANK 정답 여부 (공백 제거 + 소문자 정규화 후 일치) */
-  const isRealBlankCorrect = (q: Quiz): boolean => {
-    const correctSel = q.selections.find((o) => (o as unknown as { correct: boolean }).correct);
-    if (!correctSel) return false;
-    const correctTokens = correctSel.content.split(',').map((s) => s.trim());
-    // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
-    const userRawAnswer = q.userAnswer == null ? '' : String(q.userAnswer);
-    const userRaw = userRawAnswer === '0' ? '' : userRawAnswer;
-    if (correctTokens.length <= 1) {
-      return gradeRealBlank(userRaw, correctSel.content);
-    }
-    return gradeRealBlankMulti(deserializeRealBlankTokens(userRaw), correctTokens);
-  };
+  /** REAL_BLANK 정답 여부 — 서버 SSOT 판정 결과를 그대로 사용 */
+  const isRealBlankCorrect = (q: Quiz): boolean =>
+    quiz.realBlankGrades?.get(q.number)?.isCorrect ?? false;
 
   const isQuizCorrect = (q: Quiz) => {
     if (q.type === 'REAL_BLANK') return isRealBlankCorrect(q);
@@ -156,7 +146,7 @@ const QuizExplanation: React.FC = () => {
                     cur ? 'font-semibold text-foreground' : 'text-muted-foreground',
                   )}
                 >
-                  {q.title}
+                  {toPlainText(q.title)}
                 </span>
                 {q.inReview && (
                   <span className="shrink-0 rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-medium text-warning max-lg:hidden">
@@ -169,7 +159,10 @@ const QuizExplanation: React.FC = () => {
         </div>
 
         {/* 사이드바 하단 */}
-        <div className="shrink-0 border-t border-border p-3">
+        <div className="flex shrink-0 flex-col gap-2 border-t border-border p-3">
+          {problemSetId && (
+            <RepeatQuizCta problemSetId={problemSetId} variant="default" className="w-full" />
+          )}
           <Button size="sm" className="w-full" onClick={() => commonActions.handleExit('/')}>
             {t('홈으로')}
           </Button>
@@ -191,22 +184,12 @@ const QuizExplanation: React.FC = () => {
             {/* REAL_BLANK 사용자 답안 박스 (선택지 위에 표시) */}
             {quiz.currentQuiz.type === 'REAL_BLANK' &&
               (() => {
-                const correct = isRealBlankCorrect(quiz.currentQuiz);
-                // 서버는 미응답 상태를 0("0")으로 내려보내므로 빈 문자열로 정규화한다
-                const userRawAnswer =
-                  quiz.currentQuiz.userAnswer == null ? '' : String(quiz.currentQuiz.userAnswer);
-                const userRaw = userRawAnswer === '0' ? '' : userRawAnswer;
-                const correctSel = quiz.currentQuiz.selections.find(
-                  (o) => (o as unknown as { correct: boolean }).correct,
-                );
-                const correctTokens = correctSel
-                  ? correctSel.content.split(',').map((s) => s.trim())
-                  : [];
-                const userDisplay = userRaw
-                  ? correctTokens.length > 1
-                    ? deserializeRealBlankTokens(userRaw).join(', ')
-                    : userRaw
-                  : '';
+                const grade = quiz.realBlankGrades?.get(quiz.currentQuiz.number);
+                const correct = grade?.isCorrect ?? false;
+                const userRaw = toTextAnswer(quiz.currentQuiz.userAnswer);
+                // 단일/다중 모두 U+001F 역직렬화 후 콤마 결합 — 단일은 그대로
+                const userDisplay = userRaw ? deserializeRealBlankTokens(userRaw).join(', ') : '';
+                const answerText = grade?.answer ?? '';
                 return (
                   <BlurFade delay={0.08}>
                     <div className="mb-4 flex flex-col gap-2">
@@ -237,13 +220,14 @@ const QuizExplanation: React.FC = () => {
                           )}
                         </div>
                       </div>
-                      {!correct && correctSel && (
+                      {!correct && answerText && (
                         <div className="rounded-lg border border-success/30 bg-success/5 px-4 py-3">
                           <div className="mb-1 text-xs font-semibold text-success">{t('정답')}</div>
-                          <div className="text-base font-medium text-foreground">
-                            {correctSel.content}
-                          </div>
+                          <div className="text-base font-medium text-foreground">{answerText}</div>
                         </div>
+                      )}
+                      {grade?.acceptedAnswers && (
+                        <AcceptedAnswersList acceptedAnswers={grade.acceptedAnswers} />
                       )}
                     </div>
                   </BlurFade>

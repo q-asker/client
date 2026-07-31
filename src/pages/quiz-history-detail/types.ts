@@ -15,12 +15,16 @@ export interface Problem {
   correct: boolean;
   inReview: boolean;
   selections: Selection[];
+  /** REAL_BLANK: 사용자가 입력한 원본 텍스트(U+001F 직렬화/raw). 선택형은 없음 */
+  textAnswer?: string;
+  /** REAL_BLANK: 대표정답(표시용, 다중은 ", " 결합). 선택형은 없음 */
+  answer?: string;
 }
 
 export interface HistoryDetailData {
   historyId: string;
   problemSetId: string;
-  quizType: 'MULTIPLE' | 'BLANK' | 'OX';
+  quizType: 'MULTIPLE' | 'BLANK' | 'OX' | 'REAL_BLANK';
   totalCount: number;
   score: number;
   totalTime: string;

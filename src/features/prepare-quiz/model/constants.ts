@@ -5,8 +5,8 @@ export interface LevelDescription {
   options: string[];
 }
 
-/** 퀴즈 유형 키 */
-export type QuestionType = 'BLANK' | 'OX' | 'MULTIPLE' | 'ESSAY';
+/** 퀴즈 유형 키 (REAL_BLANK = 선택지 없는 직접입력 빈칸) */
+export type QuestionType = 'BLANK' | 'OX' | 'MULTIPLE' | 'ESSAY' | 'REAL_BLANK';
 
 /** 퀴즈 난이도 키 */
 export type QuizLevel = 'RECALL' | 'SKILLS' | 'STRATEGIC' | 'ANALYTICAL';
@@ -60,9 +60,10 @@ export const ACCEPT_FILE_TYPES: string = [
   ...SUPPORTED_MIME_TYPES,
 ].join(',');
 
-/** 퀴즈 유형 → 난이도 매핑 */
+/** 퀴즈 유형 → 난이도 매핑 (REAL_BLANK은 BLANK와 동일) */
 export const levelMapping: Record<QuestionType, QuizLevel> = {
   BLANK: 'RECALL',
+  REAL_BLANK: 'RECALL',
   OX: 'SKILLS',
   MULTIPLE: 'STRATEGIC',
   ESSAY: 'ANALYTICAL',
