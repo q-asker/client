@@ -520,8 +520,6 @@
   },
   "make-quiz": {
     "이 조건으로 더 풀기": "Practice more with these settings",
-    "같은 조건으로 새 문제를 만들고 있어요...": "Creating new questions with the same settings...",
-    "완료되면 바로 풀이로 이동해요.": "You'll jump straight into solving once it's ready.",
     "생성 조건을 불러오지 못했어요. 옵션 화면에서 새로 만들어주세요.": "Couldn't load the generation settings. Please create a new set from the options screen.",
     "이어서 풀려면 남은 설정을 확인하고 문제를 생성해주세요.": "To continue, review the remaining settings and generate the questions.",
     "문제 생성에 실패했어요. 다시 시도해주세요.": "Failed to generate questions. Please try again.",

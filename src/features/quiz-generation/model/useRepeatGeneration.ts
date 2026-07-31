@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '#shared/api';
 import CustomToast from '#shared/toast';
-import { authService } from '#entities/auth';
 import { usePrepareQuizSettingsStore } from '#features/prepare-quiz';
 import { trackResultEvents } from '#shared/lib/analytics';
 import { useQuizGenerationStore } from './useQuizGenerationStore';
@@ -23,8 +22,8 @@ export interface RegenerationCondition {
   documentAvailable: boolean;
 }
 
-/** idle: 대기 / loading: 조건 조회 중 / generating: 새 세트 생성 SSE 진행 중 */
-export type RepeatPhase = 'idle' | 'loading' | 'generating';
+/** idle: 대기 / loading: 조건 조회 중 (생성 진행 표시는 make-quiz "생성 중" 화면이 담당) */
+export type RepeatPhase = 'idle' | 'loading';
 
 /** QuizGenerationCard와 동일 키 — 폴백 시 지시문을 "최근 프롬프트"로 복원 가능하게 둔다 */
 const RECENT_PROMPT_KEY = 'recentMakeQuizPrompt';
@@ -60,8 +59,9 @@ const prefillOptionScreen = (cond: RegenerationCondition): void => {
 
 /**
  * "이 조건으로 더 풀기" — 방금 푼 세트의 생성 조건을 되짚어 같은 조건으로 새 세트를 이어 만든다.
- * 정상(조건·자료 온전)이면 기존 생성 파이프라인(POST /generation + SSE)을 재사용해 즉시 생성하고,
- * 조건이 소실(legacy null)됐거나 생성이 실패하면 막다른 실패 없이 옵션 화면 폴백으로 안내한다.
+ * 정상(조건·자료 온전)이면 **최초 생성과 동일한 진입점(generateQuestions)** 으로 태워 make-quiz의
+ * 기존 "문제 생성 중" 화면이 그대로 뜨게 하고, 완료되면 새 세트 풀이로 자동 진입한다.
+ * 조건이 소실(legacy null)됐거나 생성이 실패하면 막다른 실패 없이 옵션 화면(프리필된 make-quiz)으로 남는다.
  */
 export const useRepeatGeneration = () => {
   const navigate = useNavigate();
@@ -98,47 +98,30 @@ export const useRepeatGeneration = () => {
         return;
       }
 
-      // 정상: 확인 단계 없이 즉시 재생성 (기존 생성 파이프라인 재사용)
-      setPhase('generating');
-      try {
-        await authService.refresh();
-      } catch {
-        // 리프레시 실패 무시 (게스트 포함)
-      }
-
-      useQuizGenerationStore.getState().startGeneration({
-        requestData: {
-          uploadedUrl: cond.uploadedUrl,
-          title: cond.title,
-          quizCount: cond.quizCount,
-          quizType: cond.quizType,
-          pageNumbers: cond.pageNumbers as number[],
-          language: cond.language as string,
-          ...(cond.customInstruction?.trim()
-            ? { customInstruction: cond.customInstruction.trim() }
-            : {}),
-        },
+      // 정상: 최초 생성 경로(generateQuestions)로 태운다.
+      // - make-quiz 상태를 프리필해 파일·옵션이 채워진 채로 뜨게 하고(생성 실패 시 곧바로 재시도 가능한
+      //   폴백을 겸함), generateQuestions가 세팅하는 isWaitingForFirstQuiz로 make-quiz "생성 중" 화면이
+      //   자연히 노출된다. 완료 시 onSuccess가 새 세트 풀이로 자동 진입한다(옵션 재입력 없는 즉시 생성).
+      prefillOptionScreen(cond);
+      useQuizGenerationStore.getState().generateQuestions({
+        t,
+        currentLanguage: cond.language === 'EN' ? 'en' : 'ko',
+        uploadedUrl: cond.uploadedUrl,
+        fileName: cond.title,
+        questionType: cond.quizType,
+        questionCount: cond.quizCount,
+        selectedPages: cond.pageNumbers as number[],
+        language: cond.language as 'KO' | 'EN',
+        ...(cond.customInstruction?.trim()
+          ? { customInstruction: cond.customInstruction.trim() }
+          : {}),
         onSuccess: () => {
           const newId = useQuizGenerationStore.getState().problemSetId;
-          if (newId) {
-            // 반복성(FR-003)을 라우터 언마운트 타이밍에 의존시키지 않도록 phase를 명시 복귀시킨다.
-            setPhase('idle');
-            navigate(`/quiz/${newId}`);
-          } else {
-            setPhase('idle');
-            CustomToast.error(t('문제 생성에 실패했어요. 다시 시도해주세요.'));
-          }
-        },
-        onError: () => {
-          // 자료 만료 등 생성 실패 → 막다른 실패 없이 옵션 화면 폴백 (FR-007)
-          setPhase('idle');
-          prefillOptionScreen(cond);
-          CustomToast.error(
-            t('생성에 실패했어요. 자료가 만료되었을 수 있어요. 옵션 화면에서 다시 시도해주세요.'),
-          );
-          navigate('/');
+          if (newId) navigate(`/quiz/${newId}`);
         },
       });
+      setPhase('idle');
+      navigate('/');
     },
     [navigate, phase],
   );
