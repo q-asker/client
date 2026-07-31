@@ -27,7 +27,11 @@ import { test, expect, type Page } from '@playwright/test';
  */
 
 const ACCESS_TOKEN = process.env.E2E_ACCESS_TOKEN ?? '';
-const PSID = 'd2M1pa8v';
+/**
+ * REAL_BLANK 시드 세트 id. hashid salt(ENC)가 환경마다 달라 encode가 갈리므로
+ * `E2E_REPEAT_PSID`로 환경별 실제 id를 주입한다(기본값은 문서상 정규 시드).
+ */
+const PSID = process.env.E2E_REPEAT_PSID ?? 'd2M1pa8v';
 
 /** "인정된 답" 목록 헤더 — ko/en 양쪽 대응(Playwright 기본 로케일이 en일 수 있음). */
 const ACCEPTED_LABEL = /인정된 답|Accepted answers/;
@@ -59,8 +63,10 @@ async function seed(page: Page, psid: string): Promise<void> {
   );
 }
 
-/** PR 캡처용 스크린샷을 captures/에 저장 */
+/** PR 캡처용 스크린샷을 captures/에 저장 (lazy-load MarkdownText 렌더 완료 후) */
 async function shot(page: Page, name: string): Promise<void> {
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(600);
   await page.screenshot({ path: `captures/blank-${name}.png`, fullPage: true });
 }
 
