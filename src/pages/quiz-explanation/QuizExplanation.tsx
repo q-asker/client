@@ -16,6 +16,7 @@ import { RepeatQuizCta } from '#features/quiz-generation';
 import { deserializeRealBlankTokens } from '#shared/lib/blank-scoring';
 import { toTextAnswer } from '#shared/lib/realBlankGrading';
 import { toPlainText } from '#shared/lib/markdownPreview';
+import { AcceptedAnswersList } from '@/shared/ui/components/accepted-answers-list';
 
 /**
  * Navigator Split — 좌측 문제 리스트 사이드바 + 3열 레이아웃.
@@ -224,6 +225,9 @@ const QuizExplanation: React.FC = () => {
                           <div className="mb-1 text-xs font-semibold text-success">{t('정답')}</div>
                           <div className="text-base font-medium text-foreground">{answerText}</div>
                         </div>
+                      )}
+                      {grade?.acceptedAnswers && (
+                        <AcceptedAnswersList acceptedAnswers={grade.acceptedAnswers} />
                       )}
                     </div>
                   </BlurFade>

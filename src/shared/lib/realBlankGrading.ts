@@ -18,6 +18,12 @@ export interface GradeResultItem {
   number: number;
   isCorrect: boolean;
   answer: string;
+  /**
+   * 빈칸별 허용 정답 목록 (바깥 index = 빈칸 등장순서, index 0 = canonical 모범답, 1..n = 통용 변형).
+   * 채점 후 결과·해설에서 노출한다(FR-006·008). 좁게 저장된 과거 세트는 빈칸별 [모범답] 단일이거나
+   * 필드 자체가 없을 수 있다(FR-009) — 있는 만큼만 표시한다.
+   */
+  acceptedAnswers?: string[][];
 }
 
 interface GradeResponse {

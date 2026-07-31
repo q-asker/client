@@ -121,6 +121,8 @@ export const useRepeatGeneration = () => {
         onSuccess: () => {
           const newId = useQuizGenerationStore.getState().problemSetId;
           if (newId) {
+            // 반복성(FR-003)을 라우터 언마운트 타이밍에 의존시키지 않도록 phase를 명시 복귀시킨다.
+            setPhase('idle');
             navigate(`/quiz/${newId}`);
           } else {
             setPhase('idle');

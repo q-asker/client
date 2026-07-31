@@ -7,7 +7,7 @@ import { trackQuizEvents } from '#shared/lib/analytics';
 import { loadResult, loadEssayGradeResults } from '#features/solve-quiz';
 import { gradeRealBlankSet, toTextAnswer } from '#shared/lib/realBlankGrading';
 import type { GradeResultItem } from '#shared/lib/realBlankGrading';
-import type { Quiz, GradeResult } from '#features/quiz-generation';
+import type { Quiz, GradeResult, QuizType } from '#features/quiz-generation';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -40,6 +40,7 @@ interface PdfOptions {
 interface ProblemSetResponse {
   quiz: Quiz[];
   title: string;
+  quizType?: QuizType;
 }
 
 interface UseQuizExplanationParams {
@@ -160,15 +161,20 @@ export const useQuizExplanation = ({
         const localGrades = loadEssayGradeResults(problemSetId);
         setEssayGradeResults(localGrades);
 
+        // 서버 응답은 문항별 type을 안 싣고 top-level quizType만 준다 → 문항에 주입해야
+        // REAL_BLANK 판정·채점·표시가 동작한다(결과 화면 QuizResultDesignK와 동일 규칙).
+        const quizType = quizRes.data.quizType;
         const merged = savedResult
           ? serverQuizzes.map((q) => ({
               ...q,
+              type: (q.type ?? quizType) as Quiz['type'],
               userAnswer: savedResult.answers[q.number] ?? q.userAnswer,
               inReview: savedResult.inReview?.[q.number] ?? false,
               gradeResult: localGrades[q.number] ?? q.gradeResult ?? null,
             }))
           : serverQuizzes.map((q) => ({
               ...q,
+              type: (q.type ?? quizType) as Quiz['type'],
               gradeResult: localGrades[q.number] ?? q.gradeResult ?? null,
             }));
 
