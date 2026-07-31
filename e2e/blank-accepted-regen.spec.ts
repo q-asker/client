@@ -153,4 +153,33 @@ test.describe('007 US1 — REAL_BLANK 이어풀기 흐름 + 2회차 반복', () 
       .waitFor({ timeout: 30_000 });
     await shot(page, 'repeat-2-solve');
   });
+
+  test('통합: 이어풀기가 make-quiz "생성 중" 화면(최초 생성과 동일)을 거쳐 풀이로 진입한다', async ({
+    page,
+  }) => {
+    await seed(page, PSID);
+    // SSE 스트림을 살짝 지연시켜 make-quiz "생성 중" 화면이 관측되게 한다(전용 오버레이 제거 검증).
+    await page.route('**/generation/*/stream', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+      await route.continue();
+    });
+
+    await page.goto(`/result/${PSID}`, { waitUntil: 'domcontentloaded' });
+    const cta = page.getByRole('button', { name: /이 조건으로 더 풀기|Practice more/ });
+    await expect(cta).toBeVisible({ timeout: 20_000 });
+    await cta.click();
+
+    // 최초 생성과 동일: make-quiz(/)로 이동해 기존 "문제 생성 중" 상태 화면이 노출된다.
+    await page.waitForURL(/localhost:5173\/(en|ko)?$/, { timeout: 15_000 });
+    await expect(page.getByText(/문제 생성 중|Generating questions/)).toBeVisible({
+      timeout: 10_000,
+    });
+    await shot(page, 'repeat-generating-makequiz');
+
+    // 완료 시 새 세트 풀이로 자동 진입.
+    await page.waitForURL(/\/quiz\/[^/]+$/, { timeout: 60_000 });
+    const newId = page.url().split('/quiz/')[1];
+    expect(newId, '새 세트 id').toBeTruthy();
+    expect(newId, '원본과 다른 독립 세트').not.toBe(PSID);
+  });
 });
