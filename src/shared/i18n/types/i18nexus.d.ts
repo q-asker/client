@@ -134,6 +134,9 @@ declare type BoardWriteKeys =
   | '취소';
 
 declare type CommonKeys =
+  | '인정된 답'
+  | '모범답'
+  | '빈칸'
   | '"문제 풀기" 버튼으로'
   | '(최대'
   | '1. 빈칸 채우기로 핵심 개념을 정리하세요.'

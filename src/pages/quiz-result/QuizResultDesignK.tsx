@@ -133,6 +133,7 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
         userAnswer: userDisplay !== '' ? '__real_blank_user__' : '',
         inReview: savedResult?.inReview?.[q.number] ?? false,
         selections: virtualSelections,
+        acceptedAnswers: grade?.acceptedAnswers,
       };
     }
     const selected = q.selections.find((s) => String(s.id) === String(q.userAnswer));

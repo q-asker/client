@@ -316,7 +316,13 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
           withCredentials: true,
         });
 
+        // EventSource는 절단 시 자동 재연결하며 onopen을 매번 재발화한다. 생성 트리거 POST는
+        // 정확히 1회만 보낸다 — 재연결 재-POST는 같은 sessionId 중복 요청(서버 비멱등 에러)을
+        // 유발해 진행 중 생성이 폐기되므로. 재연결 후 유실분은 서버가 Last-Event-ID로 리플레이한다.
+        let generationRequested = false;
         generationEventSource.onopen = () => {
+          if (generationRequested) return;
+          generationRequested = true;
           axiosInstance
             .post(`/generation`, { ...requestData, sessionId }, { skipErrorToast: true } as Record<
               string,
