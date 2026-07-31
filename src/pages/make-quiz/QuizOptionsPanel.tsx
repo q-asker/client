@@ -3,7 +3,7 @@ import { getLevelDescriptions, levelMapping, type QuestionType } from '#features
 import type { PrepareQuizOptionsState, PrepareQuizOptionsActions } from '#features/prepare-quiz';
 import MarkdownText from '@/shared/ui/components/markdown-text';
 import { cn } from '@/shared/ui/lib/utils';
-import { ListChecks, PenLine, CircleDot, FileText } from 'lucide-react';
+import { ListChecks, PenLine, CircleDot, FileText, Keyboard } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/components/card';
 import { TextAnimate } from '@/shared/ui/components/text-animate';
@@ -29,6 +29,7 @@ const QuizOptionsPanel: React.FC<QuizOptionsPanelProps> = ({ t, options, optionA
     { key: 'MULTIPLE', label: t('객관식'), icon: ListChecks },
     { key: 'OX', label: t('OX 퀴즈'), icon: CircleDot },
     { key: 'BLANK', label: t('빈칸 넣기'), icon: PenLine },
+    { key: 'REAL_BLANK', label: t('빈칸 직접입력'), icon: Keyboard },
   ];
 
   const currentLevel: { title: string; question: string; options: string[] } | undefined =
@@ -50,61 +51,34 @@ const QuizOptionsPanel: React.FC<QuizOptionsPanelProps> = ({ t, options, optionA
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* 세그먼트 컨트롤 */}
-          <div className="flex overflow-hidden rounded-2xl border border-border">
-            {quizTypes.map((type, index) => (
+          {/* 유형 선택 — 5개 유형을 담도록 반응형 그리드(모바일 3열 / 데스크톱 5열) */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 md:grid-cols-5">
+            {quizTypes.map((type) => (
               <button
                 key={type.key}
                 className={cn(
-                  'flex-1 cursor-pointer border-none px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-200',
-                  index < quizTypes.length - 1 && 'border-r border-border',
+                  'flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2.5 text-center font-medium transition-colors duration-200',
                   options.questionType === type.key
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-background hover:bg-muted',
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-background text-muted-foreground hover:bg-muted',
                 )}
                 onClick={() => {
                   optionActions.handleQuestionTypeChange(type.key, type.label);
                 }}
               >
-                <span className="inline-flex items-center justify-center gap-1 sm:gap-1.5">
-                  <type.icon className="size-4" strokeWidth={1.8} />
-                  <span className="text-xs sm:text-sm">{type.label}</span>
-                </span>
+                <type.icon className="size-4 shrink-0" strokeWidth={1.8} />
+                <span className="text-xs leading-tight break-keep">{type.label}</span>
               </button>
             ))}
           </div>
 
-          {/* BLANK 전용: '선택지 추가' 토글 — ON이면 선택지 표시 */}
-          {options.questionType === 'BLANK' && (
-            <div className="mt-3 flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-muted px-4 py-3 sm:mt-4 sm:px-5 sm:py-4">
-              <button
-                type="button"
-                role="switch"
-                aria-checked={!options.blankHideSelections}
-                onClick={() => optionActions.setBlankHideSelections(!options.blankHideSelections)}
-                className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl border-none bg-transparent px-0 py-1 text-sm font-medium text-foreground"
-              >
-                <span>{t('선택지 추가')}</span>
-                <span
-                  className={cn(
-                    'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200',
-                    !options.blankHideSelections ? 'bg-primary' : 'bg-muted-foreground/30',
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'inline-block size-5 transform rounded-full bg-white shadow-sm transition-transform duration-200',
-                      !options.blankHideSelections ? 'translate-x-[1.375rem]' : 'translate-x-0.5',
-                    )}
-                  />
-                </span>
-              </button>
-              {options.blankHideSelections && (
-                <p className="text-center text-xs leading-snug text-muted-foreground">
-                  {t('표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.')}
-                </p>
+          {/* REAL_BLANK: 직접입력 안내 */}
+          {options.questionType === 'REAL_BLANK' && (
+            <p className="mt-3 text-center text-xs leading-snug text-muted-foreground sm:mt-4">
+              {t(
+                '선택지 없이 답을 직접 입력합니다. 표기/띄어쓰기 차이로 정답 인정이 까다로울 수 있습니다.',
               )}
-            </div>
+            </p>
           )}
 
           {/* 난이도 미리보기 카드 */}
@@ -117,10 +91,10 @@ const QuizOptionsPanel: React.FC<QuizOptionsPanelProps> = ({ t, options, optionA
                 {currentLevel?.question ?? ''}
               </MarkdownText>
             </div>
-            {/* BLANK + blankHideSelections=ON일 때 선택지 영역을 렌더링하지 않음 */}
+            {/* REAL_BLANK(직접입력)은 선택지 미리보기를 렌더링하지 않음 */}
             {currentLevel?.options &&
               currentLevel.options.length > 0 &&
-              !(options.questionType === 'BLANK' && options.blankHideSelections) && (
+              options.questionType !== 'REAL_BLANK' && (
                 <div className="mt-3 flex flex-col gap-1.5">
                   {currentLevel.options.map((option: string, index: number) => (
                     <div

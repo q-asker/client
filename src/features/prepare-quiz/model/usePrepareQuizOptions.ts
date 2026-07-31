@@ -8,14 +8,12 @@ export interface PrepareQuizOptionsState {
   questionType: QuestionType;
   questionCount: number;
   language: 'KO' | 'EN';
-  blankHideSelections: boolean;
 }
 
 export interface PrepareQuizOptionsActions {
   handleQuestionTypeChange: (nextType: QuestionType, label: string) => void;
   handleQuestionCountChange: (nextCount: number) => void;
   handleLanguageChange: (nextLanguage: 'KO' | 'EN') => void;
-  setBlankHideSelections: (value: boolean) => void;
   resetOptions: () => void;
 }
 
@@ -28,11 +26,9 @@ export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
   const questionType = usePrepareQuizSettingsStore((s) => s.questionType);
   const questionCount = usePrepareQuizSettingsStore((s) => s.questionCount);
   const language = usePrepareQuizSettingsStore((s) => s.language);
-  const blankHideSelections = usePrepareQuizSettingsStore((s) => s.blankHideSelections);
   const setQuestionType = usePrepareQuizSettingsStore((s) => s.setQuestionType);
   const setQuestionCount = usePrepareQuizSettingsStore((s) => s.setQuestionCount);
   const setLanguage = usePrepareQuizSettingsStore((s) => s.setLanguage);
-  const setBlankHideSelections = usePrepareQuizSettingsStore((s) => s.setBlankHideSelections);
 
   const handleQuestionTypeChange = useCallback(
     (nextType: QuestionType, label: string) => {
@@ -68,22 +64,11 @@ export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
     [language, setLanguage],
   );
 
-  const handleBlankHideSelectionsChange = useCallback(
-    (value: boolean) => {
-      if (blankHideSelections !== value) {
-        trackPrepareQuizEvents.changeQuizOption('blank_hide_selections', value ? 'on' : 'off');
-        setBlankHideSelections(value);
-      }
-    },
-    [blankHideSelections, setBlankHideSelections],
-  );
-
   const resetOptions = useCallback(() => {
     const store = usePrepareQuizSettingsStore.getState();
     store.setQuestionType(defaultType);
     store.setQuestionCount(10);
     store.setLanguage('KO');
-    store.setBlankHideSelections(false);
   }, []);
 
   return {
@@ -91,13 +76,11 @@ export const usePrepareQuizOptions = (): PrepareQuizOptionsReturn => {
       questionType,
       questionCount,
       language,
-      blankHideSelections,
     },
     actions: {
       handleQuestionTypeChange,
       handleQuestionCountChange,
       handleLanguageChange,
-      setBlankHideSelections: handleBlankHideSelectionsChange,
       resetOptions,
     },
   };
