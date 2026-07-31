@@ -1,5 +1,13 @@
 # UI 캡처 인덱스
 
+## 007 빈칸 허용 정답 노출(US3) + 이어풀기(US1) (기능 E2E 산출)
+
+- 2026-07-31 — US3 결과 화면: 빈칸별 허용 정답 목록(모범답 강조 + 함께 인정된 표현). Q2 다중빈칸 "빈칸 1/빈칸 2" 구분(FR-008) — blank-accepted-result.png — /result/58Ow4V3x — (로그인·mockai)
+- 2026-07-31 — US3 해설 화면: REAL_BLANK 답안 박스에 인정된 답 목록 동일 노출 — blank-accepted-explanation.png — /explanation/58Ow4V3x — (로그인·mockai)
+- 2026-07-31 — US3 FR-007: 채점 전 풀이 화면에는 허용 정답 목록 비노출 — blank-solve-no-accepted.png — /quiz/58Ow4V3x — (로그인·mockai)
+- 2026-07-31 — US1 이어풀기 after: "이 조건으로 더 풀기" → 같은 조건 새 REAL_BLANK 세트(5문항) 즉시생성 → 풀이 진입(1회차) — blank-repeat-1-solve.png — /quiz/{newId} — (로그인·mockai)
+- 2026-07-31 — US1 이어풀기 after: 새 세트 결과에서 다시 이어풀기 → 또 다른 독립 새 세트 풀이 진입(2회차, 드릴 루프 무결 FR-003) — blank-repeat-2-solve.png — /quiz/{newId2} — (로그인·mockai)
+
 ## 006 이어풀기 — 같은 조건으로 문제 이어서 더 풀기
 
 - 2026-07-30 — 결과 화면 CTA "이 조건으로 더 풀기"(해설 보기 아래·홈으로 위, outline) — repeat-cta-result.png — /result/:id — (백엔드 목킹)
