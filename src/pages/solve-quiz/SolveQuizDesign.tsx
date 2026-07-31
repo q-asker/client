@@ -240,7 +240,9 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
     if (
       isAnyBlank &&
       !isMultiBlank &&
-      !isUnanswered(quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections)
+      // REAL_BLANK는 바로 입력할 수 있게 응답 여부와 무관하게 포커스한다.
+      // (BLANK는 기존대로 이미 답이 있을 때만 포커스 — 선택지 텍스트 편집 유도.)
+      (isRealBlank || !isUnanswered(quiz.currentQuiz?.userAnswer, quiz.currentQuiz?.selections))
     ) {
       const isTouch = window.matchMedia('(pointer: coarse)').matches;
       if (!isTouch) {
@@ -250,6 +252,7 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
   }, [
     quiz.currentQuestion,
     isAnyBlank,
+    isRealBlank,
     isMultiBlank,
     quiz.currentQuiz?.userAnswer,
     quiz.currentQuiz?.selections,
