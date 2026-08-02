@@ -15,7 +15,6 @@ import {
   Pencil,
   Trash2,
   MessageCircle,
-  Eye,
   CalendarDays,
   User,
   Send,
@@ -243,15 +242,11 @@ const BoardDetail = ({ category = 'INQUIRY' }: BoardDetailProps) => {
             <span
               className={cn(
                 'inline-flex items-center gap-1',
-                isInquiry ? 'border-l border-border px-4' : 'pr-4',
+                isInquiry ? 'border-l border-border pl-4' : '',
               )}
             >
               <CalendarDays className="size-3.5" />
               {formatDate(post.createdAt)}
-            </span>
-            <span className="inline-flex items-center gap-1 border-l border-border pl-4">
-              <Eye className="size-3.5" />
-              {post.viewCount || 0}
             </span>
           </div>
         </div>
