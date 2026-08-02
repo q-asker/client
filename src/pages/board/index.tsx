@@ -14,7 +14,6 @@ import {
   ChevronRight,
   MessageSquare,
   Sparkles,
-  Eye,
   CheckCircle,
   Clock,
 } from 'lucide-react';
@@ -324,7 +323,6 @@ const Board = ({ category = 'INQUIRY' }: BoardProps) => {
                 <span className="flex-1 pl-2">{t('제목')}</span>
                 {isInquiry && <span className="w-[12%] text-center">{t('작성자')}</span>}
                 <span className="w-[12%] text-center">{t('작성일')}</span>
-                <span className="w-[8%] text-center">{t('조회')}</span>
                 {isInquiry && <span className="w-[10%] text-center">{t('상태')}</span>}
               </div>
 
@@ -361,12 +359,6 @@ const Board = ({ category = 'INQUIRY' }: BoardProps) => {
                     )}
                     <span className="w-[12%] text-center text-sm text-muted-foreground max-md:hidden">
                       {formatDate(post.createdAt)}
-                    </span>
-                    <span className="w-[8%] text-center max-md:hidden">
-                      <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-                        <Eye className="size-3" />
-                        {post.viewCount || 0}
-                      </span>
                     </span>
                     {isInquiry && (
                       <span className="w-[10%] text-center max-md:w-full max-md:text-left">

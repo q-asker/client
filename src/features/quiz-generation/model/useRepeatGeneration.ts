@@ -22,8 +22,11 @@ export interface RegenerationCondition {
   documentAvailable: boolean;
 }
 
-/** idle: 대기 / loading: 조건 조회 중 (생성 진행 표시는 make-quiz "생성 중" 화면이 담당) */
-export type RepeatPhase = 'idle' | 'loading';
+/**
+ * idle: 대기 / loading: 조건 조회 중 / confirming: 조건 확인 모달 노출 중
+ * (생성 진행 표시는 make-quiz "생성 중" 화면이 담당)
+ */
+export type RepeatPhase = 'idle' | 'loading' | 'confirming';
 
 /** QuizGenerationCard와 동일 키 — 폴백 시 지시문을 "최근 프롬프트"로 복원 가능하게 둔다 */
 const RECENT_PROMPT_KEY = 'recentMakeQuizPrompt';
@@ -53,31 +56,55 @@ const prefillOptionScreen = (cond: RegenerationCondition): void => {
 
 /**
  * "이 조건으로 더 풀기" — 방금 푼 세트의 생성 조건을 되짚어 같은 조건으로 새 세트를 이어 만든다.
- * 정상(조건·자료 온전)이면 **최초 생성과 동일한 진입점(generateQuestions)** 으로 태워 make-quiz의
- * 기존 "문제 생성 중" 화면이 그대로 뜨게 하고, 완료되면 새 세트 풀이로 자동 진입한다.
- * 조건이 소실(legacy null)됐거나 생성이 실패하면 막다른 실패 없이 옵션 화면(프리필된 make-quiz)으로 남는다.
+ *
+ * 두 단계로 진행한다:
+ * 1. openRepeat: 서버에서 생성 조건을 조회해 확인 모달(condition)에 담는다.
+ * 2. confirmRepeat: 사용자가 모달에서 확인하면 실제 생성으로 태운다.
+ *    - 정상(조건·자료 온전)이면 **최초 생성과 동일한 진입점(generateQuestions)** 으로 태워 make-quiz의
+ *      기존 "문제 생성 중" 화면이 그대로 뜨게 하고, 완료되면 새 세트 풀이로 자동 진입한다.
+ *    - 조건이 소실(legacy null)됐거나 생성이 실패하면 막다른 실패 없이 옵션 화면(프리필된 make-quiz)으로 남는다.
  */
 export const useRepeatGeneration = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState<RepeatPhase>('idle');
+  const [condition, setCondition] = useState<RegenerationCondition | null>(null);
+  const [targetId, setTargetId] = useState<string | null>(null);
 
-  const startRepeat = useCallback(
+  /** 1단계: 생성 조건을 조회해 확인 모달을 연다. */
+  const openRepeat = useCallback(
     async (problemSetId: string, t: (key: string) => string) => {
       if (phase !== 'idle') return;
       setPhase('loading');
 
-      let cond: RegenerationCondition;
       try {
         const res = await axiosInstance.get<RegenerationCondition>(
           `/problem-set/${problemSetId}/regeneration-condition`,
         );
-        cond = res.data;
+        setCondition(res.data);
+        setTargetId(problemSetId);
+        setPhase('confirming');
       } catch {
         setPhase('idle');
         CustomToast.error(t('생성 조건을 불러오지 못했어요. 옵션 화면에서 새로 만들어주세요.'));
         navigate('/');
-        return;
       }
+    },
+    [navigate, phase],
+  );
+
+  /** 확인 모달을 닫고 대기 상태로 되돌린다. */
+  const cancelRepeat = useCallback(() => {
+    setPhase('idle');
+    setCondition(null);
+    setTargetId(null);
+  }, []);
+
+  /** 2단계: 사용자가 확인하면 조회한 조건으로 실제 생성에 태운다. */
+  const confirmRepeat = useCallback(
+    (t: (key: string) => string) => {
+      if (phase !== 'confirming' || !condition || !targetId) return;
+      const cond = condition;
+      const problemSetId = targetId;
 
       trackResultEvents.clickRepeat(problemSetId);
 
@@ -86,7 +113,7 @@ export const useRepeatGeneration = () => {
       // US2 폴백: 조건 불충분 → 남은 값 프리필 후 옵션 화면으로 (막다른 실패 없음)
       if (!canInstant) {
         prefillOptionScreen(cond);
-        setPhase('idle');
+        cancelRepeat();
         CustomToast.info(t('이어서 풀려면 남은 설정을 확인하고 문제를 생성해주세요.'));
         navigate('/');
         return;
@@ -114,11 +141,11 @@ export const useRepeatGeneration = () => {
           if (newId) navigate(`/quiz/${newId}`);
         },
       });
-      setPhase('idle');
+      cancelRepeat();
       navigate('/');
     },
-    [navigate, phase],
+    [navigate, phase, condition, targetId, cancelRepeat],
   );
 
-  return { startRepeat, phase };
+  return { openRepeat, confirmRepeat, cancelRepeat, phase, condition };
 };

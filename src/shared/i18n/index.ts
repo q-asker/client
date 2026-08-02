@@ -1,22 +1,93 @@
 /**
- * 평탄화된 단일 lang JSON에서 namespace key를 조회한다.
+ * Auto-generated i18nexus locale entrypoint.
  *
- * 디렉토리 구조 단순화 후의 호환 어댑터 — i18nexus의 `loadNamespace(namespace, lang)`
- * 계약을 유지하면서 단일 파일(`./{lang}.json`)을 한 번만 로드하고 namespace 단위로
- * 슬라이스를 반환한다. 도구 자동 갱신(`npm run i18n:sync`)은 본 평탄화 이후 비활성 —
- * 추후 번역 추가 시 수동 편집 또는 도구 옵션(`namespacing.enabled: false`) 재구성 필요.
+ * This file is designed for i18nexus core v4:
+ * - lazy namespace loading via I18nProvider.loadNamespace
+ * - typed createI18n helper for advanced namespace/key inference
+ * - fallback namespace metadata shared by tools and runtime
  *
- * @param namespace - 네임스페이스 키 (예: "common", "make-quiz")
- * @param lang - 언어 코드 (예: "ko", "en")
- * @returns 해당 namespace의 번역 객체. 누락 시 빈 객체
+ * Regenerate with:
+ *   npx i18n-extractor
  */
-const cache: Record<string, Record<string, unknown>> = {};
+import { createI18n, type CreateI18nUseTranslationReturn, type NamespaceLoader } from 'i18nexus';
+import type {
+  I18nexusGeneratedClientTranslationFunction,
+  I18nexusGeneratedTranslationFunction,
+  I18nexusGeneratedTranslationKeys,
+  I18nexusGeneratedTranslations,
+} from './types/i18nexus';
 
-export async function loadNamespace(namespace: string, lang: string) {
-  if (!cache[lang]) {
-    const module = await import(`./${lang}.json`);
-    cache[lang] = module.default as Record<string, unknown>;
-  }
-  const bundle = cache[lang];
-  return (bundle[namespace] as Record<string, unknown> | undefined) ?? {};
-}
+export const languages = ['en', 'ko'] as const;
+export const namespaces = [
+  'board',
+  'board-detail',
+  'board-write',
+  'common',
+  'login-redirect',
+  'login-select',
+  'maintenance',
+  'make-quiz',
+  'privacy-policy',
+  'quiz-explanation',
+  'quiz-history',
+  'quiz-history-detail',
+  'quiz-result',
+  'solve-quiz',
+  'terms-of-service',
+] as const;
+export const fallbackNamespace = 'common' as const;
+
+export type AppLanguage = 'en' | 'ko';
+export type AppNamespace =
+  | 'board'
+  | 'board-detail'
+  | 'board-write'
+  | 'common'
+  | 'login-redirect'
+  | 'login-select'
+  | 'maintenance'
+  | 'make-quiz'
+  | 'privacy-policy'
+  | 'quiz-explanation'
+  | 'quiz-history'
+  | 'quiz-history-detail'
+  | 'quiz-result'
+  | 'solve-quiz'
+  | 'terms-of-service';
+
+export type AppTranslationKeys<NS extends AppNamespace = AppNamespace> =
+  I18nexusGeneratedTranslationKeys<NS>;
+export type AppTranslationFunction<NS extends AppNamespace = AppNamespace> =
+  I18nexusGeneratedTranslationFunction<NS>;
+export type AppServerTranslationFunction<NS extends AppNamespace = AppNamespace> =
+  I18nexusGeneratedTranslationFunction<NS>;
+export type AppClientTranslationFunction<NS extends AppNamespace = AppNamespace> =
+  I18nexusGeneratedClientTranslationFunction<NS>;
+export type AppUseTranslationReturn<NS extends AppNamespace = AppNamespace> =
+  CreateI18nUseTranslationReturn<AppTranslationKeys<NS>>;
+
+export const loadNamespace: NamespaceLoader = async (namespace, language) => {
+  const module = await import(`./${namespace}/${language}.json`);
+  return module.default;
+};
+
+export const i18n = createI18n({} as I18nexusGeneratedTranslations, {
+  fallbackNamespace,
+});
+
+export const I18nProvider = i18n.I18nProvider;
+export const useTranslation = i18n.useTranslation;
+
+/**
+ * Beginner API:
+ *   import { I18nProvider } from "i18nexus";
+ *   import { loadNamespace, fallbackNamespace } from "./locales";
+ *
+ * Advanced typed API:
+ *   import { I18nProvider, useTranslation } from "./locales";
+ *
+ * Next.js App Router:
+ *   Keep I18nProvider in a "use client" wrapper.
+ *   Call router.refresh() after changeLanguage() when server components
+ *   also use getTranslation().
+ */
