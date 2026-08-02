@@ -24,6 +24,7 @@ Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 퀴즈를 자동 생�
 - **마크다운 에디터**: @uiw/react-md-editor (변경사항 작성용)
 - **테마**: next-themes (라이트/다크 모드 전환)
 - **알림**: react-toastify
+- **테스트**: Playwright (E2E — smoke/feature 프로젝트 분리)
 - **포맷터**: Prettier 3
 - **린터**: ESLint 10 (eslint-config-prettier 통합)
 - **패키지 매니저**: npm
@@ -37,6 +38,11 @@ npm run remote     # 원격 API 연결 개발 (--mode remote)
 npm run build      # 프로덕션 빌드 (--mode prod, prerender + sitemap 생성 포함)
 npm run lint       # ESLint 검사
 npm run preview    # 빌드 결과 프리뷰 (port 5173)
+
+# E2E (Playwright)
+npm run e2e            # 전체 E2E 테스트
+npm run e2e:smoke      # 스모크 프로젝트만 실행
+npm run e2e:feature    # 기능 프로젝트만 실행
 
 # 다국어 (i18nexus)
 npm run i18n:wrap      # 소스 코드에서 번역 키 래핑
@@ -73,8 +79,8 @@ src/
 ├── entities/         # 도메인 모델 (auth — store, service, types)
 └── shared/           # 공유 유틸리티
     ├── api/          # Axios 인스턴스 + 인터셉터 (인증 토큰 자동 첨부/리프레시)
-    ├── i18n/         # 다국어 번역 JSON — 평탄화 단일 파일(ko.json, en.json) + index.ts 어댑터 + types/
-    ├── lib/          # 유틸 훅/함수 (analytics, clarity, blank-scoring, timer, useClickOutside, expiringStorage, lastEndpointStorage, usePdfData)
+    ├── i18n/         # 다국어 번역 JSON — 네임스페이스별 폴더(<ns>/{ko,en}.json) + index.ts(i18nexus 도구 생성 진입점) + types/
+    ├── lib/          # 유틸 훅/함수 (analytics, clarity, blank-scoring, timer, useClickOutside, expiringStorage, lastEndpointStorage, usePdfData, markdownPreview, realBlankGrading)
     ├── themes/       # 테마 프리셋 관리 (tweakcn 기반, useThemePreset 훅)
     ├── toast/        # 커스텀 토스트
     └── ui/           # Shadcn/MagicUI 컴포넌트, 로고

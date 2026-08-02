@@ -10,8 +10,16 @@ const BASE_URL = 'https://www.q-asker.com';
 // 경로 → 관련 소스 파일 매핑 (git log로 lastmod 추출)
 const ROUTES = [
   { loc: '/', sources: ['src/pages/make-quiz/', 'index.html'], hreflang: true },
-  { loc: '/ko', sources: ['src/pages/make-quiz/', 'src/shared/i18n/ko.json'], hreflang: true },
-  { loc: '/en', sources: ['src/pages/make-quiz/', 'src/shared/i18n/en.json'], hreflang: true },
+  {
+    loc: '/ko',
+    sources: ['src/pages/make-quiz/', 'src/shared/i18n/make-quiz/ko.json'],
+    hreflang: true,
+  },
+  {
+    loc: '/en',
+    sources: ['src/pages/make-quiz/', 'src/shared/i18n/make-quiz/en.json'],
+    hreflang: true,
+  },
   { loc: '/history', sources: ['src/pages/quiz-history/'] },
   { loc: '/privacy-policy', sources: ['src/pages/privacy-policy/'] },
   { loc: '/terms-of-service', sources: ['src/pages/terms-of-service/'] },
