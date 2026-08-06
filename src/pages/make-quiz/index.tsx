@@ -36,6 +36,7 @@ if (typeof window !== 'undefined') {
 }
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/shared/ui/lib/utils';
+import { Skeleton } from '@/shared/ui/components/skeleton';
 import {
   Package,
   CheckCircle,
@@ -670,10 +671,15 @@ interface LatestUpdatePost {
   createdAt: string;
 }
 
+/** 로딩 스켈레톤과 실제 내용이 같은 높이를 갖도록 공유하는 레이아웃 */
+const noticeSectionClass =
+  'mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-border/50 pt-6 text-center text-xs text-muted-foreground sm:text-sm';
+
 const LatestUpdateNotice: React.FC<{
   t: (key: string) => string;
 }> = ({ t }) => {
   const [latest, setLatest] = useState<LatestUpdatePost | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -688,11 +694,27 @@ const LatestUpdateNotice: React.FC<{
           setLatest({ boardId: post.boardId, title: post.title, createdAt: post.createdAt });
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  // 로딩 중에도 같은 높이를 점유해, 데이터 도착 시 아래 요소가 밀리지 않게 한다.
+  if (isLoading) {
+    return (
+      <section className={noticeSectionClass}>
+        <span className="font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
+          {t('최근 변경사항')}
+        </span>
+        <span className="text-muted-foreground/40">·</span>
+        <Skeleton className="h-4 w-40 sm:w-72" />
+      </section>
+    );
+  }
 
   if (!latest) return null;
 
@@ -705,7 +727,7 @@ const LatestUpdateNotice: React.FC<{
     : '';
 
   return (
-    <section className="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-border/50 pt-6 text-center text-xs text-muted-foreground sm:text-sm">
+    <section className={noticeSectionClass}>
       <span className="font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
         {t('최근 변경사항')}
       </span>
