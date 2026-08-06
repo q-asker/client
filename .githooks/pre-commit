@@ -8,3 +8,13 @@ if [ $? -ne 0 ]; then
   echo "npx prettier --write . 를 실행한 뒤 다시 커밋하세요."
   exit 1
 fi
+
+# 린트 검증 (ESLint) — 에러 시 커밋 차단 (경고는 통과)
+echo "린트 검증 중 (npm run lint)..."
+npm run lint --silent
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "린트 에러가 발견되었습니다."
+  echo "npx eslint . --fix 로 자동 수정하거나 직접 고친 뒤 다시 커밋하세요."
+  exit 1
+fi
