@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import axiosInstance from '#shared/api';
+import { useAuthStore } from '#entities/auth';
 import { trackQuizEvents, trackResultEvents } from '#shared/lib/analytics';
 import type { Quiz } from '#features/quiz-generation';
 import type { GradeResultItem } from '#shared/lib/realBlankGrading';
@@ -100,6 +101,8 @@ export const useQuizResult = ({
     return quizzes.length ? Math.round((correctCount / quizzes.length) * 100) : 0;
   }, [quizzes.length, correctCount, isEssay, essayScore]);
 
+  const accessToken = useAuthStore((state) => state.accessToken);
+
   const historySavedRef = useRef(false);
   useEffect(() => {
     if (!problemSetId || quizzes.length === 0 || historySavedRef.current) return;
@@ -109,6 +112,9 @@ export const useQuizResult = ({
 
     trackResultEvents.viewResult(problemSetId, correctCount, quizzes.length, totalTime);
     trackQuizEvents.completeQuiz(problemSetId, correctCount, quizzes.length, totalTime);
+
+    // 비회원 히스토리는 서버가 지원하지 않는다(401). 요청 자체를 보내지 않는다.
+    if (!accessToken) return;
 
     const userAnswers = quizzes.map((q) => {
       const isRealBlank = q.type === 'REAL_BLANK';
@@ -144,6 +150,7 @@ export const useQuizResult = ({
     isEssay,
     isRealBlank,
     realBlankGrades,
+    accessToken,
   ]);
 
   const getQuizExplanation = async (): Promise<void> => {
