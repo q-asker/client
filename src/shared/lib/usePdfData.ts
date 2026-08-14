@@ -15,20 +15,29 @@ interface PdfDataState {
   refreshCopy: () => void;
 }
 
+interface ChunkResponse {
+  buffer: ArrayBuffer;
+  /** 206이면 요청한 범위, 200이면 서버가 Range를 무시하고 보낸 전체 본문 */
+  isPartial: boolean;
+}
+
 async function fetchChunkWithRetry(
   url: string,
   start: number,
   end: number,
   signal: AbortSignal,
-): Promise<ArrayBuffer> {
+): Promise<ChunkResponse> {
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
       const res = await fetch(url, {
         headers: { Range: `bytes=${start}-${end}` },
         signal,
       });
-      if (res.ok || res.status === 206) {
-        return await res.arrayBuffer();
+      if (res.status === 206) {
+        return { buffer: await res.arrayBuffer(), isPartial: true };
+      }
+      if (res.ok) {
+        return { buffer: await res.arrayBuffer(), isPartial: false };
       }
       throw new Error(`HTTP ${res.status}`);
     } catch (err) {
@@ -58,7 +67,9 @@ async function fetchPdfAsArrayBuffer(url: string, signal: AbortSignal): Promise<
 
   while (offset < contentLength) {
     const end = Math.min(offset + CHUNK_SIZE - 1, contentLength - 1);
-    const chunk = await fetchChunkWithRetry(url, offset, end, signal);
+    const { buffer: chunk, isPartial } = await fetchChunkWithRetry(url, offset, end, signal);
+    // CDN 캐시 히트 등으로 Range가 무시되면 전체 본문이 오므로 조립을 멈추고 그대로 쓴다
+    if (!isPartial) return new Uint8Array(chunk);
     buffer.set(new Uint8Array(chunk), offset);
     offset = end + 1;
   }
