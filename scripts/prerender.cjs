@@ -33,8 +33,11 @@ async function prerender() {
       const dir = path.dirname(filePath);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
-      fs.writeFileSync(filePath, route.html);
-      console.log(`[prerender] ✓ ${route.route} → ${filePath} (${route.html.length} bytes)`);
+      // 렌더 중 런타임에 삽입된 <link>는 프리렌더 서버 절대 URL로 직렬화된다. 루트 상대 경로로 되돌린다.
+      const html = route.html.replace(/https?:\/\/(?:127\.0\.0\.1|localhost):\d+/g, '');
+
+      fs.writeFileSync(filePath, html);
+      console.log(`[prerender] ✓ ${route.route} → ${filePath} (${html.length} bytes)`);
     }
 
     console.log('[prerender] 완료!');
