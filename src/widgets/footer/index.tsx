@@ -5,6 +5,7 @@ import { Globe, ChevronUp, Check } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { cn } from '@/shared/ui/lib/utils';
 import { useClickOutside } from '#shared/lib/useClickOutside';
+import FeedbackDialog from '@/shared/ui/components/feedback-dialog';
 
 /**
  * frontend-design A안: 미니멀 라인 + 타이포그래피 중심
@@ -15,6 +16,7 @@ const Footer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const handleLanguageChange = (lang: string) => {
     if (location.pathname === '/' || location.pathname === '/ko' || location.pathname === '/en') {
@@ -109,14 +111,13 @@ const Footer = () => {
             >
               {t('문의하기')}
             </Link>
-            <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSfibmR4WmBghb74tM0ugldhiutitTsJJx3KN5wYHINpr5GRnw/viewform?usp=dialog"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-foreground no-underline transition-colors duration-200 hover:underline"
+            <button
+              type="button"
+              onClick={() => setIsFeedbackOpen(true)}
+              className="cursor-pointer border-none bg-transparent p-0 text-left text-sm text-foreground transition-colors duration-200 hover:underline"
             >
-              {t('구글 폼 링크')}
-            </a>
+              {t('피드백 보내기')}
+            </button>
             <a
               href="mailto:contact@q-asker.com"
               aria-label={t('Q-Asker 이메일 문의')}
@@ -146,6 +147,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      <FeedbackDialog open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen} t={t} />
     </footer>
   );
 };

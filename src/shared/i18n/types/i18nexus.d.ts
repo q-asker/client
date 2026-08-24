@@ -115,11 +115,11 @@ declare type CommonKeys =
   | '개'
   | '개념을 자신의 언어로 설명하는 서술형 문제'
   | '개인정보 처리방침'
+  | '건의사항 / 피드백'
   | '걸린 시간'
   | '검토함'
   | '공지'
   | '광주'
-  | '구글 폼 링크'
   | '기록 삭제 실패:'
   | '기록을 찾을 수 없습니다.'
   | '기록이 삭제되었습니다.'
@@ -143,11 +143,13 @@ declare type CommonKeys =
   | '문제 수'
   | '미분류로 이동했습니다.'
   | '부산'
+  | '불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.'
   | '빈칸'
   | '사용자'
   | '생성 조건을 불러오지 못했어요. 옵션 화면에서 새로 만들어주세요.'
   | '서비스 이용약관'
   | '서울'
+  | '소중한 의견 감사합니다!'
   | '순수 암기나 단순 이해를 묻는 문제'
   | '알 수 없는 오류가 발생했습니다.'
   | '알 수 없다'
@@ -165,6 +167,9 @@ declare type CommonKeys =
   | '인정된 답'
   | '입력 X'
   | '입력한 답:'
+  | '전송'
+  | '전송 중...'
+  | '전송에 실패했습니다. 다시 시도해주세요.'
   | '전체 기록 삭제 실패:'
   | '점'
   | '정답'
@@ -194,6 +199,7 @@ declare type CommonKeys =
   | '폴더는 최대 100개까지 만들 수 있습니다.'
   | '폴더로 이동했습니다.'
   | '폴더를 찾을 수 없습니다.'
+  | '피드백 보내기'
   | '한국어'
   | '해당 없음'
   | '해설 정보를 불러오지 못했습니다.'
@@ -779,11 +785,11 @@ export type I18nexusGeneratedTranslations = {
       readonly 개: string;
       readonly '개념을 자신의 언어로 설명하는 서술형 문제': string;
       readonly '개인정보 처리방침': string;
+      readonly '건의사항 / 피드백': string;
       readonly '걸린 시간': string;
       readonly 검토함: string;
       readonly 공지: string;
       readonly 광주: string;
-      readonly '구글 폼 링크': string;
       readonly '기록 삭제 실패:': string;
       readonly '기록을 찾을 수 없습니다.': string;
       readonly '기록이 삭제되었습니다.': string;
@@ -807,11 +813,13 @@ export type I18nexusGeneratedTranslations = {
       readonly '문제 수': string;
       readonly '미분류로 이동했습니다.': string;
       readonly 부산: string;
+      readonly '불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.': string;
       readonly 빈칸: string;
       readonly 사용자: string;
       readonly '생성 조건을 불러오지 못했어요. 옵션 화면에서 새로 만들어주세요.': string;
       readonly '서비스 이용약관': string;
       readonly 서울: string;
+      readonly '소중한 의견 감사합니다!': string;
       readonly '순수 암기나 단순 이해를 묻는 문제': string;
       readonly '알 수 없는 오류가 발생했습니다.': string;
       readonly '알 수 없다': string;
@@ -829,6 +837,9 @@ export type I18nexusGeneratedTranslations = {
       readonly '인정된 답': string;
       readonly '입력 X': string;
       readonly '입력한 답:': string;
+      readonly 전송: string;
+      readonly '전송 중...': string;
+      readonly '전송에 실패했습니다. 다시 시도해주세요.': string;
       readonly '전체 기록 삭제 실패:': string;
       readonly 점: string;
       readonly 정답: string;
@@ -858,6 +869,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '폴더는 최대 100개까지 만들 수 있습니다.': string;
       readonly '폴더로 이동했습니다.': string;
       readonly '폴더를 찾을 수 없습니다.': string;
+      readonly '피드백 보내기': string;
       readonly 한국어: string;
       readonly '해당 없음': string;
       readonly '해설 정보를 불러오지 못했습니다.': string;
@@ -875,11 +887,11 @@ export type I18nexusGeneratedTranslations = {
       readonly 개: string;
       readonly '개념을 자신의 언어로 설명하는 서술형 문제': string;
       readonly '개인정보 처리방침': string;
+      readonly '건의사항 / 피드백': string;
       readonly '걸린 시간': string;
       readonly 검토함: string;
       readonly 공지: string;
       readonly 광주: string;
-      readonly '구글 폼 링크': string;
       readonly '기록 삭제 실패:': string;
       readonly '기록을 찾을 수 없습니다.': string;
       readonly '기록이 삭제되었습니다.': string;
@@ -903,11 +915,13 @@ export type I18nexusGeneratedTranslations = {
       readonly '문제 수': string;
       readonly '미분류로 이동했습니다.': string;
       readonly 부산: string;
+      readonly '불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.': string;
       readonly 빈칸: string;
       readonly 사용자: string;
       readonly '생성 조건을 불러오지 못했어요. 옵션 화면에서 새로 만들어주세요.': string;
       readonly '서비스 이용약관': string;
       readonly 서울: string;
+      readonly '소중한 의견 감사합니다!': string;
       readonly '순수 암기나 단순 이해를 묻는 문제': string;
       readonly '알 수 없는 오류가 발생했습니다.': string;
       readonly '알 수 없다': string;
@@ -925,6 +939,9 @@ export type I18nexusGeneratedTranslations = {
       readonly '인정된 답': string;
       readonly '입력 X': string;
       readonly '입력한 답:': string;
+      readonly 전송: string;
+      readonly '전송 중...': string;
+      readonly '전송에 실패했습니다. 다시 시도해주세요.': string;
       readonly '전체 기록 삭제 실패:': string;
       readonly 점: string;
       readonly 정답: string;
@@ -954,6 +971,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '폴더는 최대 100개까지 만들 수 있습니다.': string;
       readonly '폴더로 이동했습니다.': string;
       readonly '폴더를 찾을 수 없습니다.': string;
+      readonly '피드백 보내기': string;
       readonly 한국어: string;
       readonly '해당 없음': string;
       readonly '해설 정보를 불러오지 못했습니다.': string;
