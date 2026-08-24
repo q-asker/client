@@ -14,7 +14,6 @@
   "검토함": "Reviewed",
   "공지": "Notice",
   "광주": "Gwangju",
-  "구글 폼 링크": "Google Form Link",
   "기록 삭제 실패:": "Failed to delete record:",
   "기록을 찾을 수 없습니다.": "Record not found.",
   "기록이 삭제되었습니다.": "Record has been deleted.",
@@ -409,5 +408,12 @@
   "현재 생성된 퀴즈가 사라집니다. 계속하시겠습니까?": "The current quiz will be lost. Continue?",
   "메뉴 닫기": "Close menu",
   "메뉴 열기": "Open menu",
-  "네. OCR은 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.": "Yes. OCR is supported, so scanned or photo-based documents can also be analyzed."
+  "네. OCR은 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.": "Yes. OCR is supported, so scanned or photo-based documents can also be analyzed.",
+  "피드백 보내기": "Send Feedback",
+  "건의사항 / 피드백": "Suggestions / Feedback",
+  "불편한 점이나 개선 아이디어를 자유롭게 남겨주세요.": "Feel free to share any inconveniences or ideas for improvement.",
+  "전송": "Send",
+  "전송 중...": "Sending...",
+  "전송에 실패했습니다. 다시 시도해주세요.": "Failed to send. Please try again.",
+  "소중한 의견 감사합니다!": "Thank you for your valuable feedback!"
 }
