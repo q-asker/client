@@ -36,8 +36,12 @@ const SEED_FOLDER = process.env.E2E_WRONG_FOLDER ?? 'E2E-WRONG-ANSWER';
  * 목록이 아무리 쌓여도 항상 1페이지에 보인다 — FR-013 의 음성 사례로 쓴다.
  */
 const OTHER_FOLDER = process.env.E2E_OTHER_FOLDER ?? 'E2E-OTHER-FOLDER';
-/** 시드 폴더에 든 자료 기반 원본 중 하나. 목록 정렬이 최신순이라 늘 맨 뒤 페이지에 있다 */
-const SEED_DOCUMENT_TITLE = process.env.E2E_SEED_DOC_TITLE ?? 'E2E 객관식 원본 풀이';
+/**
+ * 시드 폴더의 자료 기반 원본 제목들. 목록이 기록 생성 시각 내림차순이라 이 넷은 **늘 맨 뒤**에 모여 있고,
+ * 따라서 마지막 페이지에는 항상 이 중 하나 이상이 있다. 어느 것인지는 총 건수에 따라 달라지므로
+ * 특정 제목 하나를 지목하지 않는다.
+ */
+const SEED_DOCUMENT_TITLE = /E2E .+ 원본 풀이/;
 
 const COLLECT_URL = /\/problem-set\/wrong-answers$/;
 /** 로컬 백엔드 주소(앱의 VITE_BASE_URL 과 같아야 한다). 기동 여부 선확인에만 쓴다 */
@@ -363,15 +367,30 @@ test.describe('008 오답 모아풀기', () => {
     }
     await expect(nextButton).toBeVisible();
 
-    // 1페이지에는 가장 오래된 자료 기반 원본이 밀려나 보이지 않는다(정렬이 최신순이라 맨 뒤로 간다)
-    await expect(page.getByText(SEED_DOCUMENT_TITLE)).toHaveCount(0);
+    // 1페이지 맨 위 행을 기억해 둔다. 페이지를 넘겨 내용이 실제로 바뀌는지 볼 기준이다.
+    // (특정 기록이 1페이지에 있는지 없는지는 총 건수에 따라 달라지므로 단언하지 않는다)
+    const firstRow = page.locator('div.md\\:grid').filter({ has: page.getByRole('button') });
+    const page1Top = await firstRow.first().innerText();
     await shot(page, 'pagination-page1');
 
-    // 마지막 페이지까지 넘기면 그 기록이 나온다 — 페이지 이동 수단이 없으면 영영 닿을 수 없던 행이다
-    for (let i = 0; i < 12 && (await nextButton.isEnabled()); i++) {
+    // 마지막 페이지까지 넘긴다. "n / m" 표시기가 바뀌는 것을 기다려 한 페이지씩 확실히 넘어간다
+    // (버튼은 목록을 다시 읽는 동안 비활성이라, 활성 여부로 루프를 돌리면 전환 중에 빠져나간다)
+    const indicator = page.getByText(/^\d+ \/ \d+$/);
+    const readPage = async (): Promise<[number, number]> => {
+      const [cur, total] = (await indicator.innerText()).split('/').map((v) => Number(v.trim()));
+      return [cur, total];
+    };
+    let [current, totalPages] = await readPage();
+    expect(totalPages).toBeGreaterThan(1);
+    while (current < totalPages) {
       await nextButton.click();
-      await expect(page.locator('[class*="group/row"]').first()).toBeVisible();
+      await expect(indicator).toHaveText(`${current + 1} / ${totalPages}`);
+      [current, totalPages] = await readPage();
     }
+
+    // 내용이 실제로 바뀌었다 = 1페이지만으로는 닿을 수 없던 행에 닿았다
+    expect(await firstRow.first().innerText()).not.toBe(page1Top);
+    // 마지막 페이지에는 자료 기반 원본이 있다 — 페이지 이동이 없으면 닿을 수 없던 행이다
     await expect(page.getByText(SEED_DOCUMENT_TITLE).first()).toBeVisible();
     await shot(page, 'pagination-after');
   });
