@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Button } from '@/shared/ui/components/button';
 import { Input } from '@/shared/ui/components/input';
 import {
@@ -92,6 +93,8 @@ interface FolderBarProps {
   onCreate: () => void;
   onRename: (folder: FolderItem) => void;
   onDelete: (folderId: string) => void;
+  /** 폴더 바 우측에 함께 놓이는 추가 동작(오답 모아풀기 진입점) */
+  actionSlot?: ReactNode;
 }
 
 export const FolderBar = ({
@@ -104,6 +107,7 @@ export const FolderBar = ({
   onCreate,
   onRename,
   onDelete,
+  actionSlot,
 }: FolderBarProps) => {
   const activeFolder =
     selectedScope !== 'all' && selectedScope !== 'unclassified'
@@ -188,6 +192,8 @@ export const FolderBar = ({
         <Plus className="mr-1 size-3.5" />
         {t('새 폴더')}
       </Button>
+
+      {actionSlot}
     </div>
   );
 };

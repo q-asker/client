@@ -54,5 +54,22 @@
   "폴더로 이동했습니다.": "Moved to folder.",
   "미분류로 이동했습니다.": "Moved to Unclassified.",
   "폴더 선택": "Select folder",
-  "기록을 찾을 수 없습니다.": "Record not found."
+  "기록을 찾을 수 없습니다.": "Record not found.",
+  "{{types}} 문제집은 만들지 못했어요.": "Couldn't create the {{types}} quiz set.",
+  "객관식": "Multiple Choice",
+  "닫기": "Close",
+  "모을 오답이 없어요.": "There are no wrong answers to collect.",
+  "무엇부터 풀지 골라주세요.": "Choose which one to start with.",
+  "빈칸 넣기": "Fill in the Blank",
+  "빈칸 직접입력": "Fill in the Blank (typed)",
+  "서술형": "Essay",
+  "서술형 {{count}}문제는 아직 모아풀기 대상이 아니에요.": "{{count}} essay question(s) can't be collected yet.",
+  "서술형은 아직 모아풀기를 지원하지 않아요.": "Essay questions are not supported yet.",
+  "오답 모음": "Wrong Answers",
+  "오답 문제집이 만들어졌어요": "Your wrong-answer sets are ready",
+  "오답이 있던 문제집이 삭제되어 모을 문항이 없어요.": "The quizzes holding your wrong answers were deleted, so there is nothing to collect.",
+  "최근 100문제만 담겼어요": "Only the 100 most recent",
+  "틀린 문제 모아풀기": "Collect Wrong Answers",
+  "폴더를 선택하면 그 폴더의 오답을 모을 수 있어요": "Select a folder to collect the wrong answers in it",
+  "OX 퀴즈": "True/False Quiz"
 }
