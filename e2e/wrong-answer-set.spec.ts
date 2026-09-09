@@ -173,6 +173,18 @@ test.describe('008 오답 모아풀기', () => {
     const rowCount = await page.locator('[class*="group/row"]').count();
     expect(await badges.count()).toBeGreaterThan(0);
     expect(await badges.count()).toBeLessThan(rowCount);
+
+    // contract §7.2·§7.7-4: takenAt 은 완료 시각이라 방금 만든 미완료 오답 세트는 '완료일'이 비어야
+    // 한다. 매핑이 created_at 으로 남아 있으면 풀지도 않은 날짜가 찍히므로 여기서 잡는다.
+    const wrongRows = page
+      .locator('div.md\\:grid')
+      .filter({ has: page.getByText('오답 모음', { exact: true }) });
+    const wrongRowCount = await wrongRows.count();
+    expect(wrongRowCount).toBeGreaterThan(0);
+    for (let i = 0; i < wrongRowCount; i++) {
+      await expect(wrongRows.nth(i).locator('div.text-center.text-xs').last()).toHaveText('-');
+    }
+
     await shot(page, 'list-badge');
   });
 
