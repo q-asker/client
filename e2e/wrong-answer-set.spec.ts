@@ -18,14 +18,25 @@ import { test, expect, type Page, type Response } from '@playwright/test';
  *
  * 재실행 안전성: 만들어진 오답 문제집은 같은 폴더에 미완료로 들어가지만(확정 제품 결정 5),
  * 수집 대상은 "완료 + 답안 있는 기록"뿐이라 몇 번을 돌려도 위 기대값이 그대로다.
- * 다만 폴더 카운트와 목록 길이는 실행할 때마다 늘어나므로 그 둘은 단언하지 않는다.
+ *
+ * 다만 **시드 폴더의 목록은 실행할 때마다 길어진다.** 목록 페이지 크기가 20이고 이 화면에는
+ * 페이지네이션 UI 가 없어서, 여러 번 돌리면 1페이지가 오답 세트로만 채워진다. 그래서
+ * **목록 화면의 구성(행 수·무엇이 같은 페이지에 함께 보이는지)에 기대는 단언을 쓰지 않는다.**
+ * FR-013 의 음성 사례는 시드 폴더가 아니라 항상 1건뿐인 함정 폴더에서 확인한다.
  */
 
 const ACCESS_TOKEN = process.env.E2E_ACCESS_TOKEN ?? '';
-/** 시드 폴더 이름(고정). hashid 가 필요하면 E2E_WRONG_FOLDER_ID 로 넘길 수 있다 */
+/** 시드 폴더 이름(고정). hashid 가 필요하면 E2E_WRONG_FOLDER 로 넘길 수 있다 */
 const SEED_FOLDER = process.env.E2E_WRONG_FOLDER ?? 'E2E-WRONG-ANSWER';
+/**
+ * 시드의 "폴더 밖" 함정 폴더(contract §7.8 표 5행). 자료 기반 기록 1건만 들어 있어
+ * 목록이 아무리 쌓여도 항상 1페이지에 보인다 — FR-013 의 음성 사례로 쓴다.
+ */
+const OTHER_FOLDER = process.env.E2E_OTHER_FOLDER ?? 'E2E-OTHER-FOLDER';
 
 const COLLECT_URL = /\/problem-set\/wrong-answers$/;
+/** 로컬 백엔드 주소(앱의 VITE_BASE_URL 과 같아야 한다). 기동 여부 선확인에만 쓴다 */
+const API_BASE = process.env.E2E_API_BASE ?? 'http://localhost:8080';
 
 let seq = 0;
 const runId = process.env.E2E_RUN_ID ?? String(Date.now());
@@ -87,6 +98,20 @@ test.describe('008 오답 모아풀기', () => {
   // 시드 폴더를 공유하므로 직렬 실행
   test.describe.configure({ mode: 'serial' });
   test.skip(!ACCESS_TOKEN, 'E2E_ACCESS_TOKEN 이 있을 때만 실행');
+
+  /**
+   * 백엔드가 떠 있는지 먼저 본다. 서버가 죽은 채로 돌리면 앱이 조용히 폴백 렌더를 해서
+   * "CTA 가 보인다" 같은 **엉뚱한 단언 실패**로 나타나 원인 파악에 시간이 든다.
+   */
+  test.beforeAll(async ({ request }) => {
+    const reachable = await request
+      .get(`${API_BASE}/local/token?userId=e2e-008-user`)
+      .then((res) => res.ok())
+      .catch(() => false);
+    expect(reachable, `로컬 백엔드(${API_BASE})에 연결할 수 없다 — 서버 기동을 먼저 확인해라`).toBe(
+      true,
+    );
+  });
 
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
@@ -167,25 +192,32 @@ test.describe('008 오답 모아풀기', () => {
 
     // '오답 모음' 은 백엔드가 만든 제목에도 들어 있으므로 exact 로 배지만 집는다
     const badges = page.getByText('오답 모음', { exact: true });
+
+    // (양성) 오답 문제집에는 배지가 붙는다
     await expect(badges.first()).toBeVisible();
 
-    // 구별이 성립하려면 배지가 붙지 않은 자료 기반 행도 함께 있어야 한다 (FR-013)
-    const rowCount = await page.locator('[class*="group/row"]').count();
-    expect(await badges.count()).toBeGreaterThan(0);
-    expect(await badges.count()).toBeLessThan(rowCount);
-
-    // contract §7.2·§7.7-4: takenAt 은 완료 시각이라 방금 만든 미완료 오답 세트는 '완료일'이 비어야
-    // 한다. 매핑이 created_at 으로 남아 있으면 풀지도 않은 날짜가 찍히므로 여기서 잡는다.
-    const wrongRows = page
+    // contract §7.2·§7.7-4: takenAt 은 이제 "완료 시각"이라 아직 풀지 않은 오답 세트의 '완료일'은
+    // 비어야 한다. 매핑이 created_at 으로 남아 있으면 풀지도 않은 날짜가 찍히므로 여기서 잡는다.
+    // **미완료 행만** 본다 — 이전 실행에서 풀린 오답 세트는 완료일이 있는 게 정상이다.
+    const unsolvedWrongRows = page
       .locator('div.md\\:grid')
-      .filter({ has: page.getByText('오답 모음', { exact: true }) });
-    const wrongRowCount = await wrongRows.count();
-    expect(wrongRowCount).toBeGreaterThan(0);
-    for (let i = 0; i < wrongRowCount; i++) {
-      await expect(wrongRows.nth(i).locator('div.text-center.text-xs').last()).toHaveText('-');
+      .filter({ has: page.getByText('오답 모음', { exact: true }) })
+      .filter({ has: page.getByText('미완료', { exact: true }) });
+    const unsolvedCount = await unsolvedWrongRows.count();
+    expect(unsolvedCount).toBeGreaterThan(0); // 방금 만든 것들이 여기 잡힌다
+    for (let i = 0; i < unsolvedCount; i++) {
+      await expect(unsolvedWrongRows.nth(i).locator('div.text-center.text-xs').last()).toHaveText(
+        '-',
+      );
     }
 
     await shot(page, 'list-badge');
+
+    // (음성) 자료 기반 문제집에는 붙지 않는다.
+    // 시드 폴더가 아니라 함정 폴더에서 본다 — 자료 기반 1건뿐이라 목록이 아무리 쌓여도 1페이지에 보인다.
+    await selectFolder(page, OTHER_FOLDER);
+    await expect(page.locator('[class*="group/row"]').first()).toBeVisible();
+    await expect(page.getByText('오답 모음', { exact: true })).toHaveCount(0);
   });
 
   test('FR-014: 오답 문제집에는 "이 조건으로 더 풀기"가 노출되지 않는다', async ({ page }) => {
