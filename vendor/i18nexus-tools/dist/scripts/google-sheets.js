@@ -1,0 +1,911 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.defaultGoogleSheetsManager = exports.GoogleSheetsManager = void 0;
+const googleapis_1 = require("googleapis");
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
+const CSV_LANGUAGE_HEADER_TO_CODE = {
+    english: "en",
+    korean: "ko",
+    japanese: "ja",
+    chinese: "zh",
+    spanish: "es",
+    french: "fr",
+    german: "de",
+};
+function normalizeCsvHeader(header) {
+    return header
+        .trim()
+        .replace(/^\uFEFF/, "")
+        .toLowerCase();
+}
+function getLanguageCodeFromCsvHeader(header) {
+    const normalized = normalizeCsvHeader(header);
+    if (!normalized || normalized === "key") {
+        return null;
+    }
+    return CSV_LANGUAGE_HEADER_TO_CODE[normalized] || normalized;
+}
+class GoogleSheetsManager {
+    constructor(config = {}) {
+        this.sheets = null;
+        this.config = {
+            credentialsPath: config.credentialsPath || "./credentials.json",
+            spreadsheetId: config.spreadsheetId || "",
+            sheetName: config.sheetName || "Translations",
+            namespace: config.namespace || "",
+            keyColumn: config.keyColumn || "A",
+            valueColumns: config.valueColumns || ["B", "C"], // B=English, C=Korean
+            headerRow: config.headerRow || 1,
+        };
+    }
+    /**
+     * 네임스페이스 경로 반환 (도메인 우선 구조: locales/[namespace]/[lang].json)
+     */
+    getNamespacePath(localesDir) {
+        if (this.config.namespace) {
+            return path.join(localesDir, this.config.namespace);
+        }
+        return localesDir; // 레거시: locales/[lang].json
+    }
+    /**
+     * Google Sheets API 인증 및 초기화
+     */
+    async authenticate() {
+        try {
+            // 서비스 계정 키 파일 읽기
+            if (!fs.existsSync(this.config.credentialsPath)) {
+                throw new Error(`Credentials file not found: ${this.config.credentialsPath}`);
+            }
+            const credentials = JSON.parse(fs.readFileSync(this.config.credentialsPath, "utf8"));
+            // JWT 클라이언트 생성
+            const auth = new googleapis_1.google.auth.GoogleAuth({
+                credentials,
+                scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+            });
+            const authClient = await auth.getClient();
+            // Sheets API 클라이언트 생성
+            this.sheets = googleapis_1.google.sheets({ version: "v4", auth: authClient });
+            console.log("✅ Google Sheets API authenticated successfully");
+        }
+        catch (error) {
+            console.error("❌ Failed to authenticate Google Sheets API:", error);
+            throw error;
+        }
+    }
+    /**
+     * 스프레드시트가 존재하는지 확인
+     */
+    async checkSpreadsheet() {
+        if (!this.sheets) {
+            throw new Error("Google Sheets client not initialized. Call authenticate() first.");
+        }
+        try {
+            await this.sheets.spreadsheets.get({
+                spreadsheetId: this.config.spreadsheetId,
+            });
+            return true;
+        }
+        catch (error) {
+            console.error("❌ Spreadsheet not accessible:", error);
+            return false;
+        }
+    }
+    /**
+     * 워크시트가 존재하는지 확인하고, 없으면 생성
+     */
+    async ensureWorksheet() {
+        if (!this.sheets) {
+            throw new Error("Google Sheets client not initialized. Call authenticate() first.");
+        }
+        try {
+            const spreadsheet = await this.sheets.spreadsheets.get({
+                spreadsheetId: this.config.spreadsheetId,
+            });
+            const sheetExists = spreadsheet.data.sheets?.some((sheet) => sheet.properties?.title === this.config.sheetName);
+            if (!sheetExists) {
+                console.log(`📝 Creating worksheet: ${this.config.sheetName}`);
+                await this.sheets.spreadsheets.batchUpdate({
+                    spreadsheetId: this.config.spreadsheetId,
+                    requestBody: {
+                        requests: [
+                            {
+                                addSheet: {
+                                    properties: {
+                                        title: this.config.sheetName,
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                });
+                // 헤더 행 추가
+                await this.addHeaders();
+            }
+        }
+        catch (error) {
+            console.error("❌ Failed to ensure worksheet:", error);
+            throw error;
+        }
+    }
+    /**
+     * 헤더 행 추가
+     */
+    async addHeaders() {
+        if (!this.sheets)
+            return;
+        const headers = ["Key", "English", "Korean"];
+        const range = `${this.config.sheetName}!A${this.config.headerRow}:C${this.config.headerRow}`;
+        await this.sheets.spreadsheets.values.update({
+            spreadsheetId: this.config.spreadsheetId,
+            range,
+            valueInputOption: "USER_ENTERED",
+            requestBody: {
+                values: [headers],
+            },
+        });
+        console.log("📝 Headers added to worksheet");
+    }
+    /**
+     * 로컬 번역 파일들을 읽어서 Google Sheets에 업로드
+     * @param localesDir 로컬 번역 파일 디렉토리
+     * @param autoTranslate true일 경우 영어는 GOOGLETRANSLATE 수식으로 업로드
+     * @param force true일 경우 기존 데이터를 모두 지우고 새로 업로드
+     */
+    async uploadTranslations(localesDir, autoTranslate = false, force = false) {
+        if (!this.sheets) {
+            throw new Error("Google Sheets client not initialized. Call authenticate() first.");
+        }
+        try {
+            console.log("📤 Uploading translations to Google Sheets...");
+            if (autoTranslate) {
+                console.log("🤖 Auto-translate mode: English will use GOOGLETRANSLATE formula");
+            }
+            if (force) {
+                console.log("💪 Force mode: Overwriting all existing data");
+            }
+            // 로컬 번역 파일들 읽기
+            const translations = await this.readLocalTranslations(localesDir);
+            if (translations.length === 0) {
+                console.log("📝 No translation files found");
+                return;
+            }
+            let translationsToUpload;
+            if (force) {
+                // Force 모드: 모든 키 업로드
+                translationsToUpload = translations;
+                // 기존 데이터 모두 삭제 (헤더 제외)
+                const existingData = await this.downloadTranslations();
+                if (existingData.length > 0) {
+                    const deleteRange = `${this.config.sheetName}!A${this.config.headerRow + 1}:C${existingData.length + this.config.headerRow}`;
+                    await this.sheets.spreadsheets.values.clear({
+                        spreadsheetId: this.config.spreadsheetId,
+                        range: deleteRange,
+                    });
+                    console.log(`�️  Cleared ${existingData.length} existing rows`);
+                }
+            }
+            else {
+                // 일반 모드: 새로운 키만 업로드
+                const existingData = await this.downloadTranslations();
+                const existingKeys = new Set(existingData.map((row) => row.key));
+                translationsToUpload = translations.filter((t) => !existingKeys.has(t.key));
+                if (translationsToUpload.length === 0) {
+                    console.log("📝 No new translations to upload");
+                    return;
+                }
+            }
+            // 시작 행 계산
+            const startRow = this.config.headerRow + 1;
+            // 데이터 준비
+            const values = translationsToUpload.map((translation, index) => {
+                const currentRow = startRow + index;
+                const key = translation.key;
+                const korean = translation.ko || "";
+                const localEnglishValue = translation.en || "";
+                const english = autoTranslate
+                    ? localEnglishValue === ""
+                        ? `=GOOGLETRANSLATE(C${currentRow}, "ko", "en")`
+                        : localEnglishValue
+                    : localEnglishValue;
+                return [
+                    this.escapeFormula(key),
+                    this.escapeFormula(english),
+                    this.escapeFormula(korean),
+                ];
+            });
+            const endRow = startRow + values.length - 1;
+            const range = `${this.config.sheetName}!A${startRow}:C${endRow}`;
+            // 데이터 업로드
+            await this.sheets.spreadsheets.values.update({
+                spreadsheetId: this.config.spreadsheetId,
+                range,
+                valueInputOption: "USER_ENTERED",
+                requestBody: {
+                    values,
+                },
+            });
+            console.log(`✅ Uploaded ${translationsToUpload.length} translations to Google Sheets`);
+            if (autoTranslate) {
+                console.log("🤖 English translations will be auto-generated by Google Sheets");
+            }
+        }
+        catch (error) {
+            console.error("❌ Failed to upload translations:", error);
+            throw error;
+        }
+    }
+    /**
+     * Google Sheets에서 번역 데이터 다운로드
+     * valueRenderOption을 FORMATTED_VALUE로 설정하여 수식이 아닌 계산된 결과값을 가져옴
+     */
+    async downloadTranslations() {
+        if (!this.sheets) {
+            throw new Error("Google Sheets client not initialized. Call authenticate() first.");
+        }
+        try {
+            console.log("📥 Downloading translations from Google Sheets...");
+            const range = `${this.config.sheetName}!A:C`;
+            const response = await this.sheets.spreadsheets.values.get({
+                spreadsheetId: this.config.spreadsheetId,
+                range,
+                valueRenderOption: "UNFORMATTED_VALUE", // 원본 값을 가져옴 (' 포함)
+            });
+            const rows = response.data.values || [];
+            if (rows.length <= this.config.headerRow) {
+                console.log("📝 No translation data found");
+                return [];
+            }
+            // 헤더 행 제외하고 데이터 파싱
+            const dataRows = rows.slice(this.config.headerRow);
+            const translations = dataRows
+                .filter((row) => row[0]) // 키가 있는 행만
+                .map((row) => {
+                // 다운로드 시 '로 시작하는 값에서 ' 제거 (텍스트로 강제 변환된 값)
+                const removeEscapePrefix = (value) => {
+                    if (!value)
+                        return value;
+                    // '로 시작하는 경우 제거 (Google Sheets에서 텍스트로 강제 변환된 값)
+                    if (value.startsWith("'")) {
+                        return value.substring(1);
+                    }
+                    return value;
+                };
+                return {
+                    key: removeEscapePrefix(row[0] || ""),
+                    en: removeEscapePrefix(row[1] || ""),
+                    ko: removeEscapePrefix(row[2] || ""),
+                };
+            });
+            console.log(`✅ Downloaded ${translations.length} translations from Google Sheets`);
+            return translations;
+        }
+        catch (error) {
+            console.error("❌ Failed to download translations:", error);
+            throw error;
+        }
+    }
+    /**
+     * Google Sheets 데이터를 로컬 번역 파일로 저장 (언어별 파일: en.json, ko.json)
+     */
+    async saveTranslationsToLocal(localesDir, languages = ["en", "ko"]) {
+        try {
+            const translations = await this.downloadTranslations();
+            if (translations.length === 0) {
+                console.log("📝 No translations to save");
+                return;
+            }
+            // locales 디렉토리가 없으면 생성
+            if (!fs.existsSync(localesDir)) {
+                fs.mkdirSync(localesDir, { recursive: true });
+            }
+            // 도메인 우선 구조: locales/[namespace]/[lang].json
+            const namespacePath = this.getNamespacePath(localesDir);
+            if (!fs.existsSync(namespacePath)) {
+                fs.mkdirSync(namespacePath, { recursive: true });
+            }
+            // 언어별로 번역 파일 생성
+            for (const lang of languages) {
+                const translationObj = {};
+                translations.forEach((row) => {
+                    if (row[lang]) {
+                        translationObj[row.key] = row[lang];
+                    }
+                });
+                const filePath = path.join(namespacePath, `${lang}.json`);
+                fs.writeFileSync(filePath, JSON.stringify(translationObj, null, 2), "utf-8");
+                console.log(`📝 Saved ${Object.keys(translationObj).length} ${lang} translations to ${filePath}`);
+            }
+        }
+        catch (error) {
+            console.error("❌ Failed to save translations to local:", error);
+            throw error;
+        }
+    }
+    /**
+     * Google Sheets 데이터를 로컬 번역 파일로 저장 (증분 업데이트 - 추가된 데이터만)
+     */
+    async saveTranslationsToLocalIncremental(localesDir, languages = ["en", "ko"]) {
+        try {
+            const translations = await this.downloadTranslations();
+            if (translations.length === 0) {
+                console.log("📝 No translations to save");
+                return;
+            }
+            // locales 디렉토리가 없으면 생성
+            if (!fs.existsSync(localesDir)) {
+                fs.mkdirSync(localesDir, { recursive: true });
+            }
+            // 도메인 우선 구조: locales/[namespace]/[lang].json
+            const namespacePath = this.getNamespacePath(localesDir);
+            if (!fs.existsSync(namespacePath)) {
+                fs.mkdirSync(namespacePath, { recursive: true });
+            }
+            // 언어별로 번역 파일 생성/업데이트
+            for (const lang of languages) {
+                const filePath = path.join(namespacePath, `${lang}.json`);
+                // 기존 번역 파일 읽기
+                let existingTranslations = {};
+                if (fs.existsSync(filePath)) {
+                    existingTranslations = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+                }
+                // 새로운 번역만 추가 (기존 키는 유지)
+                let addedCount = 0;
+                translations.forEach((row) => {
+                    if (row[lang] && !existingTranslations[row.key]) {
+                        existingTranslations[row.key] = row[lang];
+                        addedCount++;
+                    }
+                });
+                fs.writeFileSync(filePath, JSON.stringify(existingTranslations, null, 2), "utf-8");
+                console.log(`📝 Added ${addedCount} new ${lang} translations to ${filePath} (total: ${Object.keys(existingTranslations).length})`);
+            }
+        }
+        catch (error) {
+            console.error("❌ Failed to save translations to local:", error);
+            throw error;
+        }
+    }
+    /**
+     * 로컬 번역 파일들 읽기
+     * - namespace가 없으면: locales/en.json, locales/ko.json (레거시)
+     * - namespace가 있으면: locales/${namespace}/en.json, locales/${namespace}/ko.json (도메인 우선)
+     */
+    async readLocalTranslations(localesDir) {
+        const translations = [];
+        const allKeys = new Set();
+        const namespacePath = this.getNamespacePath(localesDir);
+        if (!fs.existsSync(namespacePath)) {
+            console.log(`⚠️  Locales directory not found: ${namespacePath}`);
+            return [];
+        }
+        // 도메인 우선 구조: locales/[namespace]/[lang].json
+        if (this.config.namespace) {
+            // 네임스페이스 디렉토리에서 .json 파일들 찾기 (ko.json, en.json 등)
+            const files = fs
+                .readdirSync(namespacePath)
+                .filter((file) => file.endsWith(".json") && file !== "index.ts");
+            const translationData = {};
+            // 각 언어 파일 읽기
+            for (const file of files) {
+                const lang = path.basename(file, ".json"); // ko.json -> ko
+                const filePath = path.join(namespacePath, file);
+                try {
+                    const content = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+                    translationData[lang] = content;
+                    Object.keys(content).forEach((key) => {
+                        allKeys.add(key);
+                    });
+                }
+                catch (error) {
+                    console.warn(`⚠️  Failed to read ${filePath}:`, error);
+                }
+            }
+            // 모든 키에 대해 번역 행 생성
+            allKeys.forEach((key) => {
+                const row = { key };
+                Object.keys(translationData).forEach((lang) => {
+                    row[lang] = translationData[lang][key] || "";
+                });
+                translations.push(row);
+            });
+        }
+        else {
+            // 레거시 구조: locales/en.json, locales/ko.json
+            const files = fs
+                .readdirSync(namespacePath)
+                .filter((file) => file.endsWith(".json") && file !== "index.ts");
+            const translationData = {};
+            // 각 언어 파일 읽기
+            for (const file of files) {
+                const lang = path.basename(file, ".json"); // en.json -> en
+                const filePath = path.join(namespacePath, file);
+                try {
+                    const content = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+                    translationData[lang] = content;
+                    Object.keys(content).forEach((key) => {
+                        allKeys.add(key);
+                    });
+                }
+                catch (error) {
+                    console.warn(`⚠️  Failed to read ${filePath}:`, error);
+                }
+            }
+            // 모든 키에 대해 번역 행 생성
+            allKeys.forEach((key) => {
+                const row = { key };
+                Object.keys(translationData).forEach((lang) => {
+                    row[lang] = translationData[lang][key] || "";
+                });
+                translations.push(row);
+            });
+        }
+        return translations;
+    }
+    /**
+     * 양방향 동기화 - 로컬과 Google Sheets 간의 차이점 해결
+     */
+    async syncTranslations(localesDir) {
+        try {
+            console.log("🔄 Starting bidirectional sync...");
+            // 로컬과 원격 데이터 읽기
+            const [localTranslations, remoteTranslations] = await Promise.all([
+                this.readLocalTranslations(localesDir),
+                this.downloadTranslations(),
+            ]);
+            const localKeys = new Set(localTranslations.map((t) => t.key));
+            const remoteKeys = new Set(remoteTranslations.map((t) => t.key));
+            // 새로운 로컬 키들을 Google Sheets에 업로드
+            const newLocalKeys = localTranslations.filter((t) => !remoteKeys.has(t.key));
+            if (newLocalKeys.length > 0) {
+                console.log(`📤 Uploading ${newLocalKeys.length} new local keys to Google Sheets`);
+                await this.uploadNewTranslations(newLocalKeys);
+            }
+            // 새로운 원격 키들을 로컬에 다운로드
+            const newRemoteKeys = remoteTranslations.filter((t) => !localKeys.has(t.key));
+            if (newRemoteKeys.length > 0) {
+                console.log(`📥 Downloading ${newRemoteKeys.length} new remote keys to local files`);
+                await this.addTranslationsToLocal(localesDir, newRemoteKeys);
+            }
+            console.log("✅ Sync completed successfully");
+        }
+        catch (error) {
+            console.error("❌ Failed to sync translations:", error);
+            throw error;
+        }
+    }
+    /**
+     * Google Sheets에서 수식/날짜/시간으로 해석되는 값 방지
+     *
+     * 처리되는 패턴:
+     * 1. 수식으로 오인될 수 있는 시작 문자: =, +, -, @
+     * 2. 날짜/시간으로 자동 변환되는 패턴:
+     *    - 1-2, 3/4, 5.6 (날짜로 변환)
+     *    - 12:30 (시간으로 변환)
+     *    - 2025/12/2 (날짜로 변환)
+     * 3. 숫자와 연산자 조합: "1 + 1", "2-3" 등
+     * 4. 괄호로 시작: (제목 없음), (1+2) 등
+     *
+     * 모든 위험한 패턴 앞에 '를 추가하여 텍스트로 강제 변환
+     */
+    escapeFormula(value) {
+        if (!value)
+            return value;
+        // 공백 제거 후 첫 문자 확인
+        const trimmed = value.trim();
+        if (!trimmed)
+            return value;
+        // 1. 수식으로 해석될 수 있는 문자로 시작하는 경우
+        // =, +, -, @, (, )로 시작하는 경우
+        if (/^[+\-=@()]/.test(trimmed)) {
+            return `'${value}`;
+        }
+        // 2. 날짜/시간 패턴 감지
+        // 날짜 패턴: 숫자-숫자, 숫자/숫자, 숫자.숫자
+        // 예: "1-2", "3/4", "5.6", "2025/12/2"
+        if (/^\d+[-/.]\d+/.test(trimmed)) {
+            // 시간 패턴은 제외 (예: "12:30"은 시간으로 변환되지만, "12:30 PM" 같은 경우는 처리)
+            // 단순 숫자-숫자, 숫자/숫자 패턴은 날짜로 변환될 수 있음
+            if (/^\d{1,2}[-/.]\d{1,2}([-/.]\d{2,4})?$/.test(trimmed)) {
+                return `'${value}`;
+            }
+        }
+        // 시간 패턴: HH:MM 또는 HH:MM:SS
+        // 예: "12:30", "12:30:45"
+        if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(trimmed)) {
+            return `'${value}`;
+        }
+        // 3. 숫자로 시작하고 연산자가 포함된 경우 (수식으로 해석될 수 있음)
+        // 예: "1 + 1", "2-3", "3*4", "5/6"
+        if (/^\d/.test(trimmed) && /[\s+\-*/=]/.test(trimmed)) {
+            return `'${value}`;
+        }
+        // 4. 지수 표현 패턴: 숫자e숫자 또는 숫자E숫자
+        // 예: "1e5", "2E10"
+        if (/^\d+[eE][+-]?\d+/.test(trimmed)) {
+            return `'${value}`;
+        }
+        return value;
+    }
+    /**
+     * 새로운 번역들을 Google Sheets에 추가
+     */
+    async uploadNewTranslations(translations) {
+        if (!this.sheets || translations.length === 0)
+            return;
+        const values = translations.map((t) => [
+            this.escapeFormula(t.key),
+            this.escapeFormula(t.en || ""),
+            this.escapeFormula(t.ko || ""),
+        ]);
+        // 기존 데이터의 마지막 행 찾기
+        const existingData = await this.downloadTranslations();
+        const startRow = existingData.length + this.config.headerRow + 1;
+        const endRow = startRow + values.length - 1;
+        const range = `${this.config.sheetName}!A${startRow}:C${endRow}`;
+        await this.sheets.spreadsheets.values.update({
+            spreadsheetId: this.config.spreadsheetId,
+            range,
+            valueInputOption: "USER_ENTERED",
+            requestBody: {
+                values,
+            },
+        });
+    }
+    /**
+     * 새로운 번역들을 로컬 파일에 추가
+     */
+    async addTranslationsToLocal(localesDir, translations) {
+        const languages = ["en", "ko"];
+        const namespacePath = this.getNamespacePath(localesDir);
+        if (!fs.existsSync(namespacePath)) {
+            fs.mkdirSync(namespacePath, { recursive: true });
+        }
+        for (const lang of languages) {
+            const filePath = path.join(namespacePath, `${lang}.json`);
+            // 기존 번역 읽기
+            let existingTranslations = {};
+            if (fs.existsSync(filePath)) {
+                existingTranslations = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+            }
+            // 새로운 번역 추가
+            translations.forEach((t) => {
+                if (t[lang]) {
+                    existingTranslations[t.key] = t[lang];
+                }
+            });
+            // 파일 저장
+            fs.writeFileSync(filePath, JSON.stringify(existingTranslations, null, 2), "utf-8");
+        }
+    }
+    /**
+     * Spreadsheet의 모든 시트 목록 조회
+     */
+    async getAllSheetNames() {
+        if (!this.sheets) {
+            throw new Error("Google Sheets client not initialized. Call authenticate() first.");
+        }
+        try {
+            const spreadsheet = await this.sheets.spreadsheets.get({
+                spreadsheetId: this.config.spreadsheetId,
+            });
+            const sheetNames = spreadsheet.data.sheets
+                ?.map((sheet) => sheet.properties?.title)
+                .filter((name) => !!name) || [];
+            return sheetNames;
+        }
+        catch (error) {
+            console.error("❌ Failed to get sheet names:", error);
+            throw error;
+        }
+    }
+    /**
+     * 모든 시트의 번역을 자동으로 다운로드하여 네임스페이스별 폴더에 저장
+     * 각 시트 이름이 네임스페이스가 됩니다.
+     */
+    async downloadAllSheets(localesDir, languages = ["en", "ko"]) {
+        try {
+            console.log("📥 Downloading all sheets from Google Sheets...");
+            // 1. 모든 시트 이름 조회
+            const sheetNames = await this.getAllSheetNames();
+            if (sheetNames.length === 0) {
+                console.log("📝 No sheets found in spreadsheet");
+                return;
+            }
+            console.log(`📋 Found ${sheetNames.length} sheets: ${sheetNames.join(", ")}`);
+            // 2. 각 시트별로 다운로드
+            for (const sheetName of sheetNames) {
+                console.log(`\n📥 Downloading sheet: "${sheetName}"`);
+                // 해당 시트용 GoogleSheetsManager 인스턴스 생성
+                const sheetManager = new GoogleSheetsManager({
+                    credentialsPath: this.config.credentialsPath,
+                    spreadsheetId: this.config.spreadsheetId,
+                    sheetName: sheetName,
+                    namespace: sheetName, // 시트 이름을 네임스페이스로 사용
+                });
+                // 인증 (이미 인증된 sheets 클라이언트 재사용)
+                sheetManager.sheets = this.sheets;
+                // 해당 시트의 데이터를 locales/[namespace]/ 에 저장
+                await sheetManager.saveTranslationsToLocal(localesDir, languages);
+            }
+            console.log("\n✅ All sheets downloaded successfully");
+        }
+        catch (error) {
+            console.error("❌ Failed to download all sheets:", error);
+            throw error;
+        }
+    }
+    /**
+     * locales 폴더의 모든 네임스페이스를 자동으로 업로드
+     * 각 네임스페이스 폴더가 하나의 시트가 됩니다.
+     */
+    async uploadAllNamespaces(localesDir, autoTranslate = false, force = false) {
+        try {
+            console.log("📤 Uploading all namespaces to Google Sheets...");
+            if (!fs.existsSync(localesDir)) {
+                throw new Error(`Locales directory not found: ${localesDir}`);
+            }
+            // 1. locales 폴더의 하위 디렉토리 목록 조회 (네임스페이스)
+            const namespaces = fs.readdirSync(localesDir).filter((item) => {
+                const fullPath = path.join(localesDir, item);
+                // 디렉토리이고, types 같은 특수 폴더는 제외
+                return (fs.statSync(fullPath).isDirectory() &&
+                    item !== "types" &&
+                    !item.startsWith("."));
+            });
+            if (namespaces.length === 0) {
+                console.log("📝 No namespaces found in locales directory");
+                return;
+            }
+            console.log(`📋 Found ${namespaces.length} namespaces: ${namespaces.join(", ")}`);
+            // 2. 각 네임스페이스별로 업로드
+            for (const namespace of namespaces) {
+                console.log(`\n📤 Uploading namespace: "${namespace}"`);
+                // 해당 네임스페이스용 GoogleSheetsManager 인스턴스 생성
+                const sheetManager = new GoogleSheetsManager({
+                    credentialsPath: this.config.credentialsPath,
+                    spreadsheetId: this.config.spreadsheetId,
+                    sheetName: namespace, // 네임스페이스 이름을 시트 이름으로 사용
+                    namespace: namespace,
+                });
+                // 인증 (이미 인증된 sheets 클라이언트 재사용)
+                sheetManager.sheets = this.sheets;
+                // 시트가 없으면 생성
+                await sheetManager.ensureWorksheet();
+                // 해당 네임스페이스의 번역을 시트에 업로드
+                await sheetManager.uploadTranslations(localesDir, autoTranslate, force);
+            }
+            console.log("\n✅ All namespaces uploaded successfully");
+        }
+        catch (error) {
+            console.error("❌ Failed to upload all namespaces:", error);
+            throw error;
+        }
+    }
+    /**
+     * 스프레드시트 상태 확인
+     */
+    async getStatus() {
+        if (!this.sheets) {
+            throw new Error("Google Sheets client not initialized. Call authenticate() first.");
+        }
+        try {
+            const [spreadsheet, values] = await Promise.all([
+                this.sheets.spreadsheets.get({
+                    spreadsheetId: this.config.spreadsheetId,
+                }),
+                this.sheets.spreadsheets.values.get({
+                    spreadsheetId: this.config.spreadsheetId,
+                    range: `${this.config.sheetName}!A:A`,
+                }),
+            ]);
+            const totalRows = (values.data.values?.length || 0) - this.config.headerRow;
+            return {
+                spreadsheetId: this.config.spreadsheetId,
+                sheetName: this.config.sheetName,
+                totalRows: Math.max(0, totalRows),
+                lastUpdated: spreadsheet.data.properties?.timeZone || undefined,
+            };
+        }
+        catch (error) {
+            console.error("❌ Failed to get status:", error);
+            throw error;
+        }
+    }
+    /**
+     * CSV 파일에서 번역 데이터 읽기 (구글 시트 호환 형식)
+     */
+    async readTranslationsFromCSV(csvFilePath) {
+        try {
+            console.log(`📥 Reading translations from CSV: ${csvFilePath}`);
+            if (!fs.existsSync(csvFilePath)) {
+                throw new Error(`CSV file not found: ${csvFilePath}`);
+            }
+            const csvContent = fs.readFileSync(csvFilePath, "utf-8");
+            const lines = csvContent.split("\n").filter((line) => line.trim());
+            if (lines.length <= 1) {
+                console.log("📝 No translation data found in CSV");
+                return [];
+            }
+            const headers = this.parseCSVLine(lines[0]);
+            const keyHeader = normalizeCsvHeader(headers[0] || "");
+            const languageColumns = headers
+                .slice(1)
+                .map((header, index) => ({
+                language: getLanguageCodeFromCsvHeader(header),
+                valueIndex: index + 1,
+            }))
+                .filter((column) => Boolean(column.language));
+            if (keyHeader !== "key" || languageColumns.length === 0) {
+                console.warn("⚠️ CSV header format might not be correct. Expected: Key plus one or more language columns");
+            }
+            // 데이터 파싱
+            const translations = [];
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line)
+                    continue;
+                const values = this.parseCSVLine(line);
+                if (values[0]) {
+                    const row = {
+                        key: values[0],
+                    };
+                    for (const { language, valueIndex } of languageColumns) {
+                        row[language] = values[valueIndex] || "";
+                    }
+                    translations.push(row);
+                }
+            }
+            console.log(`✅ Read ${translations.length} translations from CSV`);
+            return translations;
+        }
+        catch (error) {
+            console.error("❌ Failed to read CSV file:", error);
+            throw error;
+        }
+    }
+    /**
+     * CSV 라인 파싱 (간단한 CSV 파서)
+     */
+    parseCSVLine(line) {
+        const values = [];
+        let current = "";
+        let inQuotes = false;
+        let i = 0;
+        while (i < line.length) {
+            const char = line[i];
+            if (char === '"') {
+                if (inQuotes && line[i + 1] === '"') {
+                    // 이스케이프된 따옴표
+                    current += '"';
+                    i += 2;
+                }
+                else {
+                    // 따옴표 시작/끝
+                    inQuotes = !inQuotes;
+                    i++;
+                }
+            }
+            else if (char === "," && !inQuotes) {
+                // 컬럼 구분자
+                values.push(current);
+                current = "";
+                i++;
+            }
+            else {
+                current += char;
+                i++;
+            }
+        }
+        values.push(current);
+        return values;
+    }
+    /**
+     * 번역 데이터를 CSV 형식으로 저장 (구글 시트 호환)
+     */
+    async saveTranslationsToCSV(csvFilePath, translations) {
+        try {
+            console.log(`📤 Saving translations to CSV: ${csvFilePath}`);
+            const csvLines = ["Key,English,Korean"];
+            translations.forEach(({ key, en, ko }) => {
+                const escapedKey = this.escapeCsvValue(key);
+                const escapedEn = this.escapeCsvValue(en || "");
+                const escapedKo = this.escapeCsvValue(ko || "");
+                csvLines.push(`${escapedKey},${escapedEn},${escapedKo}`);
+            });
+            const csvContent = csvLines.join("\n");
+            // 디렉토리 생성
+            const csvDir = path.dirname(csvFilePath);
+            if (!fs.existsSync(csvDir)) {
+                fs.mkdirSync(csvDir, { recursive: true });
+            }
+            fs.writeFileSync(csvFilePath, csvContent, "utf-8");
+            console.log(`✅ Saved ${translations.length} translations to CSV`);
+        }
+        catch (error) {
+            console.error("❌ Failed to save CSV file:", error);
+            throw error;
+        }
+    }
+    /**
+     * CSV 값 이스케이프
+     */
+    escapeCsvValue(value) {
+        if (value.includes(",") ||
+            value.includes('"') ||
+            value.includes("\n") ||
+            value.includes("\r")) {
+            return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value;
+    }
+    /**
+     * CSV 파일을 로컬 JSON 번역 파일로 변환
+     */
+    async convertCSVToLocalTranslations(csvFilePath, localesDir, languages = ["en", "ko"]) {
+        try {
+            const translations = await this.readTranslationsFromCSV(csvFilePath);
+            if (translations.length === 0) {
+                console.log("📝 No translations to convert");
+                return;
+            }
+            // 도메인 우선 구조: locales/[namespace]/[lang].json
+            const namespacePath = this.getNamespacePath(localesDir);
+            if (!fs.existsSync(namespacePath)) {
+                fs.mkdirSync(namespacePath, { recursive: true });
+            }
+            // 언어별로 번역 파일 생성
+            for (const lang of languages) {
+                const translationObj = {};
+                translations.forEach((row) => {
+                    if (row[lang]) {
+                        translationObj[row.key] = row[lang];
+                    }
+                });
+                const filePath = path.join(namespacePath, `${lang}.json`);
+                fs.writeFileSync(filePath, JSON.stringify(translationObj, null, 2), "utf-8");
+                console.log(`📝 Converted ${Object.keys(translationObj).length} ${lang} translations to ${filePath}`);
+            }
+        }
+        catch (error) {
+            console.error("❌ Failed to convert CSV to local translations:", error);
+            throw error;
+        }
+    }
+}
+exports.GoogleSheetsManager = GoogleSheetsManager;
+// 기본 인스턴스
+exports.defaultGoogleSheetsManager = new GoogleSheetsManager();

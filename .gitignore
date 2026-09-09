@@ -45,3 +45,7 @@ specs
 test-results/
 playwright-report/
 /playwright/.cache/
+
+# 내장 i18nexus 패키지 — 상단의 dist 규칙에서 제외한다
+!vendor/i18nexus/dist/
+!vendor/i18nexus-tools/dist/
