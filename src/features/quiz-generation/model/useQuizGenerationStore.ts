@@ -8,7 +8,7 @@ import { createExpiringStorage } from '#shared/lib/expiringStorage';
 import { authService } from '#entities/auth';
 
 /** Safari 15.4 미만은 crypto.randomUUID 미지원 */
-function generateUUID(): string {
+export function generateUUID(): string {
   if (crypto.randomUUID) return crypto.randomUUID();
   const bytes = crypto.getRandomValues(new Uint8Array(16));
   bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4

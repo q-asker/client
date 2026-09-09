@@ -1,0 +1,376 @@
+#!/usr/bin/env node
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TranslationExtractor = void 0;
+exports.runTranslationExtractor = runTranslationExtractor;
+const fs = __importStar(require("fs"));
+const pathLib = __importStar(require("path"));
+const glob_1 = require("glob");
+const traverse_1 = __importDefault(require("@babel/traverse"));
+const parser_utils_1 = require("../common/ast/parser-utils");
+const default_config_1 = require("../common/default-config");
+const config_loader_1 = require("../config-loader");
+const key_extractor_1 = require("./key-extractor");
+const output_generator_1 = require("./output-generator");
+const constants_1 = require("./constants");
+const namespace_inference_1 = require("./namespace-inference");
+const type_generator_1 = require("./type-generator");
+const DEFAULT_CONFIG = {
+    sourcePattern: default_config_1.COMMON_DEFAULTS.sourcePattern,
+    outputFile: constants_1.STRING_CONSTANTS.DEFAULT_OUTPUT_FILE,
+    outputDir: default_config_1.COMMON_DEFAULTS.localesDir,
+    namespace: constants_1.STRING_CONSTANTS.DEFAULT_NAMESPACE,
+    includeLineNumbers: false,
+    includeFilePaths: false,
+    sortKeys: true,
+    dryRun: false,
+    outputFormat: constants_1.OUTPUT_FORMATS.JSON,
+    languages: [...default_config_1.COMMON_DEFAULTS.languages], // 기본 언어
+    defaultLanguage: default_config_1.COMMON_DEFAULTS.defaultLanguage,
+    sourceLanguage: default_config_1.COMMON_DEFAULTS.defaultLanguage,
+    fallbackNamespace: default_config_1.COMMON_DEFAULTS.fallbackNamespace,
+    translationImportSource: default_config_1.COMMON_DEFAULTS.translationImportSource,
+    force: false, // 기본값: 기존 번역 유지
+    useNamespaceStructure: true,
+    namespaceStrategy: "full", // 기본값: full
+    namespacing: {
+        enabled: false, // 기본값: false (레거시 모드)
+        basePath: "src/app",
+        defaultNamespace: "common",
+        framework: "nextjs-app",
+        ignorePatterns: [],
+    },
+    skipValidation: false,
+    generateTypes: true,
+    typesOutputPath: "",
+    strictTypeGeneration: false,
+    staticKeyExtraction: "safe",
+    staticKeyContainerPatterns: [],
+};
+class TranslationExtractor {
+    constructor(config = {}) {
+        this.extractedKeys = new Map();
+        this.namespaceKeys = new Map(); // namespace -> key -> ExtractedKey
+        // 프로젝트 config에서 namespacing 설정 로드
+        const projectConfig = (0, config_loader_1.loadConfig)();
+        const translationImportSource = config.translationImportSource || projectConfig.translationImportSource;
+        const useNamespaceStructure = config.useNamespaceStructure ??
+            projectConfig.useNamespaceStructure ??
+            (translationImportSource || DEFAULT_CONFIG.translationImportSource) ===
+                "i18nexus";
+        const fallbackNamespace = config.fallbackNamespace ||
+            projectConfig.fallbackNamespace ||
+            DEFAULT_CONFIG.fallbackNamespace;
+        const defaultLanguage = config.defaultLanguage ||
+            projectConfig.defaultLanguage ||
+            DEFAULT_CONFIG.defaultLanguage;
+        const hasExplicitDefaultLanguage = config.defaultLanguage !== undefined;
+        const sourceLanguage = config.sourceLanguage ||
+            (hasExplicitDefaultLanguage ? defaultLanguage : undefined) ||
+            projectConfig.sourceLanguage ||
+            defaultLanguage;
+        const explicitNamespacingConfig = config.namespacing || projectConfig.namespacing;
+        const namespacingConfig = explicitNamespacingConfig
+            ? {
+                ...DEFAULT_CONFIG.namespacing,
+                defaultNamespace: fallbackNamespace,
+                ...explicitNamespacingConfig,
+            }
+            : {
+                ...DEFAULT_CONFIG.namespacing,
+                enabled: useNamespaceStructure,
+                defaultNamespace: fallbackNamespace,
+            };
+        this.config = {
+            ...DEFAULT_CONFIG,
+            ...config,
+            fallbackNamespace,
+            defaultLanguage,
+            sourceLanguage,
+            useNamespaceStructure,
+            namespacing: namespacingConfig,
+            skipValidation: config.skipValidation || false,
+            namespaceStrategy: config.namespaceStrategy ??
+                projectConfig.namespaceStrategy ??
+                DEFAULT_CONFIG.namespaceStrategy,
+            generateTypes: config.generateTypes ?? projectConfig.generateTypes ?? true,
+            typesOutputPath: config.typesOutputPath || projectConfig.typesOutputPath || "",
+            strictTypeGeneration: config.strictTypeGeneration ??
+                projectConfig.strictTypeGeneration ??
+                false,
+            staticKeyExtraction: config.staticKeyExtraction ??
+                projectConfig.staticKeyExtraction ??
+                DEFAULT_CONFIG.staticKeyExtraction,
+            staticKeyContainerPatterns: config.staticKeyContainerPatterns ??
+                projectConfig.staticKeyContainerPatterns ??
+                DEFAULT_CONFIG.staticKeyContainerPatterns,
+            translationImportSource: translationImportSource || DEFAULT_CONFIG.translationImportSource,
+        };
+    }
+    parseFile(filePath) {
+        try {
+            const code = fs.readFileSync(filePath, "utf-8");
+            // 네임스페이스 추론 (우선순위 기반)
+            let namespace;
+            if (this.config.namespacing.enabled) {
+                // 개선: useTranslation() 우선, 파일 경로는 대체
+                const { inferNamespaceFromFile } = require("./namespace-inference");
+                namespace = inferNamespaceFromFile(filePath, code, this.config.namespacing);
+                // 네임스페이스 검증 (skipValidation이 false일 때만)
+                if (!this.config.skipValidation) {
+                    // useTranslation()이 있는 경우 검증 스킵 (이미 올바른 네임스페이스)
+                    const { findUseTranslationCalls } = require("./namespace-inference");
+                    const useTranslationCalls = findUseTranslationCalls(filePath, code);
+                    const hasExplicitNamespace = useTranslationCalls.length > 0 && useTranslationCalls[0].namespace;
+                    if (!hasExplicitNamespace) {
+                        // useTranslation()이 없거나 네임스페이스가 명시되지 않은 경우만 검증
+                        const validation = (0, namespace_inference_1.validateNamespace)(filePath, code, namespace, this.config.namespacing);
+                        if (!validation.valid) {
+                            console.error(validation.error);
+                            throw new Error(validation.error);
+                        }
+                    }
+                }
+            }
+            else {
+                // 레거시 모드: config에서 직접 지정하거나 defaultNamespace 사용
+                namespace =
+                    this.config.namespace || this.config.namespacing.defaultNamespace;
+            }
+            // 확장 플러그인을 사용하여 파싱 (extractor는 더 많은 플러그인 필요)
+            const ast = (0, parser_utils_1.parseWithBabel)(code, {
+                sourceType: "module",
+                extendedPlugins: true,
+            });
+            // t() 호출 추출
+            (0, traverse_1.default)(ast, {
+                CallExpression: (path) => {
+                    const extractedKey = (0, key_extractor_1.extractTranslationKey)(path, filePath, {
+                        includeFilePaths: this.config.includeFilePaths,
+                        includeLineNumbers: this.config.includeLineNumbers,
+                        staticKeyExtraction: this.config.staticKeyExtraction,
+                        staticKeyContainerPatterns: this.config.staticKeyContainerPatterns,
+                    });
+                    const extractedKeys = Array.isArray(extractedKey)
+                        ? extractedKey
+                        : extractedKey
+                            ? [extractedKey]
+                            : [];
+                    for (const key of extractedKeys) {
+                        this.addExtractedKey(key, namespace);
+                    }
+                },
+            });
+        }
+        catch (error) {
+            console.warn(constants_1.CONSOLE_MESSAGES.PARSE_FAILED(filePath), error);
+        }
+    }
+    addExtractedKey(extractedKey, namespace) {
+        const { key } = extractedKey;
+        // 레거시 모드: 단일 맵에 저장
+        if (!this.config.namespacing.enabled) {
+            const existingKey = this.extractedKeys.get(key);
+            if (!existingKey) {
+                this.extractedKeys.set(key, extractedKey);
+            }
+            return;
+        }
+        // namespaceStrategy에 따른 처리
+        const strategy = this.config.namespaceStrategy || "full";
+        const defaultNamespace = this.config.namespacing.defaultNamespace;
+        let targetNamespace = namespace;
+        if (strategy === "single") {
+            // single: 모든 키를 common 네임스페이스에 통합
+            targetNamespace = defaultNamespace;
+        }
+        else if (strategy === "page-based") {
+            // page-based: 페이지 네임스페이스만 유지, 나머지는 common으로
+            // basePath 기반인지 확인
+            const isPageBased = namespace !== defaultNamespace;
+            if (!isPageBased) {
+                targetNamespace = defaultNamespace;
+            }
+            // 페이지 네임스페이스인 경우 그대로 유지
+        }
+        // strategy === "full": 그대로 사용
+        // 네임스페이스별로 키 저장 (정책 3: 키 중복 허용)
+        if (!this.namespaceKeys.has(targetNamespace)) {
+            this.namespaceKeys.set(targetNamespace, new Map());
+        }
+        const namespaceMap = this.namespaceKeys.get(targetNamespace);
+        namespaceMap.set(key, extractedKey);
+    }
+    /**
+     * 추출된 키 목록 반환 (clean-legacy에서 사용)
+     */
+    getExtractedKeys() {
+        return Array.from(this.extractedKeys.values());
+    }
+    /**
+     * 키만 분석하고 파일은 쓰지 않음 (clean-legacy용)
+     */
+    async extractKeysOnly() {
+        try {
+            const files = await (0, glob_1.glob)(this.config.sourcePattern);
+            if (files.length === 0) {
+                return [];
+            }
+            // 파일 분석
+            files.forEach((file) => {
+                this.parseFile(file);
+            });
+            return this.getExtractedKeys();
+        }
+        catch (error) {
+            console.error(constants_1.CONSOLE_MESSAGES.KEY_EXTRACTION_FAILED, error);
+            throw error;
+        }
+    }
+    async extract() {
+        try {
+            const files = await (0, glob_1.glob)(this.config.sourcePattern);
+            if (files.length === 0) {
+                console.warn(constants_1.CONSOLE_MESSAGES.NO_FILES_FOUND(this.config.sourcePattern));
+                return;
+            }
+            // 파일 분석
+            files.forEach((file) => {
+                this.parseFile(file);
+            });
+            // 네임스페이스 모드: 각 네임스페이스별로 파일 생성
+            if (this.config.namespacing.enabled) {
+                for (const [namespace, keysMap] of this.namespaceKeys.entries()) {
+                    const keys = Array.from(keysMap.values());
+                    const outputData = (0, output_generator_1.generateOutputData)(keys, {
+                        sortKeys: this.config.sortKeys,
+                        outputFormat: this.config.outputFormat,
+                        languages: this.config.languages,
+                        outputDir: this.config.outputDir,
+                        outputFile: this.config.outputFile,
+                        sourceLanguage: this.config.sourceLanguage,
+                        force: this.config.force,
+                        dryRun: this.config.dryRun,
+                    });
+                    // 도메인 우선 구조로 저장: locales/[namespace]/[lang].json
+                    (0, output_generator_1.writeOutputFileWithNamespace)(outputData, {
+                        outputFormat: this.config.outputFormat,
+                        languages: this.config.languages,
+                        outputDir: this.config.outputDir,
+                        namespace,
+                        sourceLanguage: this.config.sourceLanguage,
+                        force: this.config.force,
+                        dryRun: this.config.dryRun,
+                    });
+                }
+                // 모든 네임스페이스를 통합하는 index.ts 파일 생성
+                // i18nexus + JSON 출력일 때만 생성 (CSV 출력에는 런타임 JSON이 없음)
+                const namespaces = Array.from(this.namespaceKeys.keys());
+                const useI18nexusLibrary = (this.config.translationImportSource || "i18nexus") === "i18nexus";
+                const canGenerateRuntimeEntrypoint = useI18nexusLibrary && this.config.outputFormat === "json";
+                (0, output_generator_1.generateNamespaceIndexFile)(namespaces, this.config.languages, this.config.outputDir, this.config.namespacing.defaultNamespace, this.config.dryRun, canGenerateRuntimeEntrypoint, this.config.generateTypes, this.getTypesOutputPath());
+                this.generateTypesIfEnabled(canGenerateRuntimeEntrypoint);
+            }
+            else {
+                // 레거시 모드: 기존 방식 유지
+                const keys = Array.from(this.extractedKeys.values());
+                const outputData = (0, output_generator_1.generateOutputData)(keys, {
+                    sortKeys: this.config.sortKeys,
+                    outputFormat: this.config.outputFormat,
+                    languages: this.config.languages,
+                    outputDir: this.config.outputDir,
+                    outputFile: this.config.outputFile,
+                    sourceLanguage: this.config.sourceLanguage,
+                    force: this.config.force,
+                    dryRun: this.config.dryRun,
+                });
+                // 출력 파일 작성
+                (0, output_generator_1.writeOutputFile)(outputData, {
+                    outputFormat: this.config.outputFormat,
+                    languages: this.config.languages,
+                    outputDir: this.config.outputDir,
+                    outputFile: this.config.outputFile,
+                    sourceLanguage: this.config.sourceLanguage,
+                    force: this.config.force,
+                    dryRun: this.config.dryRun,
+                });
+                this.generateTypesIfEnabled((this.config.translationImportSource || "i18nexus") === "i18nexus");
+            }
+        }
+        catch (error) {
+            console.error(constants_1.CONSOLE_MESSAGES.EXTRACTION_FAILED, error);
+            throw error;
+        }
+    }
+    generateTypesIfEnabled(useI18nexusLibrary) {
+        if (this.config.dryRun ||
+            !this.config.generateTypes ||
+            !useI18nexusLibrary) {
+            if (!this.config.dryRun && !this.config.generateTypes) {
+                console.log("\n💡 Tip: Generate types later with:");
+                console.log("   npx i18n-type");
+            }
+            return;
+        }
+        const outputPath = this.getTypesOutputPath();
+        const translations = (0, type_generator_1.readExtractedTranslations)(this.config.outputDir, {
+            fallbackNamespace: this.config.fallbackNamespace,
+        });
+        if (Object.keys(translations).length === 0) {
+            console.warn("⚠️  No translation files found. Skipping type generation.");
+            return;
+        }
+        (0, type_generator_1.generateTypeDefinitions)(translations, {
+            outputPath,
+            fallbackNamespace: this.config.fallbackNamespace,
+            translationImportSource: this.config.translationImportSource,
+            includeJsDocs: true,
+            strictValidation: this.config.strictTypeGeneration,
+        });
+    }
+    getTypesOutputPath() {
+        return (this.config.typesOutputPath ||
+            pathLib.join(this.config.outputDir, "types", "i18nexus.d.ts"));
+    }
+}
+exports.TranslationExtractor = TranslationExtractor;
+async function runTranslationExtractor(config = {}) {
+    const extractor = new TranslationExtractor(config);
+    await extractor.extract();
+}

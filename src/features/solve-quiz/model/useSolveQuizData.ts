@@ -19,6 +19,8 @@ export interface ProblemSetResponse {
   sessionId: string;
   title: string;
   isStreaming?: boolean;
+  /** 문제집 출처. 오답 모아풀기로 만들어진 세트는 WRONG_ANSWER (FR-014) */
+  origin?: 'DOCUMENT' | 'WRONG_ANSWER';
 }
 
 interface UseSolveQuizDataParams {

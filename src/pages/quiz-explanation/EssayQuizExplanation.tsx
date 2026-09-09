@@ -210,7 +210,7 @@ const EssayQuizExplanation: React.FC = () => {
 
         {/* 사이드바 하단 */}
         <div className="flex shrink-0 flex-col gap-2 border-t border-border p-3">
-          {problemSetId && (
+          {problemSetId && !ui.isWrongAnswerSet && (
             <RepeatQuizCta problemSetId={problemSetId} variant="default" className="w-full" />
           )}
           <Button size="sm" className="w-full" onClick={() => commonActions.handleExit('/')}>
@@ -375,7 +375,9 @@ const EssayQuizExplanation: React.FC = () => {
             )}
 
             {/* 참조 자료 */}
-            {refPages && refPages.length > 0 && (
+            {/* 오답 문제집은 원본 자료가 없다. 백엔드가 referencedPages를 비우지만, 구버전 응답이
+                와도 "파일 링크가 만료되었습니다"라는 사실과 다른 문구가 뜨지 않게 여기서도 막는다 (FR-014) */}
+            {!ui.isWrongAnswerSet && refPages && refPages.length > 0 && (
               <BlurFade delay={0.2}>
                 <div className="rounded-2xl bg-card p-6 shadow-sm max-md:p-4">
                   <div className="mb-3 flex items-center justify-between">

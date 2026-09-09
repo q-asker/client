@@ -22,6 +22,8 @@ export interface HistoryItem {
   folderId: string | null;
   /** 소속 폴더 이름. 미분류면 null */
   folderName: string | null;
+  /** 문제집 출처. 오답 모아풀기로 만들어진 것은 WRONG_ANSWER (FR-013) */
+  origin?: 'DOCUMENT' | 'WRONG_ANSWER';
 }
 
 /** 폴더 목록 항목 */
@@ -105,6 +107,7 @@ interface UseQuizHistoryReturn {
     renameFolder: (folderId: string, name: string) => Promise<boolean>;
     deleteFolder: (folderId: string) => Promise<void>;
     assignFolder: (historyId: string, folderId: string | null) => Promise<void>;
+    refresh: () => Promise<void>;
   };
 }
 
@@ -384,6 +387,15 @@ export const useQuizHistory = ({
     }
   };
 
+  /**
+   * 목록과 폴더 카운트를 함께 다시 읽는다.
+   * 오답 모아풀기는 현재 폴더에 문제집을 새로 만들어 넣으므로(확정 제품 결정 5),
+   * 목록만 갱신하면 폴더 바의 개수가 실제와 어긋나 보인다.
+   */
+  const refresh = async (): Promise<void> => {
+    await Promise.all([fetchPage(0, scopeRef.current), fetchFolders()]);
+  };
+
   const selectScope = async (scope: HistoryScope): Promise<void> => {
     scopeRef.current = scope;
     setSelectedScope(scope);
@@ -552,6 +564,7 @@ export const useQuizHistory = ({
       renameFolder,
       deleteFolder,
       assignFolder,
+      refresh,
     },
   };
 };
