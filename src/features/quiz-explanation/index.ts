@@ -41,6 +41,8 @@ interface ProblemSetResponse {
   quiz: Quiz[];
   title: string;
   quizType?: QuizType;
+  /** 오답 문제집은 원본 자료가 없다 (FR-014) */
+  origin?: 'DOCUMENT' | 'WRONG_ANSWER';
 }
 
 interface UseQuizExplanationParams {
@@ -78,6 +80,8 @@ interface UiState {
   uploadedUrl: string;
   isEssay: boolean;
   essayGradeResults: Record<number, GradeResult>;
+  /** 오답 문제집이면 원본 자료에 기대는 UI(참조 자료·이어풀기)를 숨긴다 (FR-014) */
+  isWrongAnswerSet: boolean;
 }
 
 interface QuizActions {
@@ -137,6 +141,7 @@ export const useQuizExplanation = ({
   const [showWrongOnly, setShowWrongOnly] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isWrongAnswerSet, setIsWrongAnswerSet] = useState(false);
   const [realBlankGrades, setRealBlankGrades] = useState<
     Map<number, GradeResultItem> | undefined
   >();
@@ -180,6 +185,7 @@ export const useQuizExplanation = ({
 
         setQuizzes(merged);
         setExplanationData(explanationRes.data);
+        setIsWrongAnswerSet(quizRes.data.origin === 'WRONG_ANSWER');
 
         // REAL_BLANK 세트는 서버 SSOT 채점(POST /grade)으로 판정·정답을 받는다.
         if (merged.length > 0 && merged[0]?.type === 'REAL_BLANK') {
@@ -397,6 +403,7 @@ export const useQuizExplanation = ({
         uploadedUrl: explanationData.fileUrl ?? '',
         isEssay,
         essayGradeResults,
+        isWrongAnswerSet,
       },
     },
     actions: {

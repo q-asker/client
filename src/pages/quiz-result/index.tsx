@@ -11,6 +11,8 @@ interface ProblemSetResponse {
   quiz: Quiz[];
   title: string;
   quizType?: QuizType;
+  /** 오답 문제집은 원본 자료가 없어 "이 조건으로 더 풀기"를 제공하지 않는다 (FR-014) */
+  origin?: 'DOCUMENT' | 'WRONG_ANSWER';
 }
 
 /** 퀴즈 타입을 감지하여 ESSAY / 선택형 결과 페이지를 분기 렌더 */

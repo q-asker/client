@@ -7,7 +7,7 @@ import tsparser from '@typescript-eslint/parser';
 import prettier from 'eslint-config-prettier';
 
 export default [
-  { ignores: ['dist', '.vite', '.claude'] },
+  { ignores: ['dist', '.vite', '.claude', 'vendor'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {

@@ -1,4 +1,5 @@
 export { useQuizGenerationStore } from './model/useQuizGenerationStore';
+export { generateUUID } from './model/useQuizGenerationStore';
 export type {
   Quiz,
   QuizType,

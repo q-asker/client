@@ -3,7 +3,7 @@ import { useTranslation } from 'i18nexus';
 import Header from '#widgets/header';
 import { useNavigate } from 'react-router-dom';
 import { useQuizHistory } from '#features/quiz-history';
-import type { FolderItem, HistoryItem } from '#features/quiz-history';
+import type { FolderItem, HistoryItem, HistoryScope } from '#features/quiz-history';
 import { cn } from '@/shared/ui/lib/utils';
 import { Badge } from '@/shared/ui/components/badge';
 import { Button } from '@/shared/ui/components/button';
@@ -11,6 +11,14 @@ import { Skeleton } from '@/shared/ui/components/skeleton';
 import { BlurFade } from '@/shared/ui/components/blur-fade';
 import InlineEdit from '@/shared/ui/components/inline-edit';
 import { FolderBar, FolderFormDialog, MoveToFolderDialog } from './folder-controls';
+import {
+  WrongAnswerCta,
+  WrongAnswerCtaReason,
+  WrongAnswerEmptyNotice,
+  WrongAnswerResultDialog,
+  getQuizTypeLabels,
+} from './wrong-answer-controls';
+import { useWrongAnswerSet } from '#features/wrong-answer-set';
 import {
   FileText,
   Trophy,
@@ -23,15 +31,9 @@ import {
   FolderInput,
   Folder as FolderIcon,
   LogIn,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
-
-const QUIZ_TYPE_LABEL: Record<'MULTIPLE' | 'BLANK' | 'OX' | 'ESSAY' | 'REAL_BLANK', string> = {
-  MULTIPLE: '객관식',
-  OX: 'OX',
-  BLANK: '빈칸',
-  REAL_BLANK: '빈칸',
-  ESSAY: '서술형',
-};
 
 const QuizHistory = () => {
   const { t, currentLanguage } = useTranslation('quiz-history');
@@ -47,6 +49,7 @@ const QuizHistory = () => {
       folders,
       unclassifiedCount,
       selectedScope,
+      pagination,
     },
     actions: {
       navigateToDetail,
@@ -56,13 +59,50 @@ const QuizHistory = () => {
       clearAllHistory,
       formatDate,
       handleCreateFromEmpty,
+      goToPage,
       selectScope,
       createFolder,
       renameFolder,
       deleteFolder,
       assignFolder,
+      refresh,
     },
   } = useQuizHistory({ t, navigate, currentLanguage });
+
+  const quizTypeLabels = getQuizTypeLabels(t);
+  const {
+    submitting: collecting,
+    result: wrongAnswerResult,
+    collect,
+    clearResult,
+  } = useWrongAnswerSet();
+  // 특정 폴더를 보고 있을 때만 실행할 수 있다 (FR-017)
+  const folderSelected = selectedScope !== 'all' && selectedScope !== 'unclassified';
+
+  /**
+   * 오답 모아풀기 실행. 만들어진 문제집은 이 폴더에 함께 들어가므로(확정 제품 결정 5)
+   * 목록과 폴더 카운트를 같이 다시 읽는다. 1개만 만들어졌으면 고르는 단계 없이 곧바로 풀이로 간다.
+   */
+  const handleCollectWrongAnswers = async (): Promise<void> => {
+    if (!folderSelected) return;
+    const result = await collect(selectedScope);
+    if (!result) return;
+    await refresh();
+    if (result.createdSets.length === 1) {
+      clearResult();
+      navigate(`/quiz/${result.createdSets[0].problemSetId}`);
+    }
+  };
+
+  const handleSelectWrongAnswerSet = (problemSetId: string): void => {
+    clearResult();
+    navigate(`/quiz/${problemSetId}`);
+  };
+
+  const handleSelectScope = (scope: HistoryScope): void => {
+    clearResult();
+    selectScope(scope);
+  };
 
   // 인라인 제목 편집 상태
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -161,6 +201,17 @@ const QuizHistory = () => {
             onOpenChange={(open) => !open && setMoveTarget(null)}
             onMove={assignFolder}
           />
+          {/* 유형별로 2개 이상 만들어졌을 때만 고르게 한다 (FR-007) */}
+          <WrongAnswerResultDialog
+            t={t}
+            result={
+              wrongAnswerResult && wrongAnswerResult.createdSets.length > 1
+                ? wrongAnswerResult
+                : null
+            }
+            onOpenChange={(open) => !open && clearResult()}
+            onSelect={handleSelectWrongAnswerSet}
+          />
 
           {/* 로그인·전역 기록 없음: 퀴즈 만들기 안내 (전체폭) */}
           {isAuthenticated && !hasAnyContent && (
@@ -225,12 +276,27 @@ const QuizHistory = () => {
                   unclassifiedCount={unclassifiedCount}
                   totalCount={globalTotal}
                   selectedScope={selectedScope}
-                  onSelectScope={selectScope}
+                  onSelectScope={handleSelectScope}
                   onCreate={openCreateFolder}
                   onRename={openRenameFolder}
                   onDelete={deleteFolder}
+                  actionSlot={
+                    <WrongAnswerCta
+                      t={t}
+                      folderSelected={folderSelected}
+                      submitting={collecting}
+                      onClick={handleCollectWrongAnswers}
+                    />
+                  }
                 />
+                {/* 폴더 미선택 사유는 눌러보기 전에 드러낸다 (FR-017) */}
+                {!folderSelected && <WrongAnswerCtaReason t={t} />}
               </BlurFade>
+
+              {/* 모을 오답이 없었을 때의 인라인 안내 (FR-011·FR-016a) */}
+              {wrongAnswerResult && wrongAnswerResult.createdSets.length === 0 && (
+                <WrongAnswerEmptyNotice t={t} result={wrongAnswerResult} onDismiss={clearResult} />
+              )}
 
               {quizHistory.length === 0 ? (
                 <BlurFade delay={0.2}>
@@ -295,6 +361,17 @@ const QuizHistory = () => {
                               size="sm"
                               editButtonClassName="opacity-0 group-hover/row:opacity-100 transition-opacity"
                             />
+                            {/* 오답을 모아 만든 문제집임을 구별 (FR-013). 근거는 origin 필드 — 제목은
+                                사용자가 바꿀 수 있으므로 파싱하지 않는다 */}
+                            {record.origin === 'WRONG_ANSWER' && (
+                              <Badge
+                                variant="outline"
+                                className="shrink-0 gap-1 text-[0.65rem] font-normal"
+                              >
+                                <RotateCcw className="size-3" />
+                                {t('오답 모음')}
+                              </Badge>
+                            )}
                             {selectedScope === 'all' && record.folderName && (
                               <Badge
                                 variant="secondary"
@@ -309,7 +386,7 @@ const QuizHistory = () => {
                           {/* 퀴즈 유형 */}
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="truncate text-sm text-muted-foreground">
-                              {QUIZ_TYPE_LABEL[record.quizType]}
+                              {quizTypeLabels[record.quizType]}
                             </span>
                             <Badge variant="outline" className="shrink-0 text-[0.65rem]">
                               {record.totalCount}
@@ -444,7 +521,16 @@ const QuizHistory = () => {
                           {/* 하단: 메타 + 액션 */}
                           <div className="mt-2 flex items-center justify-between pl-6">
                             <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
-                              <span>{QUIZ_TYPE_LABEL[record.quizType]}</span>
+                              {record.origin === 'WRONG_ANSWER' && (
+                                <>
+                                  <span className="flex shrink-0 items-center gap-0.5 font-medium text-foreground">
+                                    <RotateCcw className="size-3" />
+                                    {t('오답 모음')}
+                                  </span>
+                                  <span className="text-border">·</span>
+                                </>
+                              )}
+                              <span>{quizTypeLabels[record.quizType]}</span>
                               <span className="text-border">·</span>
                               <span>
                                 {record.totalCount}
@@ -504,6 +590,36 @@ const QuizHistory = () => {
                       </div>
                     ))}
                   </div>
+
+                  {/* 페이지 이동 — 훅이 이미 주는 pagination·goToPage 를 화면에 연결한다.
+                      없으면 한 페이지(20건)를 넘어간 기록은 화면에서 닿을 수단이 없다. */}
+                  {pagination.totalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-center gap-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={pagination.currentPage === 0 || listLoading}
+                        onClick={() => goToPage(pagination.currentPage - 1)}
+                        title={String(t('이전 페이지'))}
+                      >
+                        <ChevronLeft className="size-4" />
+                      </Button>
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {pagination.currentPage + 1} / {pagination.totalPages}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={
+                          pagination.currentPage + 1 >= pagination.totalPages || listLoading
+                        }
+                        onClick={() => goToPage(pagination.currentPage + 1)}
+                        title={String(t('다음 페이지'))}
+                      >
+                        <ChevronRight className="size-4" />
+                      </Button>
+                    </div>
+                  )}
                 </BlurFade>
               )}
             </>

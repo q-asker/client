@@ -19,6 +19,8 @@ interface ServerData {
   quiz: Quiz[];
   title: string;
   quizType?: string;
+  /** 오답 문제집은 원본 자료가 없어 "이 조건으로 더 풀기"를 제공하지 않는다 (FR-014) */
+  origin?: 'DOCUMENT' | 'WRONG_ANSWER';
 }
 
 interface QuizResultDesignKProps {
@@ -99,7 +101,9 @@ const QuizResultDesignK = ({ serverData }: QuizResultDesignKProps) => {
       <Button size="lg" className="w-full text-base" onClick={getQuizExplanation}>
         {t('해설 보기')}
       </Button>
-      {problemSetId && <RepeatQuizCta problemSetId={problemSetId} className="w-full text-base" />}
+      {problemSetId && serverData.origin !== 'WRONG_ANSWER' && (
+        <RepeatQuizCta problemSetId={problemSetId} className="w-full text-base" />
+      )}
       <button
         type="button"
         className="group mx-auto flex items-center gap-1.5 pt-1 text-sm text-muted-foreground transition-colors hover:text-foreground"

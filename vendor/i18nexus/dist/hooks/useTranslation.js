@@ -1,0 +1,107 @@
+"use client";
+import React from "react";
+import { useI18nContext, } from "../components/I18nProvider.js";
+import { getNamespaceReadiness, resolveTranslationReady, resolveTranslationSnapshot, shouldLoadNamespace, translateFromSnapshot, } from "../utils/translation-runtime.js";
+// 실제 구현
+export function useTranslation(namespace) {
+    const context = useI18nContext();
+    const { currentLanguage, isLoading, loadedNamespaces, loadingNamespaces, ensureNamespaceLoaded, fallbackNamespace, namespaceTranslations, languageManager, lazy, } = context;
+    const staticTranslations = namespaceTranslations;
+    const fallbackLanguage = languageManager.getDefaultLanguage();
+    const { hasStaticNamespace, isNamespaceLoaded, isNamespaceLoading, isNamespaceReady, } = React.useMemo(() => getNamespaceReadiness({
+        namespace,
+        staticTranslations,
+        loadedNamespaces,
+        loadingNamespaces,
+    }), [namespace, staticTranslations, loadedNamespaces, loadingNamespaces]);
+    React.useEffect(() => {
+        if (!namespace ||
+            !shouldLoadNamespace({
+                namespace,
+                lazy,
+                hasStaticNamespace,
+                isNamespaceLoaded,
+            })) {
+            return;
+        }
+        void ensureNamespaceLoaded(namespace);
+    }, [
+        namespace,
+        lazy,
+        hasStaticNamespace,
+        isNamespaceLoaded,
+        ensureNamespaceLoaded,
+    ]);
+    const currentTranslations = React.useMemo(() => resolveTranslationSnapshot({
+        namespace,
+        staticTranslations,
+        currentLanguage,
+        fallbackLanguage,
+        fallbackNamespace: fallbackNamespace
+            ? String(fallbackNamespace)
+            : undefined,
+        loadedNamespaces,
+        staticResolutionMode: "namespace",
+        staticMergeMode: "when-empty",
+    }), [
+        namespace,
+        staticTranslations,
+        currentLanguage,
+        fallbackLanguage,
+        fallbackNamespace,
+        loadedNamespaces,
+    ]);
+    const translate = React.useCallback(((key, variables, styles) => {
+        return translateFromSnapshot(currentTranslations, key, variables, styles);
+    }), [currentTranslations]);
+    return {
+        t: translate,
+        currentLanguage,
+        lng: currentLanguage, // Alias for react-i18next compatibility
+        isReady: resolveTranslationReady({
+            isLoading,
+            isNamespaceLoading,
+            isNamespaceReady,
+        }),
+    };
+}
+/** 언어 전환 기능 접근 훅 */
+export const useLanguageSwitcher = () => {
+    const { currentLanguage, changeLanguage, availableLanguages, languageManager, isLoading, } = useI18nContext();
+    const switchToNextLanguage = async () => {
+        const languageCodes = availableLanguages.map((lang) => lang.code);
+        const currentIndex = languageCodes.indexOf(currentLanguage);
+        const nextIndex = (currentIndex + 1) % languageCodes.length;
+        const nextLanguage = languageCodes[nextIndex];
+        await changeLanguage(nextLanguage);
+    };
+    const switchToPreviousLanguage = async () => {
+        const languageCodes = availableLanguages.map((lang) => lang.code);
+        const currentIndex = languageCodes.indexOf(currentLanguage);
+        const prevIndex = currentIndex === 0 ? languageCodes.length - 1 : currentIndex - 1;
+        const prevLanguage = languageCodes[prevIndex];
+        await changeLanguage(prevLanguage);
+    };
+    const getLanguageConfig = (code) => {
+        return languageManager.getLanguageConfig(code || currentLanguage);
+    };
+    const detectBrowserLanguage = () => {
+        return languageManager.detectBrowserLanguage();
+    };
+    const resetLanguage = () => {
+        languageManager.reset();
+    };
+    return {
+        currentLanguage,
+        availableLanguages,
+        changeLanguage,
+        switchLng: changeLanguage,
+        switchToNextLanguage,
+        switchToPreviousLanguage,
+        getLanguageConfig,
+        detectBrowserLanguage,
+        resetLanguage,
+        isLoading,
+    };
+};
+//# sourceMappingURL=useTranslation.js.map
