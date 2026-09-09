@@ -16,6 +16,9 @@ import { test, expect, type Page, type Response } from '@playwright/test';
  * 기대: createdSets 3개 = 객관식 3문제 / OX 2문제 / 빈칸 직접입력 2문제, 서술형 3문항 제외.
  *   **함정이 새면 객관식이 3이 아니라 7이 된다 — SC-003 이 숫자 하나로 관측된다.**
  *
+ * 마지막 시나리오(페이지 이동)는 일부러 목록을 20건 너머로 밀어 올린다. 그래서 **파일 맨 끝에 둔다** —
+ * 앞선 시나리오의 캡처가 오답 세트로만 가득한 화면으로 덮이지 않게 하기 위해서다.
+ *
  * 재실행 안전성: 만들어진 오답 문제집은 같은 폴더에 미완료로 들어가지만(확정 제품 결정 5),
  * 수집 대상은 "완료 + 답안 있는 기록"뿐이라 몇 번을 돌려도 위 기대값이 그대로다.
  *
@@ -33,6 +36,8 @@ const SEED_FOLDER = process.env.E2E_WRONG_FOLDER ?? 'E2E-WRONG-ANSWER';
  * 목록이 아무리 쌓여도 항상 1페이지에 보인다 — FR-013 의 음성 사례로 쓴다.
  */
 const OTHER_FOLDER = process.env.E2E_OTHER_FOLDER ?? 'E2E-OTHER-FOLDER';
+/** 시드 폴더에 든 자료 기반 원본 중 하나. 목록 정렬이 최신순이라 늘 맨 뒤 페이지에 있다 */
+const SEED_DOCUMENT_TITLE = process.env.E2E_SEED_DOC_TITLE ?? 'E2E 객관식 원본 풀이';
 
 const COLLECT_URL = /\/problem-set\/wrong-answers$/;
 /** 로컬 백엔드 주소(앱의 VITE_BASE_URL 과 같아야 한다). 기동 여부 선확인에만 쓴다 */
@@ -339,5 +344,35 @@ test.describe('008 오답 모아풀기', () => {
     await expect(truncatedRow.getByText('최근 100문제만 담겼어요')).toBeVisible();
     await expect(intactRow.getByText('최근 100문제만 담겼어요')).toHaveCount(0);
     await shot(page, 'truncated-notice');
+  });
+
+  /**
+   * 목록이 한 페이지(20건)를 넘으면 그 너머 기록에 닿을 수단이 있어야 한다.
+   * 모아풀기는 1회에 최대 4건을 그 폴더에 더하므로 이 한계에 빨리 닿는다 — 그래서 이번 스코프에 들어왔다.
+   * **목록을 일부러 20건 너머로 밀기 때문에 반드시 마지막에 둔다.**
+   */
+  test('목록이 20건을 넘으면 페이지를 넘겨 나머지 기록에 닿을 수 있다', async ({ page }) => {
+    await gotoHistory(page);
+    await selectFolder(page, SEED_FOLDER);
+
+    // 한 페이지를 넘길 때까지 모아풀기를 반복한다(1회에 3건씩 늘어난다)
+    const nextButton = page.getByRole('button', { name: '다음 페이지' });
+    for (let i = 0; i < 8 && (await nextButton.count()) === 0; i++) {
+      await collect(page);
+      await page.keyboard.press('Escape');
+    }
+    await expect(nextButton).toBeVisible();
+
+    // 1페이지에는 가장 오래된 자료 기반 원본이 밀려나 보이지 않는다(정렬이 최신순이라 맨 뒤로 간다)
+    await expect(page.getByText(SEED_DOCUMENT_TITLE)).toHaveCount(0);
+    await shot(page, 'pagination-page1');
+
+    // 마지막 페이지까지 넘기면 그 기록이 나온다 — 페이지 이동 수단이 없으면 영영 닿을 수 없던 행이다
+    for (let i = 0; i < 12 && (await nextButton.isEnabled()); i++) {
+      await nextButton.click();
+      await expect(page.locator('[class*="group/row"]').first()).toBeVisible();
+    }
+    await expect(page.getByText(SEED_DOCUMENT_TITLE).first()).toBeVisible();
+    await shot(page, 'pagination-after');
   });
 });

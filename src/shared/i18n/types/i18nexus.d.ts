@@ -915,6 +915,7 @@ declare type QuizHistoryKeys =
   | '기록을 찾을 수 없습니다.'
   | '내 퀴즈 기록'
   | '다시 풀기'
+  | '다음 페이지'
   | '닫기'
   | '로그인이 필요한 서비스입니다'
   | '로그인하기'
@@ -949,6 +950,7 @@ declare type QuizHistoryKeys =
   | '요청을 처리하지 못했습니다.'
   | '이 폴더를 삭제할까요? 안의 기록은 미분류로 이동합니다.'
   | '이 폴더에 기록이 없습니다.'
+  | '이전 페이지'
   | '저장'
   | '전체'
   | '전체 삭제'
@@ -2943,6 +2945,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '기록을 찾을 수 없습니다.': string;
       readonly '내 퀴즈 기록': string;
       readonly '다시 풀기': string;
+      readonly '다음 페이지': string;
       readonly 닫기: string;
       readonly '로그인이 필요한 서비스입니다': string;
       readonly 로그인하기: string;
@@ -2977,6 +2980,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '요청을 처리하지 못했습니다.': string;
       readonly '이 폴더를 삭제할까요? 안의 기록은 미분류로 이동합니다.': string;
       readonly '이 폴더에 기록이 없습니다.': string;
+      readonly '이전 페이지': string;
       readonly 저장: string;
       readonly 전체: string;
       readonly '전체 삭제': string;
@@ -3018,6 +3022,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '기록을 찾을 수 없습니다.': string;
       readonly '내 퀴즈 기록': string;
       readonly '다시 풀기': string;
+      readonly '다음 페이지': string;
       readonly 닫기: string;
       readonly '로그인이 필요한 서비스입니다': string;
       readonly 로그인하기: string;
@@ -3052,6 +3057,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '요청을 처리하지 못했습니다.': string;
       readonly '이 폴더를 삭제할까요? 안의 기록은 미분류로 이동합니다.': string;
       readonly '이 폴더에 기록이 없습니다.': string;
+      readonly '이전 페이지': string;
       readonly 저장: string;
       readonly 전체: string;
       readonly '전체 삭제': string;

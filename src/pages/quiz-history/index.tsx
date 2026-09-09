@@ -31,6 +31,8 @@ import {
   FolderInput,
   Folder as FolderIcon,
   LogIn,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 const QuizHistory = () => {
@@ -47,6 +49,7 @@ const QuizHistory = () => {
       folders,
       unclassifiedCount,
       selectedScope,
+      pagination,
     },
     actions: {
       navigateToDetail,
@@ -56,6 +59,7 @@ const QuizHistory = () => {
       clearAllHistory,
       formatDate,
       handleCreateFromEmpty,
+      goToPage,
       selectScope,
       createFolder,
       renameFolder,
@@ -586,6 +590,36 @@ const QuizHistory = () => {
                       </div>
                     ))}
                   </div>
+
+                  {/* 페이지 이동 — 훅이 이미 주는 pagination·goToPage 를 화면에 연결한다.
+                      없으면 한 페이지(20건)를 넘어간 기록은 화면에서 닿을 수단이 없다. */}
+                  {pagination.totalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-center gap-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={pagination.currentPage === 0 || listLoading}
+                        onClick={() => goToPage(pagination.currentPage - 1)}
+                        title={String(t('이전 페이지'))}
+                      >
+                        <ChevronLeft className="size-4" />
+                      </Button>
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {pagination.currentPage + 1} / {pagination.totalPages}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={
+                          pagination.currentPage + 1 >= pagination.totalPages || listLoading
+                        }
+                        onClick={() => goToPage(pagination.currentPage + 1)}
+                        title={String(t('다음 페이지'))}
+                      >
+                        <ChevronRight className="size-4" />
+                      </Button>
+                    </div>
+                  )}
                 </BlurFade>
               )}
             </>
