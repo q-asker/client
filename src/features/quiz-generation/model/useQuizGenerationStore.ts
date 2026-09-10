@@ -115,7 +115,7 @@ interface QuizGenerationState {
   setProblemSetInfo: (info: ProblemSetInfo) => void;
   reset: () => void;
   resetStreamingState: () => void;
-  reconnectStream: (sessionId: string) => Promise<void>;
+  connectStream: (sessionId: string, callbacks?: StreamHandlerCallbacks) => Promise<void>;
   startGeneration: (params: StartGenerationParams) => Promise<void>;
   loadProblemSet: (problemSetId: string) => Promise<void>;
   generateQuestions: (params: GenerateQuestionsParams) => Promise<void>;
@@ -224,6 +224,14 @@ const attachGenerationStreamHandlers = (
     finalizeGeneration(set, eventSource);
   });
   eventSource.addEventListener('error', (event: Event) => {
+    // CLOSED는 브라우저가 재시도를 포기한 상태(429·5xx·CORS). error가 한 번만 발화하므로
+    // 카운터로는 잡히지 않는다 — 즉시 종료 처리해야 화면이 멈춘 채 남지 않는다.
+    if (eventSource.readyState === EventSource.CLOSED) {
+      console.error('스트림 연결 실패, 재시도 없이 종료:', event);
+      onError?.('서버와의 통신에 실패했어요');
+      finalizeGeneration(set, eventSource);
+      return;
+    }
     console.error('이벤트 스트림 중 에러 발생, 재연결 시도 중:', event);
     reconnectAttempts += 1;
     if (reconnectAttempts >= 5) {
@@ -232,6 +240,20 @@ const attachGenerationStreamHandlers = (
       finalizeGeneration(set, eventSource);
     }
   });
+};
+
+/** 기존 스트림을 닫고 sessionId로 새 SSE 스트림을 연다. 최초 생성과 재진입이 같은 경로를 쓴다. */
+const openGenerationStream = (
+  sessionId: string,
+  set: SetState,
+  callbacks?: StreamHandlerCallbacks,
+): void => {
+  closeGenerationStream();
+  set({ isStreaming: true });
+  generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`, {
+    withCredentials: true,
+  });
+  attachGenerationStreamHandlers(generationEventSource, set, callbacks);
 };
 
 // ── Store ──
@@ -294,50 +316,33 @@ export const useQuizGenerationStore = create<QuizGenerationState>()(
         });
       },
 
-      reconnectStream: async (sessionId: string) => {
-        closeGenerationStream();
-        set({ isStreaming: true });
-        generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`, {
-          withCredentials: true,
-        });
-        attachGenerationStreamHandlers(generationEventSource, set);
+      connectStream: async (sessionId: string, callbacks?: StreamHandlerCallbacks) => {
+        openGenerationStream(sessionId, set, callbacks);
       },
 
       startGeneration: async ({ requestData, onSuccess, onError }: StartGenerationParams) => {
-        closeGenerationStream();
         set({
           quizzes: [],
           totalCount: requestData.quizCount,
-          isStreaming: true,
           problemSetId: null,
           uploadedUrl: requestData.uploadedUrl,
         });
 
         const sessionId = generateUUID();
-        generationEventSource = new EventSource(`${baseUrl}/generation/${sessionId}/stream`, {
-          withCredentials: true,
-        });
+        openGenerationStream(sessionId, set, { onError, onSuccess });
 
-        // EventSource는 절단 시 자동 재연결하며 onopen을 매번 재발화한다. 생성 트리거 POST는
-        // 정확히 1회만 보낸다 — 재연결 재-POST는 같은 sessionId 중복 요청(서버 비멱등 에러)을
-        // 유발해 진행 중 생성이 폐기되므로. 재연결 후 유실분은 서버가 Last-Event-ID로 리플레이한다.
-        let generationRequested = false;
-        generationEventSource.onopen = () => {
-          if (generationRequested) return;
-          generationRequested = true;
-          axiosInstance
-            .post(`/generation`, { ...requestData, sessionId }, { skipErrorToast: true } as Record<
-              string,
-              unknown
-            >)
-            .then(() => {})
-            .catch((error: unknown) => {
-              finalizeGeneration(set, generationEventSource);
-              onError?.(error);
-            });
-        };
-
-        attachGenerationStreamHandlers(generationEventSource, set, { onError, onSuccess });
+        // 트리거가 스트림보다 먼저 처리돼도 유실은 없다 — 서버는 문항을 저장한 뒤 통지하고,
+        // 구독 시점에 emitter를 먼저 등록한 다음 그때까지의 생성분을 리플레이한다.
+        // 같은 sessionId 재-POST도 서버가 멱등 no-op으로 흡수한다.
+        axiosInstance
+          .post(`/generation`, { ...requestData, sessionId }, { skipErrorToast: true } as Record<
+            string,
+            unknown
+          >)
+          .catch((error: unknown) => {
+            finalizeGeneration(set, generationEventSource);
+            onError?.(error);
+          });
       },
 
       loadProblemSet: async (problemSetId: string) => {
