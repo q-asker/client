@@ -10,4 +10,5 @@ export {
   saveEssayAttempts,
   cleanupExpiredItems,
 } from './model/solveQuizProgress';
+export { loadShowSelections, saveShowSelections } from './model/showSelectionsPreference';
 export { useEssayGrading } from './model/useEssayGrading';

@@ -5,6 +5,7 @@ import type { NavigateFunction } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import axiosInstance from '#shared/api';
 import { trackQuizEvents } from '#shared/lib/analytics';
+import CustomToast from '#shared/toast';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import type { Quiz } from '#features/quiz-generation';
 import { useAuthStore } from '#entities/auth';
@@ -107,7 +108,7 @@ export const useSolveQuizData = ({
   const isMockBlank = searchParams.get('blank') === 'true';
   const isMockEssay = searchParams.get('essay') === 'true';
   const isMockRealBlank = searchParams.get('real_blank') === 'true';
-  const reconnectStream = useQuizGenerationStore((state) => state.reconnectStream);
+  const connectStream = useQuizGenerationStore((state) => state.connectStream);
   const setProblemSetInfo = useQuizGenerationStore((state) => state.setProblemSetInfo);
   const accessToken = useAuthStore((state) => state.accessToken);
 
@@ -219,7 +220,9 @@ export const useSolveQuizData = ({
             setLocalQuizzes(mergeWithProgress(typedQuizzes, savedProgress));
           }
           const sessionId = data.sessionId;
-          reconnectStream(sessionId);
+          connectStream(sessionId, {
+            onError: (message: unknown) => CustomToast.error(String(message)),
+          });
           setIsLoading(false);
         }
       } catch {
@@ -228,7 +231,7 @@ export const useSolveQuizData = ({
       }
     };
     fetchQuiz();
-  }, [problemSetId, navigate, reconnectStream, setProblemSetInfo, isMock]);
+  }, [problemSetId, navigate, connectStream, setProblemSetInfo, isMock]);
 
   useEffect(() => {
     if (!Array.isArray(quizzes) || quizzes.length === 0) {
