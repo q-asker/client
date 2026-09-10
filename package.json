@@ -27,7 +27,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.35.2",
     "i18nexus": "file:vendor/i18nexus",
-    "katex": "^0.17.0",
+    "katex": "^0.18.0",
     "lucide-react": "^1.0.0",
     "mermaid": "^11.14.0",
     "motion": "^12.36.0",
