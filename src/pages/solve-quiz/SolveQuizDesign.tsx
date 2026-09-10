@@ -3,6 +3,7 @@ import InlineEdit from '@/shared/ui/components/inline-edit';
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSolveQuiz } from '#features/solve-quiz';
+import { loadShowSelections, saveShowSelections } from '#features/solve-quiz';
 import type { ProblemSetResponse } from '#features/solve-quiz';
 import { isUnanswered } from '../../features/solve-quiz/lib/isUnanswered';
 import { useQuizGenerationStore } from '#features/quiz-generation';
@@ -100,17 +101,20 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
   // AI 지시사항 공개 상태
   const [showInstruction, setShowInstruction] = useState(false);
 
+  // 선택지 공개 여부의 사용자 설정 — 토글할 때만 갱신되며 문제를 넘겨도 유지된다.
+  // 한 번도 토글한 적이 없으면 null 이고, 그때만 유형별 기본값이 적용된다.
+  // showSelections 와 따로 두는 이유: showSelections 는 문제 유형에 따라 매번 덮어써지므로 설정을 담을 수 없다.
+  const [showSelectionsPref, setShowSelectionsPref] = useState(loadShowSelections);
+
   // 선택지 공개 상태 (전역 설정)
-  const [showSelections, setShowSelections] = useState(() => {
-    const saved = localStorage.getItem('solve_show_selections');
-    return saved ? saved === 'true' : true;
-  });
+  const [showSelections, setShowSelections] = useState(() => showSelectionsPref ?? true);
 
   // 선택지 토글 시 저장
   const toggleSelections = () => {
     const nextValue = !showSelections;
     setShowSelections(nextValue);
-    localStorage.setItem('solve_show_selections', String(nextValue));
+    setShowSelectionsPref(nextValue);
+    saveShowSelections(nextValue);
   };
 
   // BLANK 문제 전용 상태 — 다중 빈칸 지원을 위해 배열로 관리
@@ -185,15 +189,12 @@ const SolveQuizDesign: React.FC<{ prefetchedData?: ProblemSetResponse | null }> 
   if (quiz.currentQuestion !== prevQuestionNum) {
     setPrevQuestionNum(quiz.currentQuestion);
 
-    // 1. 선택지 공개 상태 동기화 — BLANK는 답이 있을 때만 펼침, REAL_BLANK는 항상 닫힘, 그 외(MULTIPLE/OX)는 항상 펼침
+    // 1. 선택지 공개 상태 동기화 — BLANK는 사용자 설정 우선(기본 펼침), REAL_BLANK는 항상 닫힘,
+    //    그 외(MULTIPLE/OX)는 항상 펼침.
     if (isRealBlank) {
       setShowSelections(false);
     } else if (isBlank) {
-      const alreadyAnswered = !isUnanswered(
-        quiz.currentQuiz?.userAnswer,
-        quiz.currentQuiz?.selections,
-      );
-      setShowSelections(alreadyAnswered);
+      setShowSelections(showSelectionsPref ?? true);
     } else {
       setShowSelections(true);
     }
