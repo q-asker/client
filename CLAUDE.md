@@ -142,8 +142,8 @@ src/
 - **Shadcn CLI**: `components.json` — 컴포넌트 경로 `@/shared/ui/components`, 유틸 경로 `@/shared/ui/lib/utils`
 - **Git Hooks** (`.githooks/`):
   - `prepare-commit-msg`: 브랜치에서 JIRA 티켓 감지 → 커밋 메시지 접두사 자동 추가
-  - `pre-commit`: `npx prettier --check .` — 포맷 위반 시 커밋 차단
-  - `pre-push`: `npx prettier --check .` — push 전 포맷 안전망
+  - `pre-commit`: `npx prettier --check .` + `npm run lint` — 포맷·린트 위반 시 커밋 차단
+  - `pre-push`: `npx prettier --check .` + `npm run lint` — push 전 포맷·린트 안전망
 - **Prerender**: `scripts/prerender.cjs` (`@prerenderer/prerenderer` + `@prerenderer/renderer-puppeteer`) — 빌드 시 `/`, `/ko`, `/en`, `/history`, `/boards`, `/privacy-policy`, `/terms-of-service` 프리렌더링
 - **SEO**: `index.html` + `src/app/seo.tsx`에서 JSON-LD 구조화 데이터, Open Graph, 다국어 alternate 관리
 

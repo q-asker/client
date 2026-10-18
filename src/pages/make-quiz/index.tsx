@@ -635,7 +635,7 @@ const MakeQuiz: React.FC = () => {
           <HelpToggle t={t} isOpen={isHelpOpen} onToggle={() => setIsHelpOpen((p) => !p)} />
         )}
         <LatestUpdateNotice t={t} />
-        <KakaoAdFitBanner />
+        {/* <KakaoAdFitBanner /> */}
       </div>
 
       {/* ─── SEO 콘텐츠 섹션: 도움말 토글로 제어 ─── */}
@@ -748,7 +748,7 @@ const LatestUpdateNotice: React.FC<{
   );
 };
 
-/* ─── Kakao AdFit 가로형 광고 (모바일 320x100 / 데스크탑 728x90) ─── */
+/* ─── Kakao AdFit 가로형 광고 (모바일 320x100 / 데스크탑 728x90) — 비활성화 ───
 const KakaoAdFitBanner: React.FC = () => {
   const adRef = useRef<HTMLDivElement>(null);
   const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
@@ -798,6 +798,7 @@ const KakaoAdFitBanner: React.FC = () => {
     </div>
   );
 };
+*/
 
 /* ─── 건의함 컴포넌트 ─── */
 const FeedbackBox: React.FC<{ t: (key: string) => string }> = ({ t }) => {
