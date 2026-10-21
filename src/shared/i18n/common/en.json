@@ -68,6 +68,7 @@
   "제목은 100자 이하여야 합니다.": "Title must be 100 characters or less.",
   "제목이 변경되었습니다.": "Title has been changed.",
   "지원하지 않는 파일 형식입니다": "Unsupported file format",
+  "현재 점검 중입니다": "Currently under maintenance",
   "채점 중 오류가 발생했습니다.": "An error occurred during grading.",
   "추론, 문제 해결, 자료 해석을 요구하는 문제": "Questions requiring reasoning, problem-solving, and data interpretation",
   "퀴즈 기록": "Quiz History",

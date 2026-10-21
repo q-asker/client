@@ -41,6 +41,9 @@ export const getLevelDescriptions = (
   },
 });
 
+/** true면 파일 업로드(클릭·드래그)를 막는다 */
+export const IS_UPLOAD_DISABLED: boolean = true;
+
 export const MAX_FILE_SIZE: number = 50 * 1024 * 1024;
 export const MAX_SELECT_PAGES: number = 150;
 export const SUPPORTED_EXTENSIONS: string[] = ['pdf', 'ppt', 'pptx', 'doc', 'docx'];

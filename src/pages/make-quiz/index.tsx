@@ -10,6 +10,7 @@ import {
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
   ACCEPT_FILE_TYPES,
+  IS_UPLOAD_DISABLED,
 } from '#features/prepare-quiz';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import { usePdfData } from '#shared/lib/usePdfData';
@@ -486,8 +487,9 @@ const MakeQuiz: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
+                      disabled={IS_UPLOAD_DISABLED}
                       aria-label={t('파일 선택하기')}
-                      className="relative mb-4 cursor-pointer border-0 bg-transparent p-0 sm:mb-5"
+                      className="relative mb-4 cursor-pointer border-0 bg-transparent p-0 disabled:cursor-not-allowed sm:mb-5"
                     >
                       <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 transition-colors duration-200 hover:bg-primary/15 sm:size-20">
                         <ArrowUpFromLine
@@ -498,27 +500,41 @@ const MakeQuiz: React.FC = () => {
                       <div className="pointer-events-none absolute -inset-2 animate-pulse rounded-full border border-primary/20" />
                     </button>
 
-                    {/* "퀴즈를 생성하기 위해" + 모바일: "파일을 업로드하세요", 데스크톱: "파일을 여기에 드래그하세요" */}
-                    <p className="mb-1 text-sm font-medium text-muted-foreground sm:text-base">
-                      {t('퀴즈를 생성하기 위해')}
-                    </p>
-                    <h2 className="mb-1.5 text-lg font-bold tracking-tight text-foreground sm:mb-2 sm:text-xl">
-                      <span className="hidden sm:inline">
-                        <TextAnimate animation="slideUp" by="word" startOnView={false}>
-                          {t('파일을 여기에 드래그하세요')}
-                        </TextAnimate>
-                      </span>
-                      <span className="sm:hidden">
-                        <TextAnimate animation="slideUp" by="word" startOnView={false}>
-                          {t('파일을 업로드하세요')}
-                        </TextAnimate>
-                      </span>
-                    </h2>
-                    <p className="mb-3 text-sm text-muted-foreground sm:mb-4">
-                      <span className="hidden sm:inline">{t('또는')}</span>
-                    </p>
+                    {IS_UPLOAD_DISABLED ? (
+                      /* 업로드 중단 안내 */
+                      <h2 className="mb-3 text-lg font-bold tracking-tight text-foreground sm:mb-4 sm:text-xl">
+                        {t('현재 점검 중입니다')}
+                      </h2>
+                    ) : (
+                      <>
+                        {/* "퀴즈를 생성하기 위해" + 모바일: "파일을 업로드하세요", 데스크톱: "파일을 여기에 드래그하세요" */}
+                        <p className="mb-1 text-sm font-medium text-muted-foreground sm:text-base">
+                          {t('퀴즈를 생성하기 위해')}
+                        </p>
+                        <h2 className="mb-1.5 text-lg font-bold tracking-tight text-foreground sm:mb-2 sm:text-xl">
+                          <span className="hidden sm:inline">
+                            <TextAnimate animation="slideUp" by="word" startOnView={false}>
+                              {t('파일을 여기에 드래그하세요')}
+                            </TextAnimate>
+                          </span>
+                          <span className="sm:hidden">
+                            <TextAnimate animation="slideUp" by="word" startOnView={false}>
+                              {t('파일을 업로드하세요')}
+                            </TextAnimate>
+                          </span>
+                        </h2>
+                        <p className="mb-3 text-sm text-muted-foreground sm:mb-4">
+                          <span className="hidden sm:inline">{t('또는')}</span>
+                        </p>
+                      </>
+                    )}
 
-                    <div className="relative inline-flex w-full max-w-[280px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 sm:w-auto sm:py-2.5 sm:text-sm">
+                    <div
+                      className={cn(
+                        'relative inline-flex w-full max-w-[280px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 sm:w-auto sm:py-2.5 sm:text-sm',
+                        IS_UPLOAD_DISABLED && 'cursor-not-allowed opacity-50',
+                      )}
+                    >
                       <Upload className="size-4" strokeWidth={2} />
                       {t('파일 선택하기')}
                       <input
@@ -526,8 +542,9 @@ const MakeQuiz: React.FC = () => {
                         type="file"
                         accept={acceptExtensions}
                         onChange={uploadActions.handleFileInput}
+                        disabled={IS_UPLOAD_DISABLED}
                         aria-label={t('파일 선택하기')}
-                        className="absolute inset-0 cursor-pointer opacity-0"
+                        className="absolute inset-0 cursor-pointer opacity-0 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
