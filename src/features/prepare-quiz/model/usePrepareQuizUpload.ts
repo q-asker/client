@@ -6,7 +6,7 @@ import Timer from '#shared/lib/timer';
 import { useQuizGenerationStore } from '#features/quiz-generation';
 import type { FileInfo } from '#features/quiz-generation';
 import { uploadFileToServer } from '../file-uploader';
-import { MAX_FILE_SIZE, SUPPORTED_EXTENSIONS } from './constants';
+import { IS_UPLOAD_DISABLED, MAX_FILE_SIZE, SUPPORTED_EXTENSIONS } from './constants';
 
 /** 업로드할 파일의 최소 정보 */
 interface UploadedFileInfo {
@@ -91,6 +91,11 @@ export const usePrepareQuizUpload = ({
 
   const selectFile = useCallback(
     async (nextFile: File, method: 'click' | 'drag_drop' = 'click') => {
+      if (IS_UPLOAD_DISABLED) {
+        CustomToast.error(t('현재 점검 중입니다'));
+        return;
+      }
+
       const ext = nextFile.name.split('.').pop()?.toLowerCase() ?? '';
 
       if (!SUPPORTED_EXTENSIONS.includes(ext)) {

@@ -7,5 +7,6 @@ export {
   MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
   ACCEPT_FILE_TYPES,
+  IS_UPLOAD_DISABLED,
 } from './model/constants';
 export type { QuestionType } from './model/constants';
