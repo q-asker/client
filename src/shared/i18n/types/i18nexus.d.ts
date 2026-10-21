@@ -477,6 +477,7 @@ declare type CommonKeys =
   | '지원 형식: '
   | '지원하는 파일'
   | '지원하지 않는 파일 형식입니다'
+  | '현재 점검 중입니다'
   | '진행 현황'
   | '진행률'
   | '참조 자료'
@@ -1733,6 +1734,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '지원 형식: ': string;
       readonly '지원하는 파일': string;
       readonly '지원하지 않는 파일 형식입니다': string;
+      readonly '현재 점검 중입니다': string;
       readonly '진행 현황': string;
       readonly 진행률: string;
       readonly '참조 자료': string;
@@ -2152,6 +2154,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '지원 형식: ': string;
       readonly '지원하는 파일': string;
       readonly '지원하지 않는 파일 형식입니다': string;
+      readonly '현재 점검 중입니다': string;
       readonly '진행 현황': string;
       readonly 진행률: string;
       readonly '참조 자료': string;
