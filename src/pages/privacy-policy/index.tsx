@@ -51,7 +51,7 @@ const PrivacyPolicy = () => {
     { item: t('AI 호출 로그, 서술형 채점 로그'), period: t('회원 탈퇴 시까지') },
     {
       item: t('업로드 PDF (OCI), AI 처리용 임시 파일 (GCS)'),
-      period: t('최대 1일'),
+      period: t('최대 7일'),
     },
     { item: t('IP·접속 로그'), period: t('최대 90일 (운영·보안 목적)') },
   ];

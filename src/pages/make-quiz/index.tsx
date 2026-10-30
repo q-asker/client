@@ -582,7 +582,7 @@ const MakeQuiz: React.FC = () => {
                       {t('파일은 상업적 목적, AI 학습 목적으로 사용되지 않습니다.')}
                       <span className="hidden sm:inline">{' · '}</span>
                       <br className="sm:hidden" />
-                      {t('24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.')}
+                      {t('7일 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.')}
                     </p>
                   </div>
                 </>
@@ -942,7 +942,7 @@ const FAQ_ITEMS = [
   },
   {
     qKey: 'Q. 업로드한 제 파일은 안전하게 관리되나요?',
-    aKey: '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.',
+    aKey: '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 7일 뒤에 삭제됩니다.',
   },
   {
     qKey: 'Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?',
@@ -988,9 +988,9 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
             </p>
             <p className="sr-only">
               {currentLanguage === 'en'
-                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 50MB, select a page range and question count (5–30), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted within 24 hours and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
+                ? 'Q-Asker is a free, no-signup-required web tool that automatically generates quizzes from PDF, PPT, and Word files. Users upload a document of up to 50MB, select a page range and question count (5–30), and the AI produces fill-in-the-blank, true/false, or multiple-choice questions within tens of seconds. OCR is fully supported for scanned documents. All uploaded files are permanently deleted 7 days after upload and are never used for commercial purposes or AI training. Quiz results include detailed explanations with source page references, and all generated quizzes are saved in your history for later review.'
                 : t(
-                    'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 50MB 파일을 업로드하고 페이지 범위와 문제 수(5~30개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.',
+                    'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 50MB 파일을 업로드하고 페이지 범위와 문제 수(5~30개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 7일 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.',
                   )}
             </p>
           </div>
@@ -1070,7 +1070,7 @@ const SeoContent: React.FC<{ t: (key: string) => string; currentLanguage: string
                 <ul className="space-y-3">
                   <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
                     <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />
-                    {t('자료 보호')} — {t('모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다')}
+                    {t('자료 보호')} — {t('모든 자료는 업로드 이후 7일 뒤에 삭제됩니다')}
                   </li>
                   <li className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
                     <CheckCircle className="mt-0.5 size-4 shrink-0 text-chart-2" />

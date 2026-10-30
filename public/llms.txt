@@ -5,7 +5,7 @@
 
 Q-Asker is a Korean-built, multilingual (Korean/English) web application
 for students and educators. Upload any study document and receive AI-generated
-quizzes within seconds. No signup required. Files are deleted after 24 hours.
+quizzes within seconds. No signup required. Files are deleted after 7 days.
 
 ## Use Cases
 

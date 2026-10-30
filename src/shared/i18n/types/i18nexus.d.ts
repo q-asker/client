@@ -145,8 +145,8 @@ declare type CommonKeys =
   | '2023년'
   | '2024년'
   | '20개'
-  | '24시간 후 서버에서 자동 삭제'
-  | '24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.'
+  | '7일 후 서버에서 자동 삭제'
+  | '7일 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.'
   | '2단계: 퀴즈 옵션 설정'
   | '3. 객관식으로 개념을 응용해 보세요.'
   | '3. 보관 및 이용 기간'
@@ -232,7 +232,7 @@ declare type CommonKeys =
   | '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.'
   | '네. OCR은 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.'
   | '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.'
-  | '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.'
+  | '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 7일 뒤에 삭제됩니다.'
   | '네비게이션: '
   | '닉네임 변경'
   | '닉네임 변경에 실패했습니다.'
@@ -295,7 +295,7 @@ declare type CommonKeys =
   | '모드'
   | '모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.'
   | '모든 기록이 삭제되었습니다.'
-  | '모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다'
+  | '모든 자료는 업로드 이후 7일 뒤에 삭제됩니다'
   | '모범답'
   | '목록'
   | '목록으로'
@@ -401,7 +401,7 @@ declare type CommonKeys =
   | '업로드된 문서를 AI가 분석하여 문제 생성'
   | '업로드된 파일'
   | '업로드한 파일: 퀴즈 생성 목적의 처리 과정에서 일시적으로 저장'
-  | '업로드한 파일은 처리 후 24시간 이내 자동 삭제됩니다.'
+  | '업로드한 파일은 업로드 후 7일 뒤 자동 삭제됩니다.'
   | '에 동의하게 됩니다.'
   | '에러 상세 정보:'
   | '예) 광합성 과정에서 빛 반응과 암반응의 차이점을 설명하시오.'
@@ -594,7 +594,7 @@ declare type MakeQuizKeys =
   | '1. 빈칸 채우기로 핵심 개념을 정리하세요.'
   | '1단계: 파일 업로드'
   | '2. OX로 빠르게 개념을 점검하세요.'
-  | '24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.'
+  | '7일 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.'
   | '2단계: 퀴즈 옵션 설정'
   | '3. 객관식으로 개념을 응용해 보세요.'
   | '3단계: AI 문제 생성'
@@ -624,7 +624,7 @@ declare type MakeQuizKeys =
   | 'Q-Asker 사용 중 궁금한 점이나 개선 아이디어가 있으시면 언제든지 알려주세요! 더 좋은'
   | 'Q-Asker 이메일 문의'
   | 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성'
-  | 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 50MB 파일을 업로드하고 페이지 범위와 문제 수(5~30개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.'
+  | 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 50MB 파일을 업로드하고 페이지 범위와 문제 수(5~30개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 7일 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.'
   | 'Q-Asker로 AI 퀴즈 만들기'
   | 'Q-Asker를 신뢰할 수 있는 이유'
   | 'Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?'
@@ -651,7 +651,7 @@ declare type MakeQuizKeys =
   | '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.'
   | '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.'
   | '네. 로그인 시 퀴즈 기록에 자동 저장되며, 비로그인 시에도 24시간 동안 브라우저에 임시 저장됩니다.'
-  | '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.'
+  | '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 7일 뒤에 삭제됩니다.'
   | '네비게이션: '
   | '다른 문제 생성'
   | '다른 파일 넣기'
@@ -661,7 +661,7 @@ declare type MakeQuizKeys =
   | '또는'
   | '만든 퀴즈가 퀴즈 기록에 자동 저장'
   | '명확한 문제 생성 기준'
-  | '모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다'
+  | '모든 자료는 업로드 이후 7일 뒤에 삭제됩니다'
   | '문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.'
   | '문의 및 피드백'
   | '문제'
@@ -853,7 +853,7 @@ declare type PrivacyPolicyKeys =
   | '업로드 PDF, prompt'
   | '업로드 파일(PDF/PPT/DOCX), 커스텀 지시사항, 생성한 퀴즈, 풀이 기록, 답변, 게시글·댓글'
   | '업로드한 파일: 퀴즈 생성 목적의 처리 과정에서 일시적으로 저장'
-  | '업로드한 파일은 처리 후 24시간 이내 자동 삭제됩니다.'
+  | '업로드한 파일은 업로드 후 7일 뒤 자동 삭제됩니다.'
   | '연락처'
   | '원본 파일·이미지 저장'
   | '원칙적으로 제3자에게 제공하지 않습니다.'
@@ -867,7 +867,7 @@ declare type PrivacyPolicyKeys =
   | '이용자가 Google·Kakao 소셜 로그인을 통해 가입·로그인하는 경우, 회사는 해당 제공자로부터 Provider ID를 전달받습니다. 각 제공자의 개인정보 정책은 해당 사이트를 참고하시기 바랍니다.'
   | '이용자는 개인정보 열람·정정·삭제·처리정지·동의 철회 권리를 행사할 수 있습니다. 닉네임 변경 및 일부 데이터 삭제는 서비스 내에서 직접 수행 가능하며, 그 외 권리 행사는 contact@q-asker.com 으로 요청해 주시기 바랍니다.'
   | '자동 수집'
-  | '최대 1일'
+  | '최대 7일'
   | '최대 90일 (운영·보안 목적)'
   | '탈퇴 시 회원 계정과 콘텐츠(퀴즈 세트, 풀이 기록, 게시글)가 삭제됩니다.'
   | '풀이 기록, 게시글'
@@ -1158,8 +1158,8 @@ declare type TermsOfServiceKeys =
   | '타 이용자의 계정·기록을 무단 조회·변경하려는 시도'
   | '타인의 저작권·초상권·상표권을 침해하는 파일 업로드'
   | '타인의 저작권을 침해하는 파일을 업로드하지 않아야 합니다.'
-  | '파일은 처리 후 24시간 이내 자동 삭제됩니다.'
-  | '파일은 최대 1일 후 자동 삭제됩니다.'
+  | '파일은 업로드 후 7일 뒤 자동 삭제됩니다.'
+  | '파일은 최대 7일 후 자동 삭제됩니다.'
   | '파일의 저작권은 이용자에게 있으며, 서비스는 위 목적 범위 내 일시적 이용권만 가집니다.'
   | '파일의 저작권은 이용자에게 있으며, 서비스는 퀴즈 생성을 위한 일시적 이용 권한만 갖습니다.'
   | '홈으로'
@@ -1402,8 +1402,8 @@ export type I18nexusGeneratedTranslations = {
       readonly '2023년': string;
       readonly '2024년': string;
       readonly '20개': string;
-      readonly '24시간 후 서버에서 자동 삭제': string;
-      readonly '24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.': string;
+      readonly '7일 후 서버에서 자동 삭제': string;
+      readonly '7일 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.': string;
       readonly '2단계: 퀴즈 옵션 설정': string;
       readonly '3. 객관식으로 개념을 응용해 보세요.': string;
       readonly '3. 보관 및 이용 기간': string;
@@ -1489,7 +1489,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.': string;
       readonly '네. OCR은 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.': string;
       readonly '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.': string;
-      readonly '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.': string;
+      readonly '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 7일 뒤에 삭제됩니다.': string;
       readonly '네비게이션: ': string;
       readonly '닉네임 변경': string;
       readonly '닉네임 변경에 실패했습니다.': string;
@@ -1552,7 +1552,7 @@ export type I18nexusGeneratedTranslations = {
       readonly 모드: string;
       readonly '모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.': string;
       readonly '모든 기록이 삭제되었습니다.': string;
-      readonly '모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다': string;
+      readonly '모든 자료는 업로드 이후 7일 뒤에 삭제됩니다': string;
       readonly 모범답: string;
       readonly 목록: string;
       readonly 목록으로: string;
@@ -1658,7 +1658,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '업로드된 문서를 AI가 분석하여 문제 생성': string;
       readonly '업로드된 파일': string;
       readonly '업로드한 파일: 퀴즈 생성 목적의 처리 과정에서 일시적으로 저장': string;
-      readonly '업로드한 파일은 처리 후 24시간 이내 자동 삭제됩니다.': string;
+      readonly '업로드한 파일은 업로드 후 7일 뒤 자동 삭제됩니다.': string;
       readonly '에 동의하게 됩니다.': string;
       readonly '에러 상세 정보:': string;
       readonly '예) 광합성 과정에서 빛 반응과 암반응의 차이점을 설명하시오.': string;
@@ -1822,8 +1822,8 @@ export type I18nexusGeneratedTranslations = {
       readonly '2023년': string;
       readonly '2024년': string;
       readonly '20개': string;
-      readonly '24시간 후 서버에서 자동 삭제': string;
-      readonly '24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.': string;
+      readonly '7일 후 서버에서 자동 삭제': string;
+      readonly '7일 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.': string;
       readonly '2단계: 퀴즈 옵션 설정': string;
       readonly '3. 객관식으로 개념을 응용해 보세요.': string;
       readonly '3. 보관 및 이용 기간': string;
@@ -1909,7 +1909,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.': string;
       readonly '네. OCR은 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.': string;
       readonly '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.': string;
-      readonly '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.': string;
+      readonly '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 7일 뒤에 삭제됩니다.': string;
       readonly '네비게이션: ': string;
       readonly '닉네임 변경': string;
       readonly '닉네임 변경에 실패했습니다.': string;
@@ -1972,7 +1972,7 @@ export type I18nexusGeneratedTranslations = {
       readonly 모드: string;
       readonly '모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.': string;
       readonly '모든 기록이 삭제되었습니다.': string;
-      readonly '모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다': string;
+      readonly '모든 자료는 업로드 이후 7일 뒤에 삭제됩니다': string;
       readonly 모범답: string;
       readonly 목록: string;
       readonly 목록으로: string;
@@ -2078,7 +2078,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '업로드된 문서를 AI가 분석하여 문제 생성': string;
       readonly '업로드된 파일': string;
       readonly '업로드한 파일: 퀴즈 생성 목적의 처리 과정에서 일시적으로 저장': string;
-      readonly '업로드한 파일은 처리 후 24시간 이내 자동 삭제됩니다.': string;
+      readonly '업로드한 파일은 업로드 후 7일 뒤 자동 삭제됩니다.': string;
       readonly '에 동의하게 됩니다.': string;
       readonly '에러 상세 정보:': string;
       readonly '예) 광합성 과정에서 빛 반응과 암반응의 차이점을 설명하시오.': string;
@@ -2298,7 +2298,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '1. 빈칸 채우기로 핵심 개념을 정리하세요.': string;
       readonly '1단계: 파일 업로드': string;
       readonly '2. OX로 빠르게 개념을 점검하세요.': string;
-      readonly '24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.': string;
+      readonly '7일 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.': string;
       readonly '2단계: 퀴즈 옵션 설정': string;
       readonly '3. 객관식으로 개념을 응용해 보세요.': string;
       readonly '3단계: AI 문제 생성': string;
@@ -2328,7 +2328,7 @@ export type I18nexusGeneratedTranslations = {
       readonly 'Q-Asker 사용 중 궁금한 점이나 개선 아이디어가 있으시면 언제든지 알려주세요! 더 좋은': string;
       readonly 'Q-Asker 이메일 문의': string;
       readonly 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성': string;
-      readonly 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 50MB 파일을 업로드하고 페이지 범위와 문제 수(5~30개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.': string;
+      readonly 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 50MB 파일을 업로드하고 페이지 범위와 문제 수(5~30개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 7일 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.': string;
       readonly 'Q-Asker로 AI 퀴즈 만들기': string;
       readonly 'Q-Asker를 신뢰할 수 있는 이유': string;
       readonly 'Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?': string;
@@ -2355,7 +2355,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.': string;
       readonly '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.': string;
       readonly '네. 로그인 시 퀴즈 기록에 자동 저장되며, 비로그인 시에도 24시간 동안 브라우저에 임시 저장됩니다.': string;
-      readonly '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.': string;
+      readonly '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 7일 뒤에 삭제됩니다.': string;
       readonly '네비게이션: ': string;
       readonly '다른 문제 생성': string;
       readonly '다른 파일 넣기': string;
@@ -2365,7 +2365,7 @@ export type I18nexusGeneratedTranslations = {
       readonly 또는: string;
       readonly '만든 퀴즈가 퀴즈 기록에 자동 저장': string;
       readonly '명확한 문제 생성 기준': string;
-      readonly '모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다': string;
+      readonly '모든 자료는 업로드 이후 7일 뒤에 삭제됩니다': string;
       readonly '문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.': string;
       readonly '문의 및 피드백': string;
       readonly 문제: string;
@@ -2490,7 +2490,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '1. 빈칸 채우기로 핵심 개념을 정리하세요.': string;
       readonly '1단계: 파일 업로드': string;
       readonly '2. OX로 빠르게 개념을 점검하세요.': string;
-      readonly '24시간 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.': string;
+      readonly '7일 후 자동 삭제되며 별도로 저장, 공유되지 않습니다.': string;
       readonly '2단계: 퀴즈 옵션 설정': string;
       readonly '3. 객관식으로 개념을 응용해 보세요.': string;
       readonly '3단계: AI 문제 생성': string;
@@ -2520,7 +2520,7 @@ export type I18nexusGeneratedTranslations = {
       readonly 'Q-Asker 사용 중 궁금한 점이나 개선 아이디어가 있으시면 언제든지 알려주세요! 더 좋은': string;
       readonly 'Q-Asker 이메일 문의': string;
       readonly 'Q-Asker: PDF, PPT, Word로 무료 AI 퀴즈 생성': string;
-      readonly 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 50MB 파일을 업로드하고 페이지 범위와 문제 수(5~30개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 24시간 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.': string;
+      readonly 'Q-Asker는 PDF, PPT, Word 파일을 업로드하면 AI가 빈칸 채우기, OX, 객관식 퀴즈를 자동 생성하는 무료 웹 서비스입니다. 최대 50MB 파일을 업로드하고 페이지 범위와 문제 수(5~30개)를 선택하면 수십 초 내에 퀴즈가 생성됩니다. 스캔 문서도 OCR로 지원되며, 업로드된 파일은 7일 후 자동 삭제됩니다. 상업적 목적이나 AI 학습에 사용되지 않습니다. 채점 결과와 함께 모든 문제의 상세 해설과 원본 페이지 참조를 제공하며, 생성된 퀴즈는 히스토리에 자동 저장됩니다.': string;
       readonly 'Q-Asker로 AI 퀴즈 만들기': string;
       readonly 'Q-Asker를 신뢰할 수 있는 이유': string;
       readonly 'Q. AI가 만든 퀴즈의 정확도는 어느 정도인가요?': string;
@@ -2547,7 +2547,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '네, PDF, PPT, Word 기반 AI 퀴즈 생성은 현재 완전 무료입니다. 별도의 회원가입 없이 누구나 자유롭게 이용할 수 있습니다.': string;
       readonly '네. OCR을 지원하여 스캔 본이나 사진 형태의 문서도 분석할 수 있습니다.': string;
       readonly '네. 로그인 시 퀴즈 기록에 자동 저장되며, 비로그인 시에도 24시간 동안 브라우저에 임시 저장됩니다.': string;
-      readonly '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤에 삭제됩니다.': string;
+      readonly '네. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 7일 뒤에 삭제됩니다.': string;
       readonly '네비게이션: ': string;
       readonly '다른 문제 생성': string;
       readonly '다른 파일 넣기': string;
@@ -2557,7 +2557,7 @@ export type I18nexusGeneratedTranslations = {
       readonly 또는: string;
       readonly '만든 퀴즈가 퀴즈 기록에 자동 저장': string;
       readonly '명확한 문제 생성 기준': string;
-      readonly '모든 자료는 업로드 이후 24시간 뒤에 삭제됩니다': string;
+      readonly '모든 자료는 업로드 이후 7일 뒤에 삭제됩니다': string;
       readonly '문서를 분석하고 문제를 생성하려면 아래 버튼을 클릭하세요.': string;
       readonly '문의 및 피드백': string;
       readonly 문제: string;
@@ -2751,7 +2751,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '업로드 PDF, prompt': string;
       readonly '업로드 파일(PDF/PPT/DOCX), 커스텀 지시사항, 생성한 퀴즈, 풀이 기록, 답변, 게시글·댓글': string;
       readonly '업로드한 파일: 퀴즈 생성 목적의 처리 과정에서 일시적으로 저장': string;
-      readonly '업로드한 파일은 처리 후 24시간 이내 자동 삭제됩니다.': string;
+      readonly '업로드한 파일은 업로드 후 7일 뒤 자동 삭제됩니다.': string;
       readonly 연락처: string;
       readonly '원본 파일·이미지 저장': string;
       readonly '원칙적으로 제3자에게 제공하지 않습니다.': string;
@@ -2765,7 +2765,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '이용자가 Google·Kakao 소셜 로그인을 통해 가입·로그인하는 경우, 회사는 해당 제공자로부터 Provider ID를 전달받습니다. 각 제공자의 개인정보 정책은 해당 사이트를 참고하시기 바랍니다.': string;
       readonly '이용자는 개인정보 열람·정정·삭제·처리정지·동의 철회 권리를 행사할 수 있습니다. 닉네임 변경 및 일부 데이터 삭제는 서비스 내에서 직접 수행 가능하며, 그 외 권리 행사는 contact@q-asker.com 으로 요청해 주시기 바랍니다.': string;
       readonly '자동 수집': string;
-      readonly '최대 1일': string;
+      readonly '최대 7일': string;
       readonly '최대 90일 (운영·보안 목적)': string;
       readonly '탈퇴 시 회원 계정과 콘텐츠(퀴즈 세트, 풀이 기록, 게시글)가 삭제됩니다.': string;
       readonly '풀이 기록, 게시글': string;
@@ -2857,7 +2857,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '업로드 PDF, prompt': string;
       readonly '업로드 파일(PDF/PPT/DOCX), 커스텀 지시사항, 생성한 퀴즈, 풀이 기록, 답변, 게시글·댓글': string;
       readonly '업로드한 파일: 퀴즈 생성 목적의 처리 과정에서 일시적으로 저장': string;
-      readonly '업로드한 파일은 처리 후 24시간 이내 자동 삭제됩니다.': string;
+      readonly '업로드한 파일은 업로드 후 7일 뒤 자동 삭제됩니다.': string;
       readonly 연락처: string;
       readonly '원본 파일·이미지 저장': string;
       readonly '원칙적으로 제3자에게 제공하지 않습니다.': string;
@@ -2871,7 +2871,7 @@ export type I18nexusGeneratedTranslations = {
       readonly '이용자가 Google·Kakao 소셜 로그인을 통해 가입·로그인하는 경우, 회사는 해당 제공자로부터 Provider ID를 전달받습니다. 각 제공자의 개인정보 정책은 해당 사이트를 참고하시기 바랍니다.': string;
       readonly '이용자는 개인정보 열람·정정·삭제·처리정지·동의 철회 권리를 행사할 수 있습니다. 닉네임 변경 및 일부 데이터 삭제는 서비스 내에서 직접 수행 가능하며, 그 외 권리 행사는 contact@q-asker.com 으로 요청해 주시기 바랍니다.': string;
       readonly '자동 수집': string;
-      readonly '최대 1일': string;
+      readonly '최대 7일': string;
       readonly '최대 90일 (운영·보안 목적)': string;
       readonly '탈퇴 시 회원 계정과 콘텐츠(퀴즈 세트, 풀이 기록, 게시글)가 삭제됩니다.': string;
       readonly '풀이 기록, 게시글': string;
@@ -3356,8 +3356,8 @@ export type I18nexusGeneratedTranslations = {
       readonly '타 이용자의 계정·기록을 무단 조회·변경하려는 시도': string;
       readonly '타인의 저작권·초상권·상표권을 침해하는 파일 업로드': string;
       readonly '타인의 저작권을 침해하는 파일을 업로드하지 않아야 합니다.': string;
-      readonly '파일은 처리 후 24시간 이내 자동 삭제됩니다.': string;
-      readonly '파일은 최대 1일 후 자동 삭제됩니다.': string;
+      readonly '파일은 업로드 후 7일 뒤 자동 삭제됩니다.': string;
+      readonly '파일은 최대 7일 후 자동 삭제됩니다.': string;
       readonly '파일의 저작권은 이용자에게 있으며, 서비스는 위 목적 범위 내 일시적 이용권만 가집니다.': string;
       readonly '파일의 저작권은 이용자에게 있으며, 서비스는 퀴즈 생성을 위한 일시적 이용 권한만 갖습니다.': string;
       readonly 홈으로: string;
@@ -3423,8 +3423,8 @@ export type I18nexusGeneratedTranslations = {
       readonly '타 이용자의 계정·기록을 무단 조회·변경하려는 시도': string;
       readonly '타인의 저작권·초상권·상표권을 침해하는 파일 업로드': string;
       readonly '타인의 저작권을 침해하는 파일을 업로드하지 않아야 합니다.': string;
-      readonly '파일은 처리 후 24시간 이내 자동 삭제됩니다.': string;
-      readonly '파일은 최대 1일 후 자동 삭제됩니다.': string;
+      readonly '파일은 업로드 후 7일 뒤 자동 삭제됩니다.': string;
+      readonly '파일은 최대 7일 후 자동 삭제됩니다.': string;
       readonly '파일의 저작권은 이용자에게 있으며, 서비스는 위 목적 범위 내 일시적 이용권만 가집니다.': string;
       readonly '파일의 저작권은 이용자에게 있으며, 서비스는 퀴즈 생성을 위한 일시적 이용 권한만 갖습니다.': string;
       readonly 홈으로: string;
