@@ -7,7 +7,6 @@ import Footer from '#widgets/footer';
 import {
   usePrepareQuiz,
   MAX_FILE_SIZE,
-  MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
   ACCEPT_FILE_TYPES,
   IS_UPLOAD_DISABLED,
@@ -312,10 +311,6 @@ const MakeQuiz: React.FC = () => {
                           </span>
                           <span className="text-xs font-medium text-muted-foreground">
                             {pages.selectedPages.length}
-                          </span>
-                          <span className="text-xs text-muted-foreground/60">
-                            {t('(최대')}
-                            {MAX_SELECT_PAGES})
                           </span>
                         </div>
                         {isMock ? (

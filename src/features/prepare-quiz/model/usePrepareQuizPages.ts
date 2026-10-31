@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import CustomToast from '#shared/toast';
 import { trackMakeQuizEvents as trackPrepareQuizEvents } from '#shared/lib/analytics';
-import { loadInterval, MAX_SELECT_PAGES, pageCountToLoad } from './constants';
+import { loadInterval, pageCountToLoad } from './constants';
 import { usePrepareQuizSettingsStore } from './usePrepareQuizSettingsStore';
 
 /** 페이지 모드: 전체 선택 또는 커스텀 선택 */
@@ -78,24 +78,15 @@ export const usePrepareQuizPages = ({
   const [pageRangeEnd, setPageRangeEnd] = useState('');
   const pdfPreviewRef = useRef<HTMLDivElement | null>(null);
 
-  const getSelectablePageCount = useCallback(
-    (totalPages: number) => Math.min(totalPages, MAX_SELECT_PAGES),
-    [],
-  );
-
-  const applyAllPagesSelection = useCallback(
-    (totalPages: number) => {
-      const selectablePages = getSelectablePageCount(totalPages);
-      setNumPages(totalPages);
-      setSelectedPages(Array.from({ length: selectablePages }, (_, i) => i + 1));
-    },
-    [getSelectablePageCount],
-  );
+  const applyAllPagesSelection = useCallback((totalPages: number) => {
+    setNumPages(totalPages);
+    setSelectedPages(Array.from({ length: totalPages }, (_, i) => i + 1));
+  }, []);
 
   useEffect(() => {
     if (!numPages) return;
     setPageRangeStart('1');
-    setPageRangeEnd(String(Math.min(numPages, MAX_SELECT_PAGES)));
+    setPageRangeEnd(String(numPages));
   }, [numPages]);
 
   useEffect(() => {
@@ -143,9 +134,6 @@ export const usePrepareQuizPages = ({
       if (prevSelectedPages.includes(pageNumber)) {
         return prevSelectedPages.filter((p) => p !== pageNumber);
       }
-      if (prevSelectedPages.length >= MAX_SELECT_PAGES) {
-        return prevSelectedPages;
-      }
       return [...prevSelectedPages, pageNumber].sort((a, b) => a - b);
     });
   }, []);
@@ -154,13 +142,12 @@ export const usePrepareQuizPages = ({
     if (!numPages) {
       return;
     }
-    const selectablePages = getSelectablePageCount(numPages);
-    if (selectedPages.length === selectablePages) {
+    if (selectedPages.length === numPages) {
       setSelectedPages([]);
     } else {
-      setSelectedPages(Array.from({ length: selectablePages }, (_, i) => i + 1));
+      setSelectedPages(Array.from({ length: numPages }, (_, i) => i + 1));
     }
-  }, [getSelectablePageCount, numPages, selectedPages.length]);
+  }, [numPages, selectedPages.length]);
 
   const handleClearAllPages = useCallback(() => {
     setSelectedPages([]);
@@ -184,15 +171,6 @@ export const usePrepareQuizPages = ({
 
     if (start > end) {
       [start, end] = [end, start];
-    }
-
-    if (end - start + 1 > MAX_SELECT_PAGES) {
-      end = start + MAX_SELECT_PAGES - 1;
-      if (end > numPages) {
-        end = numPages;
-        start = Math.max(1, end - MAX_SELECT_PAGES + 1);
-      }
-      CustomToast.error(t(`최대 ${MAX_SELECT_PAGES} 페이지 선택할 수 있어요`));
     }
 
     setPageRangeStart(String(start));
@@ -231,14 +209,13 @@ export const usePrepareQuizPages = ({
     (mode: PageMode) => {
       setPageModeStore(mode);
       if (mode === 'ALL') {
-        const selectablePages = getSelectablePageCount(numPages ?? 0);
-        setSelectedPages(Array.from({ length: selectablePages }, (_, i) => i + 1));
+        setSelectedPages(Array.from({ length: numPages ?? 0 }, (_, i) => i + 1));
       } else {
         setSelectedPages([]);
       }
       trackPrepareQuizEvents.changeQuizOption('page_mode', mode);
     },
-    [getSelectablePageCount, numPages, setPageModeStore],
+    [numPages, setPageModeStore],
   );
 
   const resetPagesState = useCallback(() => {
@@ -259,7 +236,7 @@ export const usePrepareQuizPages = ({
     setHoveredPage(null);
     setVisiblePageCount(pageCountToLoad);
     setPageRangeStart('1');
-    setPageRangeEnd(String(Math.min(numPages ?? 1, MAX_SELECT_PAGES)));
+    setPageRangeEnd(String(numPages ?? 1));
     setIsPreviewVisibleStore(true);
   }, [numPages, setPageModeStore, setIsPreviewVisibleStore]);
 

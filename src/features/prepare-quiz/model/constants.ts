@@ -45,7 +45,6 @@ export const getLevelDescriptions = (
 export const IS_UPLOAD_DISABLED: boolean = false;
 
 export const MAX_FILE_SIZE: number = 50 * 1024 * 1024;
-export const MAX_SELECT_PAGES: number = 150;
 export const SUPPORTED_EXTENSIONS: string[] = ['pdf', 'ppt', 'pptx', 'doc', 'docx'];
 
 /** iOS Safari는 accept에 MIME 타입이 없으면 change 이벤트를 발화하지 않는 버그가 있다 */

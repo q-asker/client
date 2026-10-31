@@ -4,7 +4,6 @@ export {
   getLevelDescriptions,
   levelMapping,
   MAX_FILE_SIZE,
-  MAX_SELECT_PAGES,
   SUPPORTED_EXTENSIONS,
   ACCEPT_FILE_TYPES,
   IS_UPLOAD_DISABLED,

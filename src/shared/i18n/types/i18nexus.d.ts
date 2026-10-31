@@ -136,7 +136,6 @@ declare type BoardWriteKeys =
 
 declare type CommonKeys =
   | '"문제 풀기" 버튼으로'
-  | '(최대'
   | '1. 빈칸 채우기로 핵심 개념을 정리하세요.'
   | '1. 수집하는 개인정보'
   | '1단계: 파일 업로드'
@@ -589,7 +588,6 @@ declare type MaintenanceKeys =
 
 declare type MakeQuizKeys =
   | '"문제 풀기" 버튼으로'
-  | '(최대'
   | ', '
   | '1. 빈칸 채우기로 핵심 개념을 정리하세요.'
   | '1단계: 파일 업로드'
@@ -1393,7 +1391,6 @@ export type I18nexusGeneratedTranslations = {
   readonly common: {
     readonly en: {
       readonly '"문제 풀기" 버튼으로': string;
-      readonly '(최대': string;
       readonly '1. 빈칸 채우기로 핵심 개념을 정리하세요.': string;
       readonly '1. 수집하는 개인정보': string;
       readonly '1단계: 파일 업로드': string;
@@ -1813,7 +1810,6 @@ export type I18nexusGeneratedTranslations = {
     };
     readonly ko: {
       readonly '"문제 풀기" 버튼으로': string;
-      readonly '(최대': string;
       readonly '1. 빈칸 채우기로 핵심 개념을 정리하세요.': string;
       readonly '1. 수집하는 개인정보': string;
       readonly '1단계: 파일 업로드': string;
@@ -2293,7 +2289,6 @@ export type I18nexusGeneratedTranslations = {
   readonly 'make-quiz': {
     readonly en: {
       readonly '"문제 풀기" 버튼으로': string;
-      readonly '(최대': string;
       readonly ', ': string;
       readonly '1. 빈칸 채우기로 핵심 개념을 정리하세요.': string;
       readonly '1단계: 파일 업로드': string;
@@ -2485,7 +2480,6 @@ export type I18nexusGeneratedTranslations = {
     };
     readonly ko: {
       readonly '"문제 풀기" 버튼으로': string;
-      readonly '(최대': string;
       readonly ', ': string;
       readonly '1. 빈칸 채우기로 핵심 개념을 정리하세요.': string;
       readonly '1단계: 파일 업로드': string;
