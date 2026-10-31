@@ -111,7 +111,7 @@ const SEO_CONFIG = {
               name: '업로드한 제 파일은 안전하게 관리되나요?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: '네, 보안을 최우선으로 관리합니다. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 24시간 뒤 서버에서 자동 삭제됩니다. 파일은 상업적 목적이나 AI 학습 데이터로 사용되지 않습니다.',
+                text: '네, 보안을 최우선으로 관리합니다. 업로드된 파일은 퀴즈 생성을 위해서만 일시적으로 사용되며, 7일 뒤 서버에서 자동 삭제됩니다. 파일은 상업적 목적이나 AI 학습 데이터로 사용되지 않습니다.',
               },
             },
             {
@@ -356,7 +356,7 @@ const SEO_CONFIG = {
               name: 'Are my uploaded files secure?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Yes, security is our top priority. Uploaded files are used only to generate quizzes and are automatically deleted from our servers within 24 hours. Files are never used for commercial purposes or AI training data.',
+                text: 'Yes, security is our top priority. Uploaded files are used only to generate quizzes and are automatically deleted from our servers 7 days after upload. Files are never used for commercial purposes or AI training data.',
               },
             },
             {
